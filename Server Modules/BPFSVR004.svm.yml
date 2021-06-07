@@ -1,0 +1,437 @@
+﻿ServerModule:
+  Name:               BPFEmailSettingsDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Email Settings Data Server"
+
+  - JPN:
+      Description:        "Portal Email Settings Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#CodeGroup) Reffld(#BPFCodeGroup)
+    Define Field(#AlphaValue) Type(*CHAR) Length(512)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    Define Field(#RequestedPath) Type(*CHAR) Length(1024)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Control Settings
+    Srvroutine Name(GetControlSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(ControlSettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetControlSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Getting control settings') )
+    
+    * Read logging data group sequence
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where((#BPFCodeName = ENABLED) *And (#BPFCodeNumericValue < 2)) With_Key('EMAIL') Generic(*YES)
+    
+    * Get Language Specific Value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #sIsoCode #BPFCodeAlphaValue )
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Email Settings Data Server : Getting control settings : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Getting control settings : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    * SMTP Settings
+    Srvroutine Name(GetSMTPSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(SMTPSettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetSMTPSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Getting SMTP settings') )
+    
+    * Read logging data group sequence
+    Select Fields(#CodesGroup) From_File(BPFSystemCodesByGroupSequence) With_Key('SMTP_SETTINGS')
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Email Settings Data Server : Getting SMTP settings : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Getting SMTP settings : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetSMTPSettings) Session(*REQUIRED)
+    
+    * Inbound
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(SMTPSettings)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetSMTPSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Saving SMTP settings') )
+    
+    * Read logging data group sequence
+    Selectlist Named(#CodesGroup)
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    #Utils.log( ('Email Settings Data Server : Saving SMTP setting completed with status : ' + #BPFStatus) )
+    
+    Endselect
+    
+    Endroutine
+    
+    Srvroutine Name(SendTestEmail) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#alphaValue) Parameter_Name(TestAddress)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Define Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SendTestEmail' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Email Settings Data Server : Send SMTP test message') )
+    
+    * Send Test Email
+    If (#Notification.Send( 'TEST_MESSAGE' #AlphaValue *null #sIsoCode ))
+    
+    #Utils.log( ('Email Settings Data Server : Send SMTP test message : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Send SMTP test message : failed') )
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endroutine
+    
+    * Email Templates
+    Srvroutine Name(GetEmailTemplates) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(EmailTemplates)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetEmailTemplates' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates') )
+    
+    * Read logging data group sequence
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where(#BPFCodeName = ENABLED) With_Key('EMAIL') Generic(*YES)
+    
+    * Get Language Specific Value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetEmailTemplate) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#CodeGroup) Parameter_Name(Template)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(EmailTemplates)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetEmailTemplate' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Getting email template') )
+    
+    * Read logging data group sequence
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where(#BPFCodeName = ENABLED) With_Key(#CodeGroup)
+    
+    * Get Language Specific Value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetTemplateData) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ForTemplate)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFGenericCLOB) Parameter_Name(Template)
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(Properties)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetTemplateData' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Getting email template and properties') )
+    
+    * Read in the email body
+    
+    #BPFGenericCLOB := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFGenericNVarChar256 + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' ) + *PATHDELIM + *PATHDELIM + #Utils.GetAlphaValueForLanguage( #BPFGenericNVarChar256 #AlphaValue 'BODY_TEMPLATE' )).AsNativeString
+    
+    #Utils.log( ('Email Settings Data Server : Getting email template and properties : loaded template ' + #BPFGenericCLOB.filename) )
+    
+    * Read in the template properties
+    #BPFCodeGroup := #AlphaValue
+    * Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where(#BPFCodeName <> ENABLED) With_Key(#BPFCodeGroup) Generic(*YES)
+    Select Fields(#CodesGroup) From_File(BPFSystemCodesByGroupSequence) With_Key(#BPFCodeGroup) Generic(*YES)
+    
+    * Get Language Specific Value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Email Settings Data Server : Getting email template properties : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Getting email template properties : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SaveTemplateData) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#BPFCodeGroup) Parameter_Name(ForTemplate)
+    
+    Field_Map For(*INPUT) Field(#BPFGenericBLOB) Parameter_Name(NewTemplate)
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(Properties)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Create Data Output
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveTemplateData' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Email Settings Data Server : Saving template and properties') )
+    
+    * Save Properties
+    Selectlist Named(#CodesGroup)
+    
+    * Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#BPFCodeGroup #BPFCodeName #BPFCodeSequence)
+    
+    * Update value and check result
+    If (#Utils.SetAlpaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue ) <> OK)
+    #Utils.log( ('Email Settings Data Server : Save of template properties : failed with error ' + #IO$STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
+    Return
+    Endif
+    
+    Endselect
+    
+    #Utils.log( ('Email Settings Data Server : Save of template properties : successful') )
+    
+    * Now Assume success in case we arent writing out a new template
+    #BPFStatus := OK
+    
+    * Save Template
+    If (#BPFGenericBlob.FileName.IsNull.IsFalse)
+    
+    #Data.FromFile Path(#BPFGenericBlob)
+    #Data.AsFile Path((*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFGenericNVarChar256 + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' ) + *PATHDELIM + #Utils.GetAlphaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup 'BODY_TEMPLATE' )).AsNativeString) Errorinfo(#DataStatus)
+    
+    * Check Status
+    If (#DataStatus.Ok)
+    
+    #Utils.log( ('Email Settings Data Server : Save of template : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Email Settings Data Server : Save of template : failed with error ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

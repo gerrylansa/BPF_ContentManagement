@@ -1,0 +1,50 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsRoleControlViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System Settings Role View Strings"
+
+  - JPN:
+      Description:        "System Settings Role View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "System Role Settings"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Choose if the portal instance is in production or used for development or testing. If not in production you can set the values to prevent or override emails to ensure end users do not reviece the notifications"
+    
+    #STRINGSCOLLECTION<'ROLEPANELHEADING.CAPTION'> := "Portal Role"
+    
+    #STRINGSCOLLECTION<'ROLEOPTION1.CAPTION'> := "Development"
+    #STRINGSCOLLECTION<'ROLEOPTION2.CAPTION'> := "Testing"
+    #STRINGSCOLLECTION<'ROLEOPTION3.CAPTION'> := "Production"
+    
+    #STRINGSCOLLECTION<'ROLEPANELACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'SETTINGSPANELHEADING.CAPTION'> := "%%ROLE%% Settings"
+    
+    #STRINGSCOLLECTION<'SETTINGSEDIT.CAPTION.DEV'> := "Override Address"
+    #STRINGSCOLLECTION<'SETTINGSEDIT.CAPTION.TEST'> := "Domain"
+    
+    #STRINGSCOLLECTION<'SETTINGSPANELACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETROLESETTINGSCOMPLETED'> := "Settings saved"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETROLESETTINGSFAIED'> := "Failed to save settings"
+    
+    Endroutine
+    
+    End_Com

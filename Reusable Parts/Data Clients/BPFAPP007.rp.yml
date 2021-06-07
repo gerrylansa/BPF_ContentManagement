@@ -1,0 +1,562 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Client for System Settings"
+
+  - JPN:
+      Description:        "Data Client for System Settings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Global References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(PortalRole) Get(*AUTO #PortalRole) Set(*AUTO #PortalRole)
+    Define_Pty Name(RoleSettings) Get(*REFERENCE #RoleSettings)
+    
+    Define_Pty Name(WebPaths) Get(*REFERENCE #WebPaths)
+    
+    Define_Pty Name(JSMSettings) Get(*REFERENCE #JSMSettings)
+    
+    Define_Pty Name(APIKeys) Get(*REFERENCE #APIKeys)
+    
+    Define_Pty Name(FolderNames) Get(*REFERENCE #FolderNames)
+    
+    Define_Pty Name(Resources) Get(*REFERENCE #Resources)
+    
+    Define_Pty Name(ImportFile) Set(*AUTO #BPFGenericBlob)
+    
+    Define_Pty Name(Resource) Get(GetResource)
+    
+    * Events
+    Define_Evt Name(OnGetRoleSettingsCompleted)
+    Define_Evt Name(OnGetRoleSettingsFailed)
+    
+    Define_Evt Name(OnSetRoleSettingsCompleted)
+    Define_Evt Name(OnSetRoleSettingsFailed)
+    
+    Define_Evt Name(OnGetWebPathsCompleted)
+    Define_Evt Name(OnGetWebPathsFailed)
+    
+    Define_Evt Name(OnSetWebPathsCompleted)
+    Define_Evt Name(OnSetWebPathsFailed)
+    
+    Define_Evt Name(OnGetJSMSettingsCompleted)
+    Define_Evt Name(OnGetJSMSettingsFailed)
+    
+    Define_Evt Name(OnSetJSMSettingsCompleted)
+    Define_Evt Name(OnSetJSMSettingsFailed)
+    
+    Define_Evt Name(OnGetAPIKeysCompleted)
+    Define_Evt Name(OnGetAPIKeysFailed)
+    
+    Define_Evt Name(OnSetAPIKeysCompleted)
+    Define_Evt Name(OnSetAPIKeysFailed)
+    
+    Define_Evt Name(OnGetFolderNamesCompleted)
+    Define_Evt Name(OnGetFolderNamesFailed)
+    
+    Define_Evt Name(OnSetFolderNamesCompleted)
+    Define_Evt Name(OnSetFolderNamesFailed)
+    
+    Define_Evt Name(OnCreateExportCompleted)
+    Define_Evt Name(OnCreateExportFailed)
+    
+    Define_Evt Name(OnImportSettingsCompleted)
+    Define_Evt Name(OnImportSettingsFailed)
+    
+    Define_Evt Name(OnGetResourcesCompleted)
+    Define_Evt Name(OnGetResourcesFailed)
+    
+    Define_Evt Name(OnGetResourceCompleted)
+    Define_Evt Name(OnGetResourceFailed)
+    
+    * Objects
+    Define_Com Class(#PRIM_ALPH) Name(#PortalRole)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#RoleSettings)
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#WebPaths)
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#JSMSettings)
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#APIKeys)
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#FolderNames)
+    Define_Com Class(#PRIM_LCOL<#BPFSystemSettingResourceClass>) Name(#Resources)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetResource)
+    Define_Map For(*OUTPUT) Class(#BPFSystemSettingResourceClass) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key)
+    
+    For Each(#Item) In(#Resources)
+    
+    Continue If(#Item.CodeName.UpperCase <> #Key.UpperCase)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    * Events
+    
+    * Methods
+    
+    * Role Settings
+    Mthroutine Name(GetRoleSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetRoleAndSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Role(#PortalRole) Rolesettings(#RoleSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetRoleSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetRoleSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetRoleSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetRoleSettings)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForRole)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.SetRoleAndSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Role(#ForRole) Rolesettings(#RoleSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetRoleSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnSetRoleSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetRoleSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Web Paths
+    Mthroutine Name(GetWebPaths)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetWebPaths) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Webpaths(#WebPaths) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetWebPathsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetWebPathsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetWebPathsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetWebPaths)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.SetWebPaths) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Webpaths(#WebPaths) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetWebPathsCompleted)
+    
+    Else
+    
+    Signal Event(OnSetWebPathsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetWebPathsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetJSMSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetJSMSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Jsmsettings(#JSMSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetJSMSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetJSMSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetJSMSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetJSMSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.SetJSMSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Jsmsettings(#JSMSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetJSMSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnSetJSMSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetJSMSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * API Keys
+    Mthroutine Name(GetAPIKeys)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetAPIKeys) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Keys(#APIKeys) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetAPIKeysCompleted)
+    
+    Else
+    
+    Signal Event(OnGetAPIKeysFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetAPIKeysFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetAPIKeys)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.SetAPIKeys) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Keys(#APIKeys) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetAPIKeysCompleted)
+    
+    Else
+    
+    Signal Event(OnSetAPIKeysFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetAPIKeysFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Web Paths
+    Mthroutine Name(GetFolderNames)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetFolderNames) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foldernames(#FolderNames) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetFolderNamesCompleted)
+    
+    Else
+    
+    Signal Event(OnGetFolderNamesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetFolderNamesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetFolderNames)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.SetFolderNames) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foldernames(#FolderNames) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetFolderNamesCompleted)
+    
+    Else
+    
+    Signal Event(OnSetFolderNamesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetFolderNamesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetResources)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetResources) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Resources(#Resources) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetResourcesCompleted)
+    
+    Else
+    
+    Signal Event(OnGetResourcesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetResourcesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetNamedResource)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForIsoCode)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetResource) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Resourcename(#Name.UpperCase) Resource(#Resources) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetResourceCompleted)
+    
+    Else
+    
+    Signal Event(OnGetResourceFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetResourcesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Export Settings
+    Mthroutine Name(CreateExport)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.ExportSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Exportdata(#BPFGenericCLOB) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnCreateExportCompleted)
+    
+    * Trigger download
+    #Browser.Download( #BPFGenericClob 'portal_export.json' )
+    
+    Else
+    
+    Signal Event(OnCreateExportFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCreateExportFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ImportSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.ImportSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Importdata(#BPFGenericBLOB) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnImportSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnImportSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnImportSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

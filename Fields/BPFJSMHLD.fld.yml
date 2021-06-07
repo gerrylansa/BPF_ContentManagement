@@ -1,0 +1,34 @@
+﻿Field:
+  Name:               BPFJSMHANDLE
+  Type:               Alpha
+  Length:             4
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal JSM Handle"
+      Label:              "JSM Handle"
+      Heading1:           "JSM"
+      Heading2:           "Handle"
+
+  - JPN:
+      Description:        "Portal JSM Handle"
+      Label:              "JSM Handle"
+      Heading1:           "JSM"
+      Heading2:           "Handle"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(243)
+    
+    End_Com
+    
+    End_Com

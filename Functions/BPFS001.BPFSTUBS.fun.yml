@@ -1,0 +1,52 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    Function Options(*DIRECT *NOMESSAGES)
+    
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1989
+    * Process .......: BPFUTILS
+    * Function ......: BPFU005
+    * Created by ....:
+    * Created on ....: 20/04/08 at 16:39:29
+    * Description ...: Startup background process
+    * =======================================================
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils)
+    
+    * =======================================================
+    * Program Mainline : BPFU005
+    * =======================================================
+    
+    * Request Validation Cleanup Process
+    
+    * Check feature is enabled
+    If (#Utils.GetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' ) = 1)
+    
+    * Ensure the process flags are in their default state
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_SESSION_MONITOR' 1 0 )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' 1 0 )
+    
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU002)
+    
+    Endif
+    
+    * IP Address Monitoring Ban Clearance
+    * Check feature is enabled
+    If (#Utils.GetNumericValue( 'SECURITY' 'IP_ADDRESS_BANNING' ) = 1)
+    
+    * Ensure the process flags are in their default state
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_CLEAR_IPS' 1 0 )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' 1 0 )
+    
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU003)
+    
+    Endif
+    
+    #Utils.log( ('<-- Startup background process : Background process atarted') )
+    
+    * Clear All Messages and End
+    Use Builtin(CLR_MESSAGES)
+    Return

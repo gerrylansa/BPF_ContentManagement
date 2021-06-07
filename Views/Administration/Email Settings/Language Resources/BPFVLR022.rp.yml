@@ -1,0 +1,46 @@
+﻿Reusable Part:
+  Name:               BPFAdminEmailSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin of Email Settings View"
+
+  - JPN:
+      Description:        "Admin of Email Settings View"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Email Settings"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Control, configure and maintain the emails sent by the portal"
+    
+    #STRINGSCOLLECTION<'EMAILCONTROLCARD.HEADING'> := "Notifications"
+    #STRINGSCOLLECTION<'EMAILCONTROLCARD.TEXT'> := "Control which email notifications are sent to portal users."
+    #STRINGSCOLLECTION<'EMAILCONTROLCARD.ACTION'> := "Control notifications"
+    
+    #STRINGSCOLLECTION<'SMTPSETTINGSCARD.HEADING'> := "SMTP Settings"
+    #STRINGSCOLLECTION<'SMTPSETTINGSCARD.TEXT'> := "Configure the setting for SMTP server used to send portal emails"
+    #STRINGSCOLLECTION<'SMTPSETTINGSCARD.ACTION'> := "Configure SMTP server"
+    
+    #STRINGSCOLLECTION<'EMAILTEMPLATESCARD.HEADING'> := "Email Templates"
+    #STRINGSCOLLECTION<'EMAILTEMPLATESCARD.TEXT'> := "View and customise the emails sent out to the users of the portal"
+    #STRINGSCOLLECTION<'EMAILTEMPLATESCARD.ACTION'> := "Customise Emails"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can result in no email being sent from the portal. Ensure you understand what to change."
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,775 @@
+﻿Reusable Part:
+  Name:               BPFUserAccountClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Account Data Class"
+
+  - JPN:
+      Description:        "Portal User Account Data Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by For Field Mapping
+    Def_List Name(#ListFields) Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserHasAdminRights #BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage #BPFUserPreferenceContentShare) Type(*WORKING) Entrys(1)
+    
+    * References to Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    
+    * Fields
+    Define_Pty Name(EmailAdress) Get(*AUTO #BPFUserEmail) Set(*AUTO #BPFUserEmail)
+    Define_Pty Name(FirstName) Get(*AUTO #BPFUserFirstName) Set(*AUTO #BPFUserFirstName)
+    Define_Pty Name(LastName) Get(*AUTO #BPFUserLastName) Set(*AUTO #BPFUserLastName)
+    Define_Pty Name(Enabled) Get(*AUTO #BPFUserAccountEnabled) Set(*AUTO #BPFUserAccountEnabled)
+    Define_Pty Name(PreferredBackground) Get(*AUTO #BPFUserPreferenceBackground) Set(*AUTO #BPFUserPreferenceBackground)
+    Define_Pty Name(PreferredTheme) Get(*AUTO #BPFUserPreferenceTheme) Set(*AUTO #BPFUserPreferenceTheme)
+    Define_Pty Name(IsAdministrator) Get(*AUTO #BPFUserHasAdminRights)
+    Define_Pty Name(EmailLanguage) Get(*AUTO #BPFUserPreferenceEmailLanguage) Set(*AUTO #BPFUserPreferenceEmailLanguage)
+    Define_Pty Name(ContentShare) Get(*AUTO #BPFUserPreferenceContentShare)
+    
+    * Derived Values
+    Define_Pty Name(FullName) Get(GetFullName)
+    
+    * Status
+    Define_Pty Name(DetailsSynced) Get(*AUTO #DetailsOnServer)
+    Define_Com Class(#PRIM_BOLN) Name(#DetailsOnServer)
+    
+    Define_Pty Name(SecuritySynced) Get(*AUTO #SecurityOnServer)
+    Define_Com Class(#PRIM_BOLN) Name(#SecurityOnServer)
+    
+    Define_Pty Name(TermsAccepted) Get(*AUTO #TermsAccepted)
+    Define_Com Class(#PRIM_BOLN) Name(#TermsAccepted)
+    
+    Define_Pty Name(AccountCreated) Get(*AUTO #AccountCreated)
+    Define_Com Class(#PRIM_BOLN) Name(#AccountCreated)
+    
+    Define_Pty Name(AccountVerified) Get(*AUTO #IsAccountVerified) Set(*AUTO #IsAccountVerified)
+    Define_Com Class(#PRIM_BOLN) Name(#IsAccountVerified)
+    
+    Define_Pty Name(Profile) Get(*REFERENCE #Profile)
+    Define_Com Class(#BPFUserProfileClass) Name(#Profile) Reference(*DYNAMIC)
+    
+    Define_Pty Name(IconName) Get(GetIconName)
+    Define_Com Class(#PRIM_ALPH) Name(#IconName)
+    
+    
+    * Events
+    
+    * Create
+    Define_Evt Name(OnDetailsStoredCompleted)
+    Define_Evt Name(OnDetailsStoredFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnSecurityStoredCompleted)
+    Define_Evt Name(OnSecurityStoredFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnStoredAccountCreated)
+    Define_Evt Name(OnStoredAccountFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnGetLastSessionCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnGetLastSessionFailed)
+    
+    Define_Evt Name(OnGetSessionEventsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFGenericDateTime) Name(#NextReadDate)
+    
+    Define_Evt Name(OnGetSessionEventsFailed)
+    
+    Define_Evt Name(OnSessionDownloadCompleted)
+    Define_Evt Name(OnSessionDownloadFailed)
+    
+    Define_Evt Name(OnSessionRemoveCompleted)
+    Define_Evt Name(OnSessionRemoveFailed)
+    
+    Define_Evt Name(OnSetSecurityCompleted)
+    Define_Evt Name(OnSetSecurityFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnSetPreferredEmailLanguageCompleted)
+    Define_Evt Name(OnSetPreferredEmailLanguageFailed)
+    
+    Define_Evt Name(OnSetPreferredBackgroundCompleted)
+    Define_Evt Name(OnSetPreferredBackgroundFailed)
+    
+    Define_Evt Name(OnSetPreferredThemeCompleted)
+    Define_Evt Name(OnSetPreferredThemeFailed)
+    
+    Define_Evt Name(OnGetProfileCompleted)
+    Define_Evt Name(OnGetProfileFailed)
+    
+    Define_Evt Name(OnSetAccountDetailsCompleted)
+    Define_Evt Name(OnSetAccountDetailsFailed)
+    
+    Define_Evt Name(OnRemoveAccountCompleted)
+    Define_Evt Name(OnRemoveAccountFailed)
+    
+    Define_Com Class(#PRIM_TIMR) Name(#ThemeDelay) Interval(1) Startup(Manual)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetFullname)
+    Define_Map For(*OUTPUT) Class(#Prim_DC.UnicodeString) Name(#Property)
+    
+    * #Property := #BPFUserFirstName + ' ' + #BPFUserLastName
+    #Property := #BPFPortal.AppStrings.Text<APP.FORMAT.FULLNAME>.Replace( '%%FIRSTNAME%%' #BPFUserFirstName ).Replace( '%%LASTNAME%%' #BPFUserLastName )
+    
+    Endroutine
+    
+    Ptyroutine Name(GetIconName)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#IconName.IsNull)
+    
+    If (#BPFUserHasAdminRights)
+    
+    #IconName := 'supervisor_account'
+    
+    Else
+    
+    #IconName := 'account_circle'
+    
+    Endif
+    
+    Endif
+    
+    #Property := #IconName
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#ThemeDelay.Tick)
+    
+    #ThemeDelay.Stop
+    
+    #SYS_WEB.WebPage.ThemeBackground := #BPFUserPreferenceBackground
+    #SYS_WEB.WebPage.Theme <= #SYS_THEME<#BPFUserPreferenceTheme>
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(StoreDetails)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#BPFUserPassword) Name(#UserPassword)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.StoreNewUserDetails) Name(#Request)
+    
+    * Define Buffer
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserPassword := (#Buffer.Substring( 1 5 ) + #UserPassword + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Make Request
+    #Request.ExecuteAsync Useraccount(#BPFUserEmail) Userpassword(#BPFUserPassword) Firstname(#BPFUserFirstName) Lastname(#BPFUserLastName) Emaillanguage(#Browser.UserLanguage) Status(#Status)
+    
+    #Browser.UseTransactionID := False
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OKAY)
+    
+    #DetailsOnServer := True
+    
+    Signal Event(OnDetailsStoredCompleted)
+    
+    Else
+    
+    Signal Event(OnDetailsStoredFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnDetailsStoredFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(StoreSecurity)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#BPFUserSecurityQuestion) Name(#Question)
+    Define_Map For(*INPUT) Class(#BPFUserSecurityValue) Name(#Value)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.StoreNewUserSecurity) Name(#Request)
+    
+    * Define Buffer
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserSecurityValue := (#Buffer.Substring( 1 5 ) + #value + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Make Request
+    #Request.ExecuteAsync Question(#Question) Value(#BPFUserSecurityValue) Status(#Status)
+    
+    #Browser.UseTransactionID := False
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OKAY)
+    
+    #SecurityOnServer := True
+    Signal Event(OnSecurityStoredCompleted)
+    
+    Else
+    
+    Signal Event(OnSecurityStoredFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSecurityStoredFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(CreateStoredAccount)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.CreateStoredNewUser) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnStoredAccountCreated)
+    #AccountCreated := True
+    
+    Else
+    
+    Signal Event(OnStoredAccountFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnStoredAccountFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetLastSession)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.GetUserLastSession) Name(#Request)
+    
+    Define_Com Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData)
+    
+    * Make Request
+    #Request.ExecuteAsync Sessionevents(#SessionData) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetLastSessionCompleted) Sessiondata(#SessionData)
+    
+    Else
+    
+    Signal Event(OnGetLastSessionFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetLastSessionFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetSessionEvents)
+    Define_Map For(*INPUT) Class(#BPFGenericDateTime) Name(#StartDate) Mandatory(*SQLNULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForLabel) Mandatory(*NULL)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.GetUserSessionEvents) Name(#Request)
+    
+    * Local collect to hold data until we output the items
+    Define_Com Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData)
+    Define_Com Class(#BPFGenericDateTime) Name(#NextReadDate)
+    
+    * Make Request
+    #Request.ExecuteAsync Startingdate(#StartDate) Forlabel(#ForLabel) Usersessionevents(#SessionData) Nextdatetime(#NextReadDate) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetSessionEventsCompleted) Sessiondata(#SessionData) Nextreaddate(#NextReadDate)
+    
+    Else
+    
+    Signal Event(OnGetSessionEventsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSessionEventsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(DownloadSessions)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#RangeValue)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.DownloadUserSessions) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Timerange(#RangeValue) Sessiondownload(#BPFGenericBlob) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    * Trigger download
+    #Browser.Download( #BPFGenericBlob 'mySessionHistory.pdf' )
+    
+    Signal Event(OnSessionDownloadCompleted)
+    
+    Else
+    
+    Signal Event(OnSessionDownloadFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSessionDownloadFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveSessions)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#RangeValue)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.RemoveUserSessions) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Timerange(#RangeValue) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSessionRemoveCompleted)
+    
+    Else
+    
+    Signal Event(OnSessionRemoveFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSessionRemoveFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetSecurityDetails)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#BPFUserSecurityQuestion) Name(#Question)
+    Define_Map For(*INPUT) Class(#BPFUserSecurityValue) Name(#Value)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.SetUserSecurity) Name(#Request)
+    
+    * Define Buffer
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserSecurityValue := (#Buffer.Substring( 1 5 ) + #value + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Make Request
+    #Request.ExecuteAsync Question(#Question) Value(#BPFUserSecurityValue) Status(#Status)
+    
+    #Browser.UseTransactionID := False
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #SecurityOnServer := True
+    Signal Event(OnSetSecurityCompleted)
+    
+    Else
+    
+    Signal Event(OnSetSecurityFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetSecurityFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetEmailLanguage)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ToValue)
+    
+    * Define Request to server routine
+    Define_Com Class(#BPFUserAccountDataServer.SetEmailLanguage) Name(#Request)
+    
+    #Request.ExecuteAsync Tovalue(#ToValue) Status(#Status)
+    
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFUserPreferenceEmailLanguage := #ToValue
+    
+    Signal Event(OnSetPreferredEmailLanguageCompleted)
+    
+    Else
+    
+    Signal Event(OnSetPreferredEmailLanguageFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetPreferredBackgroundFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetPreferredBackground)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ToValue)
+    
+    * Define Request to server routine
+    Define_Com Class(#BPFUserAccountDataServer.SetPrefBackground) Name(#Request)
+    
+    #Request.ExecuteAsync Tovalue(#ToValue) Status(#Status)
+    
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFUserPreferenceBackground := #ToValue
+    #SYS_WEB.WebPage.ThemeBackground := #BPFUserPreferenceBackground
+    
+    Signal Event(OnSetPreferredBackgroundCompleted)
+    
+    Else
+    
+    Signal Event(OnSetPreferredBackgroundFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetPreferredBackgroundFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetPreferredTheme)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ToValue)
+    
+    * Define Request to server routine
+    Define_Com Class(#BPFUserAccountDataServer.SetPrefTheme) Name(#Request)
+    
+    #Request.ExecuteAsync Tovalue(#ToValue) Status(#Status)
+    
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFUserPreferenceTheme := #ToValue
+    #SYS_WEB.WebPage.Theme <= #SYS_THEME<#BPFUserPreferenceTheme>
+    
+    Signal Event(OnSetPreferredThemeCompleted)
+    
+    Else
+    
+    Signal Event(OnSetPreferredThemeFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetPreferredThemeFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Profile
+    Mthroutine Name(GetUserProfile)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.GetProfileData) Name(#Request)
+    
+    * Locsl value to hold data
+    Define_Com Class(#PRIM_LCOL<#BPFUserProfileClass>) Name(#Data)
+    
+    * Make Request
+    #Request.ExecuteAsync Profiledata(#Data) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #Profile <= *New #BPFUserProfileClass.create( #Data )
+    Signal Event(OnGetProfileCompleted)
+    
+    Else
+    
+    Signal Event(OnGetProfileFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetProfileFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Account Update
+    Mthroutine Name(SetAccountDetails)
+    Define_Map For(*INPUT) Class(#BPFUserEmail) Name(#ToAddess)
+    Define_Map For(*INPUT) Class(#BPFUserFirstName) Name(#ToFirstName)
+    Define_Map For(*INPUT) Class(#BPFUserLastName) Name(#ToLastName)
+    
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.SetAccountDetails) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Toaddress(#ToAddess) Tofirstname(#ToFirstName) Tolastname(#ToLastName) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    * Update Class Values
+    #BPFUserEmail := #ToAddess.lowercase
+    #BPFUserFirstName := #ToFirstName
+    #BPFUserLastName := #ToLastName
+    
+    Signal Event(OnSetAccountDetailsCompleted)
+    #BPFPortal.Session.Message.SendAction( 'UPDATEUSERDETAILS' )
+    
+    Else
+    
+    Signal Event(OnSetAccountDetailsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetAccountDetailsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateDetailsFromServer)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.GetBasicUserData) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Email(#BPFUserEmail) Firstname(#BPFUserFirstName) Lastname(#BPFUserLastName) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetAccountDetailsCompleted)
+    
+    Else
+    
+    Signal Event(OnSetAccountDetailsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetAccountDetailsFailed)
+    
+    Endroutine
+    Endroutine
+    
+    * Remove Account
+    Mthroutine Name(RemoveAccount)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountDataServer.RemoveUserAccount) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnRemoveAccountCompleted)
+    
+    Else
+    
+    Signal Event(OnRemoveAccountFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnRemoveAccountFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Constructors
+    Mthroutine Name(Create) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#Prim_LCOL<#BPFUserAccountClass>) Name(#Data) Pass(*BY_REFERENCE)
+    
+    * Map Values from the server
+    #BPFUserEmail := #Data<1>.EmailAdress
+    #BPFUserFirstName := #Data<1>.FirstName
+    #BPFUserLastName := #Data<1>.LastName
+    #BPFUserAccountEnabled := #Data<1>.Enabled
+    #BPFUserHasAdminRights := #Data<1>.IsAdministrator
+    #BPFUserPreferenceBackground := #Data<1>.PreferredBackground
+    #BPFUserPreferenceTheme := #Data<1>.PreferredTheme
+    #BPFUserPreferenceEmailLanguage := #Data<1>.EmailLanguage
+    #BPFUserPreferenceContentShare := #Data<1>.ContentShare
+    
+    * Set User Navigation
+    #Navigate.SetUserNavigation( #BPFUserHasAdminRights )
+    
+    * If Preferrences set, then set the portal to match
+    If (#BPFUserPreferenceBackground.IsNotSqlNull)
+    
+    #SYS_WEB.WebPage.ThemeBackground := #BPFUserPreferenceBackground
+    
+    Else
+    
+    #BPFUserPreferenceBackground := #SYS_WEB.WebPage.ThemeBackground
+    
+    Endif
+    
+    If (#BPFUserPreferenceTheme.IsNotSqlNull)
+    
+    #SYS_WEB.WebPage.Theme <= #SYS_THEME<#BPFUserPreferenceTheme>
+    
+    Else
+    
+    #BPFUserPreferenceTheme := 'materialdesignblue'
+    
+    Endif
+    
+    #ThemeDelay.Start
+    
+    * It's come from the server
+    #DetailsOnServer #SecurityOnServer := True
+    
+    Endroutine
+    
+    End_Com

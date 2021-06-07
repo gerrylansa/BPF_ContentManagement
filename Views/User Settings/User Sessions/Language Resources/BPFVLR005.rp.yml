@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFUserActivityListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Activity Listview Strings"
+
+  - JPN:
+      Description:        "User Activity Listview Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Session History"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "View your activity history on %%APP%%. You can filter the history by date and event label."
+    
+    #STRINGSCOLLECTION<'STARTINGDATE.CAPTION'> := "Starting From"
+    #STRINGSCOLLECTION<'EVENTTYPE.CAPTION'> := "Event Label"
+    
+    #STRINGSCOLLECTION<'LOADMOREACTION.MORE'> := "Load more"
+    #STRINGSCOLLECTION<'LOADMOREACTION.LOAD'> := "Loading events..."
+    
+    #STRINGSCOLLECTION<'EVENTS.TEXT'> := "Events"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONGETSESSIONEVENTSFAILED'> := "Failed to get session events data"
+    
+    Endroutine
+    
+    End_Com

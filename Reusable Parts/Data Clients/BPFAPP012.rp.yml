@@ -1,0 +1,390 @@
+﻿Reusable Part:
+  Name:               BPFContentSharingDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Sharing Data Client"
+
+  - JPN:
+      Description:        "Content Sharing Data Client"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(Shares) Get(*REFERENCE #ContentShares)
+    Define_Pty Name(Share) Get(GetContentShare)
+    
+    Define_Pty Name(ContentLibrary) Get(*REFERENCE #ContentLibrary)
+    Define_Pty Name(Content) Get(GetContent)
+    
+    Define_Pty Name(YouTubeDataAPIKey) Get(*AUTO #YouTubeDataAPIKey)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#YouTubeDataAPIKey)
+    
+    * Events
+    Define_Evt Name(OnGetSharesCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#MoreResult)
+    
+    Define_Evt Name(OnGetSharesFailed)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Reason)
+    
+    Define_Evt Name(OnGetLibraryItemsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#MoreResult)
+    
+    Define_Evt Name(OnGetLibraryItemsFailed)
+    
+    Define_Evt Name(OnCreateShareCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ID)
+    
+    Define_Evt Name(OnCreateShareFailed)
+    
+    Define_Evt Name(OnDeleteShareCompleted)
+    Define_Evt Name(OnDeleteShareFailed)
+    
+    Define_Evt Name(ContentLibraryItemUpdated)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryItemClass) Name(#Item) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(ContentLibraryItemDeleted)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryItemClass) Name(#Item) Pass(*BY_REFERENCE)
+    
+    * Objects
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#NewContent) Reference(*DYNAMIC)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareClass>) Name(#ContentShares)
+    Define_Com Class(#PRIM_LCOL<#BPFContentLibraryItemClass>) Name(#ContentLibrary)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetContentShare)
+    Define_Map For(*OUTPUT) Class(#BPFContentShareClass) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFContentShareID) Name(#Key)
+    
+    * Search till the first match
+    For Each(#Item) In(#ContentShares)
+    
+    Continue If(#Key.UpperCase <> #item.Identifier)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    Ptyroutine Name(GetContent)
+    Define_Map For(*OUTPUT) Class(#BPFContentLibraryItemClass) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#Prim_dc.UnicodeString) Name(#Key)
+    
+    * Search till the first match
+    For Each(#Item) In(#ContentLibrary)
+    
+    Continue If(#Key.LowerCase <> #item.Identifier.LowerCase)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#ContentLibrary<>.Updated #NewContent.OnSaveCompleted) Com_Sender(#Sender)
+    
+    * Add if not in collection
+    If (#ContentLibrary.Contains( #Sender ).IsFalse)
+    
+    #ContentLibrary.Insert( #Sender )
+    #NewContent <= *Null
+    
+    Endif
+    
+    * Signal Event
+    Signal Event(ContentLibraryItemUpdated) Item(#Sender)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentLibrary<>.OnSaveFailed) Com_Sender(#Sender) Reason(#Reason)
+    
+    If (#Reason = NR)
+    
+    #ContentLibrary.Remove( #Sender )
+    #NewContent <= *Null
+    
+    Signal Event(ContentLibraryItemDeleted) Item(#Sender)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentLibrary<>.OnDeleteCompleted) Com_Sender(#Sender)
+    
+    #ContentLibrary.Remove( #Sender )
+    Signal Event(ContentLibraryItemDeleted) Item(#Sender)
+    
+    Endroutine
+    
+    * Methods
+    
+    * Content Library
+    Mthroutine Name(CreateLibraryItem)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryItemClass) Name(#CopyFrom) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    Define_Map For(*RESULT) Class(#BPFContentLibraryItemClass) Name(#Result) Pass(*BY_REFERENCE)
+    
+    #Result <= (*New #BPFContentLibraryItemClass)
+    
+    * If we are copying, then take data from the copyfrom
+    If (#CopyFrom *IsNot *Null)
+    
+    #Result.Copy( #CopyFrom )
+    
+    Else
+    
+    #NewContent <= #Result
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(GetKey)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetKey) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Key(#YouTubeDataAPIKey) Status(#Status)
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetLibraryItems)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SearchValue) Mandatory(*NULL)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetContentItems) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Searchvalue(#SearchValue) Content(#ContentLibrary) Moreresults(#More) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetLibraryItemsCompleted) Moreresult(#More)
+    
+    Else
+    
+    Signal Event(OnGetLibraryItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetLibraryItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetLibraryItemByIdentifier)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value) Mandatory(*NULL)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetContentItemByID) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forid(#Value.UpperCase) Content(#ContentLibrary) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetLibraryItemsCompleted) Moreresult(False)
+    
+    Else
+    
+    Signal Event(OnGetLibraryItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetLibraryItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * ContentShares
+    Mthroutine Name(CreateShare)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#WithName) Mandatory(*NULL)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ID)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.NewShare) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Newname(#WithName) Newshare(#ID) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    
+    
+    Signal Event(OnCreateShareCompleted) Id(#ID)
+    
+    Else
+    
+    Signal Event(OnCreateShareFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCreateShareFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetShares)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SearchValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#TypeValue) Mandatory(*NULL)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetContentShares) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Searchvalue(#SearchValue) Rooms(#ContentShares) Moreresults(#More) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetSharesCompleted) Moreresult(#More)
+    
+    Else
+    
+    Signal Event(OnGetSharesFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSharesFailed) Reason(SERVERERROR)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Get Resource by ID only
+    Mthroutine Name(GetShareByIdentifier)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetContentShareByID) Name(#Request)
+    
+    * Only done for shares, so content librray needs to be blank in case of data request.
+    #ContentLibrary.RemoveAll
+    
+    * Make Request
+    #Request.ExecuteAsync Room(#Value) Rooms(#ContentShares) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetSharesCompleted) Moreresult(False)
+    
+    Else
+    
+    Signal Event(OnGetSharesFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSharesFailed) Reason(SERVERERROR)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(DeleteShare)
+    Define_Map For(*INPUT) Class(#BPFContentShareClass) Name(#Share) Pass(*BY_REFERENCE)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.DeleteShare) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Share(#Share.Identifier) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #ContentShares.Remove( #Share )
+    
+    Signal Event(OnDeleteShareCompleted)
+    
+    Else
+    
+    Signal Event(OnDeleteShareFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnDeleteShareFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

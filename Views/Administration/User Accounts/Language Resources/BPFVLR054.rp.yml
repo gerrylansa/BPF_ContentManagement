@@ -1,0 +1,62 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserAccountViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin of user accounts View Strings"
+
+  - JPN:
+      Description:        "Admin of user accounts View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Manage %%NAME%%'s account, role and view session events."
+    
+    #STRINGSCOLLECTION<'ACCOUNTCARDHEADING.CAPTION'> := "Account"
+    #STRINGSCOLLECTION<'ACCOUNTCARDTEXT.CAPTION'> := "You are able to perform certain actions on this account such as making it disabled"
+    #STRINGSCOLLECTION<'ACCOUNTCARDACTION.CAPTION'> := "Account actons"
+    
+    #STRINGSCOLLECTION<'PROFILECARDHEADING.CAPTION'> := "Session Events"
+    #STRINGSCOLLECTION<'PROFILECARDTEXT.CAPTION.EVENTS'> := "These are the events from %%NAME%%'s last session on %%DATE%% at %%TIME%%"
+    #STRINGSCOLLECTION<'PROFILECARDTEXT.CAPTION.NONE'> := "%%NAME%% has not generated any session events yet"
+    #STRINGSCOLLECTION<'PROFILECARDACTION.CAPTION'> := "View session events"
+    
+    #STRINGSCOLLECTION<'CONTENTSHARECARD.HEADING'> := "Content Share"
+    #STRINGSCOLLECTION<'CONTENTSHARECARD.TEXT'> := "%%NAME%% currently has been shared content from the %%SHARE%%"
+    #STRINGSCOLLECTION<'CONTENTSHARECARD.TEXT.MISSING'> := "%%NAME%% currently does not have any content shared to them."
+    #STRINGSCOLLECTION<'CONTENTSHARECARD.ACTION'> := "Change content share"
+    
+    #STRINGSCOLLECTION<'ADMINROLECARD.HEADING'> := "Administration Rights"
+    #STRINGSCOLLECTION<'ADMINROLECARD.TEXT'> := "%%ACTION%% administration rights to %%NAME%%'s account"
+    #STRINGSCOLLECTION<'ADMINROLECARD.ACTION'> := "Set administration rights"
+    
+    #STRINGSCOLLECTION<'ADMINROLE.GRANT'> := "Grant"
+    #STRINGSCOLLECTION<'ADMINROLE.REVOKE'> := "Revoke"
+    
+    #STRINGSCOLLECTION<'SECURITYRESETCARD.HEADING'> := "Reset Security"
+    #STRINGSCOLLECTION<'SECURITYRESETCARD.TEXT'> := "Clear %%NAME%%'s account password and security credentials"
+    #STRINGSCOLLECTION<'SECURITYRESETCARD.ACTION'> := "Reset security"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "Only you can change your details. myPortal is committed to your privacy and security"
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONGETLASTSESSIONFAILED'> := "Failed to get last session data"
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETUSERACCOUNTFAILED'> := "Failed to user information"
+    
+    
+    Endroutine
+    
+    End_Com

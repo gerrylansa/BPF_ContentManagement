@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFContentItemCreatedBy
+  Type:               NVarChar
+  Length:             32
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Created BY"
+      Label:              "Item Created By"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Created"
+
+  - JPN:
+      Description:        "Content Item Created BY"
+      Label:              "Content Item Cr"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Created"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(674)
+    
+    End_Com
+    
+    End_Com

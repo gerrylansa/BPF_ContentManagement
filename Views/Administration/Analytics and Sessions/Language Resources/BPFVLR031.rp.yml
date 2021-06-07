@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFAdminAnalyticsSessionViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin Analytics & Session View Strings"
+
+  - JPN:
+      Description:        "Admin Analytics & Session View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Analytics & Session Tracking"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Configure the tracking of users via analytics and sessions"
+    
+    #STRINGSCOLLECTION<'ANALYTICSCARD.HEADING'> := "Google Analytics"
+    #STRINGSCOLLECTION<'ANALYTICSCARD.TEXT'> := "Enable and configure the use of Google Analytics to track trends."
+    #STRINGSCOLLECTION<'ANALYTICSCARD.ACTION'> := "Configure Analytics"
+    
+    #STRINGSCOLLECTION<'SESSIONSCARD.HEADING'> := "Sessions Events"
+    #STRINGSCOLLECTION<'SESSIONSCARD.TEXT'> := "Enable the tracking of events during a users session."
+    #STRINGSCOLLECTION<'SESSIONSCARD.ACTION'> := "Enable Tracking"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect the security of user accounts, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

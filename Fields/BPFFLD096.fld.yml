@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFContentItemTokenFileName
+  Type:               NVarChar
+  Length:             512
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Token or Filename"
+      Label:              "Item Token/File"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Token/File"
+
+  - JPN:
+      Description:        "Content Item Token or Filename"
+      Label:              "Content Item To"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Token"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Marginleft(201) Width(1007)
+    
+    End_Com
+    
+    End_Com

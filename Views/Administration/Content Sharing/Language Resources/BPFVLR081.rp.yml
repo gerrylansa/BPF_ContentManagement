@@ -1,0 +1,39 @@
+﻿Reusable Part:
+  Name:               BPFContentLibraryItemDeleteViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library Item Delete View Strings"
+
+  - JPN:
+      Description:        "Content Library Item Delete View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Remove Content Item"
+    #STRINGSCOLLECTION<'REMOVEACCOUNTPANELHEADING.CAPTION'> := "Confirmation"
+    
+    #STRINGSCOLLECTION<'REMOVEACCOUNTPANELTEXT.CAPTION'> := "You are about to remove %%CONTENT%% from the content library. This will remove it from the content library and all the content shares it is being shared in . This action cannot be undone once completed. So please be sure before confirming the removal of this content."
+    #STRINGSCOLLECTION<'REMOVEACCOUNTACTION.CAPTION'> := "REMOVE"
+    
+    #STRINGSCOLLECTION<'SHARING.ONGETLIBRARYITEMSFAILED'> := "Error unable to load item"
+    #STRINGSCOLLECTION<'SHARING.CONTENTLIBRARYITEMDELETED'> := "Content item removed"
+    #STRINGSCOLLECTION<'CURRENTCONTENT.ONDELETEFAILED'> := "Failed to remove content item"
+    
+    Endroutine
+    
+    End_Com

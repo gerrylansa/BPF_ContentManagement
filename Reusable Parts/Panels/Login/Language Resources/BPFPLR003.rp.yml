@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFLoginUserAccountPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Login User Account Panel Strings"
+
+  - JPN:
+      Description:        "Login User Account Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "with your %%APP%% Account"
+    #STRINGSCOLLECTION<'USEREMAILEDIT.CAPTION'> := "Email address"
+    
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "Create Account"
+    #STRINGSCOLLECTION<'NEXTBUTTON.CAPTION'> := "Next"
+    
+    #STRINGSCOLLECTION<'USEREMAILEDIT.INVALID'> := "Your email address is not valid"
+    
+    Endroutine
+    
+    End_Com

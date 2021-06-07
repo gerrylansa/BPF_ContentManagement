@@ -1,0 +1,190 @@
+﻿Web View:
+  Name:               BPFLanguageResourceUseView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Language Resource Usage View"
+
+  - JPN:
+      Description:        "Portal Language Resource Usage View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP011')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support Reference
+    Define_Com Class(#BPFLanguageResourceUseViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFLanguageResourcesDataClient) Name(#Resources) Reference(*DYNAMIC)
+    
+    * Main Panel Layout
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedTopCorners) Cornertopleft(8) Cornertopright(8) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedBottomCorners) Cornerbottomleft(8) Cornerbottomright(8) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn2) Displayposition(2) Parent(#MainLayout) Width(98) Maxwidth(960)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn3) Displayposition(3) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(1) Parent(#MainLayout) Height(533) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#ViewTitle) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentWidth) Flow(Down) Marginbottom(56)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#RefHeadingLine) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#RefExample) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(24)
+    
+    * References
+    Define_Com Class(#BPFLanguageResourceItemClass) Name(#CurrentResource) Reference(*DYNAMIC)
+    
+    * Variables
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#RefSpacer) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Manage(#RefDivider) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Column(#MainLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#CallHeadingLine) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem7) Manage(#CallDivider) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Column(#MainLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem8) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#CallSpacer) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem9) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#CallExample) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem10) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#MethodHeadingLine) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem11) Manage(#MethodDivider) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Column(#MainLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem12) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#MethodSpacer) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem13) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#MethodExample) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(24)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentPath)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentDelimiter)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ViewTitle) Caption('Resource Examples') Displayposition(1) Left(370) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Icon('arrow_back') Captionmarginleft(16) Width(221) Height(48) Iconmarginleft(12) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#RefHeadingLine) Displayposition(2) Left(370) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('card+Heading3') Top(128) Width(960) Style(#RoundedTopCorners) Height(62) Captionmarginleft(24) Captionmarginright(16) Caption('Define Reference')
+    Define_Com Class(#PRIM_LABL) Name(#RefExample) Displayposition(5) Left(370) Parent(#COM_OWNER) Tabposition(10) Themedrawstyle('card+Subheading') Top(215) Height(40) Width(960) Style(#RoundedBottomCorners) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24)
+    Define_Com Class(#PRIM_LABL) Name(#RefSpacer) Displayposition(4) Left(370) Parent(#COM_OWNER) Tabposition(7) Themedrawstyle('card+Subheading') Top(191) Height(24) Width(960) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24) Style(#NotaCard)
+    Define_Com Class(#PRIM_PANL) Name(#RefDivider) Displayposition(3) Height(1) Left(370) Parent(#COM_OWNER) Tabposition(13) Tabstop(False) Themedrawstyle('TopDivider') Top(190) Width(960)
+    Define_Com Class(#PRIM_MD.Label) Name(#CallHeadingLine) Displayposition(6) Left(370) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('card+Heading3') Top(279) Width(960) Style(#RoundedTopCorners) Height(62) Captionmarginleft(24) Captionmarginright(16) Caption('Method Call')
+    Define_Com Class(#PRIM_PANL) Name(#CallDivider) Displayposition(7) Height(1) Left(370) Parent(#COM_OWNER) Tabposition(11) Tabstop(False) Themedrawstyle('TopDivider') Top(341) Width(960)
+    Define_Com Class(#PRIM_LABL) Name(#CallSpacer) Displayposition(8) Left(370) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('card+Subheading') Top(342) Height(24) Width(960) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24) Style(#NotaCard)
+    Define_Com Class(#PRIM_LABL) Name(#CallExample) Displayposition(9) Left(370) Parent(#COM_OWNER) Tabposition(8) Themedrawstyle('card+Subheading') Top(366) Height(40) Width(960) Style(#RoundedBottomCorners) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24)
+    Define_Com Class(#PRIM_MD.Label) Name(#MethodHeadingLine) Displayposition(10) Left(370) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('card+Heading3') Top(430) Width(960) Style(#RoundedTopCorners) Height(62) Captionmarginleft(24) Captionmarginright(16) Caption('Method')
+    Define_Com Class(#PRIM_PANL) Name(#MethodDivider) Displayposition(11) Height(1) Left(370) Parent(#COM_OWNER) Tabposition(12) Tabstop(False) Themedrawstyle('TopDivider') Top(492) Width(960)
+    Define_Com Class(#PRIM_LABL) Name(#MethodSpacer) Displayposition(12) Left(370) Parent(#COM_OWNER) Tabposition(6) Themedrawstyle('card+Subheading') Top(493) Height(24) Width(960) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24) Style(#NotaCard)
+    Define_Com Class(#PRIM_LABL) Name(#MethodExample) Displayposition(13) Left(370) Parent(#COM_OWNER) Tabposition(9) Themedrawstyle('card+Subheading') Top(517) Height(40) Width(960) Style(#RoundedBottomCorners) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Resources <= (#Data.GetDataClient( #COM_SELF ) *As #BPFLanguageResourcesDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Get Reference to current user
+    #CurrentResource <= #Resources.Resource<#SYS_WEB.URLParameters<VALUE>.value.UpperCase>
+    
+    * Do we have a resource or do we need to load first
+    If (#CurrentResource *IsNot *Null)
+    
+    #COM_SELF.SetDisplay
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Else
+    
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *NULL)
+    
+    #Resources.GetResourceByIdentifier( #SYS_WEB.URLParameters<VALUE>.value.UpperCase )
+    
+    Else
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#ViewTitle.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Resources.OnGetResourceCompleted)
+    
+    * Get Reference to current object
+    #CurrentResource <= #Resources.Resource<#SYS_WEB.URLParameters<VALUE>.value.UpperCase>
+    #CurrentResource.LoadStrings( #Browser.UserLanguage )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Resources.OnGetResourceFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<RESOURCES.ONGETRESOURCEFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnLoadStringsCompleted)
+    
+    #COM_SELF.SetDisplay
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnLoadStringsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONLOADSTRINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    Mthroutine Name(SetDisplay)
+    
+    * Set font weights
+    #RefHeadingLine.Styles.Add( #FontWeight500Style )
+    #CallHeadingLine.Styles.Add( #FontWeight500Style )
+    #MethodHeadingLine.Styles.Add( #FontWeight500Style )
+    
+    * Set Strings
+    #VIEWTITLE.CAPTION := #Strings.Text<VIEWTITLE.CAPTION>
+    #REFHEADINGLINE.CAPTION := #Strings.Text<REFHEADINGLINE.CAPTION>
+    #CALLHEADINGLINE.CAPTION := #Strings.Text<CALLHEADINGLINE.CAPTION>
+    #METHODHEADINGLINE.CAPTION := #Strings.Text<METHODHEADINGLINE.CAPTION>
+    
+    * Set reference text
+    #RefExample := '*Language Support Reference' + (10).AsUnicodeString + 'Define_Com Class(#' + #CurrentResource.ObjectName + ') Name(#Strings)'
+    
+    * Set Method Call
+    #CallExample := '#COM_SELF.SetStrings'
+    
+    * Set Method
+    #MethodExample := 'Mthroutine Name(SetStrings)' + (10).AsUnicodeString + (10).AsUnicodeString
+    
+    For Each(#String) In(#CurrentResource.Strings)
+    
+    #MethodExample += '#' + #String.Key + ' := #Strings.Text<' + #String.Key + '>' + (10).AsUnicodeString
+    
+    Endfor
+    
+    #MethodExample += (10).AsUnicodeString + 'Endroutine'
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,34 @@
+﻿Field:
+  Name:               BPFGenericPassword
+  Type:               NVarChar
+  Length:             200
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+  - ND
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password"
+      Label:              "Password"
+      Heading1:           "Password"
+
+  - JPN:
+      Description:        "Password"
+      Label:              "Password"
+      Heading1:           "Password"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

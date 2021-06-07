@@ -1,0 +1,1242 @@
+﻿ServerModule:
+  Name:               BPFUserAccountAdminDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal UserAccount Admin Data Server"
+
+  - JPN:
+      Description:        "Portal UserAccount Admin Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RequestedIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#UserSearchValue) Type(*CHAR) Length(256)
+    Define Field(#StatusSearchValue) Reffld(#BPFUserAccountStatus)
+    Define Field(#UserIDValue) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#MoreResults) Type(*BOOLEAN)
+    Define Field(#NextReadDateTime) Reffld(#BPFGenericDateTime)
+    Define Field(#SharesCount) Reffld(#LISTCOUNT)
+    
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSecuiryAdminCheckPassed) Type(*BOOLEAN)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSecuiryAdminCheckPassed #sSessionAuthenicated #sIsoCode)
+    
+    * Group By
+    Group_By Name(#SessionDataGroup) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionRelatedUserID #BPFSessionEventID #BPFSessionEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFSessionEventLabel #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4 #BPFSessionEventValue5)
+    
+    * Data Lists
+    Def_List Name(#UserData) Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserAccountStatus #BPFUserHasAdminRights) Counter(#LISTCOUNT) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#SessionData) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionEventID #BPFSessionEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFGenericNVarChar2048) Counter(#LISTENTRY) Type(*WORKING) Entrys(*MAX)
+    
+    * Shares
+    Def_List Name(#ContentShares) Fields(#BPFContentShareID #BPFContentShareName) Counter(#SharesCount) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Verification
+    Srvroutine Name(VerifyAdminAccount) Session(*REQUIRED)
+    
+    * Input Values
+    Field_Map For(*INPUT) Field(#BPFUserPassword) Parameter_Name(password)
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserPassword) Name(#SavePassword)
+    Define_Com Class(#BPFUserPassword) Name(#CheckPassword)
+    
+    * Local Reference
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'VerifyAdminAccount' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * - Test -*
+    * Check if IP Address is banned
+    If (#Secure.IsIPAddressBanned)
+    
+    * Set Error
+    #BPFstatus := IP
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Save The Password
+    #SavePassword := #BPFUserPassword
+    
+    * Regardless of the outcome ensure that security check has not been passed
+    #sSecuiryAdminCheckPassed := False
+    
+    * Check_For In_File(LTAUMF01) With_Key(#LTAUSR #LTAPSW)
+    Fetch Fields(#BPFUserPassword #BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserPrimaryValue) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Check if Account is Enabled
+    If (#BPFUserAccountEnabled)
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(VerifyAdminAccount) : Securing string') )
+    
+    * Cleanup data and hold a clear copy till later
+    #CheckPassword := #Secure.CleanString( #SavePassword #WTRANSID )
+    #SavePassword := #CheckPassword
+    
+    * Convert for comparison
+    #CheckPassword := #Secure.SecureString( #CheckPassword #BPFUserPrimaryValue )
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(VerifyAdminAccount) : Securing string completed') )
+    
+    If (#BPFUserPassword <> #CheckPassword)
+    
+    #BPFUserInvalidAttempts := #BPFUserInvalidAttempts + 1
+    
+    If (#BPFUserInvalidAttempts = #utils.GetNumericValue( SECURITY LOGIN_ATTEMPT_LIMIT ))
+    
+    #BPFUserAccountEnabled := False
+    #BPFstatus := NV
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.LIMIT False )
+    
+    * Send email
+    If (#Notification.Send( 'ACCOUNT_DISABLED' #sUserAccountIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(VerifyAdminAccount) : disabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(VerifyAdminAccount) : disabled notifcation not sent') )
+    
+    Endif
+    
+    Else
+    
+    #BPFstatus := ER
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.PASSWORD False )
+    
+    Endif
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    
+    Endif
+    
+    Else
+    
+    * Since the user has provided valid details, reset counters and tokens
+    #BPFUserInvalidAttempts := 0
+    #BPFUserEventToken := *null
+    
+    * Set Return as Okay
+    #BPFstatus := OK
+    
+    * We have passed the security check, so flag that
+    #sSecuiryAdminCheckPassed := True
+    
+    * Remove IP from being banned
+    #Secure.ClearRecordedIPAddress
+    
+    * Resalt the password
+    #BPFUserPrimaryValue := *null
+    #BPFUserPassword := #Secure.SecureString( #SavePassword #BPFUserPrimaryValue )
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.SUCCESS True 'success' )
+    
+    Endif
+    
+    * Update the user account for this attempt
+    Update Fields(#BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserPassword #BPFUserPrimaryValue) In_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    Return
+    
+    Endif
+    
+    #BPFstatus := NV
+    
+    * Log event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.DISABLED False )
+    
+    Endif
+    
+    Endroutine
+    
+    * System Role
+    Srvroutine Name(GetAccountsByName) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#UserSearchValue) Parameter_Name(UserValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAccountsByName' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#UserSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    
+    Select Fields(#UserData) From_File(BPFPortalUserAccountByEmail)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#UserData) From_File(BPFPortalUserAccountByEmail) Where((#BPFUserEmail.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserFirstName.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserLastName.LowerCase.Contains( #UserSearchValue.LowerCase )))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetAccountsByStatus) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#StatusSearchValue) Parameter_Name(StatusValue)
+    Field_Map For(*INPUT) Field(#UserSearchValue) Parameter_Name(UserValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAccountsByStatus' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#UserSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    Select Fields(#UserData) From_File(BPFPortalUserAccountByStatus) With_Key(#StatusSearchValue)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#UserData) From_File(BPFPortalUserAccountByStatus) Where((#BPFUserEmail.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserFirstName.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserLastName.LowerCase.Contains( #UserSearchValue.LowerCase ))) With_Key(#StatusSearchValue)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetAccountByID) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#UserIDValue) Parameter_Name(UserValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAccountByID' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Look for user in active accounts
+    Fetch Fields(#UserData) From_File(BPFPortalUserAccounts) With_Key(#UserIDValue.UpperCase)
+    
+    If_Status Is_Not(*NORECORD)
+    
+    * Set Data to Return
+    Add_Entry To_List(#UserData)
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Else
+    
+    * Issue finding in active account, could be removed
+    Fetch Fields(#UserData) From_File(BPFPortalDeletedAccounts) With_Key(#UserIDValue.UpperCase)
+    
+    If_Status Is_Not(*NORECORD)
+    
+    * Set Data to Return
+    Add_Entry To_List(#UserData)
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetRemovedAccounts) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#UserSearchValue) Parameter_Name(UserValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetRemovedAccounts' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Set Static values
+    #BPFUserAccountStatus := Removed
+    #BPFUserHasAdminRights := False
+    
+    If (#UserSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    Select Fields(#UserData) From_File(BPFPortalDeletedAccountByEmail)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#UserData) From_File(BPFPortalDeletedAccountByEmail) Where((#BPFUserEmail.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserFirstName.LowerCase.Contains( #UserSearchValue.LowerCase )) *OrIf (#BPFUserLastName.LowerCase.Contains( #UserSearchValue.LowerCase )))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Sessions
+    
+    * Last Session
+    Srvroutine Name(GetUserLastSession) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFContentShareName) Parameter_Name(ShareName)
+    List_Map For(*OUTPUT) List(#SessionData) Parameter_Name(SessionEvents)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Objects
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetUserLastSession' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Get Sharename if share assigned
+    Fetch Fields(#BPFUserPreferenceContentShare) From_File(BPFPortalUserPreferences) With_Key(#RequestedIdentifier)
+    Message Msgtxt(('User share is ' + #BPFUserPreferenceContentShare))
+    If (#BPFUserPreferenceContentShare.IsNull.IsFalse)
+    Fetch Fields(#BPFContentShareName) From_File(BPFContentShares) With_Key(#BPFUserPreferenceContentShare)
+    Message Msgtxt(('Have share name of ' + #BPFContentShareName))
+    Endif
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #sIsoCode )
+    
+    #Utils.log( ('Admin User Account Data Server : attempting to get last user session events') )
+    
+    * Read last events
+    Fetch Fields(#BPFSessionID) From_File(BPFUserSessionsByNewestDate) With_Key(#RequestedIdentifier)
+    Select Fields(#SessionDataGroup) From_File(BPFSessionEvents) With_Key(#BPFSessionID)
+    
+    * Build the langauge specific presentation string
+    #BPFGenericNVarChar2048 := #Strings.Text<#BPFSessionEventID.AsNativeString>.Replace( '%%1%%' #BPFSessionEventValue1 ).Replace( '%%2%%' #BPFSessionEventValue2 ).Replace( '%%3%%' #BPFSessionEventValue3 ).Replace( '%%4%%' #BPFSessionEventValue4 ).Replace( '%%5%%' #BPFSessionEventValue5 )
+    
+    
+    Add_Entry To_List(#SessionData)
+    
+    Endselect
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : get of last session events success') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : get of last session events failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Session and Event Data for User
+    Srvroutine Name(GetUserSessionEvents) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericDateTime) Parameter_Name(StartingDate)
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(ForLabel)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#SessionData) Parameter_Name(UserSessionEvents)
+    Field_Map For(*OUTPUT) Field(#NextReadDateTime) Parameter_Name(NextDateTime)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Objects
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetUserSessionEvents' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #sIsoCode )
+    
+    #Utils.log( ('Admin User Account Data Server : attempting to get user session events') )
+    
+    * If we pass in a next date, then we use it as the next page is being requested
+    If (#NextReadDateTime.IsNotSqlNull)
+    
+    #BPFGenericDateTime := #NextReadDateTime
+    
+    Endif
+    
+    * Ensure the next date is null as it is teh control value for more records
+    #NextReadDateTime := *SQLNULL
+    
+    * Read events
+    Select Fields(#SessionDataGroup) From_File(BPFUserSessionsByNewestDate) With_Key(#RequestedIdentifier #BPFGenericDateTime) Nbr_Keys(*COMPUTE) Options(*STARTKEY)
+    
+    * Only Read for this user
+    Continue If(#RequestedIdentifier <> #BPFSessionRelatedUserID)
+    
+    If (#LISTENTRY >= 25)
+    
+    * if we got here, send out the next date and finish up
+    #NextReadDateTime := #BPFSessionStarted
+    Leave
+    
+    Endif
+    
+    * Now Get Event Data
+    Select Fields(#SessionDataGroup) From_File(BPFSessionEvents) With_Key(#BPFSessionID)
+    
+    * If filter label set, check it matches, if not dont add
+    If ((#BPFCodeName.IsNull.IsFalse) *AndIf (#BPFCodeName.lowercase <> #BPFSessionEventLabel.lowercase))
+    Continue
+    Endif
+    
+    * Build the langauge specific presentation string
+    #BPFGenericNVarChar2048 := #Strings.Text<#BPFSessionEventID.AsNativeString>.Replace( '%%1%%' #BPFSessionEventValue1 ).Replace( '%%2%%' #BPFSessionEventValue2 ).Replace( '%%3%%' #BPFSessionEventValue3 ).Replace( '%%4%%' #BPFSessionEventValue4 ).Replace( '%%5%%' #BPFSessionEventValue5 )
+    
+    * Add the event data
+    Add_Entry To_List(#SessionData)
+    
+    Endselect
+    
+    Leave If(#IO$STS = ER)
+    
+    Endselect
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : get of session events success') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : get of session events failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Shares
+    Srvroutine Name(GetContentShares) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ContentShares) Parameter_Name(Shares)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContentShares' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    Select Fields(#ContentShares) From_File(BPFContentSharesByName)
+    
+    
+    Add_Entry To_List(#ContentShares)
+    
+    Endselect
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Set Admin Role
+    Srvroutine Name(SetAccountAdminRole) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    Field_Map For(*INPUT) Field(#BPFUserHasAdminRights) Parameter_Name(ToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetAccountAdminRole' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to set admin rights') )
+    
+    * Update Account
+    Fetch Fields(#BPFUserEmail) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    Update Fields(#BPFUserHasAdminRights) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier + ' had admin rights set to ' + #BPFUserHasAdminRights.asstring).AsNativeString )
+    
+    * Set Session events for authorising user
+    If (#BPFUserHasAdminRights)
+    
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ADMINRIGHTS.GRANTED False #BPFUserEmail.AsNativeString )
+    
+    Else
+    
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ADMINRIGHTS.REVOKED False #BPFUserEmail.AsNativeString )
+    
+    Endif
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to set admin rights') )
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : failed to set admin rights reason security') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Account Actions
+    
+    * Disable account
+    Srvroutine Name(SetAccountDisabled) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFUserAccountStatus) Parameter_Name(NewStatus)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetAccountDisabled' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to set account disabled') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If ((#BPFUserAccountStatus.UpperCase = ACTIVE) *Or (#BPFUserAccountStatus.UpperCase = RESET))
+    
+    * Set Values
+    #BPFUserAccountEnabled := False
+    #BPFUserEventToken := *Null
+    
+    * Update Account
+    Update Fields(#BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.DISABLED False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'ACCOUNT_DISABLED' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(SetAccountDisabled) : disabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(SetAccountDisabled) : disabled notifcation not sent') )
+    
+    Endif
+    
+    * Get new status
+    Fetch Fields(#BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier.AsNativeString + ' has been disabled') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to set user ' + #RequestedIdentifier.AsNativeString + ' to disabled') )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Disable account
+    Srvroutine Name(SetAccountEnabled) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFUserAccountStatus) Parameter_Name(NewStatus)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetAccountEnabled' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to set account enabled') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserAccountStatus.UpperCase = DISABLED)
+    
+    * Set Values
+    #BPFUserAccountEnabled := False
+    #BPFUserEventToken := *GUID
+    
+    * Update Account
+    Update Fields(#BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.ENABLE False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'ACCOUNT_ENABLED' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(SetAccountEnabled) : enabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(SetAccountEnabled) : enabled notifcation not sent') )
+    
+    Endif
+    
+    * Get new status
+    Fetch Fields(#BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier.AsNativeString + ' has been set to be enabled') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to set user ' + #RequestedIdentifier.AsNativeString + ' to be enabled') )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Rsend Password Reset
+    Srvroutine Name(ResendPasswordReset) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ResendPasswordReset' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to resend of password reset request') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserAccountStatus.UpperCase = RESET)
+    
+    * Set Values
+    #BPFUserEventToken := *GUID
+    
+    * Update Account
+    Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.RESET False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'RESET_PASSWORD' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendPasswordReset) : notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendPasswordReset) : notifcation not sent') )
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    
+    Endroutine
+    
+    * Welcome new account Reset
+    Srvroutine Name(ResendConfirmAccount) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ResendConfirmAccount' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to resend of confirm account') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserAccountStatus.UpperCase = NEW)
+    
+    * Set Values
+    #BPFUserEventToken := *GUID
+    
+    * Update Account
+    Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.CONFIRM False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'WELCOME' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendConfirmAccount) : notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendConfirmAccount) : notifcation not sent') )
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Welcome new account Reset
+    Srvroutine Name(ResendSecurityReset) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ResendSecurityReset' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to resend of security reset') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserAccountStatus.UpperCase = PENDING)
+    
+    * Set Values
+    #BPFUserEventToken := *GUID
+    
+    * Update Account
+    Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.SECURITY False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'RESET_ACCOUNT_SECURITY' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendSecurityReset) : notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResendSecurityReset) : notifcation not sent') )
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    
+    Endroutine
+    
+    * Reset Account Security
+    Srvroutine Name(ResetSecurity) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFUserAccountStatus) Parameter_Name(NewStatus)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ResetSecurity' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryAdminCheckPassed)
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to reset account security') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserEmail #BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserAccountStatus.UpperCase <> NEW)
+    
+    * Set Values
+    
+    * Null Security
+    #BPFUserPassword #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserPrimaryValue #BPFUserSecondaryValue := *Null
+    #BPFUserAccountEnabled := False
+    
+    * Set Event Token
+    #BPFUserEventToken := *GUID
+    
+    * Update Account to put account in a pending state.
+    Update Fields(#BPFUserPassword #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserPrimaryValue #BPFUserSecondaryValue #BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.SECURITY.SENT False #BPFUserEmail.AsNativeString )
+    
+    * Send Notification
+    If (#Notification.Send( 'RESET_ACCOUNT_SECURITY' #RequestedIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResetSecurity) : enabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Admin User Account Data Server : Srvroutine Name(ResetSecuirty) : enabled notifcation not sent') )
+    
+    Endif
+    
+    * Get new status
+    Fetch Fields(#BPFUserAccountStatus) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier.AsNativeString + ' has had security reset') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('Admin User Account Data Server : failed to reset secuirty for user ' + #RequestedIdentifier.AsNativeString) )
+    
+    Endif
+    
+    Endif
+    
+    * Change is made so the flag is reset,
+    #sSecuiryAdminCheckPassed := False
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #Utils.log( ('Admin User Account Data Server : ' + #RequestedIdentifier.AsNativeString + ' failed, reason security.') )
+    
+    Endif
+    
+    Endroutine
+    
+    
+    Srvroutine Name(SetUserShare) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedIdentifier) Parameter_Name(ForUser)
+    Field_Map For(*INPUT) Field(#BPFUserPreferenceContentShare) Parameter_Name(ToShare)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetUserShare' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure due to wrong status
+    #BPFStatus := NV
+    
+    #Utils.log( ('Admin User Account Data Server : attemtping to reset account security') )
+    
+    * Check okay to process
+    Fetch Fields(#BPFUserHasAdminRights) From_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
+    If (#BPFUserHasAdminRights.IsFalse)
+    
+    If ((#BPFUserPreferenceContentShare = NOSHARE) *Or (#BPFUserPreferenceContentShare.IsNull))
+    
+    #BPFUserPreferenceContentShare := *SQLNULL
+    
+    Endif
+    
+    * Update Account preference for user.
+    Update Fields(#BPFUserPreferenceContentShare) In_File(BPFPortalUserPreferences) With_Key(#RequestedIdentifier)
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.CONTENT.SET False #BPFUserEmail.AsNativeString )
+    
+    #BPFStatus := OK
+    #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier.AsNativeString + ' had content share to ' + #BPFUserPreferenceContentShare) )
+    
+    Else
+    
+    #Utils.log( ('Admin User Account Data Server : failed to set content share for user ' + #RequestedIdentifier.AsNativeString) )
+    
+    Endif
+    
+    Else
+    
+    #Utils.log( ('Admin User Account Data Server : failed to set content share for user ' + #RequestedIdentifier.AsNativeString + ' due to being an administrator') )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

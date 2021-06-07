@@ -1,0 +1,51 @@
+﻿Reusable Part:
+  Name:               BPFEditContentShareViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Edit Content Share View Strings"
+
+  - JPN:
+      Description:        "Edit Content Share View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'FOLDERLISTINGNAMECOLUMN.COLUMNCAPTION'> := "Name"
+    #STRINGSCOLLECTION<'FOLDERLISTINGMODIFIEDCOLUMN.COLUMNCAPTION'> := "Modified"
+    #STRINGSCOLLECTION<'FOLDERLISTINGDETAILCOLUMN.COLUMNCAPTION'> := "Details"
+    #STRINGSCOLLECTION<'FOLDERLISTINGDETAILCOLUMN.FOLDERTEXT'> := "Items"
+    
+    #STRINGSCOLLECTION<'NOCONTENTSHINT.CAPTION'> := "Add folders or items"
+    
+    #STRINGSCOLLECTION<'SHARING.ONGETSHARESFAILED'> := "Error reading content share details"
+    #STRINGSCOLLECTION<'SHARING.ONGETSHARESFAILED.NOTSHARED'> := "This content is no longer shared with you"
+    
+    #STRINGSCOLLECTION<'SHARING.ONDELETESHAREFAILED'> := "Error removing share"
+    
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONGETFOLDERITEMSFAILED'> := "Error reading folder items"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONGETFOLDERITEMSFAILED.NOTSHARED'> := "This content is no longer shared with you"
+    
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONADDFOLDERFAILED'> := "Error adding folder"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONREMOVEITEMSFAILED'> := "Error removing items"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONMOVEITEMSFAILED'> := "Error moving items"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONCOPYITEMSFAILED'> := "Error copying items"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONADDITEMSFAILED'> := "Error adding items"
+    #STRINGSCOLLECTION<'CURRENTSHARE.ONRENAMEFAILED'> := "Error renaming share"
+    
+    Endroutine
+    
+    End_Com

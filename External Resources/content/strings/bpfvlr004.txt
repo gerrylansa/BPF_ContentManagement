@@ -1,0 +1,37 @@
+%%USER%%'s Activity Settings
+
+View, download or remove the activity data %%APP%% has stored about you
+
+Session History
+
+View your session activity on %%APP%% including details such as your access, when you updated your information, downloads and emails sent to you by our systems.
+
+iew your session history
+
+Download Activity
+
+Download a detailed listing of your actvity in %%APP%%.
+
+Download activity data
+
+Clear Activity Data
+
+Remove the activity data that %%APP%% has stored about you.
+
+Clear activity data
+
+Only you can change your settings. %%APP%% is committed to your privacy and security
+
+
+#PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+#PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+#VIEWSESSIONSCARD.HEADING := #STRINGS.Text<VIEWSESSIONSCARD.HEADING>
+#VIEWSESSIONSCARD.TEXT := #STRINGS.Text<VIEWSESSIONSCARD.TEXT>
+#VIEWSESSIONSCARD.ACTION := #STRINGS.Text<VIEWSESSIONSCARD.ACTION>
+#DOWNLOADSESSIONSCARD.HEADING := #STRINGS.Text<DOWNLOADSESSIONSCARD.HEADING>
+#DOWNLOADSESSIONSCARD.TEXT := #STRINGS.Text<DOWNLOADSESSIONSCARD.TEXT>
+#DOWNLOADSESSIONSCARD.ACTION := #STRINGS.Text<DOWNLOADSESSIONSCARD.ACTION>
+#DELETESESSIONSCARD.HEADING := #STRINGS.Text<DELETESESSIONSCARD.HEADING>
+#DELETESESSIONSCARD.TEXT := #STRINGS.Text<DELETESESSIONSCARD.TEXT>
+#DELETESESSIONSCARD.ACTION := #STRINGS.Text<DELETESESSIONSCARD.ACTION>
+#FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>

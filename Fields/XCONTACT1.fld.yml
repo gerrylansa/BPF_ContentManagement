@@ -1,0 +1,17 @@
+﻿Field:
+  Name:               xContactFaxNumber
+  Type:               Char
+  Length:             15
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContactFaxNumber"
+      Label:              "xContactFaxNumb"
+      Heading1:           "xContactFaxNumber"

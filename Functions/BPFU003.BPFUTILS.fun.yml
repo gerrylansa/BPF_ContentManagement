@@ -1,0 +1,131 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    Function Options(*DIRECT *NOMESSAGES)
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1989
+    * Process .......: BPFUTILS
+    * Function ......: BPFU003
+    * Created by ....:
+    * Created on ....: 20/04/02 at 12:53:44
+    * Description ...: Automatic Clearing of IP Bans
+    * =======================================================
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils)
+    Define_Com Class(#XPRIM_OSUtil) Name(#OS)
+    
+    * Working Field
+    Define Field(#LoopDelay) Type(*DEC) Length(15) Decimals(0) Default(60000)
+    Define Field(#AsleepFor) Type(*DEC) Length(15) Decimals(0) Default(60000)
+    Define Field(#SleepInterval) Type(*DEC) Length(15) Decimals(0)
+    Define Field(#CurrentEpoch) Type(*DEC) Length(10) Decimals(0)
+    Define Field(#Duration) Type(*DEC) Length(10) Decimals(0)
+    * Lists
+    Def_List Name(#Victims) Fields(#BPFRecordedIPAddress #BPFIPAddressAttemptRecorded) Type(*WORKING) Entrys(*MAX)
+    
+    * =======================================================
+    * Program Mainline : BPFU003
+    * =======================================================
+    
+    * Set Logging override
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_PROCESSES' 'CLEAR_BANNED_IPS' ) = 1)
+    
+    * Check if we are running, end if we are
+    If (#Utils.GetNumericValue( 'SYSTEM' 'STARTED_CLEAR_IPS' 1 ) = 1)
+    
+    #Utils.log( ('Clearing of IP Bans : process is running already so ending') )
+    
+    Use Builtin(CLR_MESSAGES)
+    Return
+    
+    Endif
+    
+    * Flag process started and clear pending changes flag
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_CLEAR_IPS' 1 1 )
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_CHANGES_PENDING' 1 0 )
+    
+    * Get start up values
+    #SleepInterval := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_SLEEP_TIME' )
+    #Duration := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_BAN_DURATION' )
+    
+    * Enter a loop to ensure processing continues until external ended or a contol end is
+    * detected
+    Begin_Loop
+    
+    If (#AsleepFor = #SleepInterval)
+    
+    #Utils.log( ('Clearing of IP Bans : Start a checking for banned IPs') )
+    
+    * Set the current Epoch
+    #CurrentEpoch := #Utils.GetDateTimeInEpoch
+    #Utils.log( ('Clearing of IP Bans : The current server epoch is ' + #CurrentEpoch.AsString) )
+    
+    * Read all current IP that are banned
+    * #STD_QSEL := 'SELECT BPFRecordedIPAddress, BPFIPAddressAttemptRecorded FROM ' + *PARTDTALIB + '.BPFBannedIPAddresses WHERE (BPFRecordedIPAddressIsBanned = 1)'
+    #BPFGenericNVarChar256 := 'SELECT BPFRecordedIPAddress, BPFIPAddressAttemptRecorded FROM ' + #Utils.GetAlphaValue( 'SYSTEM' 'SCHEMA' ) + '.BPFBannedIPAddresses WHERE (BPFRecordedIPAddressIsBanned = 1)'
+    
+    #Utils.log( ('Clearing of IP Bans : Searching for banned address via ' + #STD_QSEL) )
+    
+    Select_Sql Fields(#BPFRecordedIPAddress #BPFIPAddressAttemptRecorded) Using(#STD_QSEL)
+    
+    Add_Entry To_List(#Victims)
+    
+    Endselect
+    
+    #Utils.log( ('Clearing of IP Bans : Current duration of bans is ' + #Duration.asstring + ' seconds') )
+    
+    * Process the possible victims
+    Selectlist Named(#Victims)
+    
+    #Utils.log( ('Clearing of IP Bans : ' + #BPFRecordedIPAddress + ' was banned ' + (#CurrentEpoch - #Utils.GetDateTimeInEpoch( #BPFIPAddressAttemptRecorded )).asstring + ' seconds ago') )
+    
+    If ((#CurrentEpoch - #Utils.GetDateTimeInEpoch( #BPFIPAddressAttemptRecorded )) >= #Duration)
+    
+    #Utils.log( ('Clearing of IP Bans : Over limit so REMOVING ' + #BPFRecordedIPAddress) )
+    Delete From_File(BPFBannedIPAddresses) With_Key(#BPFRecordedIPAddress)
+    
+    Else
+    
+    #Utils.log( ('Clearing of IP Bans : Under limit so keeping ' + #BPFRecordedIPAddress) )
+    
+    Endif
+    
+    Endselect
+    
+    * Clear out the victims
+    Clr_List Named(#Victims)
+    
+    * We awoke from sleep so reset the how long we have been asleep
+    #AsleepFor := 0
+    
+    Endif
+    
+    * Detect if a controlled end has been requested
+    If (#Utils.GetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' ) = 1)
+    
+    #Utils.Log( ('Clearing of IP Bans : Controlled end request detected, so ending now') )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' 1 0 )
+    
+    Leave
+    
+    Else
+    
+    * All that work could make anyone tired, so going to have a nap now
+    #Utils.log( ('Clearing of IP Bans : Asleep for ' + #AsleepFor.AsString + ' milliseconds and Sleeping till ' + #SleepInterval.asstring + ' milliseconds for next check.') )
+    #OS.ThreadSleep Milliseconds(#LoopDelay)
+    
+    * Update how long we have been asleep
+    #AsleepFor := #AsleepFor + #LoopDelay
+    
+    Endif
+    
+    End_Loop
+    
+    * Process ended so flag ended and cleanup and return
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_CLEAR_IPS' 1 0 )
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_CHANGES_PENDING' 1 0 )
+    
+    Use Builtin(CLR_MESSAGES)
+    Return

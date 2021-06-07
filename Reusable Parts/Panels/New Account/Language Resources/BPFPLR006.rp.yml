@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFNewAccountCompletedPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "New Account Completed Panel Strings"
+
+  - JPN:
+      Description:        "New Account Completed Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Weclome to %%APP%%"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Your account is created, just one more thing"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "Since will be communicating to you via email we just need to ensure your email account is working, so we have sent you a welcome email. Just following the instructions in the email and click the link inside it and your new account will be activated so you can starting using %%APP%%. See you soon."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "Your account is awaiting"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Done"
+    
+    Endroutine
+    
+    End_Com

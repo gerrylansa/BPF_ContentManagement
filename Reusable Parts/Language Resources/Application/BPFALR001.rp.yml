@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFApplicationStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Application Strings"
+
+  - JPN:
+      Description:        "Application Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'APP.NAME'> := "myPortal"
+    #STRINGSCOLLECTION<'APP.ICON'> := "cloud"
+    #STRINGSCOLLECTION<'APP.SIGNOUT'> := "Sign out"
+    #STRINGSCOLLECTION<'APP.FORMAT.FULLNAME'> := "%%FIRSTNAME%% %%LASTNAME%%"
+    #STRINGSCOLLECTION<'APP.FORMAT.DAYANDDATE'> := "%%DAYLONG%%, %%DAYSHORT%% %%MONTHLONG%% %%YEAR%%"
+    
+    
+    Endroutine
+    
+    End_Com

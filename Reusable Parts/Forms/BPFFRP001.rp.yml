@@ -1,0 +1,137 @@
+﻿Reusable Part:
+  Name:               BPFPortalWebpageUpdater
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Montior and update webpage"
+
+  - JPN:
+      Description:        "Montior and update webpage"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * References
+    Define_Com Class(#BPFDirectoryWatchPlugin.apHandlers.DirectoryWatcher) Name(#Watcher)
+    
+    * Events
+    Define_Evt Name(LastChecked)
+    Define_Map For(*INPUT) Class(#PRIM_DAT) Name(#When)
+    
+    Define_Evt Name(WebpageUpdated)
+    Define_Map For(*INPUT) Class(#PRIM_DAT) Name(#When)
+    
+    * Controls
+    Define_Com Class(#PRIM_TIMR) Name(#StartDelay) Interval(25) Startup(Manual)
+    
+    * File Path
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    Evtroutine Handling(#StartDelay.Tick)
+    
+    #StartDelay.Stop
+    #COM_SELF.WatchforChanges
+    
+    #StartDelay.Start
+    
+    Endroutine
+    
+    Mthroutine Name(Start)
+    
+    * Set Watch Values
+    #Watcher.EventsToAction := 'Change'
+    #Watcher.FileFilter := 'bpfportal.html'
+    #FilePath := *PART_DIR + *PATHDELIM + 'web' + *PATHDELIM + 'vl'
+    #Watcher.SetWatchOn( #FilePath )
+    
+    #StartDelay.Start
+    
+    Endroutine
+    
+    Mthroutine Name(WatchforChanges) Access(*PRIVATE)
+    
+    Case Of_Field(#Watcher.WaitforChange)
+    
+    When Value_Is(= CHANGE)
+    
+    #COM_SELF.UpdatePortalPage
+    
+    * Update Status
+    Signal Event(WebpageUpdated) When(#STD_DTIMX.Now)
+    
+    Otherwise
+    
+    * Just a noop
+    Signal Event(LastChecked) When(#STD_DTIMX.Now)
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(UpdatePortalPage) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_File) Name(#PortalsHTMLFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#FileStatus)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#HTML)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Position)
+    Define_Com Class(#PRIM_NMBR) Name(#Length)
+    
+    * Assume failure
+    #Result := False
+    
+    * Set Path to File
+    #PortalsHTMLFile.Path := #FilePath + *PATHDELIM + 'bpfportal.html'
+    
+    * Check file Exists
+    If (#PortalsHTMLFile.Exists)
+    
+    * Read in the file contents
+    #HTML := #PortalsHTMLFile.ReadAllText( #FileStatus )
+    
+    If (#FileStatus.OK)
+    
+    * Check change needs to be made, just in case the user changes the file manually while
+    * monitoring is running
+    If (#HTML.Contains( 'PORTALIZE.language' ).IsFalse)
+    
+    * All okay, so strat chaning
+    
+    * We read, so lets get Position and length
+    #Position := #HTML.PositionOf( '":"' ) + 2
+    #Length := #HTML.PositionOf( ":" (#Position + 1) ) - (#Position + 6)
+    
+    #HTML := #HTML.ReplaceSubstring( #Position #Length 'PORTALIZE.language' )
+    
+    * Lets Update the HTML File
+    #PortalsHTMLFile.WriteAllText Text(#HTML) Append(False) Errorinfo(#FileStatus)
+    If (#FileStatus.OK.IsFalse)
+    
+    Return
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    Return
+    
+    Endif
+    
+    Else
+    
+    Return
+    
+    Endif
+    
+    * Success !!
+    #Result := True
+    
+    Endroutine
+    
+    End_Com

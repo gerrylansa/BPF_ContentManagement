@@ -1,0 +1,176 @@
+﻿Web View:
+  Name:               BPFSettingsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Settings View"
+
+  - JPN:
+      Description:        "Portal User Settings View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(852) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSettingsViewStrings) Name(#Strings)
+    
+    * Panel Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main Panel Layouts
+    
+    * Desktop
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MainDesktopLayout) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(44) Minwidth(140) Maxwidth(420)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn3) Displayposition(3) Parent(#MainDesktopLayout) Width(44) Minwidth(140) Maxwidth(420)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn4) Displayposition(4) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(220) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow2) Displayposition(2) Parent(#MainDesktopLayout) Height(244) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow3) Displayposition(3) Parent(#MainDesktopLayout) Height(244) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow4) Displayposition(4) Parent(#MainDesktopLayout) Units(Pixels) Height(120)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem1) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Avatar) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentWidthAndHeight) Columnspan(2) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem2) Column(#MainDesktopLayoutColumn2) Manage(#PanelTitle) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Columnspan(2) Flow(Down) Alignment(TopCenter) Margintop(17) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem3) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#PanelExplanation) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Columnspan(2) Marginleft(24) Marginright(24) Flow(Down) Margintop(29)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem4) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#DetailsCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow2) Flow(Down) Marginright(12) Margintop(24) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem5) Alignment(TopLeft) Column(#MainDesktopLayoutColumn3) Manage(#SecurityCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow2) Flow(Down) Margintop(24) Marginleft(12) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem6) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#ActivityCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Flow(Down) Sizing(FitToWidth) Margintop(24) Marginright(12)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem7) Alignment(TopLeft) Column(#MainDesktopLayoutColumn3) Manage(#PreferencesCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Flow(Down) Sizing(FitToWidth) Margintop(24) Marginleft(12)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem8) Column(#MainDesktopLayoutColumn2) Manage(#FooterText) Parent(#MainDesktopLayout) Sizing(ContentHeightFitToWidth) Columnspan(2) Alignment(TopCenter) Row(#MainDesktopLayoutRow4) Marginleft(24) Marginright(24) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem9) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#PanelNavigationIcon) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(None)
+    
+    * Mobile Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainMobileLayout) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainMobileLayoutColumn1) Displayposition(1) Parent(#MainMobileLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainMobileLayoutColumn2) Displayposition(2) Parent(#MainMobileLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainMobileLayoutColumn3) Displayposition(3) Parent(#MainMobileLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainMobileLayoutRow1) Displayposition(1) Parent(#MainMobileLayout) Height(1265) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem1) Alignment(TopCenter) Column(#MainMobileLayoutColumn2) Manage(#Avatar) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem2) Alignment(TopCenter) Column(#MainMobileLayoutColumn2) Manage(#PanelTitle) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(17) Marginleft(16) Marginright(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem3) Alignment(TopCenter) Column(#MainMobileLayoutColumn2) Manage(#PanelExplanation) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Sizing(ContentHeightFitToWidth) Marginleft(16) Marginright(16) Flow(Down) Margintop(29)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem4) Manage(#DetailsCard) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Alignment(TopCenter) Column(#MainMobileLayoutColumn2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem5) Manage(#SecurityCard) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Column(#MainMobileLayoutColumn2) Alignment(TopCenter) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem6) Manage(#ActivityCard) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Column(#MainMobileLayoutColumn2) Alignment(TopCenter) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem7) Manage(#PreferencesCard) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Column(#MainMobileLayoutColumn2) Alignment(TopCenter) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem8) Alignment(TopCenter) Column(#MainMobileLayoutColumn2) Manage(#FooterText) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainMobileLayoutItem9) Alignment(TopLeft) Column(#MainMobileLayoutColumn2) Manage(#PanelNavigationIcon) Parent(#MainMobileLayout) Row(#MainMobileLayoutRow1) Sizing(None)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(430) Parent(#COM_OWNER) Tabposition(8) Top(24) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(2) Height(100) Icon('person') Left(800) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('MediumTitle+Rounded') Top(24) Width(100) Iconheight(100)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Caption('&1''s Settings Panel') Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(47) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Heading2+ForegroundTheme') Top(217) Height(27) Width(792) Caption('Here you can control all of your info, security and activity to make myPortal work for you') Wordwrap(True) Captionalignment(Center)
+    
+    * Cards
+    Define_Com Class(#BPFMenuItemActionCard) Name(#DetailsCard) Parent(#COM_OWNER) Left(430) Top(268) Tabposition(4) Displayposition(5)
+    Define_Com Class(#BPFMenuItemActionCard) Name(#SecurityCard) Parent(#COM_OWNER) Left(862) Top(268) Tabposition(5) Displayposition(6)
+    Define_Com Class(#BPFMenuItemActionCard) Name(#ActivityCard) Parent(#COM_OWNER) Left(430) Top(512) Tabposition(6) Displayposition(7)
+    Define_Com Class(#BPFMenuItemActionCard) Name(#PreferencesCard) Parent(#COM_OWNER) Left(862) Top(512) Tabposition(7) Displayposition(8)
+    
+    * Footer
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterText) Captionalignment(TopCenter) Displayposition(9) Height(45) Parent(#COM_OWNER) Tabposition(9) Top(756) Width(792) Wordwrap(True) Caption('Only you can change your settings. myPortal is committed to your privacy and security') Paddingbottom(24) Left(454)
+    
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Menu Display
+    #COM_SELF.HandleCardSetup
+    
+    * Set Layout
+    #COM_SELF.HandleDeviceChanged
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Panel Navigation
+    Evtroutine Handling(#PanelNavigationIcon.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleCardSetup) Access(*PRIVATE)
+    
+    #PanelTitle.Caption := #Strings.Text<PANELTITLE.CAPTION>
+    #PanelExplanation.Caption := #Strings.Text<PANELEXPLANATION.CAPTION>
+    
+    #DetailsCard.SetDisplay( #Strings.Text<DETAILSCARD.HEADING> 'assignment_ind' #Strings.Text<DETAILSCARD.TEXT> #Strings.Text<DETAILSCARD.ACTION> 'USERACCOUNTPROFILEVIEW' true )
+    #SecurityCard.SetDisplay( #Strings.Text<SECURITYCARD.HEADING> 'lock' #Strings.Text<SECURITYCARD.TEXT> #Strings.Text<SECURITYCARD.ACTION> 'USERSECURITYSETTINGS' true )
+    #ActivityCard.SetDisplay( #Strings.Text<ACTIVITYCARD.HEADING> 'schedule' #Strings.Text<ACTIVITYCARD.TEXT> #Strings.Text<ACTIVITYCARD.ACTION> 'USERACTIVITYSETTINGS' true )
+    #PreferencesCard.SetDisplay( #Strings.Text<PREFERENCESCARD.HEADING> 'check_box' #Strings.Text<PREFERENCESCARD.TEXT> #Strings.Text<PREFERENCESCARD.ACTION> 'USERPREFERENCESVIEW' true )
+    
+    #FooterText.Caption := #Strings.Text<FOOTERTEXT.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    If (#SYS_WEB.Device = Mobile)
+    
+    #Com_self.SetMobile
+    
+    Else
+    
+    #COM_SELF.SetDesktop
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetMobile) Access(*PRIVATE)
+    
+    #COM_SELF.LayoutManager <= #MainMobileLayout
+    
+    Endroutine
+    
+    Mthroutine Name(SetDesktop) Access(*PRIVATE)
+    
+    #COM_SELF.LayoutManager <= #MainDesktopLayout
+    
+    If (#DetailsCard.TextAreaHeight > #SecurityCard.TextAreaHeight)
+    
+    #SecurityCard.TextAreaHeight := #DetailsCard.TextAreaHeight
+    
+    Endif
+    
+    If (#SecurityCard.TextAreaHeight > #DetailsCard.TextAreaHeight)
+    
+    #DetailsCard.TextAreaHeight := #SecurityCard.TextAreaHeight
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

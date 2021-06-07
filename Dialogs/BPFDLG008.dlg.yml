@@ -1,0 +1,163 @@
+﻿Web Dialog:
+  Name:               BPFShareItemAddFolderDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Add Folder Dialog"
+
+  - JPN:
+      Description:        "Share Item Add Folder Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Width(392) Height(180) Layoutmanager(#Layout1) Style(#Style1) Themedrawstyle('text(0,0,0,0.87)')
+    
+    * Application References
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Strings
+    Define_Com Class(#BPFShareItemAddFolderDialogStrings) Name(#Strings)
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Cornerbottomleft(4) Cornerbottomright(4) Cornertopleft(4) Cornertopright(4) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    
+    * Dialog Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1) Marginbottom(24) Marginleft(24) Marginright(24) Margintop(24)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1) Height(26) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row2) Displayposition(2) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row3) Displayposition(3) Parent(#Layout1) Height(32) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopLeft) Column(#Layout1Column1) Manage(#DialogTitle) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthFitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Alignment(TopRight) Column(#Layout1Column1) Manage(#DialogClose) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Alignment(TopRight) Column(#Layout1Column1) Manage(#DialogConfirm) Parent(#Layout1) Row(#Layout1Row3) Sizing(ContentWidthFitToHeight) Flow(Left)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item4) Alignment(TopRight) Column(#Layout1Column1) Manage(#DialogCancel) Parent(#Layout1) Row(#Layout1Row3) Sizing(ContentWidthFitToHeight) Flow(Left) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item5) Alignment(CenterLeft) Column(#Layout1Column1) Manage(#FolderNameEdit) Parent(#Layout1) Row(#Layout1Row2) Sizing(FitToWidth)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Add Folder') Displayposition(1) Left(24) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(96) Height(26)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogClose) Displayposition(2) Left(342) Parent(#COM_OWNER) Tabposition(2) Top(24) Width(24) Height(24) Icon('close') Iconheight(16) Paddingbottom(4) Paddingleft(4) Paddingright(4) Paddingtop(4)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DialogConfirm) Caption('ADD') Displayposition(3) Left(314) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('MediumTitle') Top(122) Width(52) Height(32) Paddingleft(10) Paddingright(10)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogCancel) Caption('CANCEL') Displayposition(4) Left(213) Parent(#COM_OWNER) Tabposition(4) Top(122) Width(77) Height(32) Paddingleft(10) Paddingright(10)
+    Define_Com Class(#PRIM_MD.Edit) Name(#FolderNameEdit) Displayposition(5) Left(24) Parent(#COM_OWNER) Tabposition(5) Top(68) Width(342) Height(36) Appearance(TextFieldArea) Helperposition(None) Captionposition(None) Clearbutton(True)
+    
+    * References
+    Define_Com Class(#BPFContentShareClass) Name(#CurrentShare) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFPortal.SizeChanged #COM_OWNER.Prepare)
+    
+    #COM_SELF.HandleSetWidth
+    
+    Endroutine
+    
+    * Navigate
+    Evtroutine Handling(#Navigate.OnNavigationEvent)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    * Field
+    Evtroutine Handling(#FolderNameEdit.Changed)
+    
+    #DialogConfirm.Enabled := (#FolderNameEdit.Value.IsNull.IsFalse)
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#DialogCancel.Click #DialogClose.Click)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    Evtroutine Handling(#DialogConfirm.Click #FolderNameEdit.Enter)
+    
+    If (#DialogConfirm.Enabled)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentShare.AddFolder( #FolderNameEdit )
+    #COM_SELF.CloseDialog
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(OpenDialog)
+    Define_Map For(*INPUT) Class(#BPFContentShareClass) Name(#ForShare) Pass(*BY_REFERENCE)
+    
+    * Set Reference
+    #CurrentShare <= #ForShare
+    
+    * Set Value
+    #FolderNameEdit := #STRINGS.Text<'FOLDERNAMEEDIT.DEFAULT'>
+    
+    * Open the dialog
+    #COM_SELF.Show
+    
+    Endroutine
+    
+    Mthroutine Name(CloseDialog)
+    
+    * Clear References
+    #CurrentShare <= *Null
+    
+    * Close
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSetWidth) Access(*PRIVATE)
+    
+    If (#SYS_WEB.WebPage.Width < 400)
+    
+    #COM_SELF.Width := #SYS_WEB.WebPage.Width - 32
+    
+    Else
+    
+    #COM_SELF.Width := 392
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #DialogTitle.Caption := #STRINGS.Text<'DIALOGTITLE.CAPTION'>
+    #DialogCancel.Caption := #STRINGS.Text<'DIALOGCANCEL.CAPTION'>
+    #DialogConfirm.Caption := #STRINGS.Text<'DIALOGCONFIRM.CAPTION'>
+    
+    Endroutine
+    
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    
+    Else
+    
+    #COM_SELF.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

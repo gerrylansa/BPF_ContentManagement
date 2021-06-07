@@ -1,0 +1,340 @@
+﻿Web View:
+  Name:               BPFUserPreferencesView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Preferences"
+
+  - JPN:
+      Description:        "Portal User Preferences"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True)
+    
+    * Note for this view : This view's control captions are generic to ensure they are not the same as the incoming text for the current language. If a control has the same text as the incoming text, it can cause the view to appear to "jump".
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#PRIM_TBLO.Item) Name(#BackgroundLayoutItem1) Manage(#EmailPanelHeading) Parent(#BackgroundPanelLayout) Row(#BackgroundPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#BackgroundLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    
+    Define_Com Class(#BPFUserPreferencesViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(1492) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#BackgroundPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ThemePanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Manage(#EmailPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Column(#LayoutColumn3) Alignment(TopLeft) Flow(Down) Margintop(24)
+    
+    * Email Panel
+    Define_Com Class(#PRIM_TBLO) Name(#EmailPanelLayout)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EmailPanelLayoutRow1) Displayposition(1) Parent(#EmailPanelLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailPanelLayoutColumn1) Displayposition(1) Parent(#EmailPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailPanelLayoutColumn2) Displayposition(2) Parent(#EmailPanelLayout) Width(49)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailPanelLayoutColumn3) Displayposition(3) Parent(#EmailPanelLayout) Width(49)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailPanelLayoutColumn4) Displayposition(4) Parent(#EmailPanelLayout) Minwidth(44)
+    
+    
+    
+    * Background Panel
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EmailPanelLayoutItem1) Alignment(CenterLeft) Column(#EmailPanelLayoutColumn2) Manage(#EmailPanelHeading) Parent(#EmailPanelLayout) Row(#EmailPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EmailPanelLayoutItem2) Alignment(CenterRight) Column(#EmailPanelLayoutColumn3) Manage(#LanguageSelection) Parent(#EmailPanelLayout) Row(#EmailPanelLayoutRow1) Sizing(None)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#BackgroundPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#BackgroundPanelLayoutRow1) Displayposition(1) Parent(#BackgroundPanelLayout) Units(Content) Height(176)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#BackgroundLayoutRow2) Displayposition(2) Parent(#BackgroundPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#BackgroundLayoutColumn1) Displayposition(1) Parent(#BackgroundPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#BackgroundLayoutColumn2) Displayposition(2) Parent(#BackgroundPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#BackgroundLayoutColumn3) Displayposition(3) Parent(#BackgroundPanelLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#BackgroundLayoutItem6) Manage(#BackgroundPanelHeading) Parent(#BackgroundPanelLayout) Row(#BackgroundPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#BackgroundLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#BackgroundLayoutItem3) Manage(#BackgroundOption1) Parent(#BackgroundPanelLayout) Row(#BackgroundPanelLayoutRow1) Sizing(FitToWidth) Column(#BackgroundLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#BackgroundLayoutItem4) Manage(#BackgroundOption2) Parent(#BackgroundPanelLayout) Row(#BackgroundPanelLayoutRow1) Sizing(FitToWidth) Column(#BackgroundLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    
+    
+    * Clear Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ThemePanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ThemePanelLayoutRow1) Displayposition(1) Parent(#ThemePanelLayout) Units(Content) Height(1128)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ThemePanelLayoutRow2) Displayposition(2) Parent(#ThemePanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ThemePanelLayoutColumn1) Displayposition(1) Parent(#ThemePanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ThemePanelLayoutColumn2) Displayposition(2) Parent(#ThemePanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ThemePanelLayoutColumn3) Displayposition(3) Parent(#ThemePanelLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem1) Manage(#ThemePanelHeading) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Margintop(24) Marginbottom(16) Flow(Down)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem2) Manage(#ThemeOption1) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem3) Manage(#ThemeOption2) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem4) Manage(#ThemeOption3) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem5) Manage(#ThemeOption4) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem6) Manage(#ThemeOption5) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem7) Manage(#ThemeOption6) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem8) Manage(#ThemeOption7) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem9) Manage(#ThemeOption8) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem10) Manage(#ThemeOption9) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem11) Manage(#ThemeOption10) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem12) Manage(#ThemeOption11) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem13) Manage(#ThemeOption12) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem14) Manage(#ThemeOption13) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem15) Manage(#ThemeOption14) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem16) Manage(#ThemeOption15) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem17) Manage(#ThemeOption16) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem18) Manage(#ThemeOption17) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem19) Manage(#ThemeOption18) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ThemePanelLayoutItem20) Manage(#ThemeOption19) Parent(#ThemePanelLayout) Row(#ThemePanelLayoutRow1) Sizing(FitToWidth) Column(#ThemePanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(341) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Panel Heading') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(341) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Intrusction text for the panel')
+    
+    Define_Com Class(#PRIM_PANL) Name(#EmailPanel) Displayposition(3) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Themedrawstyle('Card') Style(#RoundedCornerStyle) Top(124) Left(401) Width(880) Layoutmanager(#EmailPanelLayout) Height(64)
+    
+    Define_Com Class(#PRIM_PANL) Name(#BackgroundPanel) Displayposition(4) Height(202) Left(401) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(212) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#BackgroundPanelLayout)
+    Define_Com Class(#PRIM_PANL) Name(#ThemePanel) Displayposition(5) Height(1154) Left(401) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(438) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ThemePanelLayout)
+    
+    * Enabled Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#BackgroundPanelHeading) Caption('Card Heading') Displayposition(1) Left(44) Parent(#BackgroundPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(790) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#BackgroundOption1) Caption('Option') Displayposition(2) Iconcolor(Theme500) Left(44) Parent(#BackgroundPanel) Tabposition(2) Top(64) Width(790) Height(56) Groupindex(1) Componenttag('light') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#BackgroundOption2) Caption('Option') Displayposition(3) Iconcolor(Theme500) Left(44) Parent(#BackgroundPanel) Tabposition(3) Top(120) Width(790) Height(56) Groupindex(1) Componenttag('dark') Style(#NavigationLinkStyle)
+    
+    * Clear Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ThemePanelHeading) Caption('Card Heading') Displayposition(1) Left(44) Parent(#ThemePanel) Tabposition(1) Themedrawstyle('Heading3') Width(790) Height(24) Top(24)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption1) Caption('Option') Displayposition(2) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(2) Top(64) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignamber') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption2) Caption('Option') Displayposition(3) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(3) Top(120) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignblue') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption3) Displayposition(4) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(4) Top(176) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignbluegray') Style(#NavigationLinkStyle) Caption('Option')
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption4) Caption('Option') Displayposition(5) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(5) Top(232) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignbrown') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption5) Caption('Option') Displayposition(6) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(6) Top(288) Width(790) Height(56) Groupindex(2) Componenttag('materialdesigncyan') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption6) Caption('Option') Displayposition(7) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(7) Top(344) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignorange') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption7) Caption('Option') Displayposition(8) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(8) Top(400) Width(790) Height(56) Groupindex(2) Componenttag('materialdesigndeeppurple') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption8) Displayposition(9) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(9) Top(456) Width(790) Height(56) Groupindex(2) Componenttag('materialdesigngray') Style(#NavigationLinkStyle) Caption('Option')
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption9) Caption('Option') Displayposition(10) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(10) Top(512) Width(790) Height(56) Groupindex(2) Componenttag('materialdesigngreen') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption10) Caption('Option') Displayposition(11) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(11) Top(568) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignindigo') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption11) Caption('Option') Displayposition(12) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(12) Top(624) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignlightblue') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption12) Caption('Option') Displayposition(13) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(13) Top(680) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignlightgreen') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption13) Caption('Option') Displayposition(14) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(14) Top(736) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignlime') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption14) Caption('Option') Displayposition(15) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(15) Top(792) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignorange') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption15) Caption('Option') Displayposition(16) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(16) Top(848) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignpink') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption16) Caption('Option') Displayposition(17) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(17) Top(904) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignpurple') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption17) Caption('Option') Displayposition(18) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(18) Top(960) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignred') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption18) Caption('Option') Displayposition(19) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(19) Top(1016) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignteal') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#ThemeOption19) Caption('Option') Displayposition(20) Iconcolor(Theme500) Left(44) Parent(#ThemePanel) Tabposition(20) Top(1072) Width(790) Height(56) Groupindex(2) Componenttag('materialdesignyellow') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#EmailPanelHeading) Caption('Card Heading') Displayposition(1) Left(44) Parent(#EmailPanel) Tabposition(1) Themedrawstyle('Heading3') Top(19) Width(395) Height(24) Paddingright(16) Wordwrap(True)
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#LanguageSelection) Displayposition(2) Left(670) Parent(#EmailPanel) Tabposition(2) Tabstop(False) Height(50) Top(6)
+    
+    Define_Com Class(#Prim_LCOL<#Prim_MD.RadioButton>) Name(#BackgroundOptions)
+    Define_Com Class(#Prim_LCOL<#Prim_MD.RadioButton>) Name(#ThemeOptions)
+    
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to current user
+    #CurrentUser <= #Session.CurrentUser
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Strings
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #EMAILPANELHEADING.CAPTION := #STRINGS.Text<EMAILPANELHEADING.CAPTION>
+    #BACKGROUNDPANELHEADING.CAPTION := #STRINGS.Text<BACKGROUNDPANELHEADING.CAPTION>
+    #THEMEPANELHEADING.CAPTION := #STRINGS.Text<THEMEPANELHEADING.CAPTION>
+    
+    * Get Options
+    #COM_SELF.CollectRadioButtons
+    #COM_SELF.SetControls( #CurrentUser.PreferredBackground #CurrentUser.PreferredTheme #CurrentUser.EmailLanguage )
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Radio Buttons
+    Evtroutine Handling(#BackgroundOptions<>.MouseEnter) Com_Sender(#Sender)
+    
+    * Send value of sender
+    #Sys_Web.WebPage.ThemeBackground := #Sender.ComponentTag
+    
+    Endroutine
+    
+    Evtroutine Handling(#BackgroundOptions<>.MouseLeave)
+    
+    * Send value of sender
+    #Sys_Web.WebPage.ThemeBackground := #CurrentUser.PreferredBackground
+    
+    Endroutine
+    
+    Evtroutine Handling(#BackgroundOptions<>.Changed) Com_Sender(#Sender)
+    
+    * Send value of sender
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentUser.SetPreferredBackground( #Sender.ComponentTag )
+    
+    Endroutine
+    
+    Evtroutine Handling(#ThemeOptions<>.MouseEnter) Com_Sender(#Sender)
+    
+    * Send value of sender
+    #Sys_Web.WebPage.Theme <= #SYS_THEME<#Sender.ComponentTag>
+    
+    Endroutine
+    
+    Evtroutine Handling(#ThemeOptions<>.MouseLeave)
+    
+    * Send value of sender
+    #Sys_Web.WebPage.Theme <= #SYS_THEME<#CurrentUser.PreferredTheme>
+    
+    Endroutine
+    
+    Evtroutine Handling(#ThemeOptions<>.Changed) Com_Sender(#Sender)
+    
+    * Send value of sender
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentUser.SetPreferredTheme( #Sender.ComponentTag )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LanguageSelection.Changed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentUser.SetEmailLanguage( #LanguageSelection.Control )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredBackgroundCompleted)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDBACKGROUNDCOMPLETED> )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredBackgroundFailed)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDBACKGROUNDFAILED> 7500 )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredThemeCompleted)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDBACKGROUNDCOMPLETED> )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredThemeFailed)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDBACKGROUNDFAILED> 7500 )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredEmailLanguageCompleted)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDEMAILLANGUAGECOMPLETED> )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetPreferredEmailLanguageFailed)
+    
+    #BPFPortal.ShowToaster( #Strings.Text<CURRENTUSER.ONSETPREFERREDEMAILLANGUAGEFAILED> 7500 )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Actions
+    
+    * Methods
+    
+    Mthroutine Name(SetControls) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#BackgroundValue)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ThemeValue)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#EmailLanguage)
+    
+    #LanguageSelection.Control := #EmailLanguage
+    
+    For Each(#Option) In(#BackgroundOptions)
+    
+    Continue If(#Option.ComponentTag.lowercase <> #BackgroundValue.lowercase)
+    
+    #Option.Checked := True
+    
+    Leave
+    
+    Endfor
+    
+    For Each(#Option) In(#ThemeOptions)
+    
+    Continue If(#Option.ComponentTag.lowercase <> #ThemeValue.lowercase)
+    
+    #Option.Checked := True
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(CollectRadioButtons)
+    
+    For Each(#Item) In(#BackgroundPanel.ComponentControls) Operation(*INSTANCE_OF #Prim_MD.RadioButton)
+    
+    #Item.Caption := #Strings.Text<(#Item.Name + '.CAPTION')>
+    #BackgroundOptions.Insert( #Item )
+    
+    Endfor
+    
+    For Each(#Item) In(#ThemePanel.ComponentControls) Operation(*INSTANCE_OF #Prim_MD.RadioButton)
+    
+    #Item.Caption := #Strings.Text<(#Item.Name + '.CAPTION')>
+    #ThemeOptions.Insert( #Item )
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

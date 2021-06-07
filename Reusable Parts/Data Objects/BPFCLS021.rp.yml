@@ -1,0 +1,399 @@
+﻿Reusable Part:
+  Name:               BPFContentShareClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Class"
+
+  - JPN:
+      Description:        "Content Share Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by for data mapping of listfields
+    Group_By Name(#Listfields) Fields(#BPFContentShareID #BPFContentShareName)
+    
+    * Defintions
+    
+    * Properties
+    Define_Pty Name(Identifier) Get(*AUTO #BPFContentShareID)
+    Define_Pty Name(ShareName) Get(*AUTO #BPFContentShareName)
+    Define_Pty Name(IconName) Get(GetIconName)
+    Define_Pty Name(ParentID) Get(*AUTO #ParentItem) Set(*AUTO #ParentItem)
+    
+    Define_Pty Name(FolderItems) Get(*REFERENCE #FolderItems)
+    Define_Pty Name(Folders) Get(*REFERENCE #Folders)
+    
+    * Events
+    Define_Evt Name(OnGetFolderItemsCompleted)
+    Define_Evt Name(OnGetFolderItemsFailed)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Reason)
+    
+    
+    Define_Evt Name(OnGetFoldersCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Named)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Parent)
+    
+    Define_Evt Name(OnGetFoldersFailed)
+    
+    Define_Evt Name(OnAddFolderCompleted)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#NewFolder) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnAddFolderFailed)
+    
+    Define_Evt Name(OnRemoveItemsCompleted)
+    Define_Evt Name(OnRemoveItemsFailed)
+    
+    Define_Evt Name(OnMoveItemsCompleted)
+    Define_Evt Name(OnMoveItemsFailed)
+    
+    Define_Evt Name(OnCopyItemsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#NewItems) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnCopyItemsFailed)
+    
+    Define_Evt Name(OnAddItemsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#NewItems) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnAddItemsFailed)
+    
+    Define_Evt Name(OnRenameCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#NewName)
+    
+    Define_Evt Name(OnRenameFailed)
+    
+    * Global
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ParentItem)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#FolderItems)
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareFolderClass>) Name(#Folders)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetIconName)
+    Define_Map For(*OUTPUT) Class(#prim_DC.UnicodeString) Name(#Property)
+    
+    #Property := 'tab'
+    
+    Endroutine
+    
+    * Ptyroutine Name(SetParentItem)
+    * Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#Property) Pass(*BY_REFERENCE)
+    *
+    * #ParentItem <= #Property
+    *
+    * Endroutine
+    
+    * Events
+    
+    * Methods
+    Mthroutine Name(Rename)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#NewName) Mandatory(*NULL)
+    
+    Define_Com Class(#PRIM_BOLN) Name(#UseShareID)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.RenameShare) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Share(#BPFContentShareID) Newname(#NewName) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFContentShareName := #NewName
+    
+    Signal Event(OnRenameCompleted) Newname(#BPFContentShareName)
+    
+    Else
+    
+    Signal Event(OnRenameFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnRenameFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetFolderItems)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForParent) Mandatory(*NULL)
+    
+    Define_Com Class(#PRIM_BOLN) Name(#UseShareID)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetItemsForParent) Name(#Request)
+    
+    * Assign Parent Item
+    #ParentItem := #ForParent.UpperCase
+    
+    * Make Request
+    #Request.ExecuteAsync Parent(#ParentItem) Items(#FolderItems) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetFolderItemsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetFolderItemsFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetFolderItemsFailed) Reason(SERVERERROR)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetFolders)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForParent) Mandatory(*NULL)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Named)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Parent)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.GetFoldersForParent) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Parent(#ForParent) Folders(#Folders) Parentsname(#Named) Parentsparent(#Parent) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetFoldersCompleted) Named(#Named) Parent(#Parent)
+    
+    Else
+    
+    Signal Event(OnGetFoldersFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetFoldersFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(AddFolder)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Named)
+    
+    * Define Request to Server Routine
+    * Define_Com Class(#PRIM_DC.UnicodeString) Name(#ParentID)
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#Data)
+    
+    Define_Com Class(#BPFContentSharingDataServer.AddFolderItem) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Share(#BPFContentShareID) Parent(#ParentItem) Name(#Named) Data(#Data) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #FolderItems.Insert( (*New #BPFContentShareItemClass.NewItem( #Data )) )
+    Signal Event(OnAddFolderCompleted) Newfolder(#FolderItems.Last)
+    
+    Else
+    
+    Signal Event(OnAddFolderFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnAddFolderFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(AddItems)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentLibraryItemClass>) Name(#NewItems) Pass(*BY_REFERENCE)
+    
+    * Define Request to Server Routine
+    * Define_Com Class(#PRIM_DC.UnicodeString) Name(#ParentID)
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#Data)
+    
+    Define_Com Class(#BPFContentSharingDataServer.AddShareItem) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Share(#BPFContentShareID) Parent(#ParentItem) Items(#NewItems) Data(#Data) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    For Each(#Item) In(#Data)
+    
+    #FolderItems.Insert( #Item )
+    
+    Endfor
+    
+    Signal Event(OnAddItemsCompleted) Newitems(#Data)
+    
+    Else
+    
+    Signal Event(OnAddItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnAddItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveItems)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Pass(*BY_REFERENCE)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.RemoveItems) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Items(#SelectedItems) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    For Each(#Item) In(#SelectedItems)
+    
+    #FolderItems.Remove( #Item )
+    
+    Endfor
+    
+    Signal Event(OnRemoveItemsCompleted)
+    
+    Else
+    
+    Signal Event(OnRemoveItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnRemoveItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(MoveItems)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ToParent)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Pass(*BY_REFERENCE)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.MoveItems) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Toparent(#ToParent) Items(#SelectedItems) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    For Each(#Item) In(#SelectedItems)
+    
+    #FolderItems.Remove( #Item )
+    
+    Endfor
+    
+    Signal Event(OnMoveItemsCompleted)
+    
+    Else
+    
+    Signal Event(OnMoveItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnMoveItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(CopyItems)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Pass(*BY_REFERENCE)
+    
+    * Local
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#NewItems)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFContentSharingDataServer.CopyItems) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Inshare(#BPFContentShareID) Items(#SelectedItems) Newitems(#NewItems) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    For Each(#Item) In(#NewItems)
+    
+    #FolderItems.Insert( #Item )
+    
+    Endfor
+    
+    Signal Event(OnCopyItemsCompleted) Newitems(#NewItems)
+    
+    Else
+    
+    Signal Event(OnCopyItemsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCopyItemsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

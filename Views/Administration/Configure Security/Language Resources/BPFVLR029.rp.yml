@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFSecurityQuestionsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Security Questions View Strings"
+
+  - JPN:
+      Description:        "Security Questions View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Validation Questions"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "View the current security questions used by the portal to verify end users. Click the edit icon to change the security question for teh language selected. Note a users question is stored with their account information so they will always see what they selected."
+    
+    #STRINGSCOLLECTION<'LANGUAGESELECTIONLABEL.CAPTION'> := "Language"
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Questions"
+    
+    #STRINGSCOLLECTION<'QUESTIONLABEL.CAPTION'> := "Question"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETACTIVEQUESTIONSFAILED'> := "FAILED to get settings"
+    
+    Endroutine
+    
+    End_Com

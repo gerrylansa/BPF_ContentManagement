@@ -1,0 +1,338 @@
+﻿Web Dialog:
+  Name:               BPFPasswordResetDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Request & Reset Password Dialog"
+
+  - JPN:
+      Description:        "Portal Request & Reset Password Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Themedrawstyle('Card') Height(538) Width(748) Layoutmanager(#DialogLayout) Verticalscroll(True)
+    
+    * Definitions
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Reference(*DYNAMIC)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Backgroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(255:255:255) Opacity(75)
+    
+    * Dialog Layout manager
+    Define_Com Class(#PRIM_TBLO) Name(#DialogLayout)
+    
+    * Row & Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn1) Displayposition(1) Parent(#DialogLayout) Units(Pixels) Width(40)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn2) Displayposition(2) Parent(#DialogLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn3) Displayposition(3) Parent(#DialogLayout) Units(Pixels) Width(40)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow1) Displayposition(1) Parent(#DialogLayout) Height(48) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow2) Displayposition(3) Parent(#DialogLayout) Minheight(426)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow3) Displayposition(4) Parent(#DialogLayout) Height(36) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow4) Displayposition(2) Parent(#DialogLayout) Height(26) Units(Pixels)
+    
+    * Layout Items
+    
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem3) Alignment(TopCenter) Column(#DialogLayoutColumn1) Manage(#ProgressBar) Parent(#DialogLayout) Row(#DialogLayoutRow1) Sizing(FitToWidth) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem4) Alignment(TopLeft) Column(#DialogLayoutColumn2) Manage(#DialogTitle) Parent(#DialogLayout) Row(#DialogLayoutRow4) Sizing(ContentWidthFitToHeight)
+    
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem5) Alignment(TopCenter) Column(#DialogLayoutColumn1) Manage(#CoverPanel) Parent(#DialogLayout) Row(#DialogLayoutRow1) Rowspan(4) Columnspan(3) Margintop(4) Marginbottom(1)
+    
+    * Dialog Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem1) Alignment(TopCenter) Column(#DialogLayoutColumn2) Manage(#ViewPanels) Parent(#DialogLayout) Row(#DialogLayoutRow2)
+    
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(2) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Theme100+ForegroundTheme500') Width(746) Visible(False)
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(531) Left(0) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(4) Width(746) Style(#Style1) Visible(False)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('myPortal') Displayposition(3) Left(40) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading3+ForegroundMediumPrimary') Top(48) Width(69) Height(26)
+    Define_Com Class(#PRIM_MD.ViewContainer) Name(#ViewPanels) Parent(#COM_OWNER) Displayposition(4) Tabposition(4) Top(74) Left(40) Height(426) Width(666)
+    
+    
+    Define_Com Class(#PRIM_LCOL<#PRIM_TBLO.Item>) Name(#PanelLayoutItems)
+    
+    * Store Current Display Reference
+    Define_Com Class(#PRIM_View) Name(#CurrentPanel) Reference(*DYNAMIC)
+    
+    Define_Com Class(#prim_anim) Name(#Animation)
+    Define_Com Class(#prim_anim.Transition) Name(#Item1) Parent(#Animation) Duration(250) Transitiontype(MoveToLeftFromRight)
+    
+    Define_Pty Name(Completed) Get(*AUTO #Completed) Set(*AUTO #Completed)
+    Define_Com Class(#PRIM_BOLN) Name(#Completed)
+    
+    Define_Pty Name(CheckToken) Get(*AUTO #CheckToken)
+    Define_Com Class(#PRIM_ALPH) Name(#CheckToken)
+    
+    Define_Pty Name(UserQuestion) Get(*AUTO #UserSecurityQuestion)
+    Define_Com Class(#PRIM_ALPH) Name(#UserSecurityQuestion)
+    
+    * Routines
+    
+    * Events
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get needed references
+    #Session <= #BPFPortal.Session
+    #Navigate <= #BPFPortal.Navigate
+    
+    * Its always a request without a value parameter
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *NULL)
+    
+    * Set the check token to the query string value
+    #CheckToken := #SYS_WEB.URLParameters<VALUE>.Value
+    
+    Else
+    
+    #SYS_WEB.History.GoBack
+    
+    Endif
+    
+    Endroutine
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    * This can only happen with a token
+    If (#CheckToken.IsNull)
+    
+    Return
+    
+    Endif
+    
+    * Show in Waiting State
+    #Com_self.SetWaitingState( ON )
+    
+    #DialogTitle := #BPFPortal.AppName
+    
+    * Special Case to ensure when closed, the login dialog will appear.
+    #SYS_WEB.History.Replace Querystring(*null) Signal(false)
+    #SYS_WEB.History.Add Querystring('event=resetaccountpassword') Signal(False)
+    
+    * Show Panel
+    #COM_SELF.ChangetoPanel( #Navigate.CurrentEvent.RelatedView )
+    
+    * Set Initial Display
+    #COM_SELF.HandleDeviceChanged
+    
+    If (#CheckToken <> *BLANK)
+    
+    #Session.ValidateEventToken( #CheckToken )
+    
+    Endif
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Name(#Event)
+    
+    If (#Completed)
+    
+    If ((#Event = PASSWORDRESETSECURITYCHECK) *Or (#Event = PASSWORDRESETNEWPASSWORD) *Or (#Event = PASSWORDRESETCHECKFAILED) *Or (#Event = PASSWORDRESETFAILED))
+    
+    #Navigate.BackToTarget Target(INITIAL)
+    Return
+    
+    Endif
+    
+    Endif
+    
+    * If we get here show related view for navigation event
+    #COM_SELF.ChangetoPanel( #Navigate.CurrentEvent.RelatedView )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Navigate.LoginDialogRequested)
+    
+    * If we can hear this, we were opened but they want login back
+    #COM_SELF.HandleClose
+    
+    Endroutine
+    
+    * Session
+    Evtroutine Handling(#Session.SessionStarted)
+    
+    * If (#CheckToken <> *BLANK)
+    
+    #Session.ValidateEventToken( #CheckToken )
+    
+    * Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnValidateTokenCompleted)
+    
+    If (#CheckToken <> *BLANK)
+    
+    #Session.GetSecurityCheckQuestion
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnValidateTokenFailed) Reason(#Reason)
+    
+    * *Test* *
+    If (#Reason.UpperCase = SESSIONINVALID)
+    
+    #Session.StartServerSession
+    Return
+    
+    Endif
+    
+    If (#Reason.UpperCase = ACTIVE)
+    
+    #Navigate.To Eventname(passwordresetactivefailed) Type(REPLACE) Signalreplaceevent(true)
+    
+    Else
+    
+    #Navigate.To Eventname(passwordresetfailed) Type(REPLACE) Signalreplaceevent(true)
+    
+    Endif
+    
+    #Com_self.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnGetSecurityCheckQuestionCompleted) Question(#Question)
+    
+    If (#CheckToken <> *BLANK)
+    
+    #UserSecurityQuestion := #Question
+    #Navigate.To Eventname(passwordresetsecuritycheck) Type(REPLACE) Signalreplaceevent(true)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnGetSecurityCheckQuestionFailed)
+    
+    #Navigate.To Eventname(passwordresetcheckfailed) Type(REPLACE) Signalreplaceevent(true)
+    
+    Endroutine
+    
+    * Methods
+    
+    * Display
+    Mthroutine Name(ShowDialog)
+    
+    * Now show
+    #COM_SELF.Show
+    
+    Endroutine
+    
+    Mthroutine Name(HandleClose)
+    
+    #COM_SELF.DestroyDialogObjects
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    * Set dialog to waiting state
+    Mthroutine Name(SetWaitingState)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #CoverPanel.Visible #ProgressBar.Visible := True
+    #CoverPanel.DisplayPosition := 1
+    
+    Else
+    
+    #CoverPanel.Visible #ProgressBar.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    * Handle Panel Swapping
+    Mthroutine Name(ChangetoPanel) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_View) Name(#ToPanel) Pass(*BY_REFERENCE)
+    
+    * Were done, so no navigating
+    If (#Completed)
+    
+    Return
+    
+    Endif
+    
+    #ToPanel.Parent <= #ViewPanels
+    
+    * Ensure we have a current panel set
+    If (#CurrentPanel *IsNot *Null)
+    
+    If (#CurrentPanel *IsNotEqualTo #ToPanel)
+    
+    * Swap to new panel
+    If (#ViewPanels.IsAnimating.IsFalse)
+    
+    If ((#CurrentPanel *IsNot *null) *And (#ToPanel *IsNot *NULL))
+    
+    * Commented out due to issues with animations
+    * #ViewPanels.Transition( #CurrentPanel #ToPanel MoveToLeftFromRight 100 )
+    
+    Endif
+    #ToPanel.Show
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #ToPanel.Show
+    
+    Endif
+    
+    * Save ToPanel as Current Reference
+    #CurrentPanel <= #ToPanel
+    
+    Endroutine
+    
+    * Responsive Design
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    * Set Placement
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.Placement := FullScreen
+    #DialogLayoutRow2.MinHeight := 536
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.Placement := Center
+    #DialogLayoutRow2.MinHeight := 426
+    
+    Otherwise
+    
+    #COM_SELF.Placement := Center
+    #DialogLayoutRow2.MinHeight := 426
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(DestroyDialogObjects) Access(*PRIVATE)
+    
+    *
+    #Navigate.CurrentEvent.CleanupRelatedView
+    
+    * Kill Global
+    #Session <= *NULL
+    #Navigate <= *NULL
+    
+    Endroutine
+    
+    End_Com

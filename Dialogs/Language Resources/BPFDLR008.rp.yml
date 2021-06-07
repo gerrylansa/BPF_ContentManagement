@@ -1,0 +1,34 @@
+﻿Reusable Part:
+  Name:               BPFShareItemAddFolderDialogStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Add Folder Dialog Strings"
+
+  - JPN:
+      Description:        "Share Item Add Folder Dialog Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'DIALOGTITLE.CAPTION'> := "Add Folder"
+    #STRINGSCOLLECTION<'DIALOGCANCEL.CAPTION'> := "Cancel"
+    #STRINGSCOLLECTION<'DIALOGCONFIRM.CAPTION'> := "Add"
+    #STRINGSCOLLECTION<'FOLDERNAMEEDIT.DEFAULT'> := "New Folder"
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFSecurityCurrentBannedIPsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Current Banned IPs View Strings"
+
+  - JPN:
+      Description:        "Current Banned IPs View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Banned IP Addresses"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "All current bans will automatically be cleared when the IP address reaches the set duration. Alternatively you can clear the ban for an IP address or all current banned IP addresses below."
+    
+    #STRINGSCOLLECTION<'CURRENTBANSHEADING.CAPTION'> := "Current Bans"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETBANNEDADDRESSESFAILED'> := "Failed to banned IPs"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONCLEARIPADDRESSBANFAILED'> := "Failed to clear ban"
+    
+    #STRINGSCOLLECTION<'CURRENTBANSLISTADDRESSLABEL.EMPTY.CAPTION'> := "All clear"
+    #STRINGSCOLLECTION<'CURRENTBANSLISTREMAININGLABEL.EMPTY.CAPTION'> := "No IP addresses are currently banned"
+    #STRINGSCOLLECTION<'CURRENTBANSLISTREMAININGLABEL.ITEM.CAPTION'> := "%%DATE%% at %%TIME%% and clears in %%HOURS%% hours %%MINS%% minutes"
+    
+    Endroutine
+    
+    End_Com

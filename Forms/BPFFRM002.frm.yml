@@ -1,0 +1,81 @@
+﻿Form:
+  Name:               BPFDevelopmentMonitor
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Monitor for Development Changes"
+
+  - JPN:
+      Description:        "Monitor for Development Changes"
+
+  Source: |
+    * **************************************************
+    *
+    *  COMPONENT:  STD_FORM
+    *
+    * **************************************************
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_FORM) Clientwidth(480) Clientheight(160) Componentversion(2) Left(1011) Top(413) Layoutmanager(#LayoutMain)
+    
+    * References
+    Define_Com Class(#BPFPortalWebpageUpdater) Name(#Monitor)
+    
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Fontunits(Percent) Fontsize(200) Foregroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(33:150:243)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style2) Fontunits(Percent) Fontsize(125)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#LayoutMain)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutMainColumn1) Displayposition(1) Parent(#LayoutMain)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutMainRow1) Displayposition(1) Parent(#LayoutMain) Height(56) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutMainRow2) Displayposition(2) Parent(#LayoutMain)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutMainRow3) Displayposition(3) Parent(#LayoutMain) Height(24) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutMainItem1) Column(#LayoutMainColumn1) Manage(#StatusBar) Parent(#LayoutMain) Row(#LayoutMainRow3) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutMainItem2) Alignment(CenterLeft) Column(#LayoutMainColumn1) Manage(#FormTitle) Parent(#LayoutMain) Row(#LayoutMainRow1) Sizing(ContentHeightFitToWidth) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutMainItem3) Alignment(CenterLeft) Column(#LayoutMainColumn1) Manage(#CompiledUpdateLabel) Parent(#LayoutMain) Row(#LayoutMainRow2) Sizing(ContentHeightFitToWidth) Marginleft(24) Marginright(24) Flow(CenterVertical) Margintop(12)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutMainItem4) Alignment(CenterLeft) Column(#LayoutMainColumn1) Manage(#CheckedLabel) Parent(#LayoutMain) Row(#LayoutMainRow2) Sizing(ContentHeightFitToWidth) Flow(CenterVertical) Marginright(24) Marginleft(24)
+    
+    Define_Com Class(#PRIM_STBR) Name(#StatusBar) Displayposition(1) Height(24) Left(0) Messageposition(1) Parent(#COM_OWNER) Tabposition(1) Tabstop(False) Top(136) Width(480)
+    Define_Com Class(#PRIM_LABL) Name(#FormTitle) Caption('Development Monitor') Displayposition(2) Ellipses(Word) Height(37) Left(24) Parent(#COM_OWNER) Tabposition(2) Tabstop(False) Verticalalignment(Center) Width(432) Style(#Style1) Marginbottom(2) Margintop(2)
+    Define_Com Class(#PRIM_LABL) Name(#CompiledUpdateLabel) Caption('Webpage last compiled ') Displayposition(4) Ellipses(Word) Height(21) Left(24) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(102) Verticalalignment(Center) Width(432) Style(#Style2)
+    Define_Com Class(#PRIM_LABL) Name(#CheckedLabel) Caption('LastChecked') Displayposition(3) Ellipses(Word) Height(21) Left(24) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(69) Verticalalignment(Center) Width(432) Style(#Style2)
+    
+    
+    Evtroutine Handling(#com_owner.CreateInstance)
+    
+    #COM_OWNER.Caption := 'Portal Development Monitor'
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Initial Label
+    #CheckedLabel := 'No check yet'
+    #CompiledUpdateLabel := 'Webpage has not been compiled this session'
+    
+    * Invoke Watcher
+    #Monitor.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#Monitor.LastChecked) When(#When)
+    
+    #CheckedLabel := 'Last checked : ' + #When.Now.AsLocalizedDateTime.Date.AsDisplayString( DDsMMsCCYY ) + ' at ' + #When.Now.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    #CheckedLabel.UpdateDisplay
+    
+    Endroutine
+    
+    Evtroutine Handling(#Monitor.WebpageUpdated) When(#When)
+    
+    #CompiledUpdateLabel := 'Webpage last updated : ' + #When.Now.AsLocalizedDateTime.Date.AsDisplayString( DDsMMsCCYY ) + ' at ' + #When.Now.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    #CompiledUpdateLabel.UpdateDisplay
+    
+    Endroutine
+    
+    End_Com

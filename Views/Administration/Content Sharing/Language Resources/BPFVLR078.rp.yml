@@ -1,0 +1,50 @@
+﻿Reusable Part:
+  Name:               BPFContentLibraryListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library List View Strings"
+
+  - JPN:
+      Description:        "Content Library List View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Manage Content Library"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "You can add new content to the library or edit content by selecting the content below"
+    
+    #STRINGSCOLLECTION<'SEARCH.PLACEHOLDER'> := "Search for items by name,description,filename or token..."
+    
+    #STRINGSCOLLECTION<'ADDNEWCONTENTBUTTON.CAPTION'> := "New Content"
+    
+    #STRINGSCOLLECTION<'CONTENTITEMLISTACTIONLABEL.CAPTION.LOAD'> := "Loading items..."
+    #STRINGSCOLLECTION<'CONTENTITEMLISTACTIONLABEL.CAPTION.LIMIT'> := "Refine search to view more items"
+    #STRINGSCOLLECTION<'CONTENTITEMLISTACTIONLABEL.CAPTION.EMPTY'> := "No items found"
+    #STRINGSCOLLECTION<'CONTENTITEMLISTACTIONLABEL.CAPTION.MORE'> := "Load more"
+    
+    #STRINGSCOLLECTION<'CONTENTITEMSIZETEXT.CURRENTITEM.CAPTION.NEW'> := "New"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here affect the content items used in the portal, consider your changes carefully"
+    
+    #STRINGSCOLLECTION<'SHARING.ONGETLIBRARYITEMSFAILED'> := "Error unable to load library items"
+    
+    #STRINGSCOLLECTION<'ITEMFILEUPLOADOPTION.CAPTION'> := "File Upload"
+    #STRINGSCOLLECTION<'ITEMYOUTTUBEMENUOPTION.CAPTION'> := "YouTube Video"
+    
+    Endroutine
+    
+    End_Com

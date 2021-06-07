@@ -1,0 +1,275 @@
+﻿Web View:
+  Name:               BPFPortalLogsListView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Logs List View"
+
+  - JPN:
+      Description:        "Portal Logs List View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Componenttag('BPFAPP003')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalLogsListViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Main Panel Layout
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopCenter) Column(#LayoutColumn1) Manage(#ListView) Parent(#MainLayout) Row(#LayoutRow1)
+    
+    * Listview Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ListviewLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutListColumn1) Displayposition(1) Parent(#ListviewLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ListviewLayoutColumn1) Displayposition(2) Parent(#ListviewLayout) Width(98) Minwidth(280) Maxwidth(960)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ListviewLayoutColumn2) Displayposition(3) Parent(#ListviewLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutListRow1) Displayposition(1) Parent(#ListviewLayout)
+    
+    * Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem1) Alignment(TopCenter) Column(#ListviewLayoutColumn1) Manage(#BreakLineHeader) Parent(#ListviewLayout) Row(#LayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem2) Alignment(TopCenter) Column(#ListviewLayoutColumn1) Manage(#ListItemBackground) Parent(#ListviewLayout) Row(#LayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem3) Alignment(CenterLeft) Column(#ListviewLayoutColumn1) Manage(#SessionStartEndLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentWidthAndHeight) Marginleft(24) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem4) Alignment(CenterLeft) Column(#ListviewLayoutColumn1) Manage(#SessionDurationLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentHeightFitToWidth) Flow(Right) Marginleft(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem5) Alignment(CenterRight) Column(#ListviewLayoutColumn1) Manage(#SessionEventsLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentWidthAndHeight) Marginright(24)
+    
+    * List
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem6) Alignment(TopLeft) Column(#LayoutListColumn1) Manage(#RowBackground) Parent(#ListviewLayout) Row(#LayoutListRow1) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem7) Alignment(CenterLeft) Column(#ListviewLayoutColumn1) Manage(#ListHeader) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentWidthAndHeight)
+    
+    Define_Com Class(#PRIM_MD.List) Name(#ListView) Displayposition(1) Layoutmanager(#ListviewLayout) Left(0) Parent(#COM_OWNER) Rowheight(56) Tabposition(1) Top(0) Height(800) Width(1700)
+    
+    * List Controls
+    
+    * Item Value Labels
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#SessionStartEndLabel) Caption('11:15am - 11:41am') Displayposition(4) Dragstyle(None) Left(394) Parent(#ListView) Tabposition(4) Top(18) Height(21) Width(125) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#SessionDurationLabel) Caption('26 mins') Displayposition(5) Dragstyle(None) Left(543) Parent(#ListView) Tabposition(5) Top(18) Height(21) Width(936) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#SessionEventsLabel) Caption('14 Events') Displayposition(6) Dragstyle(None) Left(1241) Parent(#ListView) Tabposition(6) Top(18) Height(21) Width(65) Style(#NavigationLinkStyle)
+    
+    * List Formatting Labels
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ListHeader) Displayposition(1) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(8) Top(16) Icon('arrow_back') Captionmarginleft(24) Height(24) Width(24) Themedrawstyle('Heading2') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#BreakLineHeader) Caption('Monday, 15 July 2019') Displayposition(2) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(1) Top(0) Width(960) Height(56) Captionmarginleft(24) Style(#FontWeight500Style) Themedrawstyle('Heading3+BottomDivider')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ListItemBackground) Displayposition(7) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(2) Top(0) Width(960) Height(56) Themedrawstyle('card')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#RowBackground) Displayposition(8) Dragstyle(None) Left(0) Parent(#ListView) Tabposition(7) Top(0) Height(56) Width(1700)
+    
+    * References
+    
+    
+    * Routines
+    
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to data and persist the reference
+    #LoggingData <= (#Data.GetDataClient( #COM_SELF ) *As #BPFPortalLoggingDataClient)
+    
+    * Persist the view
+    #Navigate.CurrentEvent.PersistView := True
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Reset the list
+    #COM_SELF.ResetListView
+    
+    * Trigger Session Load
+    #LoggingData.LoadPortalLogs
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    * Do not release reference to data
+    #Data.KeepDataClient( #COM_SELF )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#ListHeader.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#ListView.ItemClick)
+    
+    If (#ListView.CurrentItem.RelatedReference *IsNot *NULL)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Go to activity settings
+    #Navigate.To Eventname(PORTALLOGCONTENTVIEW) Value((#ListView.CurrentItem.RelatedReference *As #BPFFileSystemObjectDataItem).FullName.LowerCase)
+    
+    Endif
+    
+    Endroutine
+    
+    * User Account
+    Evtroutine Handling(#LoggingData.OnLoadPortalLogsCompleted)
+    
+    #COM_SELF.BuildListView
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnLoadPortalLogsFailed)
+    
+    #COM_SELF.AddDivisonLine
+    #SessionStartEndLabel.CurrentItem.Caption := #STRINGS.Text<LOGGINGDATA.ONLOADPORTALLOGSFAILED>
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(BuildListView)
+    
+    * Store the Previous Date
+    Define_Com Class(#BPFSessionStarted) Name(#PreviousDateTime)
+    
+    * Read the returned sessions
+    For Each(#Item) In(#LoggingData.FolderListing)
+    
+    * Check for breakline
+    If (#PreviousDateTime.Date <> #Item.DateTime.Date)
+    
+    #COM_SELF.AddDivisonLine
+    #COM_SELF.AddBreakLine( #Item.DateTime )
+    
+    #PreviousDateTime := #Item.DateTime
+    
+    Endif
+    
+    * Output Values
+    #COM_SELF.AddItemLine( (#Item.Prefix) (#Item.DateTime.Time.AsDisplayString( HHsMMsSS ).Substring( 1 5 )) (#Item.SizeKB.asstring + ' KB') #Item )
+    
+    Endfor
+    
+    Endroutine
+    
+    * List Methods
+    Mthroutine Name(ResetListView) Access(*PRIVATE)
+    
+    * Clear the list
+    Clr_List Named(#ListView)
+    
+    * Add Header Line
+    Add_Entry To_List(#ListView)
+    #ListHeader.CurrentItem.Caption := #STRINGS.Text<LISTHEADER.CAPTION>
+    
+    * Configure the line
+    #COM_SELF.SetRowFormatting( True False False *NULL )
+    #COM_SELF.SetItemValues
+    
+    Endroutine
+    
+    Mthroutine Name(AddBreakLine) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#BPFSessionStarted) Name(#Value) Mandatory(*NULL)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    #ListView.CurrentItem.MouseOverStyle <= *NULL
+    
+    * Show The Break
+    #COM_SELF.SetRowFormatting( False True True *NULL )
+    #COM_SELF.SetItemValues
+    
+    * Configure the line
+    #BreakLineHeader.CurrentItem.Caption := #BPFPortal.AppStrings.Text<APP.FORMAT.DAYANDDATE>.Replace( '%%DAYLONG%%' #Value.Date.AsDisplayString( ML_DDDDDDDDD ) ).Replace( '%%DAYSHORT%%' #Value.Date.Day.AsString ).Replace( '%%MONTHLONG%%' #Value.Date.AsDisplayString( MMMMMMMMMM ) ).Replace( '%%YEAR%%' #Value.Date.Year.AsString )
+    
+    Endroutine
+    
+    Mthroutine Name(AddItemLine) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#LeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#CenterLeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RightValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFFileSystemObjectDataItem) Name(#RelatedSession) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    
+    * Line Items must have a reference
+    #ListView.CurrentItem.RelatedReference <= #RelatedSession
+    
+    * Hide the break label
+    #COM_SELF.SetRowFormatting( False False True #NavigationLinkStyle )
+    
+    * Configure the line
+    #COM_SELF.SetItemValues( #LeftValue #CenterLeftValue #RightValue )
+    
+    Endroutine
+    
+    Mthroutine Name(AddDivisonLine) Access(*PRIVATE)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    
+    * Configure the line
+    #COM_SELF.SetRowFormatting( False False False *Null )
+    
+    * Set Blank Values
+    #COM_SELF.SetItemValues
+    
+    Endroutine
+    
+    Mthroutine Name(SetItemValues) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#LeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#CenterLeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RightValue) Mandatory(*NULL)
+    
+    #SessionStartEndLabel.CurrentItem.Caption := #LeftValue
+    #SessionDurationLabel.CurrentItem.Caption := #CenterLeftValue
+    #SessionEventsLabel.CurrentItem.Caption := #RightValue
+    
+    Endroutine
+    
+    Mthroutine Name(SetRowFormatting) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowHeader)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowBreak)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowBackground)
+    Define_Map For(*INPUT) Class(#PRIM_VS.Style) Name(#Style) Pass(*BY_REFERENCE)
+    
+    Case Of_Field(#SYS_WEB.WebPage.ThemeBackground)
+    
+    When Value_Is(= Dark)
+    
+    #RowBackground.CurrentItem.Themedrawstyle := 'back(48,48,48,1)'
+    
+    When Value_Is(= Light)
+    
+    #RowBackground.CurrentItem.Themedrawstyle := 'back(250,250,250,1)'
+    
+    Endcase
+    
+    #ListHeader.CurrentItem.Visible := #ShowHeader
+    #BreakLineHeader.CurrentItem.Visible := #ShowBreak
+    #ListItemBackground.CurrentItem.Visible := #ShowBackground
+    
+    #ListItemBackground.CurrentItem.Styles.RemoveAll
+    #ListItemBackground.CurrentItem.Styles.Add( #Style )
+    #ListItemBackground.CurrentItem.Styles.Add( #NotaCard )
+    
+    Endroutine
+    
+    End_Com

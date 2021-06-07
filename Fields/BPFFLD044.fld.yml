@@ -1,0 +1,33 @@
+﻿Field:
+  Name:               BPFGenericBlob
+  Type:               BLOB
+  Length:             0
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portals Generic Blob"
+      Label:              "Portals Generic"
+      Heading1:           "Portals"
+      Heading2:           "Generic"
+      Heading3:           "Blob"
+
+  - JPN:
+      Description:        "Portals Generic Blob"
+      Label:              "Portals Generic"
+      Heading1:           "Portals"
+      Heading2:           "Generic"
+      Heading3:           "Blob"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    End_Com

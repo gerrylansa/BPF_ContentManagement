@@ -1,0 +1,367 @@
+﻿Reusable Part:
+  Name:               BPFPortalLoggingDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Model Client for Portal Logging"
+
+  - JPN:
+      Description:        "Data Model Client for Portal Logging"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(FolderListing) Get(*REFERENCE #FolderListing)
+    Define_Pty Name(FolderItem) Get(GetFolderItem)
+    
+    Define_Pty Name(RuntimeLog) Get(*REFERENCE #RuntimeLog)
+    
+    Define_Pty Name(PortalSettings) Get(GetLogSettings)
+    Define_Pty Name(Delimiter) Get(*AUTO #PathDelimiter)
+    
+    * Events
+    Define_Evt Name(OnLoadPortalLogsCompleted)
+    Define_Evt Name(OnLoadPortalLogsFailed)
+    
+    Define_Evt Name(OnGetPortalLoggingControlSettingsCompleted)
+    Define_Evt Name(OnGetPortalLoggingControlSettingsFailed)
+    
+    Define_Evt Name(OnSetPortalLoggingControlSettingCompleted)
+    Define_Evt Name(OnSetPortalLoggingControlSettingFailed)
+    
+    Define_Evt Name(OnPortalLogsRemoveCompleted)
+    Define_Evt Name(OnPortalLogsRemoveFailed)
+    
+    Define_Evt Name(OnRuntimeLogClearCompleted)
+    Define_Evt Name(OnRuntimeLogClearFailed)
+    
+    Define_Evt Name(OnLoadFolderCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Delimiter)
+    Define_Evt Name(OnLoadFolderFailed)
+    
+    Define_Evt Name(GetIntegrationLoggingControlSettingCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    Define_Evt Name(GetIntegrationLoggingControlSettingFailed)
+    
+    Define_Evt Name(OnSetIntegrationLoggingControlSettingCompleted)
+    Define_Evt Name(OnSetIntegrationLoggingControlSettingFailed)
+    
+    Define_Evt Name(OnIntegrationLogsRemoveCompleted)
+    Define_Evt Name(OnIntegrationLogsRemoveFailed)
+    
+    
+    * Objects
+    Define_Com Class(#PRIM_LCOL<#BPFFileSystemObjectDataItem>) Name(#FolderListing)
+    Define_Com Class(#BPFFileSystemObjectDataItem) Name(#RuntimeLog)
+    Define_Com Class(#PRIM_LCOL<#BPFBooleanCodeGroupClass>) Name(#PortalLogSettings)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#PathDelimiter)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetFolderItem)
+    Define_Map For(*OUTPUT) Class(#BPFFileSystemObjectDataItem) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key) Mandatory(*NULL)
+    
+    If (#Key.IsNull)
+    
+    #Property <= #RuntimeLog
+    
+    Else
+    
+    For Each(#Item) In(#FolderListing)
+    
+    Continue If(#Key.LowerCase <> #Item.FullName.LowerCase)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endif
+    
+    Endroutine
+    
+    Ptyroutine Name(GetLogSettings)
+    Define_Map For(*OUTPUT) Class(#PRIM_LCOL<#BPFBooleanCodeGroupClass>) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key)
+    
+    #Property <= *New #PRIM_LCOL<#BPFBooleanCodeGroupClass>
+    
+    For Each(#Item) In(#PortalLogSettings)
+    
+    Continue If(#Item.CodeGroup <> #Key)
+    #Property.Insert( #Item )
+    
+    Endfor
+    
+    Endroutine
+    
+    * Events
+    
+    * Methods
+    Mthroutine Name(LoadPortalLogs)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.GetPortalLogs) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Portallogs(#FolderListing) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadPortalLogsCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadPortalLogsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadPortalLogsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetPortalLoggingControlSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.GetPortalLogSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Loggingsettings(#PortalLogSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetPortalLoggingControlSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetPortalLoggingControlSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetPortalLoggingControlSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(RemovePortalLogs)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.ClearPortalLogs) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnPortalLogsRemoveCompleted)
+    
+    Else
+    
+    Signal Event(OnPortalLogsRemoveFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnPortalLogsRemoveFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Runtime Log
+    Mthroutine Name(ClearRuntimeLog)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.ClearRuntimeLog) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnRuntimeLogClearCompleted)
+    
+    Else
+    
+    Signal Event(OnRuntimeLogClearFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnRuntimeLogClearFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Integration Logging
+    Mthroutine Name(LoadLIFolder)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Path)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.GetDirectoryContents) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forpath(#Path) Contents(#FolderListing) Pathdelimiter(#PathDelimiter) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadFolderCompleted) Delimiter(#PathDelimiter)
+    
+    Else
+    
+    Signal Event(OnLoadFolderFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadFolderFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetIntegrationLoggingControlSetting)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.GetIsLILogging) Name(#Request)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#Value)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#Value) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(GetIntegrationLoggingControlSettingCompleted) Value(#Value)
+    
+    Else
+    
+    Signal Event(GetIntegrationLoggingControlSettingFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(GetIntegrationLoggingControlSettingFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetIntegrationLoggingControlSetting)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.SetIsLILogging) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Settovalue(#Value) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSetIntegrationLoggingControlSettingCompleted)
+    
+    Else
+    
+    Signal Event(OnSetIntegrationLoggingControlSettingFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetIntegrationLoggingControlSettingFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveLILogs)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.ClearLILogs) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnIntegrationLogsRemoveCompleted)
+    
+    Else
+    
+    Signal Event(OnIntegrationLogsRemoveFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnIntegrationLogsRemoveFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

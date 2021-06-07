@@ -1,0 +1,465 @@
+﻿Web Page:
+  Name:               BPFPortal
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Webpage"
+
+  - JPN:
+      Description:        "Portal Webpage"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_WEB) Theme(#SYS_THEME<MaterialDesignBlue>) Caption('my Portal') Layoutmanager(#PortalLayout) Visible(False) Icon(#BPFPortalIcon) Width(1920) Height(980)
+    
+    * LANGUAGE SUPPORT NOTE
+    * If the webpage for the portal is compiled, then the resulting HTML page needs to be modified in order for the
+    * language support features to functions correctly. At startup the portal will check if teh language is present.
+    * If the language suport is missing it will be added automatically, the portal will eitehr display a message to this
+    * effect or portal will reload automatically.
+    *
+    * Manually the modification can be made by either
+    *
+    * 1. Before compiling the webpage start the BPFDevelopmentMonitor. When it detects the HTML file for the webpage
+    * has changed, it will apply the required modifications automatically
+    *
+    * 2. After compiling the webpage manually edit the HTML to change teh LANSA.init from
+    *
+    * LANSA.init({part:"%{lansa_partition}%",sys:"%{lansa_webalias}%",ver:"1595979465",lang:{def:"ENG",code:{"ENG":"en-AU"}}
+    * ,slz:0,md:0,ol:0,splash:{limg:"spin",mtxt:{"ENG":"myPortal is Loading..."}}});%{lansa_webroutine_output}%
+    *
+    * to the following noting the PORTALIZE.language has replaced the ISO language code above
+    *
+    * LANSA.init({part:"%{lansa_partition}%",sys:"%{lansa_webalias}%",ver:"1595979542",lang:{def:"ENG",code:{"ENG":PORTALIZE.language}},
+    * slz:0,md:0,ol:0,splash:{limg:"spin",mtxt:{"ENG":"myPortal is Loading..."}}});%{lansa_webroutine_output}%
+    
+    * Portal Definitions
+    
+    * Add Analytics - if you dont need this for the portal you are developing remove the following 2 lines
+    Define_Pty Name(GA) Get(*REFERENCE #GA)
+    Define_Com Class(#BPFGoogleAnalyticsAPI) Name(#GA)
+    
+    * Reference Application Objects
+    Define_Pty Name(Session) Get(*REFERENCE #Session)
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    
+    Define_Pty Name(Navigate) Get(*REFERENCE #Navigate)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Pty Name(AppStrings) Get(*REFERENCE #Strings)
+    Define_Com Class(#BPFApplicationStrings) Name(#Strings)
+    
+    Define_Pty Name(AppName) Get(*AUTO #AppName)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#AppName)
+    
+    Define_Pty Name(AppIcon) Get(*AUTO #AppIcon)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#AppIcon)
+    
+    Define_Pty Name(AppSignout) Get(*AUTO #AppSignout)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#AppSignout)
+    
+    * Layout manager
+    Define_Com Class(#PRIM_TBLO) Name(#PortalLayout)
+    
+    * Columns & Rows
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PortalLayoutColumn1) Displayposition(1) Parent(#PortalLayout) Units(Content) Width(10)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PortalLayoutColumn2) Displayposition(2) Parent(#PortalLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PortalLayoutRow1) Displayposition(1) Parent(#PortalLayout) Height(64) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PortalLayoutRow2) Displayposition(2) Parent(#PortalLayout)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PortalAppBarLayoutItem) Parent(#PortalLayout) Row(#PortalLayoutRow1) Column(#PortalLayoutColumn1) Columnspan(2) Alignment(TopLeft)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PortalNavDrawerLayoutItem) Parent(#PortalLayout) Row(#PortalLayoutRow2) Sizing(FitToHeight) Column(#PortalLayoutColumn1) Alignment(TopLeft)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PortalViewsLayoutItem) Alignment(TopLeft) Column(#PortalLayoutColumn2) Parent(#PortalLayout) Row(#PortalLayoutRow2)
+    
+    * Portal User Interface Objects
+    
+    * Panels
+    Define_Pty Name(AppBar) Get(*REFERENCE #AppBar)
+    Define_Com Class(#BPFPortalApplicationBar) Name(#AppBar) Reference(*DYNAMIC)
+    
+    Define_Pty Name(NavDrawer) Get(*REFERENCE #NavDrawer)
+    Define_Com Class(#BPFPortalNavigationDrawer) Name(#NavDrawer) Reference(*DYNAMIC)
+    
+    Define_Pty Name(ViewsPanel) Get(*REFERENCE #ViewsPanel)
+    Define_Com Class(#BPFPortalViews) Name(#ViewsPanel) Reference(*DYNAMIC)
+    
+    * Dialogs
+    
+    * Login
+    Define_Pty Name(LoginDialog) Get(*REFERENCE #Login)
+    Define_Com Class(#BPFLoginDialog) Name(#Login) Reference(*DYNAMIC)
+    
+    * Create Account
+    Define_Pty Name(CreateDialog) Get(*REFERENCE #CreateAccount)
+    Define_Com Class(#BPFCreateAccountDialog) Name(#CreateAccount) Reference(*DYNAMIC)
+    
+    * Confirm Account Active
+    Define_Pty Name(ConfirmAccountDialog) Get(*REFERENCE #ConfirmAccountActive)
+    Define_Com Class(#BPFConfirmAccountActiveDialog) Name(#ConfirmAccountActive) Reference(*DYNAMIC)
+    
+    * Forget Password Dialog
+    Define_Pty Name(ForgetPasswordDialog) Get(*REFERENCE #ForgetPassword)
+    Define_Com Class(#BPFForgetPasswordRequestDialog) Name(#ForgetPassword) Reference(*DYNAMIC)
+    
+    * Password Reset Dialog
+    Define_Pty Name(PasswordResetDialog) Get(*REFERENCE #PasswordReset)
+    Define_Com Class(#BPFPasswordResetDialog) Name(#PasswordReset) Reference(*DYNAMIC)
+    
+    * Security Reset Dialog
+    Define_Pty Name(SecurityResetDialog) Get(*REFERENCE #SecurityReset)
+    Define_Com Class(#BPFResetAccountSecurityDialog) Name(#SecurityReset) Reference(*DYNAMIC)
+    
+    * Appbar Definitions
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#ClearBackgroudStyle) Backgroundbrush(#Brush1) Fontweight(Weight500)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(Transparent) Opacity(0)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#LoginUser)
+    
+    Define_Evt Name(NavigateToEditStrings)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Set name and icon
+    #AppName := #Strings.Text<'APP.NAME'>
+    #AppIcon := #Strings.Text<'APP.ICON'>
+    #AppSignout := #Strings.Text<'APP.SIGNOUT'>
+    
+    If (#Session.Active)
+    #COM_SELF.ShowWebpage
+    Endif
+    
+    * If you dont need analytics, then remove this event routine to ensure no tracking occurs.
+    #COM_SELF.SetAnalytics
+    
+    Endroutine
+    
+    * Session
+    Evtroutine Handling(#Session.LoginCompleted) Entryquerystring(#QueryString)
+    
+    * Come Alive
+    #COM_SELF.ShowWebpage
+    #Navigate.To Eventname(HOME) Type(REPLACE) Signalreplaceevent(#QueryString.IsNull)
+    
+    If (#QueryString.IsNull.IsFalse)
+    
+    #SYS_WEB.History.Add Querystring(#QueryString)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.LogoutRequested)
+    
+    * Go Away
+    #Com_self.HideWebpage
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.LogoutCompleted #session.SessionEnded)
+    
+    #Session.StartServerSession
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.LoginDialogRequested)
+    
+    If (#Session.Active)
+    
+    #Session.Logout
+    
+    Else
+    
+    If (#Login *Is *Null)
+    
+    #Session.EndServerSession
+    
+    Endif
+    
+    Endif
+    
+    #COM_SELF.HandleLoginDialog
+    
+    Endroutine
+    
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Group(#GroupName) Name(#Event)
+    
+    #COM_SELF.HandleNavigationEvent( #GroupName #Event )
+    
+    Endroutine
+    
+    
+    * Dialogs
+    
+    * Destory Refereences
+    Evtroutine Handling(#Login.Closed)
+    
+    #Login <= *Null
+    
+    Endroutine
+    
+    Evtroutine Handling(#CreateAccount.Closed)
+    
+    #CreateAccount <= *NULL
+    
+    Endroutine
+    
+    Evtroutine Handling(#ConfirmAccountActive.Closed)
+    
+    #ConfirmAccountActive <= *Null
+    
+    Endroutine
+    
+    Evtroutine Handling(#ForgetPassword.Closed)
+    
+    #ForgetPassword <= *NULL
+    
+    Endroutine
+    
+    Evtroutine Handling(#PasswordReset.Closed)
+    
+    #PasswordReset <= *NULL
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecurityReset.Closed)
+    
+    #SecurityReset <= *Null
+    
+    Endroutine
+    
+    * Panels
+    Evtroutine Handling(#ViewsPanel.OnEditStringsClicked)
+    
+    Signal Event(NavigateToEditStrings)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleNavigationEvent) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Eventgroup)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event)
+    
+    Case Of_Field(#Eventgroup)
+    
+    When Value_Is('= CREATEACCOUNT')
+    
+    #COM_SELF.HandleCreateAccountDialog
+    
+    When Value_Is('= CONFIRMACCOUNT')
+    
+    #COM_SELF.HandleConfirmAccountActive
+    
+    When Value_Is('= FORGETPASSWORD')
+    
+    #COM_SELF.HandleForgetPassword
+    
+    When Value_Is('= PASSWORDRESET')
+    
+    #COM_SELF.HandlePasswordReset
+    
+    When Value_Is('= SECURITYRESET')
+    
+    #COM_SELF.HandleSecurityReset
+    
+    When Value_Is('= LOGIN')
+    
+    If (#Login *Is *Null)
+    
+    #Session.EndServerSession
+    
+    Endif
+    
+    #COM_SELF.HandleLoginDialog
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(HandleLoginDialog)
+    
+    If (#Login *Is *Null)
+    
+    #Login <= *New #BPFLoginDialog
+    #Login.HandleShow
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleCreateAccountDialog)
+    
+    If (#CreateAccount *Is *NULL)
+    
+    #CreateAccount <= *New #BPFCreateAccountDialog
+    #CreateAccount.ShowDialog
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleConfirmAccountActive)
+    
+    If (#ConfirmAccountActive *Is *NULL)
+    
+    #ConfirmAccountActive <= *New #BPFConfirmAccountActiveDialog
+    #ConfirmAccountActive.ShowDialog
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleForgetPassword)
+    
+    If (#ForgetPassword *Is *NULL)
+    
+    #ForgetPassword <= *New #BPFForgetPasswordRequestDialog
+    #ForgetPassword.ShowDialog
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandlePasswordReset)
+    
+    If (#PasswordReset *Is *NULL)
+    
+    #PasswordReset <= *New #BPFPasswordResetDialog
+    #PasswordReset.ShowDialog
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSecurityReset)
+    
+    If (#SecurityReset *Is *NULL)
+    
+    #SecurityReset <= *New #BPFResetAccountSecurityDialog
+    #SecurityReset.ShowDialog
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(ShowWebpage)
+    
+    * Create the Appbar
+    #AppBar <= *New #BPFPortalApplicationBar
+    #PortalAppBarLayoutItem.Manage <= #AppBar
+    #AppBar.Parent <= #COM_OWNER
+    
+    * Create Views Panel
+    #ViewsPanel <= *New #BPFPortalViews
+    #PortalViewsLayoutItem.Manage <= #ViewsPanel
+    #ViewsPanel.Parent <= #COM_OWNER
+    
+    * Create Navigation Drawer
+    #NavDrawer <= *New #BPFPortalNavigationDrawer
+    #PortalNavDrawerLayoutItem.Manage <= #NavDrawer
+    #NavDrawer.Parent <= #COM_OWNER
+    
+    * Time to shine
+    #Com_self.Visible := True
+    
+    Endroutine
+    
+    Mthroutine Name(ShowToaster)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#MessageText)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Duration) Mandatory(5000)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#LinkMessageText) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#LinkMessageNavigationEvent) Mandatory(*NULL)
+    
+    #ViewsPanel.Toaster.Show( #MessageText #Duration #LinkMessageText #LinkMessageNavigationEvent )
+    
+    Endroutine
+    
+    Mthroutine Name(HideWebpage)
+    
+    * Time to sleep
+    #Com_self.Visible := False
+    
+    * Kill themm all....
+    #AppBar #PortalAppBarLayoutItem.Manage <= *NULL
+    
+    #Navigate.ClearAllRelatedMenus
+    #NavDrawer #PortalNavDrawerLayoutItem.Manage <= *NULL
+    
+    #ViewsPanel #PortalViewsLayoutItem.Manage <= *NULL
+    
+    Endroutine
+    
+    Mthroutine Name(SetAnalytics) Access(*PRIVATE)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFAnalyticsSessionDataServer.GetAnalytics) Name(#Request)
+    
+    * Local Values
+    Define_Com Class(#PRIM_NMBR) Name(#Enabled)
+    Define_Com Class(#PRIM_ALPH) Name(#ID)
+    
+    * Okay below we are using an execute to get the analytics settings. You should never ever ever
+    * use an excute, its just bad as the request must complete in order for the application to continue
+    * which leads to performance issues. Here we need to get values before anything else happens. So
+    * this the only place and for the reason you should do this. If I ever see anyone copy this logic
+    * thats its, you are going to told I am very disappointed in you.
+    
+    * Make Request
+    #Request.Execute Enabled(#Enabled) Trackingid(#ID) Status(#BPFStatus)
+    
+    If (#BPFStatus = IP)
+    
+    #Session.ClientTabs.DeregisterTab
+    #Navigate.ToDisabled
+    
+    Endif
+    
+    If (#BPFStatus = NC)
+    
+    #SYS_WEB.console.log( ('Language support not configured, entry page is missing PORTALIZE.language value in LANSA.init. So reloading page to check for updated HTML. Webpage.') Error )
+    
+    #Session.ClientTabs.DeregisterTab
+    #Browser.Reload
+    
+    Endif
+    
+    * Set Values
+    #GA.GA_Measurement_ID := #ID
+    #GA.Enabled := #Enabled.AsBoolean
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := true
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com
+
+  Offline Support:    No
+  Allow Zoom:         No
+
+  Scripts:
+  - content/langsupport.js
+  - https://www.googletagmanager.com/gtag/js
+
+  Loading Screen:
+    Image:              Spinner
+
+    Multilingual Text:
+    - ENG:
+        Text:               "myPortal is Loading..."
+
+  Security Policy:    None

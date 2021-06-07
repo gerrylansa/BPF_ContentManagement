@@ -1,0 +1,289 @@
+﻿Form:
+  Name:               BPFInitialSetup
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Initial Portal Setup"
+
+  - JPN:
+      Description:        "Initial Portal Setup"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_FORM) Clientwidth(833) Clientheight(492) Componentversion(2) Left(907) Top(261) Layoutmanager(#Layout)
+    
+    * References
+    Define_Com Class(#BPFSystemSettingsImporter) Name(#Importer)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Fontunits(Percent) Fontsize(200) Foregroundbrush(#Brush1) Bold(False)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(33:150:243)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style3) Fontunits(Percent) Fontsize(250) Foregroundbrush(#Brush3)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush3) Color(33:150:243)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style4) Fontunits(Percent) Fontsize(150)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style2) Foregroundbrush(#Brush2) Fontunits(Percent) Fontsize(125)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush2) Color(33:150:243)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style5) Foregroundbrush(#Brush4) Fontunits(Percent) Fontsize(125)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush4) Color(33:150:243)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout) Height(72) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#Layout) Height(72) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow4) Displayposition(4) Parent(#Layout) Height(24) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#PrimaryAppTitle) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentWidthAndHeight) Marginleft(24) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#BackButton) Parent(#Layout) Row(#LayoutRow3) Sizing(None) Flow(Right) Marginleft(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Manage(#StatusBar) Parent(#Layout) Row(#LayoutRow4) Sizing(None) Column(#LayoutColumn1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem5) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#NextButton) Parent(#Layout) Row(#LayoutRow3) Sizing(None) Flow(Right) Marginleft(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem6) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#SetupPanels) Parent(#Layout) Row(#LayoutRow2) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem7) Alignment(CenterRight) Column(#LayoutColumn1) Manage(#CancelButton) Parent(#Layout) Row(#LayoutRow3) Sizing(None) Marginright(24)
+    
+    * Panel Layout Managers
+    
+    * Welcome Panel
+    Define_Com Class(#PRIM_TBLO) Name(#WelcomeLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#WelcomeLayoutRow1) Displayposition(1) Parent(#WelcomeLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#WelcomeLayoutColumn1) Displayposition(1) Parent(#WelcomeLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#WelcomeLayoutItem1) Column(#WelcomeLayoutColumn1) Manage(#WelcomeHeading) Parent(#WelcomeLayout) Row(#WelcomeLayoutRow1) Sizing(ContentHeightFitToWidth) Alignment(CenterLeft) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#WelcomeLayoutItem2) Alignment(CenterLeft) Column(#WelcomeLayoutColumn1) Manage(#WelcomeText) Parent(#WelcomeLayout) Row(#WelcomeLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(CenterVertical) Margintop(16) Marginbottom(32)
+    
+    * Labels
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopLeft) Column(#Layout1Column1) Manage(#ImportSourceTitle) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Column(#Layout1Column1) Manage(#BPFFileServiceFullName) Parent(#Layout1) Row(#Layout1Row1) Sizing(FitToWidth) Marginright(56)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Alignment(CenterRight) Column(#Layout1Column1) Manage(#SelectSourceFile) Parent(#Layout1) Row(#Layout1Row1) Sizing(None) Margintop(8) Marginright(2)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout2)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout2Row1) Displayposition(1) Parent(#Layout2)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout2Column1) Displayposition(1) Parent(#Layout2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout2Item1) Alignment(TopLeft) Column(#Layout2Column1) Manage(#TaskUserTitle) Parent(#Layout2) Row(#Layout2Row1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout2Item2) Alignment(CenterLeft) Column(#Layout2Column1) Manage(#BPFUserFirstName) Parent(#Layout2) Row(#Layout2Row1) Sizing(FitToWidth) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout2Item3) Alignment(CenterLeft) Column(#Layout2Column1) Manage(#BPFGenericPassword) Parent(#Layout2) Row(#Layout2Row1) Sizing(FitToWidth) Flow(CenterVertical) Margintop(16)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout3)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout3Row1) Displayposition(1) Parent(#Layout3)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout3Column1) Displayposition(1) Parent(#Layout3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout3Item1) Alignment(TopLeft) Column(#Layout3Column1) Manage(#LoggingView) Parent(#Layout3) Row(#Layout3Row1)
+    
+    Define_Com Class(#PRIM_LABL) Name(#PrimaryAppTitle) Caption('Portalize Initial Setup') Displayposition(1) Ellipses(Word) Height(33) Left(24) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(20) Style(#Style1) Width(225) Verticalalignment(Center)
+    
+    * Status Bar
+    Define_Com Class(#PRIM_STBR) Name(#StatusBar) Displayposition(5) Height(24) Left(0) Messageposition(1) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(468) Width(833)
+    
+    * Buttons
+    Define_Com Class(#PRIM_PHBN) Name(#BackButton) Displayposition(2) Left(24) Parent(#COM_OWNER) Tabposition(2) Top(420) Caption('Back') Enabled(False)
+    Define_Com Class(#PRIM_PHBN) Name(#NextButton) Caption('Next') Displayposition(3) Left(112) Parent(#COM_OWNER) Tabposition(1) Top(420) Buttondefault(True)
+    Define_Com Class(#PRIM_PHBN) Name(#CancelButton) Caption('Cancel') Displayposition(4) Left(729) Parent(#COM_OWNER) Tabposition(4) Top(420) Imageheight(3)
+    
+    * Tab Folder
+    Define_Com Class(#PRIM_TAB) Name(#SetupPanels) Bottomlayoutpriority(4) Componentversion(2) Displayposition(6) Height(324) Left(24) Leftlayoutpriority(1) Parent(#COM_OWNER) Rightlayoutpriority(2) Tabposition(6) Top(72) Toplayoutpriority(3) Width(785) Showpagetabs(False)
+    
+    * Tab Sheets
+    Define_Com Class(#PRIM_TBSH) Name(#WelcomePanel) Displayposition(1) Height(324) Left(0) Parent(#SetupPanels) Tabposition(1) Tabstop(False) Top(0) Width(785) Layoutmanager(#WelcomeLayout)
+    Define_Com Class(#PRIM_TBSH) Name(#ImportSourcePanel) Displayposition(2) Height(324) Left(0) Parent(#SetupPanels) Tabposition(4) Tabstop(False) Top(0) Width(785) Layoutmanager(#Layout1)
+    Define_Com Class(#PRIM_TBSH) Name(#TaskUserPanel) Displayposition(3) Height(324) Left(0) Parent(#SetupPanels) Tabposition(3) Tabstop(False) Top(0) Width(785) Layoutmanager(#Layout2)
+    Define_Com Class(#PRIM_TBSH) Name(#LoggingPanel) Displayposition(4) Height(324) Left(0) Parent(#SetupPanels) Tabposition(2) Tabstop(False) Top(0) Width(785) Layoutmanager(#Layout3)
+    
+    * Welcome Panel
+    Define_Com Class(#PRIM_LABL) Name(#WelcomeHeading) Caption('Welcome...') Displayposition(1) Ellipses(Word) Height(41) Left(0) Parent(#WelcomePanel) Tabposition(1) Tabstop(False) Top(71) Verticalalignment(Center) Width(785) Style(#Style3)
+    Define_Com Class(#PRIM_LABL) Name(#WelcomeText) Displayposition(2) Ellipses(Word) Height(93) Left(0) Parent(#WelcomePanel) Tabposition(2) Tabstop(False) Top(128) Verticalalignment(Center) Width(785) Style(#Style4) Caption('To the initial setup of your new Portalize based portal. My job is to load up all of the system settings, create the required portal folder and put the files used by the portal where they belong so you can start creating your new portal. Before we get going ensure that all the portal components have been compiled successfully and that you have VL web setup to work HTTPs.')
+    
+    * Import Source File
+    Define_Com Class(#PRIM_LABL) Name(#ImportSourceTitle) Caption('Step 1. Set Import Source File') Displayposition(1) Ellipses(Word) Height(21) Left(0) Parent(#ImportSourcePanel) Tabposition(1) Tabstop(False) Top(0) Verticalalignment(Center) Width(785) Style(#Style2)
+    Define_Com Class(#Prim_appl.ICommonDialogFileOpen) Name(#FileSelect) Reference(*DYNAMIC)
+    
+    Define_Com Class(#BPFFileServiceFullName.Visual) Name(#BPFFileServiceFullName) Displayposition(2) Height(42) Parent(#ImportSourcePanel) Tabposition(2) Top(141) Width(729) Labeltype(Caption) Labelposition(Top) Marginleft(0) Caption('Source File') Margintop(21)
+    Define_Com Class(#PRIM_PHBN) Name(#SelectSourceFile) Caption('...') Displayposition(3) Left(743) Parent(#ImportSourcePanel) Tabposition(3) Top(158) Width(40)
+    
+    * Task User
+    Define_Com Class(#PRIM_LABL) Name(#TaskUserTitle) Caption('Step 2. Set schedule task user') Displayposition(1) Ellipses(Word) Height(21) Left(0) Parent(#TaskUserPanel) Tabposition(1) Tabstop(False) Top(0) Verticalalignment(Center) Width(785) Style(#Style5)
+    
+    
+    * Logging Panel
+    Define_Com Class(#PRIM_LTVW) Name(#LoggingView) Componentversion(2) Displayposition(1) Fullrowselect(True) Keyboardpositioning(SortColumn) Left(0) Parent(#LoggingPanel) Showsortarrow(True) Tabposition(1) Top(0) Height(324) Width(785) Columnheaders(False) Columnbuttonheight(19)
+    Define_Com Class(#PRIM_LVCL) Name(#LoggingViewText) Displayposition(1) Parent(#LoggingView) Source(#BPFGenericNVarChar2048) Widthtype(MinRemainder)
+    Define_Com Class(#BPFUserFirstName.Visual) Name(#BPFUserFirstName) Displayposition(2) Parent(#TaskUserPanel) Tabposition(2) Top(112) Width(785) Height(42) Labelposition(Top) Marginleft(0) Margintop(21) Labeltype(Caption) Caption('Username')
+    Define_Com Class(#BPFGenericPassword.Visual) Name(#BPFGenericPassword) Displayposition(3) Parent(#TaskUserPanel) Tabposition(3) Top(170) Labeltype(Caption) Caption('Password') Height(42) Labelposition(Top) Marginleft(0) Margintop(21) Width(785)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentPanelIndex)
+    Define_Com Class(#PRIM_TIMR) Name(#ImportDelay) Startup(Manual) Interval(25)
+    
+    Evtroutine Handling(#com_owner.CreateInstance)
+    
+    #CurrentPanelIndex := 1
+    #COM_SELF.Caption := 'Inital Setup'
+    
+    
+    Endroutine
+    
+    * Button Events
+    
+    * Cancel
+    Evtroutine Handling(#CancelButton.Click)
+    
+    * All done, so close down.
+    #COM_SELF.CloseForm
+    
+    Endroutine
+    
+    * Back
+    Evtroutine Handling(#BackButton.Click)
+    
+    Define_Com Class(#PRIM_TBSH) Name(#ShowPanel) Reference(*DYNAMIC)
+    
+    If (#ShowPanel *IsNotEqualTo #LoggingPanel)
+    
+    #CancelButton.Caption := 'Cancel'
+    
+    Endif
+    
+    If (#CurrentPanelIndex > 1)
+    
+    #CurrentPanelIndex := #CurrentPanelIndex - 1
+    
+    #NextButton.Enabled := (#CurrentPanelIndex < #SetupPanels.ComponentControls.ItemCount)
+    #ShowPanel <= #SetupPanels.ComponentControls<#CurrentPanelIndex> *As #PRIM_TBSH
+    
+    #ShowPanel.ShowSheet
+    
+    #BackButton.Enabled := (#CurrentPanelIndex > 1)
+    
+    Endif
+    
+    Endroutine
+    
+    * Next
+    Evtroutine Handling(#NextButton.Click)
+    
+    Define_Com Class(#PRIM_TBSH) Name(#ShowPanel) Reference(*DYNAMIC)
+    
+    If (#CurrentPanelIndex < #SetupPanels.ComponentControls.ItemCount)
+    
+    #CurrentPanelIndex := #CurrentPanelIndex + 1
+    
+    #BackButton.Enabled := (#CurrentPanelIndex > 1)
+    #ShowPanel <= #SetupPanels.ComponentControls<#CurrentPanelIndex> *As #PRIM_TBSH
+    
+    If (#ShowPanel *IsEqualTo #LoggingPanel)
+    
+    If (#BPFFileServiceFullName.IsNull)
+    
+    #CurrentPanelIndex := 2
+    #ShowPanel <= #SetupPanels.ComponentControls<#CurrentPanelIndex> *As #PRIM_TBSH
+    #BPFFileServiceFullName.ShowError := True
+    Message Msgtxt('Import source not selected')
+    
+    Endif
+    
+    If (#BPFUserFirstName.IsNull)
+    
+    #CurrentPanelIndex := 3
+    #ShowPanel <= #SetupPanels.ComponentControls<#CurrentPanelIndex> *As #PRIM_TBSH
+    #BPFUserFirstName.ShowError := True
+    Message Msgtxt('Username not entered')
+    
+    Endif
+    
+    If (#BPFGenericPassword.IsNull)
+    
+    #CurrentPanelIndex := 3
+    #ShowPanel <= #SetupPanels.ComponentControls<#CurrentPanelIndex> *As #PRIM_TBSH
+    #BPFGenericPassword.ShowError := True
+    Message Msgtxt('Password not entered')
+    
+    Endif
+    
+    Endif
+    
+    #ShowPanel.ShowSheet
+    
+    #NextButton.Enabled := (#CurrentPanelIndex < #SetupPanels.ComponentControls.ItemCount)
+    
+    Endif
+    
+    Endroutine
+    
+    * Import Source
+    Evtroutine Handling(#SelectSourceFile.Click)
+    
+    #BPFFileServiceFullName := #COM_SELF.PickaFile
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFFileServiceFullName.Changed)
+    
+    #BPFFileServiceFullName.ShowError := False
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFUserFirstName.Changed)
+    
+    #BPFUserFirstName.ShowError := False
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFGenericPassword.Changed)
+    
+    #BPFGenericPassword.ShowError := False
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingPanel.Opening)
+    
+    #ImportDelay.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#ImportDelay.Tick)
+    
+    #ImportDelay.Stop
+    
+    Clr_List Named(#LoggingView)
+    
+    #BPFGenericBlob := #BPFFileServiceFullName
+    If (#Importer.Populate( #BPFGenericBlob *PARTDTALIB #BPFUserFirstName.AsNativeString #BPFGenericPassword.AsNativeString ))
+    
+    #CancelButton.Caption := 'Close'
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Importer.OnLogOutput) Logentry(#Text)
+    
+    #BPFGenericNVarChar2048 := #Text.AsNativeString
+    Add_Entry To_List(#LoggingView)
+    #LoggingView.UpdateDisplay
+    #LoggingView.CurrentItem.EnsureVisible := True
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(PickaFile) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    Define_Com Class(#Prim_appl.ICommonDialogFileOpen) Name(#FileOpen) Reference(*DYNAMIC)
+    
+    #FileOpen <= #sys_appln.CreateFileOpenDialog
+    #FileOpen.Title := 'Select import source'
+    #FileOpen.AddFilter( 'Portal Export' '*.json' )
+    
+    If (#FileOpen.Show)
+    
+    #Result := #FileOpen.File
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com
+    

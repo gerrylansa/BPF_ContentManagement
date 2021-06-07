@@ -1,0 +1,47 @@
+﻿Reusable Part:
+  Name:               BPFAdminPasswordVerificationViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin Verification View Strings"
+
+  - JPN:
+      Description:        "Admin Verification View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SETADMINRIGHTS'> := "Administration Rights"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SETACCOUNTDISABLED'> := "Disable Account"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SETACCOUNTENABLED'> := "Enable Account"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SENDPASSWORDRESET'> := "Resend Password Reset"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SENDCONFIRMACCOUNT'> := "Resend Activate Account"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SENDSECURITYRESET'> := "Resend Security Reset"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SECURITYRESET'> := "Reset Security"
+    
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "In order to change this account, we need to make sure that your account is authorised. So please enter your password below as verification for this change"
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRYPANELHEADING.CAPTION'> := "Verify Password"
+    #STRINGSCOLLECTION<'PASSWORDENTRY.CAPTION'> := "Enter your password"
+    #STRINGSCOLLECTION<'PASSWORDENTRYACTION.CAPTION'> := "VERIFY"
+    
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONVERIFYADMINACCOUNTFAILED'> := "Verification failed"
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRY.BLANK'> := "You forgot your password"
+    
+    Endroutine
+    
+    End_Com

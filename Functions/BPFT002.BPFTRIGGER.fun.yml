@@ -1,0 +1,216 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1992
+    * Process .......: BPFTRIGGER
+    * Function ......: BPFT002
+    * Type ..........: BPFPortalUserAccount File Level Trigger
+    * Created by ....:
+    * Created on ....: 19/08/05 at 13:15:55
+    * Description ...: BPFSessionEvents Trigger
+    * =======================================================
+    
+    Function Options(*DIRECT *NOMESSAGES *LIGHTUSAGE *MLOPTIMISE) Rcv_List(#TRIG_LIST) Trigger(*FILE BPFTBL0001)
+    * =======================================================
+    
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils)
+    
+    * =======================================================
+    * Working fields, lists and groups
+    * =======================================================
+    
+    Def_List Name(#TRIG_LIST) Type(*WORKING) Entrys(2)
+    
+    * =======================================================
+    * Function Mainline : BPFT001
+    * =======================================================
+    
+    * Assume a "good" return initially
+    Change Field(#TRIG_RETC) To('OK')
+    
+    Case Of_Field(#TRIG_OPER)
+    
+    When Value_Is('= BEFINS')
+    
+    #COM_SELF.SetNewAccountStatus
+    
+    When Value_Is(' = BEFUPD')
+    
+    #COM_SELF.UpdateAccountStatus
+    
+    When Value_Is(' = AFTUPD')
+    
+    #COM_SELF.RemoveOldestTransactionID
+    
+    When Value_Is('= AFTINS')
+    
+    #COM_SELF.CreateProfileRecord
+    #COM_SELF.CreatePreferenceRecord
+    
+    When Value_Is('= AFTDLT')
+    
+    #COM_SELF.RemoveAccount
+    
+    Otherwise
+    
+    Abort Msgtxt('File BPFPORTALUSERACCOUNTS trigger function invalidly invoked/ used.')
+    
+    Endcase
+    
+    Return
+    
+    * Methods
+    
+    * Before Insert
+    Mthroutine Name(SetNewAccountStatus)
+    
+    * Must be new, as it has just been created* Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    #BPFUserAccountStatus := 'New'
+    
+    Upd_Entry In_List(#TRIG_LIST)
+    
+    Endroutine
+    
+    * Before Update
+    Mthroutine Name(UpdateAccountStatus)
+    
+    * Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    * Check for active
+    If ((#BPFUserAccountEnabled) *And (#BPFUserSecurityQuestion <> *Blank) *And (#BPFUserEventToken.IsNull))
+    
+    #BPFUserAccountStatus := 'Active'
+    
+    Endif
+    
+    * Check for Disabled
+    If ((#BPFUserAccountEnabled.IsFalse) *And (#BPFUserSecurityQuestion <> *Blank) *And (#BPFUserEventToken.IsNull))
+    
+    #BPFUserAccountStatus := 'Disabled'
+    
+    Endif
+    
+    * Check for Reset
+    If ((#BPFUserAccountEnabled) *And (#BPFUserSecurityQuestion <> *Blank) *And (#BPFUserEventToken.IsNull.IsFalse))
+    
+    #BPFUserAccountStatus := 'Reset'
+    
+    Endif
+    
+    * Check for Pending
+    If ((#BPFUserAccountEnabled.IsFalse) *And (#BPFUserSecurityQuestion = *Blank) *And (#BPFUserEventToken.IsNull.IsFalse))
+    
+    #BPFUserAccountStatus := 'Pending'
+    
+    Endif
+    
+    * Commit the status value
+    Upd_Entry In_List(#TRIG_LIST)
+    
+    Endroutine
+    
+    * After Update
+    Mthroutine Name(RemoveOldestTransactionID)
+    
+    * Variables for before and after values
+    Define_Com Class(#BPFUserLastAuthorised) Name(#BeforeTS)
+    Define_Com Class(#BPFUserLastAuthorised) Name(#AfterTS)
+    
+    * Populate before then after
+    Get_Entry Number(2) From_List(#TRIG_LIST)
+    #BeforeTS := #BPFUserLastAuthorised
+    
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    #AfterTS := #BPFUserLastAuthorised
+    
+    * if the before is befote image is blank, then its new so no action
+    If (#BeforeTS > 0)
+    
+    * They need to be different, as this only happens at login
+    If (#BeforeTS <> #AfterTS)
+    
+    * Get the count of IDs for this user
+    * #std_qsel := "SELECT COUNT(*) AS STD_NUM FROM " + *PARTDTALIB + ".BPFPortalUserTransactionIDLog WHERE (BPFUserAccountInternalKey = '" + #BPFUserAccountInternalKey.AsNativeString + "')"
+    #BPFGenericNVarChar256 := (#Utils.GetAlphaValueForLanguage( (*OSAPI).UpperCase SQL LOGINCOUNT )).Substitute( #BPFUserAccountInternalKey )
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : login check query : ' + #BPFGenericNVarChar256) )
+    
+    Select_Sql Fields(#STD_NUM) Using(#BPFGenericNVarChar256)
+    Endselect
+    
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : login check query result : ' + #STD_NUM.AsString) )
+    
+    * Are we above storage thershold
+    If (#STD_NUM >= 100)
+    
+    * We are so get the victim and delete
+    Fetch Fields(#BPFUserTransactionID) From_File(BPFPortalUserTransIDbyOldestDate) With_Key(#BPFUserAccountInternalKey)
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Fetch IO result : ' + #IO$STS) )
+    
+    Delete From_File(BPFPortalUserTransactionIDLog) With_Key(#BPFUserAccountInternalKey #BPFUserTransactionID)
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Delete IO result : ' + #IO$STS) )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * After Insert
+    Mthroutine Name(CreatePreferenceRecord)
+    
+    * Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    * Assume no matching record
+    Insert Fields(#BPFUserAccountInternalKey) To_File(BPFPortalUserPreferences)
+    
+    Endroutine
+    
+    Mthroutine Name(CreateProfileRecord)
+    
+    * Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    * Assume no matching record
+    Insert Fields(#BPFUserAccountInternalKey) To_File(BPFPortalUserProfile)
+    
+    Endroutine
+    
+    * After Delete
+    Mthroutine Name(RemoveAccount)
+    
+    * Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    * Remove Preferences and Profiles
+    Delete From_File(BPFPortalUserProfile) With_Key(#BPFUserAccountInternalKey) Io_Error(*NEXT) Val_Error(*NEXT)
+    Delete From_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    * Remove Session and events
+    Select Fields(#BPFSessionID) From_File(BPFUserSessionsByNewestDate) With_Key(#BPFUserAccountInternalKey)
+    
+    * Delete the events
+    Delete From_File(BPFSessionEvents) With_Key(#BPFSessionID)
+    
+    * Delete this session
+    Delete From_File(BPFSessions) With_Key(#BPFSessionID)
+    
+    Endselect
+    
+    * Remove any stored transactin IDs
+    Delete From_File(BPFPortalUserTransactionIDLog) With_Key(#BPFUserAccountInternalKey)
+    
+    * Record Time
+    #BPFUserAccountDeletionOccurred := #BPFUserAccountDeletionOccurred.Now
+    
+    * Update the removed accounts table
+    Insert Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountDeletionOccurred) To_File(BPFPortalDeletedAccounts)
+    
+    Endroutine

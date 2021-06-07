@@ -1,0 +1,110 @@
+﻿ServerModule:
+  Name:               BPFSystemCodesDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal System Codes Data Server"
+
+  - JPN:
+      Description:        "Portal System Codes Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#AlphaValue) Type(*CHAR) Length(512)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Generic Save for Numeric Values
+    Srvroutine Name(SaveNumericCode) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFCodeGroup) Parameter_Name(SettingGroup)
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(SettingName)
+    Field_Map For(*INPUT) Field(#BPFCodeSequence) Parameter_Name(SettingSequence)
+    
+    Field_Map For(*INPUT) Field(#BPFCodeNumericValue) Parameter_Name(SetToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveNumericCode' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := #Utils.SetNumericValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeNumericValue )
+    
+    Endroutine
+    
+    Srvroutine Name(SaveAlphaCode) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFCodeGroup) Parameter_Name(SettingGroup)
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(SettingName)
+    Field_Map For(*INPUT) Field(#BPFCodeSequence) Parameter_Name(SettingSequence)
+    
+    Field_Map For(*INPUT) Field(#BPFCodeAlphaValue) Parameter_Name(SetToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveAlphaCode' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    
+    Endroutine
+    
+    End_Com

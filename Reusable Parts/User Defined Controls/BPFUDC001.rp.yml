@@ -1,0 +1,128 @@
+﻿Reusable Part:
+  Name:               BPFMenuItemActionCard
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Navigation Action Card"
+
+  - JPN:
+      Description:        "Navigation Action Card"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(220) Left(0) Tabposition(1) Top(0) Width(408) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#CardLayout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Card Layout
+    Define_Com Class(#PRIM_TBLO) Name(#CardLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CardLayoutColumn1) Displayposition(1) Parent(#CardLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CardLayoutColumn2) Displayposition(2) Parent(#CardLayout) Units(Pixels) Width(100)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CardLayoutLayoutRow1) Displayposition(1) Parent(#CardLayout) Height(146) Units(Content) Minheight(162)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CardLayoutLayoutRow2) Displayposition(2) Parent(#CardLayout) Height(56) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem1) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardHeading) Parent(#CardLayout) Row(#CardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginleft(24) Marginright(24) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem2) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardText) Parent(#CardLayout) Row(#CardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem3) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardAction) Parent(#CardLayout) Row(#CardLayoutLayoutRow2) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem4) Alignment(TopCenter) Column(#CardLayoutColumn2) Manage(#CardIcon) Parent(#CardLayout) Row(#CardLayoutLayoutRow1)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#CardHeading) Caption('Card Heading') Displayposition(1) Left(24) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(258) Height(27) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#CardText) Captionalignment(TopLeft) Displayposition(2) Height(79) Left(24) Parent(#COM_OWNER) Tabposition(2) Top(67) Width(258) Wordwrap(True) Caption('This is some text that will apeear on the card. If you can see this teh developer has not finished.') Paddingbottom(24)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#CardAction) Caption('On click action') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Top(162) Height(56) Captionmarginleft(24) Captionalignment(CenterLeft) Icon('keyboard_arrow_right') Iconalignment(CenterRight) Iconmarginright(16) Style(#NavigationLinkStyle) Width(406)
+    Define_Com Class(#PRIM_MD.Icon) Name(#CardIcon) Displayposition(4) Icon('android') Left(306) Parent(#COM_OWNER) Tabposition(4) Top(0) Height(162) Width(100) Themedrawstyle('ForegroundMediumPrimary') Iconheight(76)
+    
+    * Properties
+    Define_Pty Name(TextAreaHeight) Get(GetTextAreaHeight) Set(SetTextAreaHeight)
+    
+    * Global Variables
+    Define_Com Class(#PRIM_BOLN) Name(#ShowWaitOnClick)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#ToEvent)
+    Define_Com Class(#PRIM_ALPH) Name(#WithValue)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetTextAreaHeight)
+    Define_Map For(*OUTPUT) Class(#PRIM_NMBR) Name(#Property)
+    
+    If (#CardLayoutLayoutRow1.Height <= #CardLayoutLayoutRow1.MinHeight)
+    
+    #Property := #CardLayoutLayoutRow1.MinHeight
+    
+    Else
+    
+    #Property := #CardLayoutLayoutRow1.Height
+    
+    Endif
+    
+    Endroutine
+    
+    Ptyroutine Name(SetTextAreaHeight)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Property)
+    
+    #CardLayoutLayoutRow1.MinHeight := #Property
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#CardAction.Click)
+    
+    * Show wait if set
+    If (#ShowWaitOnClick)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    Endif
+    
+    * Go to card action view
+    If (#ToEvent.IsNull.IsFalse)
+    
+    If (#WithValue.IsNull)
+    
+    #Navigate.To Eventname(#ToEvent)
+    
+    Else
+    
+    #Navigate.To Eventname(#ToEvent) Value(#WithValue)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetDisplay)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Heading)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Icon)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Text)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Action)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowWaitWithClick) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#EventValue) Mandatory(*NULL)
+    
+    * Set Controls
+    #CardHeading.Caption := #Heading
+    #CardIcon.Icon := #Icon
+    #CardText.Caption := #Text
+    #CardAction.Caption := #Action
+    #ToEvent := #Event
+    #WithValue := #EventValue
+    #ShowWaitOnClick := #ShowWaitWithClick
+    
+    Endroutine
+    
+    End_Com

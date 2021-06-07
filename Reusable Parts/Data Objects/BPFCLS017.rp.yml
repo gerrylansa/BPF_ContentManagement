@@ -1,0 +1,259 @@
+﻿Reusable Part:
+  Name:               BPFLanguageResourceItemClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Resource Item Class"
+
+  - JPN:
+      Description:        "Language Resource Item Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by for data mapping of listfields
+    Group_By Name(#Listfields) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeAlphaValue #BPFFileServiceFileSize)
+    
+    * References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Defintions
+    
+    * Properties
+    Define_Pty Name(Identifier) Get(*AUTO #BPFCodeGroup)
+    Define_Pty Name(ObjectName) Get(*AUTO #BPFCodeName)
+    Define_Pty Name(Description) Get(*AUTO #BPFCodeAlphaValue)
+    Define_Pty Name(Type) Get(GetType)
+    Define_Pty Name(IconName) Get(GetIconName)
+    Define_Pty Name(TypeColour) Get(GetTypeColour)
+    
+    Define_Pty Name(Strings) Get(*REFERENCE #Strings)
+    
+    * Events
+    Define_Evt Name(OnLoadStringsCompleted)
+    Define_Evt Name(OnLoadStringsFailed)
+    
+    Define_Evt Name(OnSaveStringsCompleted)
+    Define_Evt Name(OnSaveStringsFailed)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFResourceStringItemClass>) Name(#Strings)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetType)
+    Define_Map For(*OUTPUT) Class(#prim_DC.UnicodeString) Name(#Property)
+    
+    If (#BPFCodeGroup.Contains( 'VLR' ))
+    
+    #Property := VIEW
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'DLR' ))
+    
+    #Property := DIALOG
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'PLR' ))
+    
+    #Property := PANEL
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'CLR' ))
+    
+    #Property := CODES
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'SLR' ))
+    
+    #Property := EVENTS
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'ALR' ))
+    
+    #Property := APPLICATION
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'MLR' ))
+    
+    #Property := MENU
+    
+    Endif
+    
+    Endroutine
+    
+    Ptyroutine Name(GetIconName)
+    Define_Map For(*OUTPUT) Class(#prim_DC.UnicodeString) Name(#Property)
+    
+    If (#BPFCodeGroup.Contains( 'VLR' ))
+    
+    #Property := 'panorama'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'DLR' ))
+    
+    #Property := 'tab'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'PLR' ))
+    
+    #Property := 'view_module'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'CLR' ))
+    
+    #Property := 'code'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'SLR' ))
+    
+    #Property := 'restore'
+    
+    Endif
+    
+    
+    If (#BPFCodeGroup.Contains( 'ALR' ))
+    
+    #Property := #BPFPortal.AppIcon
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'MLR' ))
+    
+    #Property := 'menu'
+    
+    Endif
+    
+    Endroutine
+    
+    Ptyroutine Name(GetTypeColour)
+    Define_Map For(*OUTPUT) Class(#prim_DC.UnicodeString) Name(#Property)
+    
+    If (#BPFCodeGroup.Contains( 'VLR' ))
+    
+    #Property := 'ForegroundTheme500'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'DLR' ))
+    
+    #Property := 'ForegroundMediumAccent'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'PLR' ))
+    
+    #Property := 'ForegroundMediumSuccess'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'CLR' ))
+    
+    #Property := 'ForegroundDarkError'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'SLR' ))
+    
+    #Property := 'Text(123,31,162,1)'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'ALR' ))
+    
+    #Property := 'ForegroundTheme900'
+    
+    Endif
+    
+    If (#BPFCodeGroup.Contains( 'MLR' ))
+    
+    #Property := 'ForegroundTheme500'
+    
+    Endif
+    
+    Endroutine
+    
+    * Events
+    
+    * Methods
+    Mthroutine Name(LoadStrings)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.GetResourceStrings) Name(#Request)
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Resource(#BPFCodeGroup) Resourcesize(#BPFFileServiceFileSize) Data(#Strings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadStringsCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadStringsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadStringsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveStrings)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.SaveResourceStrings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Resource(#BPFCodeGroup) Data(#Strings) Newversionnumber(#Browser.LanguageVersion) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveStringsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveStringsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveStringsFailed)
+    
+    Endroutine
+    
+    
+    Endroutine
+    
+    End_Com

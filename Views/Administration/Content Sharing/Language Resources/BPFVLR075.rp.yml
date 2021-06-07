@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFContentSharesListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Content Shares List View Strings"
+
+  - JPN:
+      Description:        "Portal Content Shares List View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Content Shares"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Select a content share so you can review and manage the folders and items you wish users to have access to in the share. To add a new share to the portal just click the new button."
+    
+    #STRINGSCOLLECTION<'CONTENTSHARESHEADING.CAPTION'> := "Shares"
+    
+    #STRINGSCOLLECTION<'SHARING.ONGETSHARESFAILED'> := "Error loading content shares"
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFPortalHomeViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Home View Strings"
+
+  - JPN:
+      Description:        "Home View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Welcome,"
+    
+    #STRINGSCOLLECTION<'PANELWELCOMEHEADING.CAPTION.EARLY'> := "Your up late %%USER%%, since your up what can we do to help..."
+    #STRINGSCOLLECTION<'PANELWELCOMEHEADING.CAPTION.MORNING'> := "Good morning %%USER%%, what can we do to get your day going..."
+    #STRINGSCOLLECTION<'PANELWELCOMEHEADING.CAPTION.AFTERNOON'> := "Good afternoon %%USER%%, hope we can keep your day going well ..."
+    #STRINGSCOLLECTION<'PANELWELCOMEHEADING.CAPTION.EVENING'> := "Good evening %%USER%%, hope you had a great day..."
+    
+    #STRINGSCOLLECTION<'LASTSESSIONCARDHEADING.CAPTION'> := "Your last session"
+    #STRINGSCOLLECTION<'LASTSESSIONCARDTEXT.CAPTION'> := "These are the events from  your last session on %%DATE%% at %%TIME%%"
+    #STRINGSCOLLECTION<'LASTSESSIONCARDTEXT.CAPTION.NOSESSIONS'> := "You have no activity from your last session'"
+    #STRINGSCOLLECTION<'LASTSESSIONCARDACTION.CAPTION'> := "Manage your activity"
+    
+    Endroutine
+    
+    End_Com

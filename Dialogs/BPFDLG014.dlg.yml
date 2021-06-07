@@ -1,0 +1,79 @@
+﻿Web Dialog:
+  Name:               BPFItemViewerMessageDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Item Viewer Message Dialog"
+
+  - JPN:
+      Description:        "Item Viewer Message Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Width(312) Height(148) Layoutmanager(#Layout1) Style(#Style1) Themedrawstyle('text(0,0,0,0.87)')
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    
+    * Dialog Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1) Marginbottom(24) Marginleft(24) Marginright(24) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1) Height(26) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row2) Displayposition(2) Parent(#Layout1) Minheight(72) Height(10) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopCenter) Column(#Layout1Column1) Manage(#DialogTitle) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthFitToHeight)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Column(#Layout1Column1) Manage(#DialogMessage) Parent(#Layout1) Row(#Layout1Row2) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Dialog Title') Displayposition(1) Left(106) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(99) Height(26)
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogMessage) Caption('Dialog message text') Captionalignment(Center) Displayposition(2) Height(21) Left(24) Parent(#COM_OWNER) Tabposition(2) Top(76) Width(262) Wordwrap(True)
+    
+    * References
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Reference(*DYNAMIC)
+    
+    
+    * Routines
+    
+    * Events
+    Define_Evt Name(OnActionConfirmed)
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetTheme
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(OpenDialog)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Title) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Message) Mandatory(*NULL)
+    
+    * Set Title
+    #DialogTitle := #Title
+    #DialogMessage := #Message
+    
+    * Open the dialog
+    #COM_SELF.Show
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    
+    Else
+    
+    #COM_SELF.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,277 @@
+﻿Web View:
+  Name:               BPFSecurityCurrentBannedIPsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Current Banned IPs Listview"
+
+  - JPN:
+      Description:        "Portal Current Banned IPs Listview"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP005')
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSecurityCurrentBannedIPsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFSecurityDataClient) Name(#SecuritySettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout) Height(382) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#MainLayout) Height(120) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#CurrentBansPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#FooterSpace) Parent(#MainLayout) Row(#LayoutRow3) Sizing(FitToWidth) Margintop(24)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#CurrentBansPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CurrentBansPanelLayoutRow1) Displayposition(1) Parent(#CurrentBansPanelLayout) Units(Content) Height(332)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CurrentBansPanelLayoutRow2) Displayposition(2) Parent(#CurrentBansPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CurrentBansPanelLayoutColumn1) Displayposition(1) Parent(#CurrentBansPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CurrentBansPanelLayoutColumn2) Displayposition(2) Parent(#CurrentBansPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CurrentBansPanelLayoutColumn3) Displayposition(3) Parent(#CurrentBansPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansPanelLayoutItem1) Manage(#CurrentBansHeading) Parent(#CurrentBansPanelLayout) Row(#CurrentBansPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#CurrentBansPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginright(104)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansPanelLayoutItem2) Alignment(TopLeft) Column(#CurrentBansPanelLayoutColumn2) Manage(#CurrentBansList) Parent(#CurrentBansPanelLayout) Row(#CurrentBansPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansPanelLayoutItem3) Alignment(TopRight) Column(#CurrentBansPanelLayoutColumn2) Manage(#ClearAllBansAction) Parent(#CurrentBansPanelLayout) Row(#CurrentBansPanelLayoutRow1) Sizing(None) Marginleft(12) Margintop(12) Flow(Left)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#CurrentBansLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CurrentBansLayoutListColumn1) Displayposition(1) Parent(#CurrentBansLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CurrentBansLayoutListRow1) Displayposition(1) Parent(#CurrentBansLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansLayoutListItem1) Alignment(TopRight) Column(#CurrentBansLayoutListColumn1) Manage(#CurrentBansListClearBanAction) Parent(#CurrentBansLayoutList) Row(#CurrentBansLayoutListRow1) Sizing(None) Flow(Left) Margintop(2) Rowspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansLayoutListItem3) Alignment(TopLeft) Column(#CurrentBansLayoutListColumn1) Manage(#CurrentBansListRemainingLabel) Parent(#CurrentBansLayoutList) Row(#CurrentBansLayoutListRow1) Flow(Down) Sizing(ContentHeightFitToWidth)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansLayoutListItem2) Manage(#CurrentBansListAddressLabel) Parent(#CurrentBansLayoutList) Row(#CurrentBansLayoutListRow1) Column(#CurrentBansLayoutListColumn1) Alignment(TopLeft) Sizing(ContentHeightFitToWidth) Flow(Down) Marginright(36) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansLayoutListItem4) Alignment(TopLeft) Column(#CurrentBansLayoutListColumn1) Manage(#CurrentBansListBackgroundLabel) Parent(#CurrentBansLayoutList) Row(#CurrentBansLayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CurrentBansPanelLayoutItem4) Alignment(TopRight) Column(#CurrentBansPanelLayoutColumn2) Manage(#RefreshBansListAction) Parent(#CurrentBansPanelLayout) Row(#CurrentBansPanelLayoutRow1) Sizing(None) Marginleft(12) Margintop(12) Flow(Left)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Style(#NavigationLinkStyle) Caption('Banned IP Addresses')
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Displayposition(2) Height(38) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('All current bans will automatically be cleared when the IP address reaches the set duration. Alternatively you can clear the ban for an IP address or all current banned IP addresses below.')
+    
+    * Panels
+    
+    * Notifications
+    Define_Com Class(#PRIM_PANL) Name(#CurrentBansPanel) Displayposition(3) Height(358) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(141) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#CurrentBansPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#CurrentBansHeading) Caption('Current Bans') Displayposition(1) Left(24) Parent(#CurrentBansPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(726) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.Label) Name(#ClearAllBansAction) Displayposition(4) Icon('clear_all') Left(754) Parent(#CurrentBansPanel) Tabposition(4) Top(12) Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Captionmargintop(0) Height(44) Width(44) Iconcolor(Theme500) Iconalignment(Center) Style(#NavigationLinkStyle)
+    
+    Define_Com Class(#PRIM_MD.List) Name(#CurrentBansList) Displayposition(2) Left(24) Parent(#CurrentBansPanel) Rowheight(64) Tabposition(2) Top(72) Height(260) Width(830) Layoutmanager(#CurrentBansLayoutList)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#CurrentBansListClearBanAction) Displayposition(1) Left(794) Parent(#CurrentBansList) Tabposition(5) Top(2) Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Captionmargintop(0) Width(36) Icon('Clear') Iconcolor(Theme500) Captionalignment(Center) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#CurrentBansListAddressLabel) Displayposition(2) Left(0) Parent(#CurrentBansList) Tabposition(2) Top(8) Height(24) Width(794) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('Heading3') Style(#NotaCard) Caption('All clear')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#CurrentBansListRemainingLabel) Displayposition(4) Left(0) Parent(#CurrentBansList) Tabposition(4) Top(32) Width(830) Iconcolor(Theme500) Themedrawstyle('Subheading') Height(21) Wordwrap(True) Captionmarginleft(4) Style(#NotaCard) Captionalignment(TopLeft) Captionmargintop(4) Caption('No IP addresses are currently banned.')
+    
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#CurrentBansListBackgroundLabel) Displayposition(5) Left(0) Parent(#CurrentBansList) Tabposition(1) Top(0) Height(64) Width(830) Iconalignment(CenterRight) Themedrawstyle('Card') Style(#NotaCard) Captionalignment(Center)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterSpace) Displayposition(4) Left(410) Parent(#COM_OWNER) Tabposition(4) Top(523) Width(880)
+    Define_Com Class(#PRIM_MD.Label) Name(#RefreshBansListAction) Displayposition(3) Icon('refresh') Left(810) Parent(#CurrentBansPanel) Tabposition(3) Top(12) Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Captionmargintop(0) Height(44) Width(44) Iconcolor(Theme500) Iconalignment(Center) Style(#NavigationLinkStyle)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #SecuritySettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFSecurityDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #COM_SELF.SetStrings
+    
+    * Get portal logging settings
+    #SecuritySettings.GetBannedAddresses
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Actions
+    
+    * Refresh
+    Evtroutine Handling(#RefreshBansListAction.Click)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Get portal logging settings
+    #SecuritySettings.GetBannedAddresses
+    
+    Endroutine
+    
+    * Clear All
+    Evtroutine Handling(#ClearAllBansAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #SecuritySettings.ClearIPAddressBan
+    
+    Endroutine
+    
+    * Clear Single Entry
+    Evtroutine Handling(#CurrentBansListClearBanAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #SecuritySettings.ClearIPAddressBan( (#CurrentBansList.CurrentItem.RelatedReference *As #BPFBannedIPAddressDataClass) )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#SecuritySettings.OnGetBannedAddressesCompleted)
+    
+    #COM_SELF.BuildCurrentBansList
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnGetBannedAddressesFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<SECURITYSETTINGS.ONGETBANNEDADDRESSESFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnClearIPAddressBanCompleted) Victim(#Victim)
+    
+    #COM_SELF.UpdaterCurrentBansList( #Victim )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnClearIPAddressBanFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<SECURITYSETTINGS.ONCLEARIPADDRESSBANFAILED> 7500 )
+    
+    Endroutine
+    
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #CURRENTBANSHEADING.CAPTION := #STRINGS.Text<CURRENTBANSHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildCurrentBansList) Access(*PRIVATE)
+    
+    * Ensure list is empty
+    #CurrentBansList.DeleteAll
+    
+    * Start with loading system logging
+    For Each(#Item) In(#SecuritySettings.BannedAddresses)
+    
+    * Current List Item
+    Add_Entry To_List(#CurrentBansList)
+    
+    * Set Item Properies
+    
+    * Associcate data object
+    #CurrentBansList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Address
+    #CurrentBansListAddressLabel.CurrentItem.Caption := #Item.IPAddress
+    
+    * Set Remaining
+    #CurrentBansListRemainingLabel.CurrentItem.Caption := #STRINGS.Text<CURRENTBANSLISTREMAININGLABEL.ITEM.CAPTION>.Replace( '%%DATE%%' #Item.RecordedAt.AsLocalizedDateTime.Date.AsDisplayString( DDsMMsCCYY ) ).Replace( '%%TIME%%' #Item.RecordedAt.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS ) ).Replace( '%%HOURS%%' #Item.RemainingHours.AsString ).Replace( '%%MINS%%' #Item.RemainingMinutes.AsString )
+    
+    Endfor
+    
+    #ClearAllBansAction.Visible := *Not #CurrentBansList.Items.IsEmpty
+    
+    If (#CurrentBansList.Items.IsEmpty)
+    
+    * Add Blank Entry
+    Add_Entry To_List(#CurrentBansList)
+    
+    #CURRENTBANSLISTADDRESSLABEL.CurrentItem.CAPTION := #STRINGS.Text<CURRENTBANSLISTADDRESSLABEL.EMPTY.CAPTION>
+    #CURRENTBANSLISTREMAININGLABEL.CurrentItem.CAPTION := #STRINGS.Text<CURRENTBANSLISTREMAININGLABEL.EMPTY.CAPTION>
+    
+    * Set Entry
+    #CurrentBansListClearBanAction.CurrentItem.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(UpdaterCurrentBansList)
+    Define_Map For(*INPUT) Class(#BPFBannedIPAddressDataClass) Name(#Victim) Pass(*BY_REFERENCE)
+    
+    * Find and remove the victim, no victim then kill them all
+    If (#Victim *Is *Null)
+    
+    #CurrentBansList.DeleteAll
+    
+    Else
+    
+    #CurrentBansList.FindReference( #Victim ).Delete
+    
+    Endif
+    
+    #ClearAllBansAction.Visible := *Not #CurrentBansList.Items.IsEmpty
+    
+    If (#CurrentBansList.Items.IsEmpty)
+    
+    * Add Blank Entry
+    Add_Entry To_List(#CurrentBansList)
+    
+    * Set Entry
+    #CurrentBansListClearBanAction.CurrentItem.Visible := False
+    
+    * All gone
+    #BPFPortal.ShowToaster( 'All bans cleared' )
+    
+    Else
+    
+    * Show Completed
+    #BPFPortal.ShowToaster( 'Ban cleared' )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,46 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserSetAdminRightsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin User Set Admin Rights View Strings"
+
+  - JPN:
+      Description:        "Admin User Set Admin Rights View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "%%ACTIONTEXT%% Administration Rights"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Confirm that you are %%ACTIONTEXT%% administration rights. Read the text below before confirming this action."
+    
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELHEADING.CAPTION'> := "Confirmation"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.REVOKE'> := "By revoking administration rights %%EMAIL%% will no longer be able access any administration functions for this portal. The change will come into effect the next time the user is logs into the portal."
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.GRANT'> := "By granting administration rights %%EMAIL%% will  be able access any administration functions, basic user information and view activity for this portal. The change will come into effect the next time the user is logs into the portal."
+    #STRINGSCOLLECTION<'PASSWORDENTRYACTION.CAPTION'> := "VERIFY"
+    
+    #STRINGSCOLLECTION<'ADMINROLE.GRANT'> := "Grant"
+    #STRINGSCOLLECTION<'ADMINROLE.REVOKE'> := "Revoke"
+    #STRINGSCOLLECTION<'ADMINROLE.GRANTING'> := "granting"
+    #STRINGSCOLLECTION<'ADMINROLE.REVOKING'> := "revoking"
+    
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETUSERACCOUNTFAILED'> := "Failed to user information"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETADMINROLECOMPLETED'> := "Administration rights updated"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETADMINROLEFAILED'> := "FAILED to set administration rights."
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,148 @@
+﻿Reusable Part:
+  Name:               BPFMenuItemMultiActionCard
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Navigation Multiple Action Card"
+
+  - JPN:
+      Description:        "Navigation Multiple Action Card"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(174) Left(0) Tabposition(1) Top(0) Width(408) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#CardLayout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Card Layout
+    
+    Define_Com Class(#PRIM_TBLO) Name(#CardLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CardLayoutColumn1) Displayposition(1) Parent(#CardLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CardLayoutColumn2) Displayposition(2) Parent(#CardLayout) Units(Pixels) Width(100)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CardLayoutLayoutRow1) Displayposition(1) Parent(#CardLayout) Height(146) Units(Content) Minheight(162)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CardLayoutLayoutRow2) Displayposition(2) Parent(#CardLayout) Height(10) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem1) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardHeading) Parent(#CardLayout) Row(#CardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginleft(24) Marginright(24) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem2) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardText) Parent(#CardLayout) Row(#CardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem4) Alignment(TopCenter) Column(#CardLayoutColumn2) Manage(#CardIcon) Parent(#CardLayout) Row(#CardLayoutLayoutRow1)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#CardHeading) Caption('Card Heading') Displayposition(1) Left(24) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(258) Height(27) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#CardText) Captionalignment(TopLeft) Displayposition(2) Height(79) Left(24) Parent(#COM_OWNER) Tabposition(2) Top(67) Width(258) Wordwrap(True) Caption('This is some text that will apeear on the card. If you can see this teh developer has not finished.') Paddingbottom(24)
+    Define_Com Class(#PRIM_MD.Icon) Name(#CardIcon) Displayposition(3) Icon('android') Left(306) Parent(#COM_OWNER) Tabposition(3) Top(0) Height(162) Width(100) Themedrawstyle('ForegroundMediumPrimary') Iconheight(76)
+    
+    * Collections for actions and their layout items
+    Define_Com Class(#PRIM_LCOL<#PRIM_TBLO.Item>) Name(#ActionLayoutItems)
+    
+    Define_Pty Name(Actions) Get(*REFERENCE #Actions)
+    Define_Com Class(#PRIM_LCOL<#PRIM_MD.FlatButton>) Name(#Actions)
+    
+    * Events
+    Define_Evt Name(OnActionClicked)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#ActionIndex)
+    
+    * Global Variables
+    Define_Com Class(#PRIM_BOLN) Name(#ShowWaitOnClick)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#Actions<>.Click) Com_Sender(#Sender)
+    
+    * Show wait if set
+    If ((#ActionLayoutItems<#Actions.IndexOf<#Sender>>.ComponentTag).AsBoolean)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    Endif
+    
+    * Go to card action view
+    If (#Sender.ComponentTag.IsNull.IsFalse)
+    
+    #Navigate.To Eventname(#Sender.ComponentTag)
+    
+    Else
+    
+    Signal Event(OnActionClicked) Actionindex(#Actions.IndexOf<#Sender>)
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetDisplay)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Heading)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Icon)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Text)
+    
+    * Set Controls
+    #CardHeading.Caption := #Heading
+    #CardIcon.Icon := #Icon
+    #CardText.Caption := #Text
+    
+    Endroutine
+    
+    Mthroutine Name(AddAction)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Action)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowWaitWithClick) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Icon) Mandatory('keyboard_arrow_right')
+    
+    * Define_Com Class(#PRIM_TBLO.Item) Name(#CardLayoutItem3) Alignment(TopLeft) Column(#CardLayoutColumn1) Manage(#CardAction) Parent(#CardLayout) Row(#CardLayoutLayoutRow2) Columnspan(2) Sizing(FitToWidth)
+    
+    * Create Layout Item
+    #ActionLayoutItems.Insert( (*New #PRIM_TBLO.Item) )
+    
+    * Set Columns
+    #ActionLayoutItems.Last.Column <= #CardLayoutColumn1
+    #ActionLayoutItems.Last.ColumnSpan := 2
+    
+    * Set Rows
+    #ActionLayoutItems.Last.Row <= #CardLayoutLayoutRow2
+    
+    * Set Alignment and Sizing
+    #ActionLayoutItems.Last.Flow := Down
+    #ActionLayoutItems.Last.Alignment := TopLeft
+    #ActionLayoutItems.Last.Sizing := FitToWidth
+    
+    * Set the wait control
+    #ActionLayoutItems.Last.ComponentTag := #ShowWaitWithClick
+    
+    * Define_Com Class(#PRIM_MD.FlatButton) Name(#CardAction) Caption('On click action') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Top(162) Height(56) Captionmarginleft(24) Captionalignment(CenterLeft) Icon('keyboard_arrow_right') Iconalignment(CenterRight) Iconmarginright(16) Style(#NavigationLinkStyle) Width(406)
+    
+    * Create the Action
+    #Actions.Insert( (*New #Prim_MD.FlatButton) )
+    #Actions.Last.Height := 56
+    #Actions.Last.CaptionMarginLeft := 24
+    #Actions.Last.CaptionAlignment := CenterLeft
+    #Actions.Last.Icon := #Icon
+    #Actions.Last.IconAlignment := CenterRight
+    #Actions.Last.IconMarginRight := 16
+    #Actions.Last.ThemeDrawStyle := 'ForegroundMediumPrimary+TopDivider'
+    #Actions.Last.Style <= #NavigationLinkStyle
+    #Actions.Last.Caption := #Action
+    
+    * Set Event on Action
+    #Actions.Last.ComponentTag := #Event
+    
+    * Set Layout Management
+    #ActionLayoutItems.Last.Manage <= #Actions.Last
+    
+    * Set Parentage
+    #ActionLayoutItems.Last.Parent <= #CardLayout
+    #Actions.Last.Parent <= #COM_OWNER
+    
+    Endroutine
+    
+    End_Com

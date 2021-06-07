@@ -1,0 +1,372 @@
+﻿Web View:
+  Name:               BPFPortalIntegrationFolderListview
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Log Folder List View"
+
+  - JPN:
+      Description:        "Portal Log Folder List View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Componenttag('BPFAPP003')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalIntegrationFolderListviewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Main Panel Layout
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopCenter) Column(#LayoutColumn1) Manage(#ListView) Parent(#MainLayout) Row(#LayoutRow1)
+    
+    * Listview Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ListviewLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutListColumn1) Displayposition(1) Parent(#ListviewLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ListviewLayoutColumn1) Displayposition(2) Parent(#ListviewLayout) Width(98) Minwidth(280) Maxwidth(960)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ListviewLayoutColumn2) Displayposition(3) Parent(#ListviewLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutListRow1) Displayposition(1) Parent(#ListviewLayout)
+    
+    * Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem1) Alignment(TopCenter) Column(#ListviewLayoutColumn1) Manage(#BreakLineHeader) Parent(#ListviewLayout) Row(#LayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem2) Alignment(TopCenter) Column(#ListviewLayoutColumn1) Manage(#ListItemBackground) Parent(#ListviewLayout) Row(#LayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem3) Alignment(CenterLeft) Column(#ListviewLayoutColumn1) Manage(#LeftLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Marginleft(24) Flow(Right) Sizing(ContentWidthAndHeight) Marginright(16)
+    
+    * List
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem6) Alignment(TopLeft) Column(#LayoutListColumn1) Manage(#RowBackground) Parent(#ListviewLayout) Row(#LayoutListRow1) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem7) Alignment(CenterLeft) Column(#ListviewLayoutColumn1) Manage(#ListHeader) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem4) Manage(#CenterLeftLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentHeightFitToWidth) Column(#ListviewLayoutColumn1) Alignment(CenterLeft) Flow(Right) Marginright(148)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ListviewLayoutItem5) Alignment(CenterRight) Column(#ListviewLayoutColumn1) Manage(#RightLabel) Parent(#ListviewLayout) Row(#LayoutListRow1) Sizing(ContentWidthAndHeight) Marginright(12)
+    
+    Define_Com Class(#PRIM_MD.List) Name(#ListView) Displayposition(1) Layoutmanager(#ListviewLayout) Left(0) Parent(#COM_OWNER) Rowheight(56) Tabposition(1) Top(0) Height(800) Width(1700)
+    
+    * List Controls
+    
+    * Item Value Labels
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#LeftLabel) Displayposition(1) Dragstyle(None) Left(394) Parent(#ListView) Tabposition(6) Top(16) Height(24) Width(24) Style(#NavigationLinkStyle) Themedrawstyle('Subheading+ForegroundMediumPrimary') Wordwrap(True) Icon('folder') Iconmarginbottom(2)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#CenterLeftLabel) Caption('26 mins') Displayposition(4) Dragstyle(None) Left(434) Parent(#ListView) Tabposition(4) Top(18) Height(21) Width(812) Style(#NavigationLinkStyle) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#RightLabel) Caption('31 Sept 19') Displayposition(6) Dragstyle(None) Left(1256) Parent(#ListView) Tabposition(5) Top(19) Height(19) Width(62) Style(#NavigationLinkStyle) Themedrawstyle('ForegroundSecondary+Subheading')
+    
+    * List Formatting Labels
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ListHeader) Displayposition(2) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(8) Top(16) Icon('arrow_back') Captionmarginleft(24) Height(24) Width(24) Themedrawstyle('Heading2') Style(#NavigationLinkStyle) Captionalignment(TopLeft)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#BreakLineHeader) Caption('Monday, 15 July 2019') Displayposition(5) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(1) Top(0) Width(960) Height(56) Captionmarginleft(24) Style(#FontWeight500Style) Themedrawstyle('Heading3+BottomDivider')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ListItemBackground) Displayposition(7) Dragstyle(None) Left(370) Parent(#ListView) Tabposition(2) Top(0) Width(960) Height(56) Themedrawstyle('card')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#RowBackground) Displayposition(8) Dragstyle(None) Left(0) Parent(#ListView) Tabposition(7) Top(0) Height(56) Width(1700)
+    
+    * References
+    
+    * Variables
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentPath)
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentScroll)
+    
+    Define_Com Class(#PRIM_TIMR) Name(#ScrollDelay) Startup(Manual) Interval(1)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Yes we all like to be seen, but sometime being hidden is what is needed.
+    * NOTE : This view is reused for each step in the folder navigation. When navigating
+    * we first ensure the view is destroyed and then allow the navigation item to recreate
+    * the view. This works fine going down the folder path, but when going back up the runtime
+    * can cause the new instance to be destoryed due to a delayed cleanup of the old instance
+    * meaning teh navigation event carries out the normal destory logic late. So to get around this issue
+    * we hide the view until we have something to show on the screen. Yes all this text just for
+    * the line of code below.
+    #COM_SELF.Visible := False
+    
+    #std_num := #BPFGenericDateTime.Now.AsSeconds
+    
+    * Get Reference to user account
+    #LoggingData <= (#Data.GetDataClient( #COM_SELF ) *As #BPFPortalLoggingDataClient)
+    
+    Endroutine
+    
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Get Control Values
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *NULL)
+    
+    #CurrentPath := #SYS_WEB.URLParameters<VALUE>.Value
+    
+    Endif
+    
+    If (#SYS_WEB.URLParameters<POS> *IsNot *NULL)
+    
+    #CurrentScroll := #SYS_WEB.URLParameters<POS>.Value.AsNumber
+    
+    Endif
+    
+    * Reset the list
+    #COM_SELF.ResetListView
+    
+    * Trigger Session Load
+    #LoggingData.LoadLIFolder( #CurrentPath )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.OnNavigationEvent)
+    
+    * We need this to be the walking dead
+    #Navigate.CurrentEvent.CleanupRelatedView
+    
+    Endroutine
+    
+    Evtroutine Handling(#ListHeader.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * User Account
+    Evtroutine Handling(#LoggingData.OnLoadFolderCompleted) Delimiter(#Delimiter)
+    
+    #COM_SELF.BuildListView
+    
+    * Okay, since this panel needs to be destroyed before showing again things can
+    * get abit out of whack. So **SPEICAL CASE** here we are forcing a show just in
+    * case the parent panels show does get actioned. Figures crossed !!!
+    
+    * DO NOT REPEAT THIS, unless you need to copy this pattern.
+    If (#COM_SELF.Visible.IsFalse)
+    
+    #Com_self.show
+    #COM_SELF.Visible := True
+    
+    Endif
+    
+    If (#CurrentScroll > 0)
+    #ScrollDelay.Start
+    Endif
+    
+    #CurrentPath := #CurrentPath + #Delimiter
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#ScrollDelay.Tick)
+    
+    #ScrollDelay.Stop
+    #ListView.VerticalScrollPos := #CurrentScroll
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnLoadFolderFailed)
+    
+    #COM_SELF.AddDivisonLine
+    #LeftLabel.CurrentItem.Caption := #STRINGS.Text<LOGGINGDATA.ONLOADFOLDERFAILED>
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * List
+    Evtroutine Handling(#ListView.ItemClick)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#NewPath)
+    Define_Com Class(#BPFFileSystemObjectDataItem) Name(#SelectedItem) Reference(*DYNAMIC)
+    
+    #SelectedItem <= (#ListView.CurrentItem.RelatedReference *As #BPFFileSystemObjectDataItem)
+    
+    If (#SelectedItem *IsNot *NULL)
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    If (#SelectedItem.IsFolder)
+    
+    * Special Case
+    If (#SYS_WEB.URLParameters<POS> *IsNot *Null)
+    
+    #NewPath := #SYS_WEB.URL.Substring( (#SYS_WEB.URL.PositionOf( '?' ) + 1) )
+    #NewPath := #NewPath.Replace( ('&pos=' + #CurrentScroll.asstring) ('&pos=' + #ListView.VerticalScrollPos.asstring) )
+    
+    Else
+    
+    #NewPath := #SYS_WEB.URL.Substring( (#SYS_WEB.URL.PositionOf( '?' ) + 1) ) + '&pos=' + #ListView.VerticalScrollPos.asstring
+    
+    Endif
+    
+    #SYS_WEB.History.Replace Querystring(#NewPath) Signal(False)
+    
+    #NewPath := (#CurrentPath + #SelectedItem.FullName)
+    #Navigate.To Eventname(#Navigate.CurrentEvent.EventName) Value(#NewPath)
+    
+    Else
+    
+    * Since we are going to now view a file , tell the lucky winner its place in the world
+    * Its a comment of emotion as I was listening to Dire Straits when changing the code.
+    
+    #NewPath := (#CurrentPath + #SelectedItem.FullName)
+    #Navigate.To Eventname(PORTALLOGCONTENTVIEW) Value(#NewPath)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(BuildListView)
+    
+    #COM_SELF.AddDivisonLine
+    #COM_SELF.AddBreakLine
+    
+    * Read the returned sessions
+    For Each(#Item) In(#LoggingData.FolderListing)
+    
+    * Output Values
+    #COM_SELF.AddItemLine( '' #Item.FullName (#Item.DateTime.Date.AsDisplayString( DDMMMYY ).InsertString( ' ' 3 ).InsertString( ' ' 7 )) #Item.IsFolder #Item )
+    
+    Endfor
+    
+    Endroutine
+    
+    * List Methods
+    Mthroutine Name(ResetListView) Access(*PRIVATE)
+    
+    * Clear the list
+    Clr_List Named(#ListView)
+    
+    * Add Header Line
+    Add_Entry To_List(#ListView)
+    #ListHeader.CurrentItem.Caption := #STRINGS.Text<LISTHEADER.CAPTION>
+    
+    * Configure the line
+    #COM_SELF.SetRowFormatting( True False False *NULL )
+    #COM_SELF.SetItemValues
+    #LeftLabel.CurrentItem.Icon := *null
+    
+    Endroutine
+    
+    Mthroutine Name(AddBreakLine) Access(*PRIVATE)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    #ListView.CurrentItem.MouseOverStyle <= *NULL
+    
+    * Show The Break
+    #ListHeader.CurrentItem.Visible := False
+    #BreakLineHeader.CurrentItem.Visible := True
+    * #ListItemBackground.CurrentItem.ThemeDrawStyle := 'Back(255,255,255,1)'
+    
+    #COM_SELF.SetRowFormatting( False True True *NULL )
+    #COM_SELF.SetItemValues
+    #LeftLabel.CurrentItem.Icon := *null
+    
+    * Configure the line
+    #BreakLineHeader.CurrentItem.Caption := #CurrentPath
+    
+    Endroutine
+    
+    Mthroutine Name(AddItemLine) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#LeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#CenterLeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RightValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Folder) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFFileSystemObjectDataItem) Name(#RelatedItem) Pass(*BY_REFERENCE)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    
+    * Line Items must have a reference
+    #ListView.CurrentItem.RelatedReference <= #RelatedItem
+    
+    * Hide the break label
+    #COM_SELF.SetRowFormatting( False False True #NavigationLinkStyle )
+    
+    * Configure the line
+    #COM_SELF.SetItemValues( #LeftValue #CenterLeftValue #RightValue #Folder )
+    
+    Endroutine
+    
+    Mthroutine Name(AddDivisonLine) Access(*PRIVATE)
+    
+    * Add the line
+    Add_Entry To_List(#ListView)
+    
+    * Configure the line
+    #COM_SELF.SetRowFormatting( False False False *Null )
+    
+    * Set Blank Values
+    #COM_SELF.SetItemValues
+    #LeftLabel.CurrentItem.Icon := *null
+    
+    Endroutine
+    
+    Mthroutine Name(SetItemValues) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#LeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#CenterLeftValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RightValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Folder) Mandatory(*NULL)
+    
+    #LeftLabel.CurrentItem.Caption := *null
+    
+    If (#Folder)
+    
+    #LeftLabel.CurrentItem.Icon := 'folder'
+    #LeftLabel.CurrentItem.ThemeDrawStyle := 'Subheading+ForegroundMediumPrimary'
+    
+    Else
+    
+    #LeftLabel.CurrentItem.Icon := 'insert_drive_file'
+    #LeftLabel.CurrentItem.ThemeDrawStyle := 'Subheading'
+    
+    Endif
+    
+    #CenterLeftLabel.CurrentItem.Caption := #CenterLeftValue
+    #RightLabel.CurrentItem.Caption := #RightValue
+    
+    Endroutine
+    
+    Mthroutine Name(SetRowFormatting) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowHeader)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowBreak)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowBackground)
+    Define_Map For(*INPUT) Class(#PRIM_VS.Style) Name(#Style) Pass(*BY_REFERENCE)
+    
+    Case Of_Field(#SYS_WEB.WebPage.ThemeBackground)
+    
+    When Value_Is(= Dark)
+    
+    #RowBackground.CurrentItem.Themedrawstyle := 'back(48,48,48,1)'
+    
+    When Value_Is(= Light)
+    
+    #RowBackground.CurrentItem.Themedrawstyle := 'back(250,250,250,1)'
+    
+    Endcase
+    
+    #ListHeader.CurrentItem.Visible := #ShowHeader
+    #BreakLineHeader.CurrentItem.Visible := #ShowBreak
+    #ListItemBackground.CurrentItem.Visible := #ShowBackground
+    
+    #ListItemBackground.CurrentItem.Styles.RemoveAll
+    #ListItemBackground.CurrentItem.Styles.Add( #Style )
+    #ListItemBackground.CurrentItem.Styles.Add( #NotaCard )
+    
+    Endroutine
+    
+    End_Com

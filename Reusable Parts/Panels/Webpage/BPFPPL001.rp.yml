@@ -1,0 +1,92 @@
+﻿Reusable Part:
+  Name:               BPFPortalToaster
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Toast Style Message"
+
+  - JPN:
+      Description:        "Portal Toast Style Message"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PPNL) Left(0) Height(48) Top(0) Width(400) Themebackground(Dark) Style(#Boarderless) Layoutmanager(#ToastLayout) Autoclose(False)
+    
+    *  Reference
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#Boarderless) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand) Fontweight(Weight500)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#ToastLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#ToastLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#ToastLayout) Minwidth(400)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(CenterLeft) Column(#Layout1Column1) Manage(#Message) Parent(#ToastLayout) Row(#Layout1Row1) Flow(Right) Sizing(ContentWidthAndHeight) Marginright(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Alignment(CenterRight) Column(#Layout1Column1) Manage(#LinkMessage) Parent(#ToastLayout) Row(#Layout1Row1) Flow(Right) Sizing(ContentWidthAndHeight) Marginright(24)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#Message) Caption('Message') Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(2) Top(14) Paddingleft(24) Height(21) Width(85)
+    
+    Define_Com Class(#PRIM_TIMR) Name(#Timer) Startup(Manual)
+    Define_Com Class(#PRIM_MD.Label) Name(#LinkMessage) Caption('Link') Displayposition(2) Left(276) Parent(#COM_OWNER) Tabposition(1) Height(40) Visible(False) Style(#NavigationLinkStyle) Paddingleft(16) Paddingright(16) Paddingbottom(8) Paddingtop(8) Top(4) Themedrawstyle('ForegroundTheme200') Icon('keyboard_arrow_right') Iconalignment(AfterCaption) Captionmarginright(16)
+    
+    Evtroutine Handling(#LinkMessage.Click)
+    
+    If (#LinkMessage.ComponentTag.UpperCase = PORTALRELOAD)
+    
+    #BPFPortal.Session.Message.SendAction( BROWSERRELOAD )
+    
+    #Browser.Reload
+    Return
+    
+    Endif
+    
+    #Navigate.To( #LinkMessage.ComponentTag )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Timer.Tick)
+    
+    #LinkMessage.Visible := False
+    #LinkMessage.ComponentTag := *null
+    
+    #Com_Owner.ClosePopup
+    
+    Endroutine
+    
+    Mthroutine Name(Show)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#MessageText)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Duration) Mandatory(5000)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#LinkMessageText) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#Prim_Alph) Name(#LinkMessageNavigationEvent) Mandatory(*NULL)
+    
+    #Timer.stop
+    
+    #LinkMessage := #LinkMessageText
+    #LinkMessage.ComponentTag := #LinkMessageNavigationEvent
+    #LinkMessage.Visible := (#LinkMessageText.IsNull.IsFalse)
+    
+    #Message := #MessageText
+    
+    If (#Duration > 0)
+    
+    #Timer.Interval := #Duration
+    #Timer.Start
+    
+    Endif
+    
+    * Set the width
+    If (#SYS_WEB.WebPage.Width < 410)
+    #COM_SELF.Width := #SYS_WEB.WebPage.Width
+    Else
+    #COM_SELF.Width := 400
+    Endif
+    
+    #COM_OWNER.ShowPopup Placement(Absolute) Transition(SlideInBottom)
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,17 @@
+﻿Field:
+  Name:               xContactCompanySite
+  Type:               NVarChar
+  Length:             500
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContactCompanySite"
+      Label:              "xContactCompany"
+      Heading1:           "xContactCompanySite"

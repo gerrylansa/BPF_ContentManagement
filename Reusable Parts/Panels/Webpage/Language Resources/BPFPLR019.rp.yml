@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFPortalNavigationDrawerStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Main Navigation Drawer Strings"
+
+  - JPN:
+      Description:        "Main Navigation Drawer Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'HOMEMENUITEM.CAPTION'> := "Home"
+    #STRINGSCOLLECTION<'SPAREMENUITEM.CAPTION'> := "Spare View"
+    #STRINGSCOLLECTION<'SETTINGSMENUITEM.CAPTION'> := "Settings"
+    #STRINGSCOLLECTION<'ADMINMENUITEM.CAPTION'> := "Administration"
+    #STRINGSCOLLECTION<'ABOUTLINK.CAPTION'> := "About"
+    #STRINGSCOLLECTION<'TERMSLINK.CAPTION'> := "Terms"
+    
+    Endroutine
+    
+    End_Com

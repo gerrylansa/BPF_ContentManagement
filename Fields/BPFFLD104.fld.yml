@@ -1,0 +1,36 @@
+﻿Field:
+  Name:               BPFContentShareID
+  Type:               NVarChar
+  Length:             32
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Idenifier"
+      Label:              "Share ID"
+      Heading1:           "Content"
+      Heading2:           "Share"
+      Heading3:           "Idenifier"
+
+  - JPN:
+      Description:        "Content Share Idenifier"
+      Label:              "Content Share I"
+      Heading1:           "Content"
+      Heading2:           "Share"
+      Heading3:           "Idenifier"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(674)
+    
+    End_Com
+    
+    End_Com

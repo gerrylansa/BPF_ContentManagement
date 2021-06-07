@@ -1,0 +1,95 @@
+﻿Reusable Part:
+  Name:               BPFContentLibraryAddItemSelection
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library Add Item Selection"
+
+  - JPN:
+      Description:        "Content Library Add Item Selection"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PPNL) Left(0) Top(0) Layoutmanager(#PopupLayout) Height(102) Width(260)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Fontweight(Weight500)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#PopupLayout) Sizing(ContentHeight)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PopupLayoutColumn1) Displayposition(1) Parent(#PopupLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PopupLayoutRow1) Displayposition(1) Parent(#PopupLayout) Units(Content) Height(100)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PopupLayoutItem1) Alignment(TopLeft) Column(#PopupLayoutColumn1) Manage(#PopupMenu) Parent(#PopupLayout) Row(#PopupLayoutRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_MD.Menu) Name(#PopupMenu) Displayposition(1) Parent(#COM_OWNER) Tabposition(1) Width(258) Style(#Style1) Themedrawstyle('text(0,0,0,0.87)') Height(100)
+    
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemFileUploadOption) Caption('File Upload') Displayposition(1) Height(50) Icon('insert_drive_file') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(1) Top(0) Width(258) Iconmarginleft(24) Iconmarginright(20)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemYoutTubeMenuOption) Caption('YouTube Video') Displayposition(2) Height(50) Icon('fa-youtube-play') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(2) Top(50) Width(258) Iconmarginleft(24) Iconmarginright(20) Style(#Style1)
+    
+    * References
+    Define_Com Class(#PRIM_CTRL) Name(#Context) Reference(*DYNAMIC)
+    
+    * Events
+    Define_Evt Name(FileUploadClicked)
+    Define_Evt Name(YouTubeClicked)
+    
+    Evtroutine Handling(#COM_OWNER.Prepare) Left(#left) Top(#top)
+    
+    #COM_SELF.SetTheme
+    
+    #Top := #Context.ScreenTop + 4
+    #left := #Context.Screenleft + 2
+    
+    Endroutine
+    
+    * Menu
+    Evtroutine Handling(#ItemFileUploadOption.Click)
+    
+    Signal Event(FileUploadClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemYoutTubeMenuOption.Click)
+    
+    Signal Event(YouTubeClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    
+    * Methods
+    Mthroutine Name(Open)
+    Define_Map For(*INPUT) Class(#PRIM_CTRL) Name(#ForContext) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryListViewStrings) Name(#Strings) Pass(*BY_REFERENCE)
+    
+    #COM_SELF.SetStrings( #Strings )
+    
+    #Context <= #ForContext
+    #COM_SELF.ShowPopup
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryListViewStrings) Name(#Strings) Pass(*BY_REFERENCE)
+    
+    #ITEMFILEUPLOADOPTION.CAPTION := #STRINGS.Text<'ITEMFILEUPLOADOPTION.CAPTION'>
+    #ITEMYOUTTUBEMENUOPTION.CAPTION := #STRINGS.Text<'ITEMYOUTTUBEMENUOPTION.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #PopupMenu.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    
+    Else
+    
+    #PopupMenu.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,32 @@
+﻿Web View:
+  Name:               BPFSpareView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Spare View"
+
+  - JPN:
+      Description:        "Portal Spare View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Layoutmanager(#Layout1)
+    
+    * Language Support
+    Define_Com Class(#BPFSpareViewStrings) Name(#Strings)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Column(#Layout1Column1) Manage(#Text) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthAndHeight)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#Text) Caption('Spare View') Displayposition(1) Height(47) Left(61) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Title') Top(202) Width(178)
+    
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #TEXT.CAPTION := #STRINGS.Text<TEXT.CAPTION>
+    
+    Endroutine
+    
+    End_Com

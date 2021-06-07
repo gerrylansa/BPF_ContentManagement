@@ -1,0 +1,95 @@
+﻿File:
+  Name:                           BPFSessionEvents
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0004
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Events for a Session"
+
+  - JPN:
+      Description:        "Events for a Session"
+
+  Real Fields:
+  - BPFFLD025:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD030:
+      Type:               Date Time
+      Length:             26
+      Decimals:           0
+
+  - BPFFLD031:
+      Type:               Boolean
+      Length:             1
+      Decimals:           0
+
+  - BPFFLD032:
+      Type:               NVarChar
+      Length:             256
+      Decimals:           0
+
+  - BPFFLD063:
+      Type:               NVarChar
+      Length:             128
+      Decimals:           0
+
+  - BPFFLD033:
+      Type:               NVarChar
+      Length:             512
+      Decimals:           0
+
+  - BPFFLD082:
+      Type:               NVarChar
+      Length:             512
+      Decimals:           0
+
+  - BPFFLD083:
+      Type:               NVarChar
+      Length:             512
+      Decimals:           0
+
+  - BPFFLD084:
+      Type:               NVarChar
+      Length:             512
+      Decimals:           0
+
+  - BPFFLD085:
+      Type:               NVarChar
+      Length:             512
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD025
+  - BPFFLD030
+
+  File Level Triggers:
+  - BPFFLD025:
+    - New Trigger:
+        Function:           BPFT001
+        Trigger Points:
+        - After Insert

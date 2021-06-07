@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFProfileJobTitle
+  Type:               NVarChar
+  Length:             100
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Profile Job Title"
+      Label:              "User Profile Jo"
+      Heading1:           "User"
+      Heading2:           "Profile"
+      Heading3:           "Job"
+
+  - JPN:
+      Description:        "User Profile Job Title"
+      Label:              "User Profile Jo"
+      Heading1:           "User"
+      Heading2:           "Profile"
+      Heading3:           "Job"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

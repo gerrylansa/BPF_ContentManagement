@@ -1,0 +1,38 @@
+﻿Field:
+  Name:               BPFContentItemModified
+  Type:               DateTime
+  Length:             26
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - ISO
+  - SUTC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Modified"
+      Label:              "Item Modified"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Modified"
+
+  - JPN:
+      Description:        "Content Item Modified"
+      Label:              "Content Item Mo"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Modified"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVDT) Name(#VisualDateTime) Defaultvisual(True) Componentversion(1) Height(21) Width(581)
+    
+    End_Com
+    
+    End_Com

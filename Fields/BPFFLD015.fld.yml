@@ -1,0 +1,35 @@
+﻿Field:
+  Name:               BPFCodeSequence
+  Type:               Packed
+  Length:             7
+  Decimals:           0
+  Default Value:      "*ZEROS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - RB
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Code Sequence"
+      Label:              "Code Sequence"
+      Heading1:           "Code"
+      Heading2:           "Sequence"
+
+  - JPN:
+      Description:        "Code Sequence"
+      Label:              "Code Sequence"
+      Heading1:           "Code"
+      Heading2:           "Sequence"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(289)
+    
+    End_Com
+    
+    End_Com

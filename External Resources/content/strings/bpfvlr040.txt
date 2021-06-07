@@ -1,0 +1,53 @@
+Portal Folder Names
+
+View or edit the current folder names used by portal to store needed resources or output log files. These values should not be changed in a prodction system during normal operation. Any existing values will be left as is so content can moved across if needed.
+
+Folder Names
+
+Portal Root
+
+Logging
+
+Output
+
+Templates
+
+External Plugins
+
+Email Templates
+
+PDF Output
+
+Web Content
+
+PDF Definitions
+
+PDF Resources
+
+Failed to get settings
+
+
+
+*Language Support
+Define_Com Class(#BPFSystemFolderNamesViewStrings) Name(#Strings)
+
+#COM_SELF.SetStrings
+
+Mthroutine Name(SetStrings)
+
+#PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+#INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+#SETTINGSHEADING.CAPTION := #STRINGS.Text<SETTINGSHEADING.CAPTION>
+#LISTLABEL.CAPTION.ROOT := #STRINGS.Text<LISTLABEL.CAPTION.ROOT>
+#LISTLABEL.CAPTION.LOGGING := #STRINGS.Text<LISTLABEL.CAPTION.LOGGING>
+#LISTLABEL.CAPTION.OUTPUT := #STRINGS.Text<LISTLABEL.CAPTION.OUTPUT>
+#LISTLABEL.CAPTION.TEMPLATES := #STRINGS.Text<LISTLABEL.CAPTION.TEMPLATES>
+#LISTLABEL.CAPTION.PLUGINS := #STRINGS.Text<LISTLABEL.CAPTION.PLUGINS>
+#LISTLABEL.CAPTION.PDFOUT := #STRINGS.Text<LISTLABEL.CAPTION.PDFOUT>
+#LISTLABEL.CAPTION.PDFOUT := #STRINGS.Text<LISTLABEL.CAPTION.PDFOUT>
+#LISTLABEL.CAPTION.WEB := #STRINGS.Text<LISTLABEL.CAPTION.WEB>
+#LISTLABEL.CAPTION.PDFDEFINE := #STRINGS.Text<LISTLABEL.CAPTION.PDFDEFINE>
+#LISTLABEL.CAPTION.PDFRESOURCE := #STRINGS.Text<LISTLABEL.CAPTION.PDFRESOURCE>
+#PORTALSETTINGS.ONGETFOLDERNAMESFAILED := #STRINGS.Text<PORTALSETTINGS.ONGETFOLDERNAMESFAILED>
+
+Endroutine

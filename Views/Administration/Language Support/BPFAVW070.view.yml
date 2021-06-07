@@ -1,0 +1,279 @@
+﻿Web View:
+  Name:               BPFPortalLanguageCreateView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Create Language View"
+
+  - JPN:
+      Description:        "Portal Create Language View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP011')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalLanguageCreateViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFLanguageResourcesDataClient) Name(#Resources) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(392) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#SettingsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Settings Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#SettingsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow1) Displayposition(1) Parent(#SettingsPanelLayout) Units(Content) Height(139)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow2) Displayposition(2) Parent(#SettingsPanelLayout) Units(Content) Height(91)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow3) Displayposition(3) Parent(#SettingsPanelLayout) Units(Content) Height(80)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow4) Displayposition(4) Parent(#SettingsPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn1) Displayposition(1) Parent(#SettingsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn2) Displayposition(2) Parent(#SettingsPanelLayout) Width(49)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn3) Displayposition(3) Parent(#SettingsPanelLayout) Width(49)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn4) Displayposition(4) Parent(#SettingsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem1) Manage(#SettingsHeading) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#SettingsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    
+    * Settings List Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem2) Alignment(CenterRight) Column(#SettingsPanelLayoutColumn3) Manage(#CreateAction) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow4) Sizing(None)
+    
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem3) Alignment(TopLeft) Column(#SettingsPanelLayoutColumn2) Manage(#LanguageIsoCodeEdit) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(16) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem4) Alignment(TopLeft) Column(#SettingsPanelLayoutColumn2) Manage(#LanguageDescriptionEdit) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(16) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem5) Alignment(TopRight) Column(#SettingsPanelLayoutColumn3) Manage(#BaseLanguageSelection) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow3) Flow(Down) Sizing(FitToHeight) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem6) Alignment(TopLeft) Column(#SettingsPanelLayoutColumn2) Manage(#BaseLanguageSelectionLabel) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow3) Marginright(8) Sizing(FitToWidth) Margintop(16)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Create Language') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Enter the new language code and description. The inital strings for the language will come from the language you select as it base.')
+    
+    * Panels
+    
+    * Settings
+    Define_Com Class(#PRIM_PANL) Name(#SettingsPanel) Displayposition(3) Height(368) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#SettingsPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#SettingsHeading) Caption('Details') Displayposition(1) Left(24) Parent(#SettingsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(415) Wordwrap(True) Height(24) Iconalignment(CenterRight)
+    
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#CreateAction) Caption('CREATE') Displayposition(2) Left(754) Parent(#SettingsPanel) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary') Top(320) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Edit) Name(#LanguageIsoCodeEdit) Caption('ISO Code') Displayposition(3) Left(24) Parent(#SettingsPanel) Tabposition(3) Top(64) Width(830) Helpertext('e.g. en-AU')
+    Define_Com Class(#PRIM_MD.Edit) Name(#LanguageDescriptionEdit) Caption('Description') Displayposition(4) Left(24) Parent(#SettingsPanel) Tabposition(4) Top(155) Width(830) Helpertext('e.g. English')
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#BaseLanguageSelection) Displayposition(5) Left(706) Parent(#SettingsPanel) Tabposition(5) Tabstop(False) Top(246) Height(64) Width(148)
+    Define_Com Class(#PRIM_MD.Label) Name(#BaseLanguageSelectionLabel) Caption('Base Language') Displayposition(6) Left(24) Parent(#SettingsPanel) Tabposition(6) Themedrawstyle('Heading3') Top(246) Width(407) Height(64) Wordwrap(True)
+    
+    * So we can hear events
+    Define_Com Class(#BPFLanguageOptionItemClass) Name(#NewLanguage) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Resources <= (#Data.GetDataClient( #COM_SELF ) *As #BPFLanguageResourcesDataClient)
+    
+    * Create a blank language
+    #NewLanguage <= *New #BPFLanguageOptionItemClass
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    If (#Resources.DefaultLanguage *Is *Null)
+    
+    * Get portal language settings
+    #Resources.GetLanguageOptions
+    
+    Else
+    
+    #COM_SELF.BuildSettingsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Fields
+    Evtroutine Handling(#LanguageIsoCodeEdit.Changed)
+    
+    #LanguageIsoCodeEdit.ClearError
+    If (#Resources.Language<#LanguageIsoCodeEdit> *Is *Null)
+    
+    #NewLanguage.IsoCode := #LanguageIsoCodeEdit
+    
+    Else
+    
+    #LanguageIsoCodeEdit.ShowError( #STRINGS.Text<LANGUAGEISOCODEEDIT.ERROR.EXISTS> )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#LanguageDescriptionEdit.Changed)
+    
+    #LanguageDescriptionEdit.ClearError
+    #NewLanguage.Description := #LanguageDescriptionEdit
+    
+    Endroutine
+    
+    
+    * Data
+    Evtroutine Handling(#Resources.OnGetLanguageOptionsCompleted)
+    
+    #COM_SELF.BuildSettingsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Resources.OnGetLanguageOptionsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<RESOURCES.ONGETLANGUAGEOPTIONSFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#NewLanguage.OnCreateOnServerCompleted)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<NEWLANGUAGE.ONCREATEONSERVERCOMPLETED.MESSAGE> 10000 #STRINGS.Text<NEWLANGUAGE.ONCREATEONSERVERCOMPLETED.ACTION> 'PORTALRELOAD' )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#NewLanguage.OnCreateOnServerFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<NEWLANGUAGE.ONCREATEONSERVERFAILED> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    
+    Evtroutine Handling(#CreateAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    If (#COM_SELF.IsValidRequest)
+    
+    #NewLanguage.CreateOnServer( #BaseLanguageSelection.Control )
+    
+    Else
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    * Show Create only if resources are active
+    #CreateAction.Visible := (#Resources.AreActive)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #SETTINGSHEADING.CAPTION := #STRINGS.Text<SETTINGSHEADING.CAPTION>
+    #LANGUAGEISOCODEEDIT.CAPTION := #STRINGS.Text<LANGUAGEISOCODEEDIT.CAPTION>
+    #LANGUAGEISOCODEEDIT.HELPERTEXT := #STRINGS.Text<LANGUAGEISOCODEEDIT.HELPERTEXT>
+    #LANGUAGEDESCRIPTIONEDIT.CAPTION := #STRINGS.Text<LANGUAGEDESCRIPTIONEDIT.CAPTION>
+    #LANGUAGEDESCRIPTIONEDIT.HELPERTEXT := #STRINGS.Text<LANGUAGEDESCRIPTIONEDIT.HELPERTEXT>
+    #BASELANGUAGESELECTIONLABEL.CAPTION := #STRINGS.Text<BASELANGUAGESELECTIONLABEL.CAPTION>
+    #CREATEACTION.CAPTION := #STRINGS.Text<CREATEACTION.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(IsValidRequest)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Lets clear errors
+    #Result := True
+    #LanguageIsoCodeEdit.ClearError
+    #LanguageDescriptionEdit.ClearError
+    
+    * Do we have an language code
+    If (#LanguageIsoCodeEdit.value.IsNull)
+    
+    #LanguageIsoCodeEdit.ShowError( #STRINGS.Text<LANGUAGEISOCODEEDIT.ERROR.NOCODE> )
+    
+    Else
+    
+    If (#Resources.Language<#LanguageIsoCodeEdit> *IsNot *Null)
+    
+    #LanguageIsoCodeEdit.ShowError( #STRINGS.Text<LANGUAGEISOCODEEDIT.ERROR.EXISTS> )
+    
+    Endif
+    
+    Endif
+    
+    If (#LanguageDescriptionEdit.Value.IsNull)
+    
+    #LanguageDescriptionEdit.ShowError( #STRINGS.Text<LANGUAGEDESCRIPTIONEDIT.ERROR.BLANK> )
+    
+    Endif
+    
+    * Did we make it
+    * Check if we have any errors
+    For Each(#control) In(#COM_SELF.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.Edit)
+    
+    If (#control.HasError)
+    
+    #Result := False
+    Return
+    
+    Endif
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSettingsForPanel) Access(*PRIVATE)
+    
+    * Populate edit fields with default values
+    #LanguageIsoCodeEdit := #NewLanguage.IsoCode
+    #LanguageDescriptionEdit := #NewLanguage.Description
+    
+    * Set base language selection
+    #BaseLanguageSelection.Control := #Resources.DefaultLanguage.IsoCode
+    
+    Endroutine
+    
+    End_Com

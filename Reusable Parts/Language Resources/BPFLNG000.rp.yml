@@ -1,0 +1,171 @@
+﻿Reusable Part:
+  Name:               BPFBaseLanguageResource
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Base Language Resource Object Type"
+
+  - JPN:
+      Description:        "Base Language Resource Object Type"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Application References
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Poperties
+    Define_Pty Name(Strings) Get(*REFERENCE #StringsCollection)
+    Define_Pty Name(Text) Get(GetText)
+    
+    Define_Com Class(#Prim_dc.UnicodeString) Name(#MyContext)
+    
+    * String Collection
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#StringsCollection)
+    
+    Ptyroutine Name(GetText) Options(*FINAL)
+    Define_Map For(*OUTPUT) Class(#PRIM_DC.UnicodeString) Name(#Property)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key)
+    
+    * Check for the requested string key
+    If (#StringsCollection<#Key>.IsNull)
+    
+    * If no key exists, then that no key was found.
+    #Property := 'No matching string found.'
+    
+    Else
+    
+    * The requested key exists, so prepare to return the string
+    #Property := #StringsCollection<#Key>
+    
+    * If we find the %%USER%% in the string, replace with the user's first name
+    If (#BPFPortal.Session.CurrentUser *IsNot *Null)
+    
+    #Property := #Property.ReplaceAll( '%%USER%%' #BPFPortal.Session.CurrentUser.FirstName )
+    
+    Endif
+    
+    * If we find the %%APP%% in the string, replace with the application name
+    If (#BPFPortal.AppName.IsNull.IsFalse)
+    
+    #Property := #Property.ReplaceAll( '%%APP%%' #BPFPortal.AppName )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#BPFPortal.NavigateToEditStrings)
+    
+    * No context means no direct access, so just return
+    If (#MyContext.IsNull)
+    Return
+    Endif
+    
+    * If we have a context, and are a view then allow direct access to happen
+    If (#COM_SELF.ComponentClassName.UpperCase.Contains( 'VLR' ) *And (#MyContext = #Navigate.CurrentEvent.EventName))
+    
+    #Navigate.To Eventname(LANGUAGERESOURCESTRINGSVIEW) Value(#COM_Self.ComponentClassName)
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Private
+    
+    * This is common to all language resources, the object gets pass by child create instance
+    Mthroutine Name(SetStrings) Options(*FINAL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Object)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#BlockDirectAccess) Mandatory(False)
+    
+    * Local
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#IsoCode)
+    
+    * Capture context is direct access is allowed, so False
+    If (#BlockDirectAccess.IsFalse)
+    #MyContext := #Navigate.CurrentEvent.EventName
+    Endif
+    
+    * Load up the defaults, these will be replaced below. If a string doesnt match, then teh default
+    * will remain and be used
+    #COM_SELF.BuildDefaults
+    
+    * Get the user langugae choice
+    #IsoCode := #Browser.UserLanguage
+    
+    * We need a language code for this to work at all
+    If (#IsoCode.IsNull.IsFalse)
+    
+    * For the users language, get JSON resource for this language and replace defaults set in the language resource child
+    #COM_SELF.GetStringData( #Object #IsoCode )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(GetStringData) Options(*FINAL) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Object)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Isocode)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result) Mandatory(False)
+    
+    * Define the server request for teh JSON resource
+    Define_Com Class(#prim_web.HttpRequest) Name(#Request)
+    Define_Com Class(#prim_web.json) Name(#JSON)
+    
+    * Set the URL to the JSON file for the users language using the current portal language version number set in the langsupport.js
+    #Request.URL := 'content/strings/' + #Isocode + '/' + #object.lowercase + '.json?plv=' + #Browser.LanguageVersion
+    
+    * Make Request for language option json for object
+    #Request.Execute
+    
+    * When the request completes and is successful
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Request.Response.StatusCode = 200)
+    
+    * Get the returned result, place it into a local JSON object and pass it for processing
+    #JSON := #Request.Response.Content
+    #COM_SELF.BuildCollection( (#JSON.RootItem<'ls'> *As #prim_web.JsonArray) )
+    #Result := True
+    
+    Endif
+    
+    Endroutine
+    
+    Endroutine
+    
+    * This is common to all language resources, to process returned JSON for the current language
+    Mthroutine Name(BuildCollection) Options(*FINAL) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#prim_web.JsonArray) Name(#StringsArray) Pass(*BY_REFERENCE)
+    
+    * Work through the returned strings
+    For Each(#ObjectElement) In(#StringsArray)
+    
+    * Override the default value in the keyed collection set the child language resource
+    * by using the op value as the key and the s value as the string from the JSON for the
+    * current user language
+    
+    If (#ObjectElement<'s'>.AsString.IsNull = False)
+    
+    #StringsCollection<(#ObjectElement<'op'>.AsString)> := #ObjectElement<'s'>.AsString
+    
+    Endif
+    
+    Endfor
+    
+    Endroutine
+    
+    * For child language resource to specify the keys and making string defaults
+    Mthroutine Name(BuildDefaults) Options(*ABSTRACT) Access(*PRIVATE)
+    Endroutine
+    
+    End_Com

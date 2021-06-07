@@ -1,0 +1,38 @@
+﻿Reusable Part:
+  Name:               BPFLanguageResourceEditViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Edit Language Resource View Strings"
+
+  - JPN:
+      Description:        "Edit Language Resource View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Edit the strings for this resource for a given language. Click the save button to save the translations"
+    #STRINGSCOLLECTION<'SAVERESOURCEACTION'> := "SAVE"
+    #STRINGSCOLLECTION<'TRANSLATIONLABEL.CAPTION'> := "Translating"
+    
+    #STRINGSCOLLECTION<'RESOURCES.ONGETRESOURCEFAILED'> := "Failed to parse resource object"
+    #STRINGSCOLLECTION<'CURRENTRESOURCE.ONLOADSTRINGSFAILED'> := "Failed to load text from the selected resource"
+    #STRINGSCOLLECTION<'CURRENTRESOURCE.ONSAVESTRINGSCOMPLETED'> := "Resource strings saved"
+    #STRINGSCOLLECTION<'CURRENTRESOURCE.ONSAVESTRINGSCFAILED'> := "Failed to save resource strings"
+    
+    Endroutine
+    
+    End_Com

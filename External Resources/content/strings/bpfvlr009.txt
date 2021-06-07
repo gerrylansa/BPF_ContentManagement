@@ -1,0 +1,83 @@
+Portal Administration Panel
+
+As a administrator you can change settings, view logs and control user accounts
+
+User Accounts
+
+Manage the user accounts for the portal. View, reset or control user access to the portal.
+
+Manage user accounts
+
+Email Settings
+
+Upload email templates and manage the SMTP server settings for the portal.
+
+Configure email settings
+
+Configure Security
+
+Set up the security question used to validate account creation.
+
+Change security questions
+
+Language Support
+
+Administer the langauges the portal can be displayed in.
+
+Administer Languages
+
+Portal Logs
+
+Control and view diagnostic and runtime logging of the portal.
+
+Control portal logging
+
+Analytics & Session Tracking
+
+Configure Google Anaytics and the tracking of session events in the portal.
+
+Setup analytics & tracking
+
+System Settings
+
+Manage the system wide settings for the portal
+
+Manage portal settings
+
+Only users can change their details. myPortal is committed to their privacy and security
+
+
+
+*Language Support
+Define_Com Class(#BPFAdministrationViewStrings) Name(#Strings)
+
+#COM_SELF.SetStrings
+
+Mthroutine Name(SetStrings)
+
+#PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+#PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+#USERACCOUNTCARD.HEADING := #STRINGS.Text<USERACCOUNTCARD.HEADING>
+#USERACCOUNTCARD.TEXT := #STRINGS.Text<USERACCOUNTCARD.TEXT>
+#USERACCOUNTCARD.ACTION := #STRINGS.Text<USERACCOUNTCARD.ACTION>
+#EMAILSETTINGSCARD.HEADING := #STRINGS.Text<EMAILSETTINGSCARD.HEADING>
+#EMAILSETTINGSCARD.TEXT := #STRINGS.Text<EMAILSETTINGSCARD.TEXT>
+#EMAILSETTINGSCARD.ACTION := #STRINGS.Text<EMAILSETTINGSCARD.ACTION>
+#SECURITYCARD.HEADING := #STRINGS.Text<SECURITYCARD.HEADING>
+#SECURITYCARD.TEXT := #STRINGS.Text<SECURITYCARD.TEXT>
+#SECURITYCARD.ACTION := #STRINGS.Text<SECURITYCARD.ACTION>
+#LANGUAGECARD.HEADING := #STRINGS.Text<LANGUAGECARD.HEADING>
+#LANGUAGECARD.TEXT := #STRINGS.Text<LANGUAGECARD.TEXT>
+#LANGUAGECARD.ACTION := #STRINGS.Text<LANGUAGECARD.ACTION>
+#LOGGINGCARD.HEADING := #STRINGS.Text<LOGGINGCARD.HEADING>
+#LOGGINGCARD.TEXT := #STRINGS.Text<LOGGINGCARD.TEXT>
+#LOGGINGCARD.ACTION := #STRINGS.Text<LOGGINGCARD.ACTION>
+#USERTRACKINGCARD.HEADING := #STRINGS.Text<USERTRACKINGCARD.HEADING>
+#USERTRACKINGCARD.TEXT := #STRINGS.Text<USERTRACKINGCARD.TEXT>
+#USERTRACKINGCARD.ACTION := #STRINGS.Text<USERTRACKINGCARD.ACTION>
+#PORTALSYSTEMCARD.HEADING := #STRINGS.Text<PORTALSYSTEMCARD.HEADING>
+#PORTALSYSTEMCARD.TEXT := #STRINGS.Text<PORTALSYSTEMCARD.TEXT>
+#PORTALSYSTEMCARD.ACTION := #STRINGS.Text<PORTALSYSTEMCARD.ACTION>
+#FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>
+
+Endroutine

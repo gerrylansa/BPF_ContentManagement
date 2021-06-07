@@ -1,0 +1,158 @@
+﻿Reusable Part:
+  Name:               BPFLoginUserPasswordPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Login User Password Panel"
+
+  - JPN:
+      Description:        "Portal Login User Password Panel"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Height(275) Tabposition(1) Width(352) Layoutmanager(#Layout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Strings
+    Define_Com Class(#BPFLoginUserPasswordPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    * User Password Panel Column & Rows
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(64) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#Layout) Height(48) Units(Pixels)
+    
+    * User Password Panel Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#PanelText) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#UserPasswordEdit) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#PanelAction) Parent(#Layout) Row(#LayoutRow2) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Manage(#NextButton) Parent(#Layout) Row(#LayoutRow2) Sizing(ContentWidthAndHeight) Column(#LayoutColumn1) Alignment(CenterRight)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelText) Caption('Enter your password for &1') Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3') Top(0) Width(352) Height(24) Captionalignment(Center) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Edit) Name(#UserPasswordEdit) Caption('Password') Displayposition(2) Left(0) Parent(#COM_OWNER) Tabposition(2) Top(44) Width(352) Passwordchar('*')
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PanelAction) Caption('Forget Password?') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(179) Height(33) Captionmarginbottom(8) Captionmarginleft(8) Captionmarginright(8) Captionmargintop(8) Width(128) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#NextButton) Caption('Next') Displayposition(4) Left(271) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('MediumTitle') Top(177) Height(37) Width(81) Captionmarginbottom(10) Captionmargintop(10) Captionmarginleft(26) Captionmarginright(26) Style(#NavigationLinkStyle)
+    
+    * Parent
+    Define_Com Class(#BPFLoginDialog) Name(#Dialog) Reference(*DYNAMIC)
+    
+    * Properties
+    Define_Pty Name(Value) Get(*REFERENCE #UserPasswordEdit)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Flag a login is about to get going
+    #Session.Message.SendAction( 'LOGIN_ATTEMPT' )
+    
+    #Dialog <= #BPFPortal.LoginDialog
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    #PanelText.Caption := #STRINGS.Text<PANELTEXT.CAPTION>.Replace( '%%ACCOUNT%%' #Session.RequestedAccount )
+    
+    #USERPASSWORDEDIT.CAPTION := #STRINGS.Text<USERPASSWORDEDIT.CAPTION>
+    #PANELACTION.CAPTION := #STRINGS.Text<PANELACTION.CAPTION>
+    #NEXTBUTTON.CAPTION := #STRINGS.Text<NEXTBUTTON.CAPTION>
+    
+    
+    Endroutine
+    
+    * Session
+    Evtroutine Handling(#Session.LoginFailed) Reason(#Reason)
+    
+    If (#Reason.UpperCase = ACTIVE)
+    
+    #COM_SELF.HandleLoginActive
+    
+    Else
+    
+    #COM_SELF.HandleLoginFailed
+    
+    Endif
+    
+    Endroutine
+    
+    * Action Buttons
+    Evtroutine Handling(#PanelAction.Click)
+    
+    * Signal to Request Password Reset
+    #Navigate.To Eventname(REQUESTPASSWORDRESET)
+    
+    Endroutine
+    
+    * Next Buttons
+    Evtroutine Handling(#NextButton.Click #UserPasswordEdit.Enter)
+    
+    #Com_self.HandleNext
+    
+    Endroutine
+    
+    * Field Events
+    Evtroutine Handling(#UserPasswordEdit.Changed) Com_Sender(#Sender)
+    
+    If (#Sender.HasError)
+    
+    #Sender.ClearError
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(HandleNext)
+    
+    If (#UserPasswordEdit <> *BLANK)
+    
+    #Dialog.SetWaitingState( ON )
+    #Session.Login Password(#UserPasswordEdit.Value)
+    
+    Else
+    
+    #COM_SELF.DisplayFieldErrors( #UserPasswordEdit #STRINGS.Text<USERPASSWORDEDIT.INVALID> )
+    
+    Endif
+    
+    Endroutine
+    
+    * Session Handlers
+    Mthroutine Name(HandleLoginFailed)
+    
+    #COM_SELF.DisplayFieldErrors( #UserPasswordEdit #STRINGS.Text<MESSAGE.LOGINFAILED> )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleLoginActive)
+    
+    #COM_SELF.DisplayFieldErrors( #UserPasswordEdit #STRINGS.Text<MESSAGE.LOGINACTIVE> )
+    
+    Endroutine
+    
+    
+    * Private
+    Mthroutine Name(DisplayFieldErrors) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#Prim_MD.Edit) Name(#EditField) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Message)
+    
+    #EditField.ShowError( #Message )
+    
+    Endroutine
+    
+    End_Com

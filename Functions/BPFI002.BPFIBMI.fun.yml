@@ -1,0 +1,151 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    Function Options(*DIRECT *NOMESSAGES)
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1989
+    * Process .......: BPFIBMi
+    * Function ......: BPFI002
+    * Created by ....:
+    * Created on ....: 02/04/20 at 10:43:38
+    * Description ...: Cleanup process for session based data
+    * =======================================================
+    * Notes : This function is an alternative version of
+    * BPFUTILS\BPFU002. This version wil function on an IBMi
+    * and windows. If you choose to use this version replace
+    * all references to BPFU002 with the thsi function. Also
+    * ensure all system code settings values are correct for
+    * the server platform were the portal will run.
+    * =======================================================
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils)
+    Define_Com Class(#XPRIM_OSUtil) Name(#OS)
+    
+    * Working Fields
+    
+    * Directory Return Codes
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#ErrCode) Reffld(#STD_NUM)
+    
+    * Global Values
+    Define_Com Class(#PRIM_ALPH) Name(#FolderToWatch)
+    
+    * Directory States
+    
+    * Previous
+    Define Field(#PrvFullName) Reffld(#BPFFileServiceFullName)
+    Define Field(#PrvPrefix) Reffld(#BPFFileServiceFilePrefix)
+    Define Field(#PrvSuffix) Reffld(#BPFFileServiceFileSuffix)
+    Define Field(#PrvFileDate) Reffld(#BPFFileServiceFileDate)
+    Define Field(#PrvFileTime) Reffld(#BPFFileServiceFileTime)
+    Define Field(#PrvFileSize) Reffld(#BPFFileServiceFileSize)
+    Define Field(#PrvDirFlag) Reffld(#BPFFileServiceFileDirectory)
+    Define Field(#Prvcount) Reffld(#Listcount)
+    
+    Def_List Name(#PrvContents) Fields(#PrvFullName #PrvPrefix #PrvSuffix #PrvFileDate #PrvFileTime #PrvFileSize #PrvDirFlag) Counter(#Prvcount) Type(*WORKING) Entrys(*MAX)
+    
+    * Current
+    Define Field(#CurFullName) Reffld(#BPFFileServiceFullName)
+    Define Field(#CurPrefix) Reffld(#BPFFileServiceFilePrefix)
+    Define Field(#CurSuffix) Reffld(#BPFFileServiceFileSuffix)
+    Define Field(#CurFileDate) Reffld(#BPFFileServiceFileDate)
+    Define Field(#CurFileTime) Reffld(#BPFFileServiceFileTime)
+    Define Field(#CurFileSize) Reffld(#BPFFileServiceFileSize)
+    Define Field(#CurDirFlag) Reffld(#BPFFileServiceFileDirectory)
+    Define Field(#Curcount) Reffld(#Listcount)
+    
+    Def_List Name(#CurContents) Fields(#CurFullName #CurPrefix #CurSuffix #CurFileDate #CurFileTime #CurFileSize #CurDirFlag) Counter(#Curcount) Type(*WORKING) Entrys(*MAX)
+    
+    * =======================================================
+    * Program Mainline : BPFU001
+    * =======================================================
+    
+    * Set Logging
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_PROCESSES' 'SESSION_DATA_CLEANUP' ) = 1)
+    
+    * Check if we are running, end if we are
+    If ((#Utils.GetNumericValue( 'SYSTEM' 'STARTED_SESSION_MONITOR' 1 ) = 1) *Or (#Utils.GetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' 1 ) = 0))
+    
+    #Utils.log( ('Cleanup session data : process is running already so ending or feature disbaled') )
+    
+    Use Builtin(CLR_MESSAGES)
+    Return
+    
+    Endif
+    
+    * Flag the process is running
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_SESSION_MONITOR' 1 1 )
+    
+    * Set Directory to watch
+    #FolderToWatch := *ROOT_DIR + '\run\wam_sessions'
+    
+    * Setup Watcher - Events that can be heard are Create,Change,Rename,Delete or All
+    #Utils.log( ('Cleanup session data : Watching folder ' + #FolderToWatch + ' for events ') )
+    
+    * Get Initial Previous State
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #FolderToWatch 'DAT') To_Get(#Retcode #ErrCode #PrvContents)
+    #Utils.Log( ('Cleanup session data : At startup file count is ' + #Prvcount.asstring) )
+    
+    * Start a loop, so processing conintues until externally end or a controlled flag is found
+    Begin_Loop
+    
+    * Prime the current list
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #FolderToWatch 'DAT') To_Get(#Retcode #ErrCode #CurContents)
+    
+    * We only nee
+    #Utils.Log( ('Cleanup session data : Checking for deletes...') )
+    
+    * Process the previous list, a file that does exist in the current means we have lost a file
+    Selectlist Named(#PrvContents)
+    
+    * Check if a file in the previous state exists in the current state
+    #Utils.Log( ('Cleanup session data : Looking for ' + #PrvPrefix + ' in Current State') )
+    Loc_Entry In_List(#CurContents) Where(#PrvPrefix = #CurPrefix)
+    
+    If_Status Is(*NORECORD)
+    
+    * No then file has been deleted, so remove the data for that session
+    #Utils.Log( ('Cleanup session data : ' + #PrvPrefix + ' NOT FOUND in current state, so KILLING') )
+    
+    #BPFSessionSecureCookie := #PrvPrefix.LowerCase
+    Delete From_File(BPFSessionServerRoutinesCalls) With_Key(#BPFSessionSecureCookie)
+    
+    Else
+    
+    * The file still exists, so keep the data
+    #Utils.Log( ('Cleanup session data : ' + #PrvPrefix + ' found in current state, so keep') )
+    
+    Endif
+    
+    Endselect
+    
+    #Utils.Log( ('Cleanup session data : Processing of deletes completed') )
+    
+    * Detect if a controlled end has been requested
+    If (#Utils.GetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' ) = 1)
+    
+    #Utils.Log( ('Cleanup session data : Controlled end request detected, so ending now') )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' 1 0 )
+    
+    Leave
+    
+    Endif
+    
+    * Output the log, so the actions for this iteration can be checked as they happen
+    #Utils.Log( ('Cleanup session data : Processing for this loop completed.') )
+    
+    * Reset the previous state, as processing done
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #FolderToWatch 'DAT') To_Get(#Retcode #ErrCode #PrvContents)
+    
+    * Sleep for 1 minute
+    #OS.ThreadSleep Milliseconds(60000)
+    
+    End_Loop
+    
+    * Process ended, update started flag and so cleanup and return
+    #Utils.SetNumericValue( 'SYSTEM' 'STARTED_SESSION_MONITOR' 1 0 )
+    
+    Use Builtin(CLR_MESSAGES)
+    Return

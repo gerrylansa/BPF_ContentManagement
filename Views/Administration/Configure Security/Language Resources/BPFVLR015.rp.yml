@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFAdminSecurityLoginAttemptsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Security Login Attempts View Strings"
+
+  - JPN:
+      Description:        "Security Login Attempts View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Login Attempts"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Select the number of login attempts a user is allowed before their account is disabled by the system. The higher the number of attempts the less secure the portal becomes."
+    
+    #STRINGSCOLLECTION<'ATTEMPTSRANGEDROPDOWN.CAPTION'> := "Attempts"
+    
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "Save"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETALLOWEDATTEMPTSFAILED'> := "FAILED to get setting value"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONSAVEALLOWEDATTEMPTSFAILED'> := "FAILED to save setting"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONSAVEALLOWEDATTEMPTSCOMPLETED'> := "Setting saved"
+    
+    Endroutine
+    
+    End_Com

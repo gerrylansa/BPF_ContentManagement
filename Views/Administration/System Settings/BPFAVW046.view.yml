@@ -1,0 +1,184 @@
+﻿Web View:
+  Name:               BPFSystemSettingsResourcesView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal System Settings View"
+
+  - JPN:
+      Description:        "Portal System Settings View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Style(#NavigationLinkStyle) Componenttag('BPFAPP007')
+    
+    * Note for this view : This view's control captions are generic to ensure they are not the same as the incoming text for the current language. If a control has the same text as the incoming text, it can cause the view to appear to "jump".
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSystemSettingsResourcesViewString) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFSystemSettingsDataClient) Name(#PortalSettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(294) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#TemplatesPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#TemplatesPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#TemplatesPanelLayoutRow1) Displayposition(1) Parent(#TemplatesPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#TemplatesPanelLayoutRow2) Displayposition(2) Parent(#TemplatesPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TemplatesPanelLayoutColumn1) Displayposition(1) Parent(#TemplatesPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TemplatesPanelLayoutColumn2) Displayposition(2) Parent(#TemplatesPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TemplatesPanelLayoutColumn3) Displayposition(3) Parent(#TemplatesPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#TemplatesPanelLayoutItem1) Manage(#TemplatesHeading) Parent(#TemplatesPanelLayout) Row(#TemplatesPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#TemplatesPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#TemplatesPanelLayoutItem2) Alignment(TopLeft) Column(#TemplatesPanelLayoutColumn2) Manage(#TemplatesList) Parent(#TemplatesPanelLayout) Row(#TemplatesPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#TemplatesPanelLayoutItem3) Alignment(TopRight) Column(#TemplatesPanelLayoutColumn2) Manage(#LanguageSelection) Parent(#TemplatesPanelLayout) Row(#TemplatesPanelLayoutRow1) Sizing(None) Margintop(10)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#TemplatesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TemplatesLayoutListColumn1) Displayposition(1) Parent(#TemplatesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#TemplatesLayoutListRow1) Displayposition(1) Parent(#TemplatesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#TemplatesLayoutListItem2) Alignment(TopLeft) Column(#TemplatesLayoutListColumn1) Manage(#TemplatesLabel) Parent(#TemplatesLayoutList) Row(#TemplatesLayoutListRow1)
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Panel Heading') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Instruction text for the panel')
+    
+    * Panels
+    
+    * Notifications
+    Define_Com Class(#PRIM_PANL) Name(#TemplatesPanel) Displayposition(3) Height(270) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#TemplatesPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#TemplatesHeading) Caption('Card Heading') Displayposition(2) Left(24) Parent(#TemplatesPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.List) Name(#TemplatesList) Displayposition(3) Layoutmanager(#TemplatesLayoutList) Left(24) Parent(#TemplatesPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#TemplatesLabel) Caption('Text') Displayposition(1) Dragstyle(None) Left(0) Parent(#TemplatesList) Tabposition(1) Top(0) Height(44) Width(830) Iconalignment(CenterRight) Icon('keyboard_arrow_right') Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#LanguageSelection) Left(690) Parent(#TemplatesPanel) Tabposition(3) Tabstop(False) Top(10)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #PortalSettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFSystemSettingsDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get portal logging settings
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    #LanguageSelection.Control := #Browser.UserLanguage
+    
+    #PortalSettings.GetResources( #LanguageSelection.Control )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#TemplatesList.ItemClick)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    * #Navigate.To Eventname(SYSTEMSETTINGSRESOURCESEDITVIEW) Value((#TemplatesList.CurrentItem.RelatedReference *As #BPFSystemSettingResourceClass).CodeName)
+    
+    * Sepcial Case
+    #SYS_WEB.History.Add( ('event=systemsettingsresourceseditview&value=' + (#TemplatesList.CurrentItem.RelatedReference *As #BPFSystemSettingResourceClass).CodeName.lowercase + '&lang=' + #LanguageSelection.Control) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LanguageSelection.Changed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #PortalSettings.GetResources( #LanguageSelection.Control )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#PortalSettings.OnGetResourcesCompleted)
+    
+    #COM_SELF.BuildSwitchControlsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#PortalSettings.OnGetResourcesFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<PORTALSETTINGS.ONGETRESOURCESFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #TEMPLATESHEADING.CAPTION := #STRINGS.Text<TEMPLATESHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSwitchControlsForPanel) Access(*PRIVATE)
+    
+    * Reset List
+    Clr_List Named(#TemplatesList)
+    
+    * Start wuth loading system logging
+    For Each(#Item) In(#PortalSettings.Resources)
+    
+    * Current List Item
+    Add_Entry To_List(#TemplatesList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #TemplatesList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #TemplatesLabel.CurrentItem.Caption := #STRINGS.Text<(#Item.Text + 'LABEL.CAPTION')>
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

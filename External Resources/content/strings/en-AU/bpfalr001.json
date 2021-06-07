@@ -1,0 +1,1 @@
+{"ls":[{"op":"APP.NAME","s":"myPortal"},{"op":"APP.ICON","s":"cloud"},{"op":"APP.SIGNOUT","s":"Sign out"},{"op":"APP.FORMAT.FULLNAME","s":"%%FIRSTNAME%% %%LASTNAME%%"},{"op":"APP.FORMAT.DAYANDDATE","s":"%%DAYLONG%%, %%DAYSHORT%% %%MONTHLONG%% %%YEAR%%"}]}

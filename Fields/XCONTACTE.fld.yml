@@ -1,0 +1,17 @@
+﻿Field:
+  Name:               xContactEmailAddress
+  Type:               NVarChar
+  Length:             200
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContactEmailAddress"
+      Label:              "xContactEmailAd"
+      Heading1:           "xContactEmailAddress"

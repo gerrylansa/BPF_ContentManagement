@@ -1,0 +1,199 @@
+﻿Web View:
+  Name:               BPFContentLibraryItemDeleteView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library Item Delete View"
+
+  - JPN:
+      Description:        "Content Library Item Delete View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP012')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFContentLibraryItemDeleteViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFContentSharingDataClient) Name(#Sharing) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(58) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(165) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#RemoveAccountPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#NewPasswordEntryPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Units(Content) Height(83)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PasswordEntryPanelLayoutColumn3) Displayposition(3) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem1) Manage(#RemoveAccountPanelHeading) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#NewPasswordEntryPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem3) Column(#NewPasswordEntryPanelLayoutColumn1) Manage(#Divider) Parent(#NewPasswordEntryPanelLayout) Sizing(FitToWidth) Row(#NewPasswordEntryPanelLayoutRow2) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem4) Alignment(CenterRight) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#RemoveAccountAction) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow2) Sizing(None)
+    
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#NewPasswordEntryPanelLayoutItem1) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#RemoveAccountPanelText) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(24) Wordwrap(True) Style(#NavigationLinkStyle) Caption('Remove Content Item')
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(10) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(72) Width(1000) Wordwrap(True)
+    
+    * Password Entry Panel & Controls
+    Define_Com Class(#PRIM_PANL) Name(#RemoveAccountPanel) Displayposition(3) Height(141) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(106) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#NewPasswordEntryPanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#RemoveAccountPanelHeading) Caption('Confirmation') Displayposition(1) Left(24) Parent(#RemoveAccountPanel) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(830) Wordwrap(True) Height(19)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(3) Height(8) Left(0) Parent(#RemoveAccountPanel) Tabposition(2) Tabstop(False) Themedrawstyle('TopDivider') Top(83) Width(878)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#RemoveAccountAction) Caption('REMOVE') Displayposition(2) Left(754) Parent(#RemoveAccountPanel) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(93) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#RemoveAccountPanelText) Displayposition(4) Left(24) Parent(#RemoveAccountPanel) Tabposition(4) Top(59) Height(24) Width(830) Wordwrap(True) Paddingbottom(24)
+    
+    * Current reference
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#CurrentContent) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Sharing <= (#Data.GetDataClient( #COM_SELF ) *As #BPFContentSharingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #COM_SELF.SetStrings
+    
+    * Get Current Item Reference
+    #CurrentContent <= #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    If (#CurrentContent *IsNot *Null)
+    
+    * Populate Data
+    #COM_SELF.LoadDataForPanels
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Else
+    
+    * No Data exists, so ask for some
+    #Sharing.GetLibraryItemByIdentifier( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsCompleted)
+    
+    * Set Reference
+    #CurrentContent <= #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * Populate Data
+    #COM_SELF.LoadDataForPanels
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #Navigate.BackToTarget( 'admincontentsharingview' 'contentlibrarylistview' False True )
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETLIBRARYITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.ContentLibraryItemDeleted)
+    
+    * The victim has passed, 1 milliseconds of silence please.
+    * All Aboard, the URL train is now departing the station. Next stop... ?
+    If (#SYS_WEB.SessionStorage<'BPF.SHARES.INFOCONTEXT'> *Is *Null)
+    
+    #Navigate.BackToTarget( 'admincontentsharingview' 'contentlibrarylistview' False True )
+    
+    Else
+    
+    #Navigate.BackToTarget( 'editcontentshareview' 'contentitemdetailsview' False True ('value=' + #SYS_WEB.SessionStorage<'BPF.SHARES.INFOCONTEXT'>.value.LowerCase) )
+    
+    Endif
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.CONTENTLIBRARYITEMDELETED'> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentContent.OnDeleteFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTCONTENT.ONDELETEFAILED'> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#RemoveAccountAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentContent.Delete
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<'PANELHEADING.CAPTION'>
+    #REMOVEACCOUNTPANELHEADING.CAPTION := #STRINGS.Text<'REMOVEACCOUNTPANELHEADING.CAPTION'>
+    #REMOVEACCOUNTACTION.CAPTION := #STRINGS.Text<'REMOVEACCOUNTACTION.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(LoadDataForPanels)
+    
+    If (#CurrentContent *Is *NULL)
+    
+    #SYS_WEB.History.GoBack
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETLIBRARYITEMSFAILED'> 7500 )
+    Return
+    
+    Endif
+    
+    #REMOVEACCOUNTPANELTEXT.CAPTION := #STRINGS.Text<'REMOVEACCOUNTPANELTEXT.CAPTION'>.ReplaceAll( '%%CONTENT%%' #CurrentContent.ItemName )
+    
+    Endroutine
+    
+    End_Com

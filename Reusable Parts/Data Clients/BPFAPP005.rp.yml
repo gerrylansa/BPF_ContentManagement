@@ -1,0 +1,644 @@
+﻿Reusable Part:
+  Name:               BPFSecurityDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Model Client for Security Settings"
+
+  - JPN:
+      Description:        "Data Model Client for Security Settings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Global References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(RequestValidationEnabled) Get(*AUTO #RequestValidationEnabled)
+    Define_Com Class(#PRIM_BOLN) Name(#RequestValidationEnabled)
+    
+    Define_Pty Name(RequestValidationCleanupProcessStatus) Get(*AUTO #RequestValidationCleanupProcessStatus)
+    Define_Com Class(#PRIM_ALPH) Name(#RequestValidationCleanupProcessStatus)
+    
+    Define_Pty Name(AllowedAttempts) Get(*AUTO #AllowedAttempts) Set(*AUTO #AllowedAttempts)
+    Define_Pty Name(SecurityQuestions) Get(*REFERENCE #QuestionSettings)
+    
+    Define_Pty Name(IPMonitoringEnabled) Get(*AUTO #IPMonitoringEnabled)
+    Define_Com Class(#PRIM_BOLN) Name(#IPMonitoringEnabled)
+    
+    Define_Pty Name(IPMonitoringAttemptLimit) Get(*AUTO #IPMonitoringAttemptLimit)
+    Define_Com Class(#PRIM_NMBR) Name(#IPMonitoringAttemptLimit)
+    
+    Define_Pty Name(IPMonitoringClearProcessStatus) Get(*AUTO #IPMonitoringClearProcessStatus)
+    Define_Com Class(#PRIM_ALPH) Name(#IPMonitoringClearProcessStatus)
+    
+    Define_Pty Name(IPMonitoringBanDuration) Get(*AUTO #IPMonitoringBanDuration)
+    Define_Com Class(#PRIM_NMBR) Name(#IPMonitoringBanDuration)
+    
+    Define_Pty Name(IPMonitoringBanCheckInterval) Get(*AUTO #IPMonitoringBanCheckInterval)
+    Define_Com Class(#PRIM_NMBR) Name(#IPMonitoringBanCheckInterval)
+    
+    Define_Pty Name(IPMonitoringChangesPending) Get(*AUTO #IPMonitoringChangesPending)
+    Define_Com Class(#PRIM_BOLN) Name(#IPMonitoringChangesPending)
+    
+    Define_Pty Name(NumberOfIPsBanned) Get(*AUTO #NumberOfIPsBanned)
+    Define_Com Class(#PRIM_NMBR) Name(#NumberOfIPsBanned)
+    
+    Define_Pty Name(BannedAddresses) Get(*REFERENCE #BannedAddresses)
+    
+    * Events
+    Define_Evt Name(OnSetRequestCleanupTaskCompleted)
+    Define_Evt Name(OnSetRequestCleanupTaskFailed)
+    
+    Define_Evt Name(OnSetRequestValidationEnabledCompleted)
+    Define_Evt Name(OnSetRequestValidationEnabledFailed)
+    
+    Define_Evt Name(OnGetRequestValidationStatusCompleted)
+    Define_Evt Name(OnGetRequestValidationStatusFailed)
+    
+    Define_Evt Name(OnGetIPMonitoringStatusCompleted)
+    Define_Evt Name(OnGetIPMonitoringStatusFailed)
+    
+    Define_Evt Name(OnSetIPMonitoringValuesCompleted)
+    Define_Evt Name(OnSetIPMonitoringValuesFailed)
+    
+    Define_Evt Name(OnSetIPMonitoringCheckIntervalCompleted)
+    Define_Evt Name(OnSetIPMonitoringCheckIntervalFailed)
+    
+    Define_Evt Name(OnSetIPMonitoringCheckBanDurationCompleted)
+    Define_Evt Name(OnSetIPMonitoringCheckBanDurationFailed)
+    
+    Define_Evt Name(OnSetIPMonitoringCheckBanTaskCompleted)
+    Define_Evt Name(OnSetIPMonitoringCheckBanTaskFailed)
+    
+    Define_Evt Name(OnGetAllowedAttemptsCompleted)
+    Define_Evt Name(OnGetAllowedAttemptsFailed)
+    
+    Define_Evt Name(OnSaveAllowedAttemptsCompleted)
+    Define_Evt Name(OnSaveAllowedAttemptsFailed)
+    
+    Define_Evt Name(OnGetActiveQuestionsCompleted)
+    Define_Evt Name(OnGetActiveQuestionsFailed)
+    
+    Define_Evt Name(OnSaveActiveQuestionsCompleted)
+    Define_Evt Name(OnSaveActiveQuestionsFailed)
+    
+    Define_Evt Name(OnGetBannedAddressesCompleted)
+    Define_Evt Name(OnGetBannedAddressesFailed)
+    
+    Define_Evt Name(OnClearIPAddressBanCompleted)
+    Define_Map For(*INPUT) Class(#BPFBannedIPAddressDataClass) Name(#Victim) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnClearIPAddressBanFailed)
+    
+    * Objects
+    Define_Com Class(#BPFCodeNumericValue) Name(#AllowedAttempts)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#QuestionSettings)
+    Define_Com Class(#PRIM_LCOL<#BPFBannedIPAddressDataClass>) Name(#BannedAddresses)
+    
+    * Routines
+    
+    * Properties
+    
+    * Methods
+    
+    * Request Validations
+    Mthroutine Name(GetRequestValidationStatus)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.GetRequstChkValidSts) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#RequestValidationEnabled) Cleanupprocessstatus(#RequestValidationCleanupProcessStatus) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetRequestValidationStatusCompleted)
+    
+    Else
+    
+    Signal Event(OnGetRequestValidationStatusFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetRequestValidationStatusFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetRequestValidationEnabled)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#To)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetRequestValidOn) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enable(#To) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    If (#To)
+    
+    #RequestValidationEnabled := True
+    #RequestValidationCleanupProcessStatus := 'Running'
+    
+    Else
+    
+    #RequestValidationEnabled := False
+    #RequestValidationCleanupProcessStatus := 'Ending'
+    
+    Endif
+    
+    
+    Signal Event(OnSetRequestValidationEnabledCompleted)
+    
+    Else
+    
+    Signal Event(OnSetRequestValidationEnabledFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetRequestValidationEnabledFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetRequestCleanupTask)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#To)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetRequestCleanTask) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync To(#To.UpperCase) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Case Of_Field(#To.UpperCase)
+    
+    When Value_Is(= START)
+    
+    #RequestValidationCleanupProcessStatus := 'Running'
+    
+    When Value_Is(= STOP)
+    
+    #RequestValidationCleanupProcessStatus := 'Ending'
+    
+    When Value_Is(= RESTART)
+    
+    #RequestValidationCleanupProcessStatus := 'Running'
+    
+    Endcase
+    
+    Signal Event(OnSetRequestCleanupTaskCompleted)
+    
+    Else
+    
+    Signal Event(OnSetRequestCleanupTaskFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetRequestCleanupTaskFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * IP Address Bans
+    Mthroutine Name(GetIPMonitoringStatus)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.GetIPBanStatus) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#IPMonitoringEnabled) Limit(#IPMonitoringAttemptLimit) Clearprocessstatus(#IPMonitoringClearProcessStatus) Duration(#IPMonitoringBanDuration) Checkinterval(#IPMonitoringBanCheckInterval) Changespending(#IPMonitoringChangesPending) Ipsbanned(#NumberOfIPsBanned) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetIPMonitoringStatusCompleted)
+    
+    Else
+    
+    Signal Event(OnGetIPMonitoringStatusFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetIPMonitoringStatusFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetIPMonitoringValues)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#To)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Limit)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetIPMonitorValues) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enable(#To) Limit(#Limit) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    If (#To)
+    
+    #IPMonitoringEnabled := True
+    #IPMonitoringClearProcessStatus := 'Running'
+    
+    Else
+    
+    #IPMonitoringEnabled := False
+    #IPMonitoringClearProcessStatus := 'Ending'
+    
+    Endif
+    
+    #IPMonitoringAttemptLimit := #Limit
+    
+    Signal Event(OnSetIPMonitoringValuesCompleted)
+    
+    Else
+    
+    Signal Event(OnSetIPMonitoringValuesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetIPMonitoringValuesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetIPMonitoringCheckInterval)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Value)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetIPClearCheckTime) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Interval(#Value) Changespending(#IPMonitoringChangesPending) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #IPMonitoringBanCheckInterval := #Value
+    
+    Signal Event(OnSetIPMonitoringCheckIntervalCompleted)
+    
+    Else
+    
+    Signal Event(OnSetIPMonitoringCheckIntervalFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetIPMonitoringCheckIntervalFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetIPMonitoringCheckBanDuration)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Value)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetIPClearBannedTime) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Interval(#Value) Changespending(#IPMonitoringChangesPending) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #IPMonitoringBanDuration := #Value
+    
+    Signal Event(OnSetIPMonitoringCheckBanDurationCompleted)
+    
+    Else
+    
+    Signal Event(OnSetIPMonitoringCheckBanDurationFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetIPMonitoringCheckBanDurationFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetIPBanClearTask)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#To)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetIPClearTask) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync To(#To.UpperCase) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Case Of_Field(#To.UpperCase)
+    
+    When Value_Is(= START)
+    
+    #IPMonitoringClearProcessStatus := 'Running'
+    
+    When Value_Is(= STOP)
+    
+    #IPMonitoringClearProcessStatus := 'Ending'
+    
+    When Value_Is(= RESTART)
+    
+    #IPMonitoringClearProcessStatus := 'Running'
+    
+    Endcase
+    
+    Signal Event(OnSetIPMonitoringCheckBanTaskCompleted)
+    
+    Else
+    
+    Signal Event(OnSetIPMonitoringCheckBanTaskFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetIPMonitoringCheckBanTaskFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetBannedAddresses)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.GetCurrentBannedIPs) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Bannedipaddresses(#BannedAddresses) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetBannedAddressesCompleted)
+    
+    Else
+    
+    Signal Event(OnGetBannedAddressesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetBannedAddressesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ClearIPAddressBan)
+    Define_Map For(*INPUT) Class(#BPFBannedIPAddressDataClass) Name(#Victim) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.ClearIPAddressBan) Name(#Request)
+    
+    * Make Request
+    If (#Victim *Is *Null)
+    
+    #Request.ExecuteAsync Status(#Status)
+    
+    Else
+    
+    #Request.ExecuteAsync Victim(#Victim.IPAddress) Status(#Status)
+    
+    Endif
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    * No longer need the victim in teh collection so remove
+    
+    If (#Victim *Is *Null)
+    
+    #BannedAddresses.RemoveAll
+    
+    Else
+    
+    #BannedAddresses.Remove( #Victim )
+    
+    Endif
+    
+    Signal Event(OnClearIPAddressBanCompleted) Victim(#Victim)
+    
+    Else
+    
+    Signal Event(OnClearIPAddressBanFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetBannedAddressesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Attempts
+    Mthroutine Name(GetAllowedAttempts)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.GetAllowedAttempts) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Controlsetting(#AllowedAttempts) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetAllowedAttemptsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetAllowedAttemptsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetAllowedAttemptsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveAllowedAttempts)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemCodesDataServer.SaveNumericCode) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Settinggroup(SECURITY) Settingname(LOGIN_ATTEMPT_LIMIT) Settingsequence(1) Settovalue(#AllowedAttempts) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveAllowedAttemptsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveAllowedAttemptsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveAllowedAttemptsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Questions
+    Mthroutine Name(GetActiveQuestions)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.GetActiveQuestions) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Securitysettings(#QuestionSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetActiveQuestionsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetActiveQuestionsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetActiveQuestionsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveActiveQuestions)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSecurityDataServer.SetActiveQuestions) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Securitysettings(#QuestionSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveActiveQuestionsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveActiveQuestionsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveActiveQuestionsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

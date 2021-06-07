@@ -1,0 +1,46 @@
+﻿Reusable Part:
+  Name:               BPFUserActivitySettingsStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Activity Settings Strings"
+
+  - JPN:
+      Description:        "User Activity Settings Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "%%USER%%'s Activity Settings"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "View, download or remove the activity data %%APP%% has stored about you"
+    
+    #STRINGSCOLLECTION<'VIEWSESSIONSCARD.HEADING'> := "Session History"
+    #STRINGSCOLLECTION<'VIEWSESSIONSCARD.TEXT'> := "View your session activity on %%APP%% including details such as your access, when you updated your information, downloads and emails sent to you by our systems."
+    #STRINGSCOLLECTION<'VIEWSESSIONSCARD.ACTION'> := "iew your session history"
+    
+    #STRINGSCOLLECTION<'DOWNLOADSESSIONSCARD.HEADING'> := "Download Activity"
+    #STRINGSCOLLECTION<'DOWNLOADSESSIONSCARD.TEXT'> := "Download a detailed listing of your actvity in %%APP%%."
+    #STRINGSCOLLECTION<'DOWNLOADSESSIONSCARD.ACTION'> := "Download activity data"
+    
+    #STRINGSCOLLECTION<'DELETESESSIONSCARD.HEADING'> := "Clear Activity Data"
+    #STRINGSCOLLECTION<'DELETESESSIONSCARD.TEXT'> := "Remove the activity data that %%APP%% has stored about you."
+    #STRINGSCOLLECTION<'DELETESESSIONSCARD.ACTION'> := "Clear activity data"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "Only you can change your settings. %%APP%% is committed to your privacy and security"
+    
+    Endroutine
+    
+    End_Com

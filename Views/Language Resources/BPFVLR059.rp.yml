@@ -1,0 +1,32 @@
+﻿Reusable Part:
+  Name:               BPFPortalTermsofServiceViewString
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Terms of Service View Strings"
+
+  - JPN:
+      Description:        "Terms of Service View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Terms of Service"
+    #STRINGSCOLLECTION<'TERMSPAGE.FAILED'> := "Yer, there are no terms. So I guess you can do whatever you wish. Oops."
+    
+    Endroutine
+    
+    End_Com

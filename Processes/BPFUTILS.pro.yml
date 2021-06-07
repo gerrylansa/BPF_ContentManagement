@@ -1,0 +1,75 @@
+﻿Process:
+  Name:                      BPFUTILS
+  Menu Style:                SAA/CUA
+  Anticipated Usage:         Light
+  Optimize For Remote Comms: No
+  Enable For Web:            No
+  Generate XML:              No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Utilities"
+
+  - JPN:
+      Description:        "Server Utilities"
+
+  Functions:
+  - BPFU001:
+      Name:               BPFU001
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Initial Portal Import"
+
+      - JPN:
+          Description:        "Initial Portal Import"
+
+      Allowed Next Functions:
+      - "*ANY"
+
+  - BPFU002:
+      Name:               BPFU002
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Cleanup process for session based data"
+
+      - JPN:
+          Description:        "Cleanup process for session based data"
+
+      Allowed Next Functions:
+      - "*ANY"
+
+  - BPFU003:
+      Name:               BPFU003
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Automatic Clearing of IP Bans"
+
+      - JPN:
+          Description:        "Automatic Clearing of IP Bans"
+
+      Allowed Next Functions:
+      - "*ANY"
+
+  - BPFU004:
+      Name:               BPFU004
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Server Service Shortcut Processor"
+
+      - JPN:
+          Description:        "Server Service Shortcut Processor"
+
+      Allowed Next Functions:
+      - "*ANY"

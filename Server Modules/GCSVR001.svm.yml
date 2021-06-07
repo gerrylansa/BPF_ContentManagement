@@ -1,0 +1,228 @@
+﻿ServerModule:
+  Name:               GCContactDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Contact Info Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RequestedIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#ContactSearchValue) Type(*CHAR) Length(256)
+    Define Field(#GenderSearchValue) Reffld(#xContactGender)
+    Define Field(#UserIDValue) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#MoreResults) Type(*BOOLEAN)
+    Define Field(#NextReadDateTime) Reffld(#BPFGenericDateTime)
+    
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSecuiryAdminCheckPassed) Type(*BOOLEAN)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSecuiryAdminCheckPassed #sSessionAuthenicated #sIsoCode)
+    
+    * Group By
+    Group_By Name(#SessionDataGroup) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionRelatedUserID #BPFSessionEventID #BPFSessionUserEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFSessionEventLabel #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4 #BPFSessionEventValue5)
+    
+    * Data Lists
+    Def_List Name(#UserData) Fields(#xContactIdentification #xContactLastName #xContactFirstName #xContactGender #xContactEmailAddress #xContactMobilePhone #xContactHomePhone #xContactFaxNumber #xContactBusinessPhone #xContactNotes #xContactPhoto #xContactInterests #xContactBirthdate #xContactHometown #xContactCity #xContactJobTitle #xContactCompany #xContactAddress #xContactCompanySite) Counter(#LISTCOUNT) Type(*WORKING) Entrys(*MAX)
+    
+    Def_List Name(#SessionData) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionEventID #BPFSessionEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFGenericNVarChar2048) Counter(#LISTENTRY) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * System Role
+    Srvroutine Name(GetContactsByName) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#ContactSearchValue) Parameter_Name(ContactValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFStatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContactsByName' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#ContactSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    Select Fields(#UserData) From_File(xContactsByName) Io_Status(#Status) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#UserData) From_File(xContactsByName) Where((#xContactEmailAddress.LowerCase.Contains( #ContactSearchValue.LowerCase )) *OrIf (#xContactFirstName.LowerCase.Contains( #ContactSearchValue.LowerCase )) *OrIf (#xContactLastName.LowerCase.Contains( #ContactSearchValue.LowerCase )))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetAccountsByGender) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#GenderSearchValue) Parameter_Name(GenderValue)
+    Field_Map For(*INPUT) Field(#ContactSearchValue) Parameter_Name(ContactValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFStatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContactsByGender' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#ContactSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    Select Fields(#UserData) From_File(xContacts) Where((#xContactGender.LowerCase = #ContactSearchValue.LowerCase))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#UserData) From_File(xContacts) Where((#xContactGender.LowerCase = #ContactSearchValue.LowerCase) *And ((#xContactEmailAddress.LowerCase.Contains( #ContactSearchValue.LowerCase )) *OrIf (#xContactFirstName.LowerCase.Contains( #ContactSearchValue.LowerCase )) *OrIf (#xContactLastName.LowerCase.Contains( #ContactSearchValue.LowerCase ))))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#UserData)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetContactByID) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#xContactIdentification) Parameter_Name(ContactID)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#UserData) Parameter_Name(UserData)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFStatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContactByID' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Look for user in active accounts
+    Fetch Fields(#UserData) From_File(xContacts) With_Key(#xContactIdentification)
+    
+    If_Status Is_Not(*NORECORD)
+    
+    * Set Data to Return
+    Add_Entry To_List(#UserData)
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

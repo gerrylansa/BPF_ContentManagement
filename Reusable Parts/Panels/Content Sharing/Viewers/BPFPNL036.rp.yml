@@ -1,0 +1,63 @@
+﻿Reusable Part:
+  Name:               BPFFItemViewerForYoutube
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Item Viewer for Youtube Videos"
+
+  - JPN:
+      Description:        "Item Viewer for Youtube Videos"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(270) Left(0) Tabposition(1) Top(0) Width(500) Layoutmanager(#ViewerLayout)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ViewerLayoutRow1) Displayposition(1) Parent(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ViewerLayoutColumn1) Displayposition(1) Parent(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ViewerLayoutItem1) Alignment(TopCenter) Column(#ViewerLayoutColumn1) Manage(#Viewer) Parent(#ViewerLayout) Row(#ViewerLayoutRow1)
+    
+    * Controls
+    Define_Com Class(#BPFYoutubeAPI) Name(#Viewer) Parent(#COM_OWNER) Displayposition(1) Tabposition(1) Left(0) Top(0) Height(270) Width(500) Autoplayback(True)
+    
+    * References
+    Define_Com Class(#BPFContentShareItemClass) Name(#ContentShareItem) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#ContentLibraryItem) Reference(*DYNAMIC)
+    
+    * Routines
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #ContentShareItem <= #BPFViewer.ContentShareItem
+    #ContentLibraryItem <= #BPFViewer.ContentLibraryItem
+    
+    If (#ContentShareItem *IsNot *Null)
+    
+    #COM_SELF.ShowShareItem
+    
+    Endif
+    
+    If (#ContentLibraryItem *IsNot *Null)
+    
+    #COM_SELF.ShowLibraryItem
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(ShowShareItem)
+    
+    #Viewer.videoId := #ContentShareItem.ContentToken
+    
+    Endroutine
+    
+    Mthroutine Name(ShowLibraryItem)
+    
+    #Viewer.videoId := #ContentLibraryItem.ItemToken
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,187 @@
+﻿Reusable Part:
+  Name:               BPFAnalyticsSessionsDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Client for Analytics & Sessions"
+
+  - JPN:
+      Description:        "Data Client for Analytics & Sessions"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Global References
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(AnalyticsEnabled) Get(*AUTO #AnalyticsEnabled) Set(*AUTO #AnalyticsEnabled)
+    Define_Pty Name(AnalyticsID) Get(*AUTO #AnalyticsID) Set(*AUTO #AnalyticsID)
+    
+    Define_Pty Name(SessionEnabled) Get(*AUTO #SessionEnabled) Set(*AUTO #SessionEnabled)
+    
+    * Events
+    Define_Evt Name(OnGetAnalyticsSettingsCompleted)
+    Define_Evt Name(OnGetAnalyticsSettingsFailed)
+    
+    Define_Evt Name(OnSaveAnalyticsSettingsCompleted)
+    Define_Evt Name(OnSaveAnalyticsSettingsFailed)
+    
+    Define_Evt Name(OnGetSessionSettingsCompleted)
+    Define_Evt Name(OnGetSessionSettingsFailed)
+    
+    Define_Evt Name(OnSaveSessionSettingsCompleted)
+    Define_Evt Name(OnSaveSessionSettingsFailed)
+    
+    * Objects
+    Define_Com Class(#PRIM_BOLN) Name(#AnalyticsEnabled)
+    Define_Com Class(#PRIM_ALPH) Name(#AnalyticsID)
+    
+    Define_Com Class(#PRIM_BOLN) Name(#SessionEnabled)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#QuestionSettings)
+    
+    * Routines
+    
+    * Properties
+    
+    * Methods
+    
+    * Analytics
+    Mthroutine Name(GetAnalyticsSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFAnalyticsSessionDataServer.GetAnalyticsSettings) Name(#Request)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Value)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#Value) Trackingid(#AnalyticsID) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #AnalyticsEnabled := #Value.AsBoolean
+    Signal Event(OnGetAnalyticsSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetAnalyticsSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetAnalyticsSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveAnalyticsSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFAnalyticsSessionDataServer.SaveAnalytics) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#AnalyticsEnabled.AsNumber) Trackingid(#AnalyticsID) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveAnalyticsSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveAnalyticsSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveAnalyticsSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Sessions
+    Mthroutine Name(GetSessionSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFAnalyticsSessionDataServer.GetSessionSettings) Name(#Request)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Value)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#Value) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #SessionEnabled := #Value.AsBoolean
+    Signal Event(OnGetSessionSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnGetSessionSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSessionSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveSessionSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFAnalyticsSessionDataServer.SaveSessionSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Enabled(#SessionEnabled.AsNumber) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveSessionSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveSessionSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveSessionSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

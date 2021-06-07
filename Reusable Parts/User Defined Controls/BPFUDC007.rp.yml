@@ -1,0 +1,68 @@
+﻿Reusable Part:
+  Name:               BPFLanguageSelectionControl
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Drop down selection of language"
+
+  - JPN:
+      Description:        "Drop down selection of language"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Left(0) Tabposition(1) Top(0) Layoutmanager(#Layout) Width(164) Height(48)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopCenter) Column(#LayoutColumn1) Manage(#UserLanguage) Parent(#Layout) Row(#LayoutRow1)
+    
+    Define_Evt Name(Changed)
+    
+    Define_Pty Name(Control) Get(*REFERENCE #UserLanguage)
+    Define_Com Class(#PRIM_MD.Dropdown) Name(#UserLanguage) Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(1) Top(0) Height(48) Style(#NavigationLinkStyle) Appearance(None) Themedrawstyle('ForegroundSecondary') Width(164) Icon('language') Iconcolor(Theme500) Captionposition(None) Helperposition(None)
+    Define_Com Class(#PRIM_TIMR) Name(#SignalDelay) Startup(Manual) Interval(100)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Handle Creation
+    #COM_SELF.HandleCreation
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserLanguage.Changed)
+    
+    #SignalDelay.Stop
+    
+    #UserLanguage.OpenDropDown
+    
+    #SignalDelay.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#SignalDelay.Tick)
+    
+    #SignalDelay.Stop
+    Signal Event(Changed)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleCreation)
+    
+    * Create Countries via Strings Collection
+    For Each(#Item) In(#BPFPortal.Session.PortalLanguages.Strings) Key(#BPFGenericNVarChar2048)
+    
+    #UserLanguage.Items.Add Value(#BPFGenericNVarChar2048) Caption(#Item)
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

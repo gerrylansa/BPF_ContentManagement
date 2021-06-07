@@ -1,0 +1,404 @@
+﻿Web View:
+  Name:               BPFLanguageResourceStringsEditView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Resource Strings Edit View"
+
+  - JPN:
+      Description:        "Language Resource Strings Edit View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP011') Caption('SAVE')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFLanguageResourceEditViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFLanguageResourcesDataClient) Name(#Resources) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#LoadMoreDisplayStyle) Fontweight(Weight500) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(43) Minwidth(140) Maxwidth(440)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn4) Displayposition(4) Parent(#MainLayout) Width(43) Minwidth(140) Maxwidth(440)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn5) Displayposition(5) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn6) Displayposition(6) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow2) Displayposition(2) Parent(#MainLayout) Height(86) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow3) Displayposition(3) Parent(#MainLayout) Height(10) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow4) Displayposition(4) Parent(#MainLayout) Height(80) Units(Content) Minheight(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#MainLayoutColumn3) Manage(#TranslationLabel) Parent(#MainLayout) Row(#MainLayoutRow2) Margintop(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(CenterRight) Column(#MainLayoutColumn4) Parent(#MainLayout) Row(#MainLayoutRow2) Manage(#UserLanguage) Sizing(FitToHeight) Margintop(16) Marginright(18)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Manage(#DummyFooter) Parent(#MainLayout) Row(#MainLayoutRow4) Sizing(FitToWidth) Column(#MainLayoutColumn3) Alignment(TopLeft) Columnspan(2) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Alignment(TopRight) Column(#MainLayoutColumn4) Manage(#SaveResourceAction) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(None)
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(2) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(24) Icon('arrow_back') Captionmarginleft(24) Height(48) Wordwrap(True) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SaveResourceAction) Caption('SAVE') Displayposition(3) Left(1190) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary') Top(24) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(4) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(3) Top(96) Width(940) Wordwrap(True) Caption('Edit the strings for this resource for a given language. Click the save button to save the translations')
+    Define_Com Class(#PRIM_MD.Label) Name(#DummyFooter) Displayposition(5) Left(410) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(237) Height(56) Width(880) Style(#LoadMoreDisplayStyle) Captionalignment(Center)
+    Define_Com Class(#PRIM_MD.Label) Name(#TranslationLabel) Caption('Translating') Displayposition(6) Left(410) Parent(#COM_OWNER) Tabposition(5) Top(141) Themedrawstyle('Card+Heading3') Height(62) Width(880) Style(#RoundedCornerStyle) Captionmarginleft(16)
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#UserLanguage) Left(1076) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(133) Height(70) Width(196)
+    
+    * References
+    Define_Com Class(#BPFLanguageResourceItemClass) Name(#CurrentResource) Reference(*DYNAMIC)
+    
+    * Control
+    Define_Com Class(#PRIM_BOLN) Name(#UpdateList)
+    Define_Com Class(#PRIM_TIMR) Name(#LoadDelay) Interval(1) Startup(Manual)
+    Define_Com Class(#PRIM_NMBR) Name(#LoadIndex)
+    
+    * Collection
+    Define_Com Class(#PRIM_LCOL<#PRIM_TBLO.Item>) Name(#MainLayoutItems)
+    Define_Com Class(#PRIM_LCOL<#BPFEditLanguageResourceStringCard>) Name(#Cards)
+    
+    * Panels
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Resources <= (#Data.GetDataClient( #COM_SELF ) *As #BPFLanguageResourcesDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to current user
+    #CurrentResource <= #Resources.Resource<#SYS_WEB.URLParameters<VALUE>.value.UpperCase>
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Do we have a resource or do we need to load first
+    If (#CurrentResource *IsNot *Null)
+    
+    * Resource is loaded, so go ahead
+    
+    * Set Title
+    #PanelHeading := #CurrentResource.Description
+    
+    * Set selection default
+    #UserLanguage.Control := #SYS_WEB.URLParameters<LANG>.value
+    
+    * Load Strings
+    #CurrentResource.LoadStrings( #SYS_WEB.URLParameters<LANG>.value )
+    
+    Else
+    
+    * No resource, so we need to load the selected resource
+    
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *NULL)
+    
+    #Resources.GetResourceByIdentifier( #SYS_WEB.URLParameters<VALUE>.value.UpperCase )
+    
+    Else
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Endif
+    
+    * Set Strings
+    #COM_SELF.SetStrings
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserLanguage.Changed)
+    
+    * As a new lnguage is required, we need to empty the list
+    #COM_SELF.RemoveStrings
+    
+    * Set the waiting state
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Replace the URL as we need to reflect the selected language in case the user reloads the portal at this point
+    #SYS_WEB.History.Replace( ('event=languageresourcestringsedit&value=' + #CurrentResource.Identifier.LowerCase + '&lang=' + #UserLanguage.Control) False )
+    
+    * Get the strings for the requested language
+    #CurrentResource.LoadStrings( #UserLanguage.Control )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SaveResourceAction.Click)
+    
+    * Save the changes
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentResource.SaveStrings( #UserLanguage.Control )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Resources.OnGetResourceCompleted)
+    
+    * Get Reference to current resource, as it has now been loaded
+    #CurrentResource <= #Resources.Resource<#SYS_WEB.URLParameters<VALUE>.value.UpperCase>
+    
+    * Set Title and default the selection control
+    #PanelHeading := #CurrentResource.Description
+    #UserLanguage.Control := #Browser.UserLanguage
+    
+    * Load the strings for the selected language
+    #CurrentResource.LoadStrings( #SYS_WEB.URLParameters<LANG>.value )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Resources.OnGetResourceFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<RESOURCES.ONGETRESOURCEFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnLoadStringsCompleted)
+    
+    * Build the strings and pass if we are reloading or updating
+    #COM_SELF.BuildStrings( #UpdateList )
+    
+    * In case we did an update, default the update flag to false
+    #UpdateList := False
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnLoadStringsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONLOADSTRINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnSaveStringsCompleted)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONSAVESTRINGSCOMPLETED> )
+    
+    * If the user saved, then we only need to update what is being displayed so set flag
+    * and reload the data from the server
+    #UpdateList := True
+    #CurrentResource.LoadStrings( #UserLanguage.Control )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnSaveStringsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONSAVESTRINGSCFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.ScrollChanged)
+    
+    * Here we are handling the lazy loading trigger, if we have more data to load
+    If ((#COM_SELF.VerticalScrollRemainder <= 950) *AndIf (#LoadIndex < #CurrentResource.Strings.ItemCount))
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * We need to start a time to ensure action of loading happens after this trigger
+    #LoadDelay.Start
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.SizeChanged)
+    
+    * If the viewport is too small blank teh caption for the selection control
+    If (#SYS_WEB.WebPage.Width < 360)
+    
+    #TranslationLabel.Caption := *null
+    
+    Else
+    
+    #TRANSLATIONLABEL.CAPTION := #STRINGS.Text<TRANSLATIONLABEL.CAPTION>
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoadDelay.Tick)
+    
+    * Stop the trigger, and add to the list. See lazy loading is easy.
+    #LoadDelay.Stop
+    
+    #COM_SELF.BuildStrings( False )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetStrings)
+    
+    #SaveResourceAction.Visible := #Resources.AreActive
+    
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #SAVERESOURCEACTION.CAPTION := #STRINGS.TEXT<SAVERESOURCEACTION>
+    
+    If (#SYS_WEB.WebPage.Width < 360)
+    
+    #TranslationLabel.Caption := *null
+    
+    Else
+    
+    #TRANSLATIONLABEL.CAPTION := #STRINGS.Text<TRANSLATIONLABEL.CAPTION>
+    
+    Endif
+    
+    Endroutine
+    
+    
+    Mthroutine Name(BuildStrings) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#UpdateDsiplay)
+    
+    * Either we are updating the, or add more entries
+    If (#UpdateDsiplay)
+    
+    #COM_SELF.UpdateStrings
+    
+    Else
+    
+    #COM_SELF.AddStrings
+    
+    Endif
+    
+    
+    Endroutine
+    
+    Mthroutine Name(AddStrings) Access(*PRIVATE)
+    
+    * List Control
+    Define_Com Class(#PRIM_NMBR) Name(#UpperIndex)
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * For each string in the resource
+    For Each(#String) In(#CurrentResource.Strings)
+    
+    * Skip strings until we read was hasnt been loaded
+    #Index += 1
+    Continue If(#Index <= #LoadIndex)
+    
+    * add the string yet to be loaded
+    #COM_SELF.AddStringCard( #String )
+    
+    * Keep going until we read the page limit
+    #UpperIndex += 1
+    Leave If(#UpperIndex = 25)
+    
+    Endfor
+    
+    * Remeber the new uppper index
+    #LoadIndex := #Index
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateStrings)
+    
+    * For each card currently on the screen, update the reference to string at the equal index
+    For Each(#Card) In(#Cards)
+    
+    #Card.SetRelatedReference( #CurrentResource.Strings<#Cards.IndexOf<#card>> )
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveStrings)
+    
+    * Reset teh index and clear the display collections
+    #LoadIndex := 0
+    
+    #MainLayoutItems.RemoveAll
+    #Cards.RemoveAll
+    
+    Endroutine
+    
+    
+    Mthroutine Name(AddStringCard)
+    Define_Map For(*INPUT) Class(#BPFResourceStringItemClass) Name(#CurrentString) Pass(*BY_REFERENCE)
+    
+    * This is what we are making
+    * Define_Com Class(#BPFSessionEventsCard) Name(#BPFSessionEventsCard) Displayposition(5) Left(410) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(300) Width(880)
+    
+    * The order of the code below seems to stop cards to appear as if the jump down onto the page. The cost is performance, and a 25 items per limit load.
+    * Will investigate using a Tree view and tree view item design in the future.
+    
+    * First we need a layout item and parent
+    #MainLayoutItems.insert( #Com_self.CreateLayoutItem )
+    #MainLayoutItems.Last.Parent <= #MainLayout
+    
+    * Now for the card
+    #Cards.Insert( (*New #BPFEditLanguageResourceStringCard) )
+    
+    * Put card under management and parent
+    #MainLayoutItems.Last.Manage <= #Cards.Last
+    #Cards.last.Parent <= #COM_OWNER
+    
+    * Set card properties
+    #Cards.Last.DisplayPosition := (#MainLayoutItems.ItemCount + 6)
+    
+    If (#SYS_WEB.URLParameters<LANG> *IsNot *NULL)
+    
+    #Cards.Last.SetRelatedReference( #CurrentString )
+    
+    Else
+    
+    #Cards.Last.SetRelatedReference( #CurrentString )
+    
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Mthroutine Name(CreateLayoutItem)
+    Define_Map For(*RESULT) Class(#PRIM_TBLO.Item) Name(#Result) Pass(*BY_REFERENCE)
+    
+    #Result <= (*New #PRIM_TBLO.Item)
+    
+    * We are trying to build either
+    * Card -   Define_Com Class(#PRIM_TBLO.Item) Alignment(TopLeft) Column(#MainLayoutColumn3) Row(#MainLayoutRow3) Sizing(ContentHeightFitToWidth) Margintop(16) Columnspan(2) Flow(Down)
+    
+    * Common Properties
+    #Result.Alignment := TopLeft
+    #Result.Column <= #MainLayoutColumn3
+    #Result.ColumnSpan := 2
+    #Result.Row <= #MainLayoutRow3
+    #Result.Flow := Down
+    
+    #Result.Sizing := ContentHeightFitToWidth
+    #Result.MarginTop := 16
+    
+    Endroutine
+    
+    End_Com

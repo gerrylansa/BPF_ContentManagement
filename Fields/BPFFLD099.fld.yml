@@ -1,0 +1,33 @@
+﻿Field:
+  Name:               BPFContentItemObject
+  Type:               BLOB
+  Length:             0
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Object"
+      Label:              "Item Object"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Object"
+
+  - JPN:
+      Description:        "Content Item Object"
+      Label:              "Content Item Ob"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Object"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    End_Com

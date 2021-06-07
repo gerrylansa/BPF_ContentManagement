@@ -1,0 +1,748 @@
+Afghanistan
+
+Aland Islands
+
+Albania
+
+Algeria
+
+American Samoa
+
+Andorra
+
+Angola
+
+Anguilla
+
+Antarctica
+
+Antigua and Barbuda
+
+Argentina
+
+Armenia
+
+Aruba
+
+Australia
+
+Austria
+
+Azerbaijan
+
+Bahamas
+
+Bahrain
+
+Bangladesh
+
+Barbados
+
+Belarus
+
+Belgium
+
+Belize
+
+Benin
+
+Bermuda
+
+Bhutan
+
+Bolivia, Plurinational State of
+
+Bonaire, Sint Eustatius and Saba
+
+Bosnia and Herzegovina
+
+Botswana
+
+Bouvet Island
+
+Brazil
+
+British Indian Ocean Territory
+
+Brunei Darussalam
+
+Bulgaria
+
+Burkina Faso
+
+Burundi
+
+Cambodia
+
+Cameroon
+
+Canada
+
+Cape Verde
+
+Cayman Islands
+
+Central African Republic
+
+Chad
+
+Chile
+
+China
+
+Christmas Island
+
+Cocos (Keeling) Islands
+
+Colombia
+
+Comoros
+
+Congo
+
+Congo, the Democratic Republic of the
+
+Cook Islands
+
+Costa Rica
+
+Cote d'Ivoire
+
+Croatia
+
+Cuba
+
+Curaçao
+
+Cyprus
+
+Czech Republic
+
+Denmark
+
+Djibouti
+
+Dominica
+
+Dominican Republic
+
+Ecuador
+
+Egypt
+
+El Salvador
+
+Equatorial Guinea
+
+Eritrea
+
+Estonia
+
+Ethiopia
+
+Falkland Islands (Malvinas)
+
+Faroe Islands
+
+Fiji
+
+Finland
+
+France
+
+French Guiana
+
+French Polynesia
+
+French Southern Territories
+
+Gabon
+
+Gambia
+
+Georgia
+
+Germany
+
+Ghana
+
+Gibraltar
+
+Greece
+
+Greenland
+
+Grenada
+
+Guadeloupe
+
+Guam
+
+Guatemala
+
+Guernsey
+
+Guinea
+
+Guinea-Bissau
+
+Guyana
+
+Haiti
+
+Heard Island and McDonald Islands
+
+Holy See (Vatican City State)
+
+Honduras
+
+Hong Kong
+
+Hungary
+
+Iceland
+
+India
+
+Indonesia
+
+Iran, Islamic Republic of
+
+Iraq
+
+Ireland
+
+Isle of Man
+
+Israel
+
+Italy
+
+Jamaica
+
+Japan
+
+Jersey
+
+Jordan
+
+Kazakhstan
+
+Kenya
+
+Kiribati
+
+Korea, Democratic People's Republic of
+
+Korea, Republic of
+
+Kuwait
+
+Kyrgyzstan
+
+Lao People's Democratic Republic
+
+Latvia
+
+Lebanon
+
+Lesotho
+
+Liberia
+
+Libya
+
+Liechtenstein
+
+Lithuania
+
+Luxembourg
+
+Macao
+
+Macedonia, the former Yugoslav Republic of
+
+Madagascar
+
+Malawi
+
+Malaysia
+
+Maldives
+
+Mali
+
+Malta
+
+Marshall Islands
+
+Martinique
+
+Mauritania
+
+Mauritius
+
+Mayotte
+
+Mexico
+
+Micronesia, Federated States of
+
+Moldova, Republic of
+
+Monaco
+
+Mongolia
+
+Montenegro
+
+Montserrat
+
+Morocco
+
+Mozambique
+
+Myanmar
+
+Namibia
+
+Nauru
+
+Nepal
+
+Netherlands
+
+New Caledonia
+
+New Zealand
+
+Nicaragua
+
+Niger
+
+Nigeria
+
+Niue
+
+Norfolk Island
+
+Northern Mariana Islands
+
+Norway
+
+Oman
+
+Pakistan
+
+Palau
+
+Palestinian Territory, Occupied
+
+Panama
+
+Papua New Guinea
+
+Paraguay
+
+Peru
+
+Philippines
+
+Pitcairn
+
+Poland
+
+Portugal
+
+Puerto Rico
+
+Qatar
+
+Réunion
+
+Romania
+
+Russian Federation
+
+Rwanda
+
+Saint Barthelemy
+
+Saint Helena, Ascension and Tristan da Cunha
+
+Saint Kitts and Nevis
+
+Saint Lucia
+
+Saint Martin (French part)
+
+Saint Pierre and Miquelon
+
+Saint Vincent and the Grenadines
+
+Samoa
+
+San Marino
+
+Sao Tome and Principe
+
+Saudi Arabia
+
+Senegal
+
+Serbia
+
+Seychelles
+
+Sierra Leone
+
+Singapore
+
+Sint Maarten (Dutch part)
+
+Slovakia
+
+Slovenia
+
+Solomon Islands
+
+Somalia
+
+South Africa
+
+South Georgia and the South Sandwich Islands
+
+South Sudan
+
+Spain
+
+Sri Lanka
+
+Sudan
+
+Suriname
+
+Svalbard and Jan Mayen
+
+Swaziland
+
+Sweden
+
+Switzerland
+
+Syrian Arab Republic
+
+Taiwan, Province of China
+
+Tajikistan
+
+Tanzania, United Republic of
+
+Thailand
+
+Timor-Leste
+
+Togo
+
+Tokelau
+
+Tonga
+
+Trinidad and Tobago
+
+Tunisia
+
+Turkey
+
+Turkmenistan
+
+Turks and Caicos Islands
+
+Tuvalu
+
+Uganda
+
+Ukraine
+
+United Arab Emirates
+
+United Kingdom
+
+United States
+
+United States Minor Outlying Islands
+
+Uruguay
+
+Uzbekistan
+
+Vanuatu
+
+Venezuela, Bolivarian Republic of
+
+Vietnam
+
+Virgin Islands, British
+
+Virgin Islands, U.S.
+
+Wallis and Futuna
+
+Western Sahara
+
+Yemen
+
+Zambia
+
+Zimbabwe
+
+
+#AFG := #STRINGS.Text<AFG>
+#ALA := #STRINGS.Text<ALA>
+#ALB := #STRINGS.Text<ALB>
+#DZA := #STRINGS.Text<DZA>
+#ASM := #STRINGS.Text<ASM>
+#AND := #STRINGS.Text<AND>
+#AGO := #STRINGS.Text<AGO>
+#AIA := #STRINGS.Text<AIA>
+#ATA := #STRINGS.Text<ATA>
+#ATG := #STRINGS.Text<ATG>
+#ARG := #STRINGS.Text<ARG>
+#ARM := #STRINGS.Text<ARM>
+#ABW := #STRINGS.Text<ABW>
+#AUS := #STRINGS.Text<AUS>
+#AUT := #STRINGS.Text<AUT>
+#AZE := #STRINGS.Text<AZE>
+#BHS := #STRINGS.Text<BHS>
+#BHR := #STRINGS.Text<BHR>
+#BGD := #STRINGS.Text<BGD>
+#BRB := #STRINGS.Text<BRB>
+#BLR := #STRINGS.Text<BLR>
+#BEL := #STRINGS.Text<BEL>
+#BLZ := #STRINGS.Text<BLZ>
+#BEN := #STRINGS.Text<BEN>
+#BMU := #STRINGS.Text<BMU>
+#BTN := #STRINGS.Text<BTN>
+#BOL := #STRINGS.Text<BOL>
+#BES := #STRINGS.Text<BES>
+#BIH := #STRINGS.Text<BIH>
+#BWA := #STRINGS.Text<BWA>
+#BVT := #STRINGS.Text<BVT>
+#BRA := #STRINGS.Text<BRA>
+#IOT := #STRINGS.Text<IOT>
+#BRN := #STRINGS.Text<BRN>
+#BGR := #STRINGS.Text<BGR>
+#BFA := #STRINGS.Text<BFA>
+#BDI := #STRINGS.Text<BDI>
+#KHM := #STRINGS.Text<KHM>
+#CMR := #STRINGS.Text<CMR>
+#CAN := #STRINGS.Text<CAN>
+#CPV := #STRINGS.Text<CPV>
+#CYM := #STRINGS.Text<CYM>
+#CAF := #STRINGS.Text<CAF>
+#TCD := #STRINGS.Text<TCD>
+#CHL := #STRINGS.Text<CHL>
+#CHN := #STRINGS.Text<CHN>
+#CXR := #STRINGS.Text<CXR>
+#CCK := #STRINGS.Text<CCK>
+#COL := #STRINGS.Text<COL>
+#COM := #STRINGS.Text<COM>
+#COG := #STRINGS.Text<COG>
+#COD := #STRINGS.Text<COD>
+#COK := #STRINGS.Text<COK>
+#CRI := #STRINGS.Text<CRI>
+#CIV := #STRINGS.Text<CIV>
+#HRV := #STRINGS.Text<HRV>
+#CUB := #STRINGS.Text<CUB>
+#CUW := #STRINGS.Text<CUW>
+#CYP := #STRINGS.Text<CYP>
+#CZE := #STRINGS.Text<CZE>
+#DNK := #STRINGS.Text<DNK>
+#DJI := #STRINGS.Text<DJI>
+#DMA := #STRINGS.Text<DMA>
+#DOM := #STRINGS.Text<DOM>
+#ECU := #STRINGS.Text<ECU>
+#EGY := #STRINGS.Text<EGY>
+#SLV := #STRINGS.Text<SLV>
+#GNQ := #STRINGS.Text<GNQ>
+#ERI := #STRINGS.Text<ERI>
+#EST := #STRINGS.Text<EST>
+#ETH := #STRINGS.Text<ETH>
+#FLK := #STRINGS.Text<FLK>
+#FRO := #STRINGS.Text<FRO>
+#FJI := #STRINGS.Text<FJI>
+#FIN := #STRINGS.Text<FIN>
+#FRA := #STRINGS.Text<FRA>
+#GUF := #STRINGS.Text<GUF>
+#PYF := #STRINGS.Text<PYF>
+#ATF := #STRINGS.Text<ATF>
+#GAB := #STRINGS.Text<GAB>
+#GMB := #STRINGS.Text<GMB>
+#GEO := #STRINGS.Text<GEO>
+#DEU := #STRINGS.Text<DEU>
+#GHA := #STRINGS.Text<GHA>
+#GIB := #STRINGS.Text<GIB>
+#GRC := #STRINGS.Text<GRC>
+#GRL := #STRINGS.Text<GRL>
+#GRD := #STRINGS.Text<GRD>
+#GLP := #STRINGS.Text<GLP>
+#GUM := #STRINGS.Text<GUM>
+#GTM := #STRINGS.Text<GTM>
+#GGY := #STRINGS.Text<GGY>
+#GIN := #STRINGS.Text<GIN>
+#GNB := #STRINGS.Text<GNB>
+#GUY := #STRINGS.Text<GUY>
+#HTI := #STRINGS.Text<HTI>
+#HMD := #STRINGS.Text<HMD>
+#VAT := #STRINGS.Text<VAT>
+#HND := #STRINGS.Text<HND>
+#HKG := #STRINGS.Text<HKG>
+#HUN := #STRINGS.Text<HUN>
+#ISL := #STRINGS.Text<ISL>
+#IND := #STRINGS.Text<IND>
+#IDN := #STRINGS.Text<IDN>
+#IRN := #STRINGS.Text<IRN>
+#IRQ := #STRINGS.Text<IRQ>
+#IRL := #STRINGS.Text<IRL>
+#IMN := #STRINGS.Text<IMN>
+#ISR := #STRINGS.Text<ISR>
+#ITA := #STRINGS.Text<ITA>
+#JAM := #STRINGS.Text<JAM>
+#JPN := #STRINGS.Text<JPN>
+#JEY := #STRINGS.Text<JEY>
+#JOR := #STRINGS.Text<JOR>
+#KAZ := #STRINGS.Text<KAZ>
+#KEN := #STRINGS.Text<KEN>
+#KIR := #STRINGS.Text<KIR>
+#PRK := #STRINGS.Text<PRK>
+#KOR := #STRINGS.Text<KOR>
+#KWT := #STRINGS.Text<KWT>
+#KGZ := #STRINGS.Text<KGZ>
+#LAO := #STRINGS.Text<LAO>
+#LVA := #STRINGS.Text<LVA>
+#LBN := #STRINGS.Text<LBN>
+#LSO := #STRINGS.Text<LSO>
+#LBR := #STRINGS.Text<LBR>
+#LBY := #STRINGS.Text<LBY>
+#LIE := #STRINGS.Text<LIE>
+#LTU := #STRINGS.Text<LTU>
+#LUX := #STRINGS.Text<LUX>
+#MAC := #STRINGS.Text<MAC>
+#MKD := #STRINGS.Text<MKD>
+#MDG := #STRINGS.Text<MDG>
+#MWI := #STRINGS.Text<MWI>
+#MYS := #STRINGS.Text<MYS>
+#MDV := #STRINGS.Text<MDV>
+#MLI := #STRINGS.Text<MLI>
+#MLT := #STRINGS.Text<MLT>
+#MHL := #STRINGS.Text<MHL>
+#MTQ := #STRINGS.Text<MTQ>
+#MRT := #STRINGS.Text<MRT>
+#MUS := #STRINGS.Text<MUS>
+#MYT := #STRINGS.Text<MYT>
+#MEX := #STRINGS.Text<MEX>
+#FSM := #STRINGS.Text<FSM>
+#MDA := #STRINGS.Text<MDA>
+#MCO := #STRINGS.Text<MCO>
+#MNG := #STRINGS.Text<MNG>
+#MNE := #STRINGS.Text<MNE>
+#MSR := #STRINGS.Text<MSR>
+#MAR := #STRINGS.Text<MAR>
+#MOZ := #STRINGS.Text<MOZ>
+#MMR := #STRINGS.Text<MMR>
+#NAM := #STRINGS.Text<NAM>
+#NRU := #STRINGS.Text<NRU>
+#NPL := #STRINGS.Text<NPL>
+#NLD := #STRINGS.Text<NLD>
+#NCL := #STRINGS.Text<NCL>
+#NZL := #STRINGS.Text<NZL>
+#NIC := #STRINGS.Text<NIC>
+#NER := #STRINGS.Text<NER>
+#NGA := #STRINGS.Text<NGA>
+#NIU := #STRINGS.Text<NIU>
+#NFK := #STRINGS.Text<NFK>
+#MNP := #STRINGS.Text<MNP>
+#NOR := #STRINGS.Text<NOR>
+#OMN := #STRINGS.Text<OMN>
+#PAK := #STRINGS.Text<PAK>
+#PLW := #STRINGS.Text<PLW>
+#PSE := #STRINGS.Text<PSE>
+#PAN := #STRINGS.Text<PAN>
+#PNG := #STRINGS.Text<PNG>
+#PRY := #STRINGS.Text<PRY>
+#PER := #STRINGS.Text<PER>
+#PHL := #STRINGS.Text<PHL>
+#PCN := #STRINGS.Text<PCN>
+#POL := #STRINGS.Text<POL>
+#PRT := #STRINGS.Text<PRT>
+#PRI := #STRINGS.Text<PRI>
+#QAT := #STRINGS.Text<QAT>
+#REU := #STRINGS.Text<REU>
+#ROU := #STRINGS.Text<ROU>
+#RUS := #STRINGS.Text<RUS>
+#RWA := #STRINGS.Text<RWA>
+#BLM := #STRINGS.Text<BLM>
+#SHN := #STRINGS.Text<SHN>
+#KNA := #STRINGS.Text<KNA>
+#LCA := #STRINGS.Text<LCA>
+#MAF := #STRINGS.Text<MAF>
+#SPM := #STRINGS.Text<SPM>
+#VCT := #STRINGS.Text<VCT>
+#WSM := #STRINGS.Text<WSM>
+#SMR := #STRINGS.Text<SMR>
+#STP := #STRINGS.Text<STP>
+#SAU := #STRINGS.Text<SAU>
+#SEN := #STRINGS.Text<SEN>
+#SRB := #STRINGS.Text<SRB>
+#SYC := #STRINGS.Text<SYC>
+#SLE := #STRINGS.Text<SLE>
+#SGP := #STRINGS.Text<SGP>
+#SXM := #STRINGS.Text<SXM>
+#SVK := #STRINGS.Text<SVK>
+#SVN := #STRINGS.Text<SVN>
+#SLB := #STRINGS.Text<SLB>
+#SOM := #STRINGS.Text<SOM>
+#ZAF := #STRINGS.Text<ZAF>
+#SGS := #STRINGS.Text<SGS>
+#SSD := #STRINGS.Text<SSD>
+#ESP := #STRINGS.Text<ESP>
+#LKA := #STRINGS.Text<LKA>
+#SDN := #STRINGS.Text<SDN>
+#SUR := #STRINGS.Text<SUR>
+#SJM := #STRINGS.Text<SJM>
+#SWZ := #STRINGS.Text<SWZ>
+#SWE := #STRINGS.Text<SWE>
+#CHE := #STRINGS.Text<CHE>
+#SYR := #STRINGS.Text<SYR>
+#TWN := #STRINGS.Text<TWN>
+#TJK := #STRINGS.Text<TJK>
+#TZA := #STRINGS.Text<TZA>
+#THA := #STRINGS.Text<THA>
+#TLS := #STRINGS.Text<TLS>
+#TGO := #STRINGS.Text<TGO>
+#TKL := #STRINGS.Text<TKL>
+#TON := #STRINGS.Text<TON>
+#TTO := #STRINGS.Text<TTO>
+#TUN := #STRINGS.Text<TUN>
+#TUR := #STRINGS.Text<TUR>
+#TKM := #STRINGS.Text<TKM>
+#TCA := #STRINGS.Text<TCA>
+#TUV := #STRINGS.Text<TUV>
+#UGA := #STRINGS.Text<UGA>
+#UKR := #STRINGS.Text<UKR>
+#ARE := #STRINGS.Text<ARE>
+#GBR := #STRINGS.Text<GBR>
+#USA := #STRINGS.Text<USA>
+#UMI := #STRINGS.Text<UMI>
+#URY := #STRINGS.Text<URY>
+#UZB := #STRINGS.Text<UZB>
+#VUT := #STRINGS.Text<VUT>
+#VEN := #STRINGS.Text<VEN>
+#VNM := #STRINGS.Text<VNM>
+#VGB := #STRINGS.Text<VGB>
+#VIR := #STRINGS.Text<VIR>
+#WLF := #STRINGS.Text<WLF>
+#ESH := #STRINGS.Text<ESH>
+#YEM := #STRINGS.Text<YEM>
+#ZMB := #STRINGS.Text<ZMB>
+#ZWE := #STRINGS.Text<ZWE>

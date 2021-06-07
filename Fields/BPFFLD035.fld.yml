@@ -1,0 +1,36 @@
+﻿Field:
+  Name:               BPFIntegerLong
+  Type:               Integer
+  Length:             8
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+
+  Multilingual Details:
+  - ENG:
+      Description:        "BPF Standard 8 Long Integer"
+      Label:              "BPF Standard 8"
+      Heading1:           "BPF"
+      Heading2:           "Standard"
+      Heading3:           "8"
+
+  - JPN:
+      Description:        "BPF Standard 8 Long Integer"
+      Label:              "BPF Standard 8"
+      Heading1:           "BPF"
+      Heading2:           "Standard"
+      Heading3:           "8"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(474)
+    
+    End_Com
+    
+    End_Com

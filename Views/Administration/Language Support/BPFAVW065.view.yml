@@ -1,0 +1,564 @@
+﻿Web View:
+  Name:               BPFLanguageResourcesListView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal language Resources List View"
+
+  - JPN:
+      Description:        "Portal language Resources List View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(904) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout) Componenttag('BPFAPP011')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFLanguageResourceListViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFLanguageResourcesDataClient) Name(#Resources) Reference(*DYNAMIC)
+    
+    * Panel Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#ListRoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#LoadMoreDisplayStyle) Fontweight(Weight500)
+    
+    * Main Panel Layouts
+    
+    * Desktop
+    Define_Com Class(#PRIM_TBLO) Name(#MainDesktopLayout) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(98) Minwidth(280) Maxwidth(840)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn5) Displayposition(3) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(276) Units(Content) Minheight(220)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow2) Displayposition(2) Parent(#MainDesktopLayout) Height(484) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow4) Displayposition(3) Parent(#MainDesktopLayout) Units(Pixels) Height(120)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem1) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Avatar) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem2) Column(#MainDesktopLayoutColumn2) Manage(#PanelTitle) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Alignment(TopCenter) Margintop(17) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem3) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#PanelExplanation) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Marginleft(24) Marginright(24) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem8) Column(#MainDesktopLayoutColumn2) Manage(#FooterText) Parent(#MainDesktopLayout) Sizing(ContentHeightFitToWidth) Alignment(TopCenter) Row(#MainDesktopLayoutRow4) Marginleft(24) Marginright(24) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem5) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#PanelNavigationIcon) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem4) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Search) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24) Marginright(2) Marginleft(2)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ResourceListLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourceListLayoutColumn1) Displayposition(1) Parent(#ResourceListLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourceListLayoutRow1) Displayposition(1) Parent(#ResourceListLayout)
+    
+    * List Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourceListLayoutItem1) Alignment(CenterLeft) Column(#ResourceListLayoutColumn1) Manage(#ResourceListIcon) Parent(#ResourceListLayout) Row(#ResourceListLayoutRow1) Sizing(ContentWidthAndHeight) Marginleft(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourceListLayoutItem2) Alignment(CenterLeft) Column(#ResourceListLayoutColumn1) Flow(CenterVertical) Manage(#ResourceListPrimaryText) Marginleft(80) Parent(#ResourceListLayout) Row(#ResourceListLayoutRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourceListLayoutItem3) Alignment(CenterLeft) Column(#ResourceListLayoutColumn1) Flow(CenterVertical) Manage(#ResourceListSecondaryText) Marginleft(80) Parent(#ResourceListLayout) Row(#ResourceListLayoutRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourceListLayoutItem5) Alignment(CenterRight) Column(#ResourceListLayoutColumn1) Manage(#ResourceListTypeText) Parent(#ResourceListLayout) Row(#ResourceListLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Left) Marginright(24) Marginbottom(10)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem6) Manage(#ResourcePanel) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow2) Sizing(ContentHeightFitToWidth) Column(#MainDesktopLayoutColumn2) Alignment(TopLeft) Margintop(24) Flow(Down)
+    
+    * Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ResourcePanelLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn1) Displayposition(1) Parent(#ResourcePanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn2) Displayposition(2) Parent(#ResourcePanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn3) Displayposition(3) Parent(#ResourcePanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourcePanelLayoutRow1) Displayposition(1) Parent(#ResourcePanelLayout) Height(62) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourcePanelLayoutRow2) Displayposition(2) Parent(#ResourcePanelLayout) Height(316) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourcePanelLayoutRow3) Displayposition(3) Parent(#ResourcePanelLayout) Height(80) Units(Content) Minheight(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem1) Manage(#ListFilterTabs) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow1) Sizing(FitToWidth) Column(#ResourcePanelLayoutColumn2) Margintop(14) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem2) Alignment(BottomLeft) Column(#ResourcePanelLayoutColumn1) Manage(#Divider) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow1) Sizing(FitToWidth) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem4) Alignment(TopLeft) Column(#ResourcePanelLayoutColumn1) Manage(#ResourceList) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow2) Columnspan(3) Margintop(24) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem5) Manage(#ResourceListActionLabel) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow3) Column(#ResourcePanelLayoutColumn1) Alignment(TopLeft) Columnspan(3) Sizing(FitToWidth) Margintop(24)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(430) Parent(#COM_OWNER) Tabposition(6) Top(24) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(2) Height(100) Icon('subject') Left(800) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('MediumTitle+Rounded') Top(24) Width(100) Iconheight(80) Iconpadding(10)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Caption('Edit Language Resources') Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(47) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundTheme+Heading3') Top(204) Height(24) Width(792) Wordwrap(True) Captionalignment(Center) Caption('To edit a language resource first find and then select the language resource')
+    
+    * Search Field
+    Define_Com Class(#PRIM_MD.Edit) Name(#Search) Appearance(EditBox) Captionposition(None) Displayposition(5) Height(48) Helperposition(None) Icon('search') Left(432) Parent(#COM_OWNER) Placeholder('Search for resource by idenifier, name or description...') Tabposition(1) Top(252) Width(836) Style(#RoundedCornerStyle) Themedrawstyle('Text(48,48,48,1)')
+    
+    * Cards
+    Define_Com Class(#PRIM_PANL) Name(#ResourcePanel) Displayposition(7) Height(460) Left(430) Parent(#COM_OWNER) Tabposition(7) Tabstop(False) Top(324) Width(840) Themedrawstyle('Card') Style(#ListRoundedCornerStyle) Layoutmanager(#ResourcePanelLayout)
+    
+    * Filter Tabs
+    Define_Com Class(#PRIM_MD.Tab) Name(#ListFilterTabs) Displayposition(1) Height(50) Parent(#ResourcePanel) Tabposition(1) Width(790) Style(#NavigationLinkStyle) Left(24) Top(14) Visible(False)
+    Define_Com Class(#PRIM_MD.TabItem) Name(#AllTabItem) Caption('All') Displayposition(1) Height(50) Left(0) Parent(#ListFilterTabs) Tabposition(2) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(114) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER)
+    Define_Com Class(#PRIM_MD.TabItem) Name(#ViewsTabItem) Caption('Views') Displayposition(2) Height(50) Left(114) Parent(#ListFilterTabs) Tabposition(5) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('VLR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#PanelsTabItem) Caption('Panels') Displayposition(3) Height(50) Left(226) Parent(#ListFilterTabs) Tabposition(1) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(114) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('PLR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#DialogsTabItem) Caption('Dialogs') Displayposition(5) Height(50) Left(452) Parent(#ListFilterTabs) Tabposition(7) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('DLR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#MenusTabItem) Caption('Menus') Displayposition(4) Height(50) Left(340) Parent(#ListFilterTabs) Tabposition(6) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('MLR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#CodesTabItem) Caption('Codes') Displayposition(6) Height(50) Left(564) Parent(#ListFilterTabs) Tabposition(8) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(114) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('CLR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#AppTabItem) Caption('Portal') Displayposition(7) Height(50) Left(678) Parent(#ListFilterTabs) Tabposition(3) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('ALR')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#EventsTabItem) Caption('Events') Displayposition(8) Height(50) Left(790) Parent(#ListFilterTabs) Tabposition(4) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('SLR')
+    
+    * Account List
+    Define_Com Class(#PRIM_MD.List) Name(#ResourceList) Displayposition(3) Layoutmanager(#ResourceListLayout) Left(0) Parent(#ResourcePanel) Rowheight(72) Tabposition(3) Top(86) Height(292) Width(838)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ResourceListIcon) Displayposition(1) Icon('account_circle') Left(24) Parent(#ResourceList) Tabposition(1) Themedrawstyle('ForegroundMediumPrimary') Top(18) Width(36) Iconheight(36) Iconalignment(AboveCaption) Captionalignment(Center)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ResourceListPrimaryText) Caption('Resource Description') Displayposition(4) Height(24) Left(80) Parent(#ResourceList) Tabposition(3) Themedrawstyle('Heading3') Top(15) Width(734) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ResourceListSecondaryText) Displayposition(5) Height(19) Left(80) Parent(#ResourceList) Tabposition(4) Themedrawstyle('ForegroundTheme+Subheading') Top(39) Width(734) Caption('ResourceObjectName')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ResourceListTypeText) Caption('Type') Displayposition(2) Dragstyle(None) Left(780) Parent(#ResourceList) Tabposition(5) Top(16) Height(21) Width(34) Iconalignment(AfterCaption)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(2) Height(1) Left(0) Parent(#ResourcePanel) Tabposition(2) Tabstop(False) Themedrawstyle('TopDivider') Top(61) Width(838)
+    
+    * List Action Label
+    Define_Com Class(#PRIM_MD.Label) Name(#ResourceListActionLabel) Caption('Load more') Displayposition(4) Left(0) Parent(#ResourcePanel) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(402) Height(56) Width(838) Style(#LoadMoreDisplayStyle) Captionalignment(Center)
+    
+    * Footer
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterText) Captionalignment(TopCenter) Displayposition(6) Height(45) Parent(#COM_OWNER) Tabposition(5) Top(808) Width(792) Wordwrap(True) Caption('The settings here affect the text strings used in the portal, consider your changes carefully') Paddingbottom(24) Left(454)
+    
+    * References
+    
+    * Global Variables
+    Define_Com Class(#prim_boln) Name(#MoreResults)
+    Define_Com Class(#PRIM_TIMR) Name(#DrawDelay) Interval(25) Startup(Manual)
+    Define_Com Class(#PRIM_TIMR) Name(#ListEntryDelay) Interval(1) Startup(Manual)
+    Define_Com Class(#PRIM_TIMR) Name(#ScrollDelay) Interval(5) Startup(Manual)
+    
+    Define_Com Class(#PRIM_TREE.TreeItem) Name(#MouseOverItem) Reference(*DYNAMIC)
+    Define_Com Class(#prim_nmbr) Name(#CurrentScrollPos)
+    
+    * Filter Items
+    Define_Com Class(#Prim_Lcol<#Prim_md.TabItem>) Name(#FilterItems)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentFilter)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Resources <= (#Data.GetDataClient( #COM_SELF ) *As #BPFLanguageResourcesDataClient)
+    
+    * Persist the view
+    #Navigate.CurrentEvent.PersistView := True
+    
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *Null)
+    #Search := #SYS_WEB.URLParameters<VALUE>.Value
+    Endif
+    
+    If (#SYS_WEB.URLParameters<FILTER> *IsNot *Null)
+    #CurrentFilter := #SYS_WEB.URLParameters<FILTER>.Value
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Menu Display
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #COM_SELF.SetStrings
+    
+    #Resources.GetResources( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    #Data.KeepDataClient( #COM_SELF )
+    #COM_SELF.CollectFilterItems
+    
+    #ScrollDelay.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#ScrollDelay.Tick)
+    
+    #ScrollDelay.Stop
+    #ListFilterTabs.Visible := True
+    
+    Endroutine
+    
+    * Panel Navigation
+    Evtroutine Handling(#PanelNavigationIcon.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Search
+    Evtroutine Handling(#Search.GotFocus)
+    
+    #Search.PromptIcon := 'close'
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.Prompting)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #Search.value := *null
+    
+    #Resources.GetResources( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.LostFocus)
+    
+    #Search.PromptIcon := *null
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.Enter #Search.IconClick)
+    
+    If (#COM_SELF.Visible)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    * Update the URL to store teh current search values
+    * #Navigate.To Eventname(#Navigate.CurrentEvent.EventName) Value((#search + '&filter=' + #CurrentFilter)) Signalreplaceevent(False) Type(REPLACE)
+    #SYS_WEB.History.Replace( ('event=' + #Navigate.CurrentEvent.EventName.lowercase + '&value=' + #Search + '&filter=' + #CurrentFilter) False )
+    
+    #Resources.GetResources( #Search #CurrentFilter )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    If ((#COM_SELF.Visible) *AndIf (#ResourceList.Items.IsEmpty.IsFalse))
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #Resources.GetResources( #Search #CurrentFilter )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#FilterItems<>.Click) Com_Sender(#Sender)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #FilterItems<>.View <= *NULL
+    #Sender.View <= #COM_SELF
+    
+    #CurrentFilter := #Sender.ComponentTag
+    
+    * #Navigate.To Eventname(#Navigate.CurrentEvent.EventName) Value((#search + '&filter=' + #CurrentFilter)) Signalreplaceevent(False) Type(REPLACE)
+    #SYS_WEB.History.Replace( ('event=' + #Navigate.CurrentEvent.EventName.lowercase + '&value=' + #Search + '&filter=' + #CurrentFilter) False )
+    
+    #Resources.GetResources( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Resources.OnGetResourcesCompleted) Moreresult(#More)
+    
+    #MoreResults := #More
+    #COM_SELF.HandleBuildList
+    
+    Endroutine
+    
+    * Evtroutine Handling(#UserAccounts.OnAccountUpdated) Account(#Updated)
+    *
+    * #COM_SELF.UpdateAccountInList( #Updated )
+    *
+    * Endroutine
+    
+    * Timers
+    Evtroutine Handling(#DrawDelay.Tick)
+    
+    #DrawDelay.Stop
+    
+    #COM_SELF.SetListActionAfterLoad
+    
+    * #AccountList.Items<1>.Focus := True
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Okay, the next 4 events are here to deal with list jumping in IE and Chromiumn based browsers
+    * It should noted that Firefox actually works as intended, thats a first. So the issue is the list jumps
+    * due to focus suddenly being paid attention to. This causes scrolling which we can see. So if a sudden
+    * scroll happen this code causes it to be treated as a click. After reading this, have a "drink".
+    * Evtroutine Handling(#COM_OWNER.ScrollChanged) Com_Sender(#sender)
+    *
+    * If ((#Session.IsFireFox))
+    * Return
+    * Endif
+    *
+    * If ((#MouseOverItem *IsNot *Null) *And ((#CurrentScrollPos < 400) *Or (#Session.IsIE)) *And ((#COM_SELF.VerticalScrollPos > 407) *And (#COM_SELF.VerticalScrollPos < 410)))
+    *
+    * #MouseOverItem <= *null
+    * #COM_SELF.VerticalScrollPos := #CurrentScrollPos
+    *
+    *
+    * #Navigate.To Eventname(LANGUAGERESOURCESTRINGSVIEW) Value((#ResourceList.Items<#ListEntry>.RelatedReference *As #BPFLanguageResourceItemClass).Identifier)
+    *
+    *
+    * Endif
+    *
+    * Endroutine
+    *
+    * Evtroutine Handling(#ResourceList.ItemMouseEnter) Item(#Item)
+    *
+    * #MouseOverItem <= #Item
+    * #ListEntryDelay.Start
+    *
+    * #CurrentScrollPos := #COM_SELF.VerticalScrollPos
+    *
+    * Endroutine
+    *
+    * Evtroutine Handling(#ListEntryDelay.Tick)
+    *
+    * #ListEntryDelay.Stop
+    *
+    * If (#MouseOverItem *IsNot *Null)
+    * #ListEntry := #MouseOverItem.Entry
+    * Endif
+    *
+    * Endroutine
+    *
+    * Evtroutine Handling(#ResourceList.MouseLeave)
+    *
+    * #MouseOverItem <= *null
+    * #ListEntry := 0
+    *
+    * Endroutine
+    
+    Evtroutine Handling(#ResourceList.ItemClick)
+    
+    
+    #Navigate.To Eventname(LANGUAGERESOURCESTRINGSVIEW) Value((#ResourceList.CurrentItem.RelatedReference *As #BPFLanguageResourceItemClass).Identifier)
+    
+    
+    Endroutine
+    
+    Evtroutine Handling(#ResourceListActionLabel.Click)
+    
+    * Action only a load more situation
+    If (#ResourceListActionLabel.ComponentTag <> MORE)
+    Return
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading( False )
+    
+    #COM_SELF.HandleBuildList
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+    #PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+    #SEARCH.PLACEHOLDER := #STRINGS.Text<SEARCH.PLACEHOLDER>
+    #ALLTABITEM.CAPTION := #STRINGS.Text<ALLTABITEM.CAPTION>
+    #VIEWSTABITEM.CAPTION := #STRINGS.Text<VIEWSTABITEM.CAPTION>
+    #DIALOGSTABITEM.CAPTION := #STRINGS.Text<DIALOGSTABITEM.CAPTION>
+    #MENUSTABITEM.CAPTION := #STRINGS.Text<MENUSTABITEM.CAPTION>
+    #PANELSTABITEM.CAPTION := #STRINGS.Text<PANELSTABITEM.CAPTION>
+    #CODESTABITEM.CAPTION := #STRINGS.Text<CODESTABITEM.CAPTION>
+    #APPTABITEM.CAPTION := #STRINGS.Text<APPTABITEM.CAPTION>
+    #EVENTSTABITEM.CAPTION := #STRINGS.Text<EVENTSTABITEM.CAPTION>
+    #FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(HandleBuildList) Access(*PRIVATE)
+    
+    * List Control
+    Define_Com Class(#PRIM_NMBR) Name(#UpperIndex)
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Back to for loop
+    For Each(#Item) In(#Resources.Resources)
+    
+    #index := #index + 1
+    Continue If(#Index <= #ResourceList.Items.ItemCount)
+    
+    #COM_SELF.AddResourceToList( #Item )
+    
+    #UpperIndex := #UpperIndex + 1
+    Leave If(#UpperIndex = 25)
+    
+    Endfor
+    
+    * Set Message
+    #DrawDelay.Start
+    
+    Endroutine
+    
+    Mthroutine Name(AddResourceToList) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#BPFLanguageResourceItemClass) Name(#Item) Pass(*BY_REFERENCE)
+    
+    * Add new Item to list
+    Add_Entry To_List(#ResourceList)
+    
+    * Bind the data to the item
+    #ResourceList.CurrentItem.RelatedReference <= #Item
+    
+    * Set the account icon
+    #ResourceListIcon.CurrentItem.Icon := #Item.IconName
+    #ResourceListIcon.CurrentItem.ThemeDrawStyle := #Item.TypeColour
+    
+    * Set Primary & Secondary Text
+    #ResourceListPrimaryText.CurrentItem.Caption := #Item.Description
+    #ResourceListSecondaryText.CurrentItem.Caption := #Item.Identifier + ' - ' + #Item.ObjectName
+    
+    * Set Type Text
+    #ResourceListTypeText.CurrentItem.Visible := (#SYS_WEB.Device = Desktop)
+    If (#ResourceListTypeText.CurrentItem.Visible)
+    
+    #ResourceListTypeText.CurrentItem.Caption := #STRINGS.Text<('RESOURCEITEM.TYPE.' + #Item.Type)>
+    
+    Endif
+    
+    Endroutine
+    
+    * Mthroutine Name(UpdateAccountInList) Access(*PRIVATE)
+    * Define_Map For(*INPUT) Class(#BPFUserAccountAdminItem) Name(#Item) Pass(*BY_REFERENCE)
+    *
+    * * Get Current Entry
+    * Get_Entry Number(#AccountList.FindReference( #Item ).Entry) From_List(#AccountList)
+    *
+    * If_Status Is(*OKAY)
+    *
+    * * Set the account icon
+    * #AccountListIcon.CurrentItem.Icon := #Item.IconName
+    * #AccountListIcon.CurrentItem.ThemeDrawStyle := #Item.StatusColour
+    *
+    * * Set Primary & Secondary Text
+    * #AccountListPrimaryText.CurrentItem.Caption := #Item.FirstName + ' ' + #Item.LastName
+    * #AccountListSecondaryText.CurrentItem.Caption := #Item.EmailAdress
+    *
+    * * Set Status Text
+    * #AccountListStatusText.CurrentItem.Visible := (#SYS_WEB.Device = Desktop)
+    * If (#AccountListStatusText.CurrentItem.Visible)
+    *
+    * #AccountListStatusText.CurrentItem.Caption := #Item.Status
+    *
+    * If (#Item.Status <> 'Active')
+    *
+    * #AccountListStatusText.CurrentItem.ThemeDrawStyle := #Item.StatusColour
+    *
+    * Endif
+    *
+    * Endif
+    *
+    * Endif
+    *
+    * Endroutine
+    
+    Mthroutine Name(SetListActionForLoading) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ClearList) Mandatory(True)
+    
+    If (#ClearList)
+    
+    * Clear
+    Clr_List Named(#ResourceList)
+    
+    Endif
+    
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL LOAD )
+    
+    Endroutine
+    
+    Mthroutine Name(SetListActionAfterLoad)
+    
+    * If we have more results to load
+    If (#ResourceList.Items.ItemCount < #Resources.Resources.ItemCount)
+    
+    * We show loading more
+    #COM_SELF.SetListActionDisplay( True #LoadMoreDisplayStyle ForegroundMediumPrimary MORE )
+    
+    Endif
+    
+    * if we have no more results to load
+    If (#ResourceList.Items.ItemCount = #Resources.Resources.ItemCount)
+    
+    * Do we have more results on the server
+    If (#MoreResults)
+    
+    * We show Refine search
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL LIMIT )
+    
+    Else
+    
+    If (#ResourceList.Items.ItemCount > 0)
+    
+    * No more results on server, so no message needed
+    #ResourceListActionLabel.Visible := False
+    
+    Else
+    
+    * No Results found
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL EMPTY )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetListActionDisplay) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Visible)
+    Define_Map For(*INPUT) Class(#prim_vs.Style) Name(#Style) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#DrawStyle) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Message) Mandatory(*NULL)
+    
+    If (#Visible)
+    
+    * Set Style
+    #ResourceListActionLabel.Style <= #Style
+    #ResourceListActionLabel.ThemeDrawStyle := #DrawStyle
+    
+    * Set Text
+    #ResourceListActionLabel := #STRINGS.Text<('RESOURCELISTACTIONLABEL.CAPTION.' + #Message.UpperCase)>
+    #ResourceListActionLabel.ComponentTag := #Message.UpperCase
+    
+    * Ensure we can see Action Label
+    #ResourceListActionLabel.Visible := True
+    
+    Else
+    
+    * If not visible then just hide
+    #ResourceListActionLabel.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(CollectFilterItems) Access(*PRIVATE)
+    
+    #FilterItems.RemoveAll
+    
+    For Each(#control) In(#ListFilterTabs.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.TabItem)
+    
+    *
+    If (#control.ComponentTag.lowercase = #CurrentFilter.LowerCase)
+    
+    #control.View <= #Com_Self
+    
+    Endif
+    
+    #FilterItems.Insert( #control )
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

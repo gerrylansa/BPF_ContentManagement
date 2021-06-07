@@ -1,0 +1,35 @@
+﻿Reusable Part:
+  Name:               BPFShareItemSetDestinationDialogStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Set DestinationDialog Strings"
+
+  - JPN:
+      Description:        "Share Item Set DestinationDialog Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'DIALOGCANCEL.CAPTION'> := "Cancel"
+    #STRINGSCOLLECTION<'DIALOGCONFIRM.CAPTION'> := "MOVE"
+    
+    #STRINGSCOLLECTION<'NOCONTENTHINT.CAPTION.PLACEHERE'> := "Place selected items here"
+    #STRINGSCOLLECTION<'NOCONTENTHINT.CAPTION.INVALID'> := "No valid destination"
+    
+    Endroutine
+    
+    End_Com

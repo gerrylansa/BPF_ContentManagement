@@ -1,0 +1,68 @@
+﻿Reusable Part:
+  Name:               BPFUserPreferencesViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Preferences View Strings"
+
+  - JPN:
+      Description:        "User Preferences View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Preferences"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "You are able to choose between light or dark mode, as well the colour theme you wish to use on %%APP%%."
+    
+    #STRINGSCOLLECTION<'EMAILPANELHEADING.CAPTION'> := "Email Language"
+    
+    #STRINGSCOLLECTION<'BACKGROUNDPANELHEADING.CAPTION'> := "Background"
+    #STRINGSCOLLECTION<'BACKGROUNDOPTION1.CAPTION'> := "Light"
+    #STRINGSCOLLECTION<'BACKGROUNDOPTION2.CAPTION'> := "Dark"
+    
+    #STRINGSCOLLECTION<'THEMEPANELHEADING.CAPTION'> := "Theme"
+    #STRINGSCOLLECTION<'THEMEOPTION1.CAPTION'> := "Amber"
+    #STRINGSCOLLECTION<'THEMEOPTION2.CAPTION'> := "Blue"
+    #STRINGSCOLLECTION<'THEMEOPTION3.CAPTION'> := "Blue Gray"
+    #STRINGSCOLLECTION<'THEMEOPTION4.CAPTION'> := "Brown"
+    #STRINGSCOLLECTION<'THEMEOPTION5.CAPTION'> := "Cyan"
+    #STRINGSCOLLECTION<'THEMEOPTION6.CAPTION'> := "Deep Orange"
+    #STRINGSCOLLECTION<'THEMEOPTION7.CAPTION'> := "Deep Purple"
+    #STRINGSCOLLECTION<'THEMEOPTION8.CAPTION'> := "Gray"
+    #STRINGSCOLLECTION<'THEMEOPTION9.CAPTION'> := "Green"
+    #STRINGSCOLLECTION<'THEMEOPTION10.CAPTION'> := "Indigo"
+    #STRINGSCOLLECTION<'THEMEOPTION11.CAPTION'> := "Light Blue"
+    #STRINGSCOLLECTION<'THEMEOPTION12.CAPTION'> := "Light Green"
+    #STRINGSCOLLECTION<'THEMEOPTION13.CAPTION'> := "Lime"
+    #STRINGSCOLLECTION<'THEMEOPTION14.CAPTION'> := "Orange"
+    #STRINGSCOLLECTION<'THEMEOPTION15.CAPTION'> := "Pink"
+    #STRINGSCOLLECTION<'THEMEOPTION16.CAPTION'> := "Purple"
+    #STRINGSCOLLECTION<'THEMEOPTION17.CAPTION'> := "Red"
+    #STRINGSCOLLECTION<'THEMEOPTION18.CAPTION'> := "Teal"
+    #STRINGSCOLLECTION<'THEMEOPTION19.CAPTION'> := "Yellow"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDBACKGROUNDCOMPLETED'> := "Preference saved"
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDBACKGROUNDFAILED'> := "Failed to save Preference"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDBACKGROUNDCOMPLETED'> := "Preference saved"
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDBACKGROUNDFAILED'> := "Failed to save Preference"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDEMAILLANGUAGECOMPLETED'> := "Preference saved"
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETPREFERREDEMAILLANGUAGEFAILED'> := "Failed to save Preference"
+    
+    Endroutine
+    
+    End_Com

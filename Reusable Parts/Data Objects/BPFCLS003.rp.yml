@@ -1,0 +1,28 @@
+﻿Reusable Part:
+  Name:               BPFAlphaValuesItemClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Alpha Value Item Classs"
+
+  - JPN:
+      Description:        "Alpha Value Item Classs"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Field Mapping
+    Group_By Name(#ListFields) Fields(#BPFCodeSequence #BPFCodeAlphaValue)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(Sequence) Get(*AUTO #BPFCodeSequence)
+    Define_Pty Name(Value) Get(*AUTO #BPFCodeAlphaValue)
+    
+    * Routines
+    
+    End_Com

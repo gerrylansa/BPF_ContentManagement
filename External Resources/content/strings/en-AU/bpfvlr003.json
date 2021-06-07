@@ -1,0 +1,64 @@
+{
+  "ls": [
+    {
+      "op": "PANELTITLE.CAPTION",
+      "s": "%%USER%%'s Settings Panel"
+    },
+    {
+      "op": "PANELEXPLANATION.CAPTION",
+      "s": "Here you can control all of your info, security and activity to make %%APP%% work for you"
+    },
+    {
+      "op": "DETAILSCARD.HEADING",
+      "s": "Account & Profile"
+    },
+    {
+      "op": "DETAILSCARD.TEXT",
+      "s": "View and edit all of your personal information entered into %%APP%%."
+    },
+    {
+      "op": "DETAILSCARD.ACTION",
+      "s": "Manage your personal information"
+    },
+    {
+      "op": "SECURITYCARD.HEADING",
+      "s": "Security & Credentials"
+    },
+    {
+      "op": "SECURITYCARD.TEXT",
+      "s": "Protect your account by ensuring your password and security information is changed routinely."
+    },
+    {
+      "op": "SECURITYCARD.ACTION",
+      "s": "Configure you security"
+    },
+    {
+      "op": "ACTIVITYCARD.HEADING",
+      "s": "%%APP%% Activity"
+    },
+    {
+      "op": "ACTIVITYCARD.TEXT",
+      "s": "View, download or clear your activity in %%APP%%."
+    },
+    {
+      "op": "ACTIVITYCARD.ACTION",
+      "s": "View your portal activity"
+    },
+    {
+      "op": "PREFERENCESCARD.HEADING",
+      "s": "Set Your Preferences"
+    },
+    {
+      "op": "PREFERENCESCARD.TEXT",
+      "s": "Set up preferences so that %%APP%% is just how your want it be."
+    },
+    {
+      "op": "PREFERENCESCARD.ACTION",
+      "s": "Change your preferences"
+    },
+    {
+      "op": "FOOTERTEXT.CAPTION",
+      "s": "Only you can change your settings. %%APP%% is committed to your privacy and security"
+    }
+  ]
+}

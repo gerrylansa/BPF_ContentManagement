@@ -1,0 +1,412 @@
+﻿ServerModule:
+  Name:               BPFLoggingDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Logging Data Server"
+
+  - JPN:
+      Description:        "Portal Logging Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#AlphaValue) Type(*NVARCHAR) Length(512)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    Define Field(#VariantCheck) Type(*BOOLEAN) Default(True)
+    Define Field(#RequestedPath) Type(*CHAR) Length(1024)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#DirectoryContents) Fields(#BPFFileServiceFullName #BPFFileServiceFilePrefix #BPFFileServiceFileSuffix #BPFFileServiceFileDate #BPFFileServiceFileTime #BPFFileServiceFileSize #BPFFileServiceFileDirectory) Counter(#Listcount) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#LogContents) Fields(#BPFLogFileContentLine) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue) Type(*WORKING)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Portal Logs
+    Srvroutine Name(GetPortalLogs) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#DirectoryContents) Parameter_Name(PortalLogs)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetPortalLogs' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Get portal log file list') )
+    
+    #BPFStatus := #COM_SELF.ReadDirectory( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' )).AsNativeString )
+    
+    Endroutine
+    
+    Srvroutine Name(GetFileContents) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFFileServiceFullName) Parameter_Name(LogFullName)
+    Field_Map For(*INPUT) Field(#RequestedPath) Parameter_Name(ForPath)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFGenericCLOB) Parameter_Name(FileContents)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetFileContents' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Get portal log file contents') )
+    
+    * Choose File Read Method
+    Case Of_Field(#VariantCheck)
+    
+    When Value_Is(= (#BPFFileServiceFullName.UpperCase.Contains( 'PORTAL_LOG_' )))
+    
+    #Utils.log( ('Logging Data Server : Get portal log file contents : for portal log') )
+    #BPFGenericCLOB := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' ) + *PATHDELIM + #BPFFileServiceFullName).AsNativeString
+    
+    When Value_Is(= (#BPFFileServiceFullName.UpperCase = 'X_ERR.LOG'))
+    
+    #Utils.log( ('Logging Data Server : Get portal log file contents : for runtime log') )
+    #BPFGenericCLOB := (*TEMP_DIR + 'x_err.log')
+    
+    Otherwise
+    
+    #Utils.log( ('Logging Data Server : Get portal log file contents : for jsm trace log') )
+    #BPFGenericCLOB := (*ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' ) + #RequestedPath + *PATHDELIM + #BPFFileServiceFullName).AsNativeString
+    
+    Endcase
+    
+    * Set Status
+    #BPFStatus := OK
+    #Utils.log( ('Logging Data Server : Get portal log file contents : from file ' + #BPFGenericCLOB.Filename) )
+    
+    Endroutine
+    
+    Srvroutine Name(GetPortalLogSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(LoggingSettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetPortalLogSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Read logging data group sequence
+    Select Fields(#CodesGroup) From_File(BPFSystemCodesByGroupSequence) With_Key('LOGGING') Generic(*YES)
+    
+    Continue If(#BPFCodeNumericValue > 1)
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(ClearPortalLogs) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ClearPortalLogs' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Clear portal log file list') )
+    
+    * Set Status
+    #BPFStatus := #COM_SELF.RemoveDirectoryTree( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' )).AsNativeString )
+    
+    Endroutine
+    
+    
+    Srvroutine Name(ClearRuntimeLog) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ClearRuntimeLog' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Set Filename
+    #BPFFileServiceFullName := 'x_err.log'
+    
+    #Utils.log( ('Logging Data Server : Clear runtime log contents') )
+    
+    * Set Status
+    #BPFStatus := #COM_SELF.RemoveFile( (*TEMP_DIR + #BPFFileServiceFullName) )
+    
+    Endroutine
+    
+    * Integrator Logging
+    Srvroutine Name(GetDirectoryContents) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedPath) Parameter_Name(ForPath)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(PathDelimiter)
+    List_Map For(*OUTPUT) List(#DirectoryContents) Parameter_Name(Contents)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetDirectoryContents' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Get directory listing') )
+    
+    #AlphaValue := *PATHDELIM
+    #BPFStatus := #COM_SELF.ReadDirectory( (*ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' ) + #RequestedPath).AsNativeString )
+    
+    Endroutine
+    
+    Srvroutine Name(RemoveDirectory) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RemoveDirectory' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Remove directory') )
+    
+    #BPFStatus := #COM_SELF.RemoveDirectoryTree( (*ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' )).AsNativeString )
+    
+    Endroutine
+    
+    Srvroutine Name(DownloadLog) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(RequestType)
+    Field_Map For(*INPUT) Field(#RequestedPath) Parameter_Name(LogNameWithPath)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFGenericBlob) Parameter_Name(RequestedFile)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DownloadLog' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : File download request for type ' + #AlphaValue) )
+    #Utils.log( ('Logging Data Server : File download request for path ' + #RequestedPath) )
+    
+    * Set Path based on request type
+    Case Of_Field(#AlphaValue.uppercase)
+    
+    When Value_Is(= PORTAL)
+    
+    #Utils.log( ('Logging Data Server : Path to file set as  ' + *PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' ) + *PATHDELIM + #RequestedPath) )
+    #BPFGenericBlob := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' ) + *PATHDELIM + #RequestedPath).AsNativeString
+    
+    When Value_Is(= RUNTIME)
+    
+    #Utils.log( ('Logging Data Server : Logging Data Server : Path to file set as  ' + *TEMP_DIR + 'x_err.log') )
+    #BPFGenericBlob := *TEMP_DIR + 'x_err.log'
+    
+    Otherwise
+    
+    #Utils.log( ('Logging Data Server : Logging Data Server : Path to file set as  ' + *ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' ) + #RequestedPath) )
+    #BPFGenericBlob := (*ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' ) + #RequestedPath).AsNativeString
+    
+    Endcase
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetIsLILogging) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(Enabled)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetIsLILogging' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #AlphaValue := #Utils.GetAlphaValue( 'JSMSETTINGS' 'SERVICE_TRACE' )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetIsLILogging) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(SetToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetIsLILogging' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Return Status
+    #BPFStatus := #Utils.SetalphaValue( 'JSMSETTINGS' 'SERVICE_TRACE' 1 #AlphaValue )
+    
+    Endroutine
+    
+    Srvroutine Name(ClearLILogs) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ClearLILogs' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('Logging Data Server : Clear integration log file list') )
+    
+    * Set Status
+    #COM_SELF.RemoveDirectoryTree( (*ROOT_DIR + #Utils.GetAlphaValue( 'JSMSETTINGS' 'TRACE_FOLDER' ).RightTrim( *PATHDELIM )).AsNativeString )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(ReadDirectory) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForPath)
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    #Utils.log( ('Logging Data Server : Attempting directory read of - ' + #ForPath) )
+    
+    * Load List with path contents
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #ForPath) To_Get(#Retcode #std_num #DirectoryContents)
+    
+    * Sort Contents by newest
+    Sort_List Named(#DirectoryContents) By_Fields((#BPFFileServiceFileDirectory *DESCEND) (#BPFFileServiceFileDate *DESCEND) (#BPFFileServiceFileTime *DESCEND))
+    
+    #Utils.log( ('Logging Data Server : read result was - ' + #Retcode + '/' + #STD_NUM.asstring) )
+    
+    #Result := #RetCode
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveDirectoryTree) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForPath)
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    #Utils.log( ('Logging Data Server : Attempting to remove directory tree of - ' + #ForPath) )
+    
+    * Remove
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_DIR_TREE' #ForPath 'FORCE') To_Get(#Retcode #std_num)
+    
+    #Utils.log( ('Logging Data Server : remove result was - ' + #Retcode + '/' + #STD_NUM.asstring) )
+    
+    * Set Status
+    #Result := #RetCode
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveFile) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForFileWithPath)
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    #Utils.log( ('Logging Data Server : Attempting to remove file of - ' + #ForFileWithPath) )
+    
+    * Remove
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_FILE' #ForFileWithPath 'FORCE') To_Get(#Retcode #std_num)
+    
+    #Utils.log( ('Logging Data Server : remove result was - ' + #Retcode + '/' + #STD_NUM.asstring) )
+    
+    * Set Status
+    #Result := #RetCode
+    
+    Endroutine
+    
+    End_Com

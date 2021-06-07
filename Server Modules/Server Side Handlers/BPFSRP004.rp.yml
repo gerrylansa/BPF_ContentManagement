@@ -1,0 +1,333 @@
+﻿Reusable Part:
+  Name:               BPFPDFDocumentGenerator
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Handler to Generate Basic PDF Documents"
+
+  - JPN:
+      Description:        "Handler to Generate Basic PDF Documents"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    Define_Com Class(#BPFPDFGenerationJSMHandler) Name(#Document)
+    
+    * Global Variables
+    Define_Com Class(#XPRIM_File) Name(#CurrentDocument)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    Define_Com Class(#BPFServerApplicationStrings) Name(#AppStrings) Reference(*DYNAMIC)
+    Define_Com Class(#BPFServerLocaleResource) Name(#Locale) Reference(*DYNAMIC)
+    
+    * Page Control Variables
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentPageYPos) Value(775)
+    Define_Com Class(#PRIM_NMBR) Name(#PageCount)
+    
+    * Lists
+    Def_List Name(#SessionData) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionEventID #BPFSessionUserEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4 #BPFSessionEventValue5 #BPFGenericNVarChar2048) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    * Events
+    
+    Evtroutine Handling(#COM_OWNER.DestroyInstance)
+    
+    * Document should have left on it journey out into the big wide world. So kill the temporary instance
+    
+    If (#CurrentDocument.Path.IsNull.IsFalse)
+    
+    #Utils.log( ('PDF Document Generator : attempting to remove temporary document') )
+    #CurrentDocument.Delete Errorinfo(#DataStatus)
+    
+    Endif
+    
+    If (#DataStatus.OK)
+    
+    #Utils.log( ('PDF Document Generator : temporary document removed') )
+    
+    Else
+    
+    #Utils.log( ('PDF Document Generator : temporary document removal FAILED ' + #DataStatus.ErrorCode + '/' + #DataStatus.ErrorMessage) )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Public Creation Method
+    Mthroutine Name(Generate)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForUser)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#ForDays)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    #Utils.log( ('PDF Document Generator : Producing session download for ' + #ForUser + ' for ' + #ForDays.asstring + ' days') )
+    
+    * Get Data
+    If (#COM_SELF.GetSessionEventData( #ForUser #ForDays #ForIsoCode ))
+    
+    #Utils.log( ('PDF Document Generator : User information generated successfully') )
+    
+    * We have data so lets go to work
+    
+    * Set the path for temporary file instance
+    #CurrentDocument := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_OUTPUT' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_OUTPUT' ) + *PATHDELIM + *GUID + '.pdf').AsNativeString
+    
+    * Load JSM resources, set PDF resources and create the document
+    #Document.Open( #CurrentDocument.Path (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).Substitute( #ForIsoCode )) + *PATHDELIM + #Utils.GetAlphaValueForLanguage( #ForIsoCode 'SYSTEM' 'PDF_CONTENT_SESSIONEVENTS' )) (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_RESOURCES' ).Substitute( #ForIsoCode )) + *PATHDELIM + #Utils.GetAlphaValueForLanguage( #ForIsoCode 'SYSTEM' 'PDF_RESOURCE_FONT' )) #ForIsoCode 'SESSION_HISTORY' )
+    
+    Else
+    
+    * Return in Shame
+    #Utils.log( ('PDF Document Generator : Failed to get user information') )
+    Return
+    
+    Endif
+    
+    * Create Document
+    #COM_SELF.WriteData( #ForIsoCode )
+    
+    * Close Document
+    #Document.Close
+    
+    * If all is fine, the send teh resulting document
+    #Result := #CurrentDocument.Path
+    
+    Endroutine
+    
+    Mthroutine Name(WriteData) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Store some previous values
+    Define_Com Class(#BPFSessionStarted) Name(#PreviousDateTime)
+    Define_Com Class(#BPFSessionID) Name(#PreviousEvent)
+    
+    * Load Locale
+    #Locale <= *New #BPFServerLocaleResource.Load( #ForIsoCode )
+    
+    * Header
+    #COM_SELF.AddHeader
+    
+    * For each day output the top line
+    Selectlist Named(#SessionData)
+    
+    * Check for new top line
+    If (#PreviousDateTime.Date <> #BPFSessionStarted.Date)
+    
+    * Output Day Header
+    #COM_SELF.AddDayHeader( ((#PreviousEvent.IsNotSqlNull) *And (#CurrentPageYPos < 775)) )
+    
+    * Remember the date
+    #PreviousDateTime := #BPFSessionStarted
+    
+    Endif
+    
+    If (#PreviousEvent <> #BPFSessionID)
+    
+    * Output Session Header
+    #COM_SELF.AddSessionHeader
+    
+    * Remember the session
+    #PreviousEvent := #BPFSessionID
+    
+    Endif
+    
+    * Okay we can just put out the line now
+    #COM_SELF.AddSessionEventLine
+    
+    * Do we have enough space, or do we need another page
+    If (#CurrentPageYPos <= 28)
+    
+    * Add a new page
+    #COM_SELF.AddFooterPage
+    #COM_SELF.AddHeader
+    
+    * Rest to top of page
+    #CurrentPageYPos := 775
+    
+    Endif
+    
+    Endselect
+    
+    #COM_SELF.AddFooterPage( False )
+    
+    Endroutine
+    
+    Mthroutine Name(AddHeader)
+    
+    * Add to the document
+    #Document.Add Content('header') Element1value(('myPortal Session History for ' + #BPFUserEmail)) Offset('*NONE')
+    
+    Endroutine
+    
+    Mthroutine Name(AddDayHeader) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SpacerRequired)
+    
+    * Local variables
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ElementText)
+    Define_Com Class(#PRIM_NMBR) Name(#Element2YPos)
+    
+    If (#SpacerRequired)
+    
+    #CurrentPageYPos := #CurrentPageYPos - 10
+    
+    Endif
+    
+    * Set the value for the First Element value
+    * #ElementText := #BPFSessionStarted.Date.AsDisplayString( ML_DDDDDDDDD ) + ', ' + #BPFSessionStarted.Date.AsDisplayString( ML_DDbMMMMMMMMMbCCYY )
+    
+    * #ElementText := #ElementText.Replace( #BPFSessionStarted.Date.AsDayOfWeek( LongName ) #Locale.DaysLong<#BPFSessionStarted.Date.AsDayOfWeek( LongName ).Uppercase> ).Replace( #BPFSessionStarted.Date.AsDisplayString( MMMMMMMMMM ) #Locale.MonthsLong<#BPFSessionStarted.Date.AsDisplayString( MMMMMMMMMM ).UpperCase> )
+    
+    #ElementText := #AppStrings.Text<APP.FORMAT.DAYANDDATE>
+    #ElementText := #ElementText.Replace( '%%DAYLONG%%' #Locale.DaysLong<#BPFSessionStarted.Date.AsDayOfWeek( LongName ).Uppercase> )
+    #ElementText := #ElementText.Replace( '%%DAYSHORT%%' #BPFSessionStarted.Date.Day.AsString )
+    #ElementText := #ElementText.Replace( '%%MONTHLONG%%' #Locale.MonthsLong<#BPFSessionStarted.Date.AsDisplayString( MMMMMMMMMM ).UpperCase> )
+    #ElementText := #ElementText.Replace( '%%YEAR%%' #BPFSessionStarted.Date.Year.AsString )
+    
+    #Utils.log( ('Day Header added ' + #ElementText) )
+    #Element2YPos := #CurrentPageYPos - 22
+    
+    * Add to the document
+    #Document.Add Content('dayheading') Element1yposition(#CurrentPageYPos) Element1value(#ElementText) Element2yposition(#Element2YPos)
+    
+    * Update the Current Page Y Position
+    #CurrentPageYPos := #Element2YPos
+    
+    Endroutine
+    
+    Mthroutine Name(AddSessionHeader) Access(*PRIVATE)
+    
+    * Local Varaibles
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ElementText1)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ElementText2)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ElementText3)
+    
+    * Set Text Values
+    
+    * Set Element 1 - 15:59 - 14:02
+    #ElementText1 := (#BPFSessionStarted.Time.AsDisplayString( HHsMMsSS ).Substring( 1 5 ) + ' -  ' + (#BPFSessionEnded.Time.AsDisplayString( HHsMMsSS ).Substring( 1 5 )))
+    
+    * Set Element 2 - 25 mins
+    #ElementText2 := ((((#BPFSessionEnded.Date.Difference( 1970-01-01 ) * 86400) + #BPFSessionEnded.AsSeconds) - (((#BPFSessionStarted.Date.Difference( 1970-01-01 ) * 86400) + #BPFSessionStarted.AsSeconds))) / 60).Round( Down ).AsString + ' ' + #Locale.String<'minutes'>
+    
+    * Set Element 3 - 11 Events
+    #ElementText3 := (#BPFSessionUserEventCount.asstring + ' ' + #STRINGS.Text<'EVENTS.TEXT'>)
+    
+    #CurrentPageYPos := #CurrentPageYPos - 3
+    
+    * Add to the document
+    #Document.Add Content('sessionheading') Element1yposition(#CurrentPageYPos) Element1value(#ElementText1) Element2value(#ElementText2) Element3value(#ElementText3)
+    
+    * Update the Current Page Y Position
+    #CurrentPageYPos := #CurrentPageYPos - 18
+    
+    Endroutine
+    
+    Mthroutine Name(AddSessionEventLine) Access(*PRIVATE)
+    
+    * Local Varaibles
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ElementText)
+    
+    * Set Text Element - 15:45:23 - Login successful
+    #ElementText := (#BPFSessionEventDateTime.Time.AsDisplayString( HHsMMsSS ) + '  -  ' + #BPFGenericNVarChar2048)
+    
+    * Add to the document
+    #Document.Add Content('sessioneventline') Element1yposition(#CurrentPageYPos) Element1value(#ElementText)
+    
+    * Update teh Current Page Y Position
+    #CurrentPageYPos := #CurrentPageYPos - 12
+    
+    Endroutine
+    
+    Mthroutine Name(AddFooterPage)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#NewPageRequried) Mandatory(True)
+    
+    #PageCount := #PageCount + 1
+    
+    * Add to the document
+    #Document.Add Content('footerpage') Element1value((#STD_DTIMX.Now.AsLocalizedDateTime.Date.AsDisplayString( DDsMMsCCYY ) + ' - ' + #STD_DTIMX.Now.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS ))) Element2value(('Page ' + #PageCount.AsString)) Element3value(#NewPageRequried.AsNumber.AsString) Offset('*NONE')
+    
+    Endroutine
+    
+    Mthroutine Name(GetSessionEventData) Access(*PRIVATE)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForUser)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#ForDays)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Variables
+    Define_Com Class(#prim_dat) Name(#EndDateTimeRange)
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #ForIsoCode )
+    #AppStrings <= *New #BPFServerApplicationStrings.Load( #ForIsoCode )
+    
+    * For the requested user read all the session for the range requested
+    
+    * Calulate End Date Time
+    If (#ForDays <= 30)
+    
+    #EndDateTimeRange := #STD_DTIMX.Now.Date.Adjust( (#ForDays * -1) )
+    
+    Else
+    
+    #EndDateTimeRange := '1970-01-01'
+    
+    Endif
+    
+    *
+    Fetch Fields(#BPFUserEmail) From_File(BPFPortalUserAccounts) With_Key(#ForUser)
+    
+    #Utils.log( ('Reading data back to ' + #EndDateTimeRange.AsString + ' For User ' + #ForUser) )
+    
+    Select Fields(#SessionData) From_File(BPFUserSessionsByNewestDate) Where(#BPFSessionStarted >= #EndDateTimeRange) With_Key(#ForUser)
+    
+    #BPFSessionStarted := #BPFSessionStarted.AsLocalizedDateTime
+    #BPFSessionEnded := #BPFSessionEnded.AsLocalizedDateTime
+    
+    * Now Get Event Data
+    Select Fields(#SessionData) From_File(BPFSessionEvents) With_Key(#BPFSessionID)
+    
+    * Dont add no user events
+    Continue If(#BPFSessionEventUserInteraction.IsFalse)
+    
+    * Build the langauge specific presentation string
+    #BPFGenericNVarChar2048 := #Strings.Text<#BPFSessionEventID>.Replace( '%%1%%' #BPFSessionEventValue1 ).Replace( '%%2%%' #BPFSessionEventValue2 ).Replace( '%%3%%' #BPFSessionEventValue3 ).Replace( '%%4%%' #BPFSessionEventValue4 ).Replace( '%%5%%' #BPFSessionEventValue5 )
+    
+    #Utils.log( ('Event string is ' + #BPFGenericNVarChar2048) )
+    
+    #BPFSessionEventDateTime := #BPFSessionEventDateTime.AsLocalizedDateTime
+    
+    * Add the event data
+    Add_Entry To_List(#SessionData)
+    
+    Endselect
+    
+    Leave If(#IO$STS = ER)
+    
+    Endselect
+    
+    * Set Result
+    #Result := (#IO$STS <> ER)
+    
+    Endroutine
+    
+    End_Com

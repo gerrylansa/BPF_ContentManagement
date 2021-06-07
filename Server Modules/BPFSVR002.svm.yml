@@ -1,0 +1,776 @@
+﻿ServerModule:
+  Name:               BPFUserAccountDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Account Info Data Server"
+
+  - JPN:
+      Description:        "Portal User Account Info Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#WTIMEOUT) Type(*DEC) Length(7) Decimals(0)
+    Define Field(#WTMERNG) Type(*DEC) Length(3) Decimals(0)
+    Define Field(#NextReadDateTime) Reffld(#BPFGenericDateTime)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSecuiryCheckPassed) Type(*BOOLEAN)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSecuiryCheckPassed #sSessionAuthenicated #sIsoCode)
+    
+    * Group By
+    Group_By Name(#SessionDataGroup) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionRelatedUserID #BPFSessionEventID #BPFSessionUserEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFSessionEventLabel #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4 #BPFSessionEventValue5)
+    
+    * Data Lists
+    Def_List Name(#SessionData) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFGenericNVarChar2048) Counter(#LISTENTRY) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#SessionIDs) Fields(#BPFSessionID) Type(*WORKING) Entrys(*MAX)
+    
+    Def_List Name(#Profile) Fields(#BPFProfileCompanyName #BPFProfileJobTitle #BPFProfileAddressLine1 #BPFProfileAddressLine2 #BPFProfileSuburbName #BPFProfilePostalCode #BPFProfileStateName #BPFProfileCountry #BPFCodeDescription #BPFProfileBirthDate #BPFProfilePhoneNumber) Type(*WORKING) Entrys(1)
+    
+    * Local Objects
+    Define_Com Class(#BPFPDFDocumentGenerator) Name(#SessionReport)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Security
+    Srvroutine Name(SetUserSecurity) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserSecurityQuestion) Parameter_Name(Question)
+    Field_Map For(*INPUT) Field(#BPFUserSecurityValue) Parameter_Name(Value)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Inbound Transaction ID
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserSecurityValue) Name(#SaveValue)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetUserSecurity' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    If (#sSecuiryCheckPassed)
+    
+    
+    * Save The Value
+    #SaveValue := #BPFUserSecurityValue
+    
+    #Utils.Log( ('User Account Data : Srvroutine Name(CreateStoredNewUser) : Securing string') )
+    
+    * Clean up user password and secure
+    #BPFUserSecurityValue := #Secure.CleanString( #SaveValue #WTRANSID )
+    #BPFUserSecurityValue := #Secure.SecureString( #BPFUserSecurityValue.LowerCase #BPFUserSecondaryValue )
+    
+    #Utils.Log( ('User Account Data : Srvroutine Name(CreateStoredNewUser) : Securing string completed') )
+    
+    * Update Account and preferences with change
+    Update Fields(#BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserSecondaryValue) In_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Log Event and send notification email
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('User Account Data Server : Srvroutine Name(SetUserSecurity) : update successful') )
+    
+    
+    * Okay so send email
+    If (#Notification.Send( 'SECURITY_CHANGED' #sUserAccountIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('User Account Data Server : Srvroutine Name(SetUserSecurity) : notifcation successful') )
+    
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHANGED.SUCCESS True )
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : Srvroutine Name(SetUserSecurity) : notifcation failed') )
+    
+    #BPFStatus := SNDERROR
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHANGE.SUCCESS.NOTSENT False )
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : Srvroutine Name(SetUserSecurity) : update failed') )
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHANGE.FAILED False )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.FAILED.SECURITY false )
+    
+    Endif
+    
+    Endroutine
+    
+    * Sessions
+    Srvroutine Name(GetUserLastSession) Session(*REQUIRED)
+    
+    * Inbound
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#SessionData) Parameter_Name(SessionEvents)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Local Objects
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    #Secure.CheckIsValidRequest( 'GetUserLastSession' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #sIsoCode )
+    
+    #Utils.log( ('User Account Data Server : attempting to get last user session events') )
+    
+    * Read last events
+    Select Fields(#BPFSessionID) From_File(BPFUserSessionsByNewestDate) With_Key(#sUserAccountIdentifier)
+    
+    #Index := #Index + 1
+    Leave If(#Index = 2)
+    
+    Endselect
+    Select Fields(#SessionDataGroup) From_File(BPFSessionEvents) Where(#BPFSessionEventUserInteraction = True) With_Key(#BPFSessionID)
+    
+    * Build the langauge specific presentation string
+    #BPFGenericNVarChar2048 := #Strings.Text<#BPFSessionEventID.AsNativeString>.Replace( '%%1%%' #BPFSessionEventValue1 ).Replace( '%%2%%' #BPFSessionEventValue2 ).Replace( '%%3%%' #BPFSessionEventValue3 ).Replace( '%%4%%' #BPFSessionEventValue4 ).Replace( '%%5%%' #BPFSessionEventValue5 )
+    
+    Add_Entry To_List(#SessionData)
+    
+    Endselect
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    #BPFStatus := OK
+    #Utils.log( ('User Account Data Server : get of last session events success') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('User Account Data Server : get of last session events failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetUserSessionEvents) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericDateTime) Parameter_Name(StartingDate)
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(ForLabel)
+    
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#SessionData) Parameter_Name(UserSessionEvents)
+    Field_Map For(*OUTPUT) Field(#NextReadDateTime) Parameter_Name(NextDateTime)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Objects
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    #Secure.CheckIsValidRequest( 'GetUserSessionEvents' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #sIsoCode )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('User Account Data Server : attempting to get user session events') )
+    
+    * If we pass in a next date, then we use it as the next page is being requested
+    If (#NextReadDateTime.IsNotSqlNull)
+    
+    #BPFGenericDateTime := #NextReadDateTime
+    
+    Endif
+    
+    * Ensure the next date is null as it is teh control value for more records
+    #NextReadDateTime := *SQLNULL
+    
+    * Read events
+    Select Fields(#SessionDataGroup) From_File(BPFUserSessionsByNewestDate) With_Key(#sUserAccountIdentifier #BPFGenericDateTime) Nbr_Keys(*COMPUTE) Options(*STARTKEY)
+    
+    * Only Read for this user
+    Continue If(#sUserAccountIdentifier <> #BPFSessionRelatedUserID)
+    
+    If (#LISTENTRY >= 25)
+    
+    * if we got here, send out the next date and finish up
+    #NextReadDateTime := #BPFSessionStarted
+    Leave
+    
+    Endif
+    
+    * Now Get Event Data
+    Select Fields(#SessionDataGroup) From_File(BPFSessionEvents) Where(#BPFSessionEventUserInteraction = True) With_Key(#BPFSessionID)
+    
+    * If filter label set, check it matches, if not dont add
+    If ((#BPFCodeName.IsNull.IsFalse) *AndIf (#BPFCodeName.lowercase <> #BPFSessionEventLabel.lowercase))
+    Continue
+    Endif
+    
+    * Build the langauge specific presentation string
+    #BPFGenericNVarChar2048 := #Strings.Text<#BPFSessionEventID.AsNativeString>.Replace( '%%1%%' #BPFSessionEventValue1 ).Replace( '%%2%%' #BPFSessionEventValue2 ).Replace( '%%3%%' #BPFSessionEventValue3 ).Replace( '%%4%%' #BPFSessionEventValue4 ).Replace( '%%5%%' #BPFSessionEventValue5 )
+    
+    * Add the event data
+    #BPFSessionEventCount := #BPFSessionUserEventCount
+    Add_Entry To_List(#SessionData)
+    
+    Endselect
+    
+    Leave If(#IO$STS = ER)
+    
+    Endselect
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    #BPFStatus := OK
+    #Utils.log( ('User Account Data Server : get of session events success') )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #Utils.log( ('User Account Data Server : get of session events failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(DownloadUserSessions) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#WTMERNG) Parameter_Name(TimeRange)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFGenericBlob) Parameter_Name(SessionDownload)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DownloadUserSessions' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('User Account Data Server : attempting to download user sessions') )
+    
+    #BPFGenericBlob := #SessionReport.Generate( #sUserAccountIdentifier #WTMERNG #sIsoCode )
+    #Utils.log( ('User Account Data Server : Return file object is ' + #BPFGenericBlob.FileName) )
+    
+    * Set Status
+    If (#BPFGenericBlob.FileName.IsNull)
+    
+    #SessionTracker.LogEvent( #TrackingID TRACKING.DOWNLOAD.FAILED True )
+    #Utils.log( ('User Account Data Server : Download of session history failed') )
+    
+    Else
+    
+    #SessionTracker.LogEvent( #TrackingID TRACKING.DOWNLOAD.SUCCESS True )
+    #Utils.log( ('User Account Data Server : Download of session history success') )
+    
+    #BPFStatus := OK
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(RemoveUserSessions) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#WTMERNG) Parameter_Name(TimeRange)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#prim_dat) Name(#EndDateTimeRange)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RemoveUserSessions' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('User Account Data Server : attempting to remove user sessions') )
+    
+    * Calulate End Date Time
+    If (#WTMERNG <= 30)
+    
+    #EndDateTimeRange := #STD_DTIMX.Now.Date.Adjust( (#WTMERNG * -1) )
+    
+    Else
+    
+    #EndDateTimeRange := '1970-01-01'
+    
+    Endif
+    
+    #Utils.log( ('User Account Data Server : date range set to ' + #EndDateTimeRange.asstring) )
+    
+    Select Fields(#BPFSessionID) From_File(BPFUserSessionsByNewestDate) Where(#BPFSessionStarted >= #EndDateTimeRange) With_Key(#sUserAccountIdentifier)
+    
+    * Remove the child events
+    Delete From_File(BPFSessionEvents) With_Key(#BPFSessionID)
+    
+    * Now log the session to remove later
+    Add_Entry To_List(#SessionIDs)
+    
+    Endselect
+    
+    * Remove the headers
+    Selectlist Named(#SessionIDs)
+    
+    Delete From_File(BPFSessions) With_Key(#BPFSessionID)
+    
+    Endselect
+    
+    * Create a new tracker to log with was done
+    #TrackingID := #SessionTracker.CreateNewSession( #sUserAccountIdentifier )
+    #SessionTracker.LogEvent( #TrackingID TRACKING.DELETE.RANGE False #EndDateTimeRange.Date.AsDisplayString( DDsMMsCCYY ) )
+    
+    * Set Status
+    If (#IO$STS <> ER)
+    
+    * Set Success
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID TRACKING.DELETE.SUCCESS True )
+    
+    Else
+    
+    #BPFStatus := #IO$STS
+    #SessionTracker.LogEvent( #TrackingID TRACKING.DELETE.FAILED True )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetEmailLanguage) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFUserPreferenceEmailLanguage) Parameter_Name(ToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetEmailLanguage' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('User Account Data Server : attempting set of preferred background') )
+    
+    * Update Preferences
+    Update Fields(#BPFUserPreferenceEmailLanguage) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    
+    #BPFStatus := #IO$STS
+    
+    * Update session events
+    If (#BPFStatus = OK)
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAILLANG.SUCCESS true )
+    #Utils.log( ('User Account Data Server : set of preferred background success') )
+    
+    Else
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAILLANG.FAILED true )
+    #Utils.log( ('User Account Data Server : set of preferred background failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetPrefBackground) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFUserPreferenceBackground) Parameter_Name(ToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetPrefBackground' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('User Account Data Server : attempting set of preferred background') )
+    
+    * Update Preferences
+    Update Fields(#BPFUserPreferenceBackground) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    
+    #BPFStatus := #IO$STS
+    
+    * Update session events
+    If (#BPFStatus = OK)
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.BACKGROUND.SUCCESS true )
+    #Utils.log( ('User Account Data Server : set of preferred background success') )
+    
+    Else
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.BACKGROUND.FAILED true )
+    #Utils.log( ('User Account Data Server : set of preferred background failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetPrefTheme) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFUserPreferenceTheme) Parameter_Name(ToValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetPrefTheme' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.log( ('User Account Data Server : attempting set of preferred theme') )
+    
+    * Update Preferences
+    Update Fields(#BPFUserPreferenceTheme) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    
+    #BPFStatus := #IO$STS
+    
+    * Update session events
+    If (#BPFStatus = OK)
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.THEME.SUCCESS true )
+    #Utils.log( ('User Account Data Server : set of preferred theme success') )
+    
+    Else
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.THEME.FAILED true 'preferred theme' 'failed' )
+    #Utils.log( ('User Account Data Server : set of preferred theme failed') )
+    
+    Endif
+    
+    Endroutine
+    
+    * User Details
+    Srvroutine Name(GetBasicUserData) Session(*REQUIRED)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFUserEmail) Parameter_Name(Email)
+    Field_Map For(*OUTPUT) Field(#BPFUserFirstName) Parameter_Name(FirstName)
+    Field_Map For(*OUTPUT) Field(#BPFUserLastName) Parameter_Name(LastName)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetBasicUserData' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Fetch Profile
+    Fetch Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If (#IO$STS = OK)
+    
+    * Got data so add and send
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endroutine
+    
+    * Profile Routines
+    Srvroutine Name(GetProfileData) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#Profile) Parameter_Name(ProfileData)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Objects
+    Define_Com Class(#BPFServerCountryCodeStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetProfileData' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFServerCountryCodeStrings.Load( #sIsoCode )
+    
+    * Fetch Profile
+    Fetch Fields(#Profile) From_File(BPFPortalUserProfile) With_Key(#sUserAccountIdentifier)
+    
+    If (#IO$STS = OK)
+    
+    * set the language specific description
+    #BPFCodeDescription := #Strings.Text<#BPFProfileCountry.AsNativeString>
+    
+    * Got data so add and send
+    Add_Entry To_List(#Profile)
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetProfileData) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Group_Map For(*INPUT) Group(#Profile) Parameter_Name(ProfileData)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetProfileData' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Update Profile
+    Update Fields(#Profile) In_File(BPFPortalUserProfile) With_Key(#sUserAccountIdentifier)
+    
+    If (#IO$STS = OK)
+    
+    * Got data so add and send
+    #BPFStatus := OK
+    
+    Else
+    
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endroutine
+    
+    * Account
+    Srvroutine Name(SetAccountDetails) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFUserEmail) Parameter_Name(ToAddress)
+    Field_Map For(*INPUT) Field(#BPFUserFirstName) Parameter_Name(ToFirstName)
+    Field_Map For(*INPUT) Field(#BPFUserLastName) Parameter_Name(ToLastName)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Values
+    Define_Com Class(#BPFUserEmail) Name(#NewAddress)
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetAccountDetails' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume failure
+    #BPFStatus := ER
+    
+    * Save the address
+    #NewAddress := #BPFUserEmail
+    
+    * Get the existing Address
+    Fetch Fields(#BPFUserEmail) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Check if the addess changed, if so notify old user account
+    If (#NewAddress <> #BPFUserEmail)
+    
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL True #BPFUserEmail.AsNativeString #NewAddress.AsNativeString )
+    #Utils.Log( ('User Account Data Server : user changed email address') )
+    
+    * It was changed, so notify old account
+    If (#Notification.Send( 'EMAILADDRESS_CHANGED' #sUserAccountIdentifier #NewAddress ))
+    
+    #Utils.Log( ('User Account Data Server : user changed email address : notifcation successful') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.SENT False )
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : user changed email address : notifcation failed') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.NOTSENT False )
+    
+    Endif
+    
+    Endif
+    
+    * Switch to new address
+    #BPFUserEmail := #NewAddress
+    
+    * Update Account Details
+    Update Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName) In_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If_Status Is(*OKAY)
+    
+    * Send a happy return code
+    #BPFStatus := OK
+    
+    * All Changed, so notify
+    #Utils.Log( ('User Account Data Server : user account details change : successful') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.SUCCESS True )
+    
+    * It was changed, so notify old account
+    If (#Notification.Send( 'ACCOUNT_CHANGED' #sUserAccountIdentifier ))
+    
+    #Utils.Log( ('User Account Data Server : user account details change : notifcation successful') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.SENT False 'account change' 'successfully' )
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : user account details change : notifcation failed') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.SENT False 'account change' 'failed' )
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : user account details change : failed') )
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHANGE.EMAIL.FAILED True )
+    
+    Endif
+    
+    
+    Endroutine
+    
+    Srvroutine Name(RemoveUserAccount) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Values
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RemoveUserAccount' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('User Account Data Server : attempting to remove account') )
+    
+    If (#Notification.Send( 'ACCOUNT_DELETED' #sUserAccountIdentifier ))
+    
+    #Utils.Log( ('User Account Data Server : user account details deleted : notifcation successful') )
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : user account details deleted : notifcation failed') )
+    
+    Endif
+    
+    * Delete Account
+    Delete From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If (#IO$STS = OK)
+    
+    * We need to forget and move on
+    #COM_SELF.EndSession
+    
+    #Utils.Log( ('User Account Data Server : attempting to remove account : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.Log( ('User Account Data Server : attempting to remove account : failed') )
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    End_Com

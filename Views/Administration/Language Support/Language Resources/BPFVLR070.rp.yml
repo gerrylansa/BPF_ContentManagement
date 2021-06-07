@@ -1,0 +1,53 @@
+﻿Reusable Part:
+  Name:               BPFPortalLanguageCreateViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Create Language View Strings"
+
+  - JPN:
+      Description:        "Portal Create Language View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Create Language"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enter the new language code and description. The inital strings for the language will come from the language you select as it base."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Details"
+    
+    #STRINGSCOLLECTION<'LANGUAGEISOCODEEDIT.CAPTION'> := "ISO Code"
+    #STRINGSCOLLECTION<'LANGUAGEISOCODEEDIT.HELPERTEXT'> := "e.g. en-AU"
+    #STRINGSCOLLECTION<'LANGUAGEISOCODEEDIT.ERROR.EXISTS'> := "Sorry, this language already exists"
+    #STRINGSCOLLECTION<'LANGUAGEISOCODEEDIT.ERROR.NOCODE'> := "You forgot the ISO code"
+    
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.CAPTION'> := "Description"
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.HELPERTEXT'> := "e.g. English"
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.ERROR.BLANK'> := "You need to enter a description"
+    
+    #STRINGSCOLLECTION<'BASELANGUAGESELECTIONLABEL.CAPTION'> := "Base Language"
+    
+    #STRINGSCOLLECTION<'CREATEACTION.CAPTION'> := "CREATE"
+    
+    #STRINGSCOLLECTION<'RESOURCES.ONGETLANGUAGEOPTIONSFAILED'> := "Failed to get the portal languages"
+    
+    #STRINGSCOLLECTION<'NEWLANGUAGE.ONCREATEONSERVERCOMPLETED.MESSAGE'> := "Language created"
+    #STRINGSCOLLECTION<'NEWLANGUAGE.ONCREATEONSERVERCOMPLETED.ACTION'> := "Reload Portal Now"
+    #STRINGSCOLLECTION<'NEWLANGUAGE.ONCREATEONSERVERFAILED'> := "Failed to create language"
+    
+    Endroutine
+    
+    End_Com

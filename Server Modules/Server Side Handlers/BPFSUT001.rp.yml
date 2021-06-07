@@ -1,0 +1,597 @@
+﻿Reusable Part:
+  Name:               BPFServerSideUtilities
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Utilities"
+
+  - JPN:
+      Description:        "Server Side Utilities"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Logging Values
+    Define_Com Class(#PRIM_BOLN) Name(#LoggingEnabled)
+    Define_Com Class(#PRIM_ALPH) Name(#Filename)
+    
+    Define_Pty Name(OverrideDisabled) Get(*AUTO #OverrideDisabled) Set(*AUTO #OverrideDisabled)
+    Define_Com Class(#PRIM_BOLN) Name(#OverrideDisabled)
+    
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#Logcount) Type(*DEC) Length(7) Decimals(0)
+    
+    * Define Field(#logText) Type(*CHAR) Length(1500) Input_Atr(LC)
+    * Def_List Name(#logBody) Fields(#BPFLogFileContentLine) Counter(#Logcount) Type(*WORKING) Entrys(*MAX)
+    
+    * Logging output file stream and writer
+    * Define_Com Class(#PRIM_IOC.StreamWriter) Name(#LoggingText)
+    * Define_Com Class(#PRIM_IOC.FileStream) Name(#LoggingFile)
+    Define_Com Class(#XPRIM_File) Name(#LoggingFile)
+    
+    * Initial Values
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #LoggingEnabled := #COM_SELF.GetControlValue
+    
+    Endroutine
+    
+    Mthroutine Name(GetLanguageValueFromString)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ISOCode)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#JSONString)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    * JSON Document
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    
+    * Assume no Match
+    #Result := *null
+    
+    #COM_SELF.Log( ('Utils : GetLanguageValueFromString : String passed ' + #JSONString) )
+    
+    If ((#JSONString.PositionOf( '{' ) = 1) *And (#JSONString.PositionOf( '}' ) = #JSONString.CurChars))
+    
+    * Load JSON
+    #JSONDocument.LoadFromString( #JSONString )
+    
+    #COM_SELF.Log( ('Utils : GetLanguageValueFromString : JSON String loaded') )
+    
+    * If an object read it
+    If (#JSONDocument.IsObject)
+    
+    If (#JSONDocument.RootNode<#ISOCode> *IsNot *NULL)
+    
+    #COM_SELF.Log( ('Utils : GetLanguageValueFromString : JSON String is an object so returning') )
+    #Result := #JSONDocument.RootNode<#ISOCode>.AsString
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : GetLanguageValueFromString : JSON String doesnt contain key value ' + #ISOCode) )
+    #Result := 'ER'
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : String is not a JSON Object') )
+    #Result := 'ER'
+    
+    Endif
+    
+    Endroutine
+    
+    * Method: GetAlphaValue
+    *  Inputs: Group, Code, Sequence
+    *  Desc.: Get Alpha Value from Codes Table
+    *
+    Mthroutine Name(GetAlphaValue)
+    * Inputs
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(*SQLNULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#BPFCodeAlphaValue) Name(#Result)
+    
+    * Assume no Match
+    #Result := *null
+    
+    * Fetch Value
+    Select Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key(#Group #Code #Sequence) Nbr_Keys(*COMPUTE)
+    
+    #Result := #BPFCodeAlphaValue
+    Leave
+    
+    Endselect
+    
+    Endroutine
+    
+    Mthroutine Name(GetAlphaValueForLanguage)
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ISOCode)
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(*SQLNULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    * JSON Document
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    
+    * Assume no Match
+    #Result := *null
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : the ISOcode requested is ' + #ISOCode) )
+    
+    * Fetch Value
+    Select Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key(#Group #Code #Sequence) Nbr_Keys(*COMPUTE)
+    
+    * Leave if we have no data
+    Leave If(#BPFCodeAlphaValue.IsNull)
+    
+    If ((#BPFCodeAlphaValue.PositionOf( '{' ) = 1) *And (#BPFCodeAlphaValue.PositionOf( '}' ) = #BPFCodeAlphaValue.CurChars))
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : Alpha JSON string in codes table ' + #BPFCodeAlphaValue) )
+    
+    * Load JSON
+    #JSONDocument.LoadFromString( #BPFCodeAlphaValue )
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : JSON String loaded') )
+    
+    * If an object read it
+    If (#JSONDocument.IsObject)
+    
+    * If the key exists return it
+    If (#JSONDocument.RootNode<#ISOCode> *IsNot *NULL)
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : JSON String is an object so returning') )
+    #Result := #JSONDocument.RootNode<#ISOCode>.AsString
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : JSON String doesnt contain key value ' + #ISOCode) )
+    #Result := 'ER'
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : GetAlphaValueForLanguage : String is not stored as a JSON Object') )
+    #Result := 'ER'
+    
+    Endif
+    
+    Leave
+    
+    Endselect
+    
+    Endroutine
+    
+    Mthroutine Name(GetNumericValue)
+    * Inputs
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(*SQLNULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#BPFCodeNumericValue) Name(#Result)
+    
+    * Assume no Match
+    #Result := *null
+    
+    Select Fields(#BPFCodeNumericValue) From_File(BPFSystemCodes) With_Key(#Group #Code #Sequence) Nbr_Keys(*COMPUTE)
+    
+    #Result := #BPFCodeNumericValue
+    Leave
+    
+    Endselect
+    
+    Endroutine
+    
+    Mthroutine Name(SetAlphaValue)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(1)
+    Define_Map For(*INPUT) Class(#BPFCodeAlphaValue) Name(#Value)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    
+    #BPFCodeAlphaValue := #Value
+    
+    Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #Result := #IO$STS
+    
+    Endroutine
+    
+    Mthroutine Name(SetAlpaValueForLanguage)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ISOCode)
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(1)
+    
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Value)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    
+    * JSON Document
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    
+    Define_Com Class(#PRIM_IOC.StringWriter) Name(#JSONOutput)
+    Define_Com Class(#PRIM_JSON.Writer) Name(#JSONValue) Textwriter(#JSONOutput)
+    
+    * Assume failure
+    #Result := ER
+    
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Attempting to update value <"' + #value + '"> for language ' + #ISOCode + ' for key ' + #Group + '/' + #Code + '/' + #Sequence.AsString) )
+    
+    Fetch Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Current string is ' + #BPFCodeAlphaValue) )
+    
+    If ((#BPFCodeAlphaValue.PositionOf( '{' ) = 1) *And (#BPFCodeAlphaValue.PositionOf( '}' ) = #BPFCodeAlphaValue.CurChars))
+    
+    * Load JSON
+    #JSONDocument.LoadFromString( #BPFCodeAlphaValue )
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : JSON String loaded') )
+    
+    If (#JSONDocument.IsObject)
+    
+    * Check for language
+    If (#JSONDocument.RootNode<#ISOCode> *IsNot *Null)
+    
+    * Its there so replace
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Language Element found for ' + #ISOCode + ' so updating') )
+    * #BPFCodeAlphaValue := #BPFCodeAlphaValue.Replace( #JSONDocument.RootNode<#ISOCode>.AsString #Value )
+    #BPFCodeAlphaValue := #BPFCodeAlphaValue.Replace( ('"' + #ISOCode + '":"' + #JSONDocument.RootNode<#ISOCode>.AsString + '"') ('"' + #ISOCode + '":"' + #Value + '"') )
+    
+    
+    Else
+    
+    * Its not so insert at end of object
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Language Element NOT found for ' + #ISOCode + ' so inserting') )
+    #BPFCodeAlphaValue := #BPFCodeAlphaValue.InsertString( (',"' + #ISOCode + '":"' + #Value + '"') (#BPFCodeAlphaValue.CurChars) )
+    
+    Endif
+    
+    * Update resulting string
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Updated string is ' + #BPFCodeAlphaValue) )
+    
+    Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Update status was ' + #IO$STS) )
+    
+    #Result := #IO$STS
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : JSON has no object ') )
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : This system code is not a stored as a JSON Object') )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveAlpaValueForLanguage)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ISOCode)
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(1)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    
+    * JSON Document
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    
+    Define_Com Class(#PRIM_IOC.StringWriter) Name(#JSONOutput)
+    Define_Com Class(#PRIM_JSON.Writer) Name(#JSONValue) Textwriter(#JSONOutput)
+    
+    * Assume failure
+    #Result := ER
+    
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Attempting to remove value for language ' + #ISOCode + ' for key ' + #Group + '/' + #Code + '/' + #Sequence.AsString) )
+    
+    Fetch Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Current string is ' + #BPFCodeAlphaValue) )
+    
+    If ((#BPFCodeAlphaValue.PositionOf( '{' ) = 1) *And (#BPFCodeAlphaValue.PositionOf( '}' ) = #BPFCodeAlphaValue.CurChars))
+    
+    * Load JSON
+    #JSONDocument.LoadFromString( #BPFCodeAlphaValue )
+    #COM_SELF.Log( ('Utils : removeAlpaValueForLanguage : JSON String loaded') )
+    
+    If (#JSONDocument.IsObject)
+    
+    * Check for language
+    If (#JSONDocument.RootNode<#ISOCode> *IsNot *Null)
+    
+    * It's there so remove string
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Language Element found for ' + #ISOCode + ' so inserting') )
+    #BPFCodeAlphaValue := #BPFCodeAlphaValue.Remove( (',"' + #ISOCode + '":"' + #JSONDocument.RootNode<#ISOCode>.AsString + '"') )
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Language Element NOT found for ' + #ISOCode + ' so inserting') )
+    Return
+    
+    Endif
+    
+    * Update resulting string
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Updated string is ' + #BPFCodeAlphaValue) )
+    
+    Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Update status was ' + #IO$STS) )
+    
+    #Result := #IO$STS
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : JSON has no object ') )
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : This system code is not a stored as a JSON Object') )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetNumericValue)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#BPFCodeGroup) Name(#Group)
+    Define_Map For(*INPUT) Class(#BPFCodeName) Name(#Code) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(1)
+    Define_Map For(*INPUT) Class(#BPFCodeNumericValue) Name(#Value)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    
+    #BPFCodeNumericValue := #Value
+    
+    Update Fields(#BPFCodeNumericValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
+    #Result := #IO$STS
+    
+    Endroutine
+    
+    Mthroutine Name(GetDateTimeInEpoch)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#DATETIMEX) Name(#From) Mandatory(*SQLNULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#BPFUserLastAuthorised) Name(#Result)
+    
+    * Check if have a date
+    If (#From.IsSqlNull)
+    
+    * We don't, so set now as default
+    #From := #From.Now
+    
+    Endif
+    
+    * Time to send Result
+    #Result := (#From.Date.Difference( 1970-01-01 ) * 86400) + #From.Time.AsSeconds
+    
+    Endroutine
+    
+    Mthroutine Name(ControlledAbort)
+    
+    * Ensure Logging is output
+    * If (#LoggingEnabled *Or #OverrideDisabled)
+    *
+    * Use Builtin(TRANSFORM_LIST) With_Args(#logBody #Filename "OU") To_Get(#IO$STS)
+    *
+    * Endif
+    
+    * Clear x_err.log to keep size small
+    If (#COM_SELF.GetNumericValue( 'LOGGING_PROCESSES' 'RUNTIME_LOGGING' ) = 0)
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_FILE' (*TEMP_DIR + 'x_err.log') 'FORCE') To_Get(#Retcode #std_num)
+    Endif
+    
+    * We still need to abort
+    Abort
+    
+    Endroutine
+    
+    Mthroutine Name(StartBackgroundProcess)
+    Define_Map For(*INPUT) Class(#PROCESS) Name(#ProcessName)
+    Define_Map For(*INPUT) Class(#FUNCTION) Name(#FunctionName)
+    
+    #Process := #ProcessName
+    #Function := #FunctionName
+    
+    Submit Process(#Process) Function(#Function)
+    
+    Endroutine
+    
+    * Method : WebRuntimeVersion
+    * Desc : Get web runtime version bumber
+    Mthroutine Name(WebRuntimeVersion)
+    Define_Map For(*RESULT) Class(#Prim_DC.UnicodeString) Name(#Result)
+    
+    * Local Variables
+    
+    * Stream & Text for VLWEB.dat
+    Define_Com Class(#PRIM_IOC.FileStream) Name(#FileStream)
+    Define_Com Class(#PRIM_IOC.StreamReader) Name(#StreamReader)
+    
+    * First we need to read vlweb.dat to get the current folder
+    #FileStream.Path := #COM_SELF.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + 'vlweb.dat'
+    #COM_SELF.Log( ('Utils : WebRuntimeVersion : trying to read vlweb.dat from ' + #FileStream.Path) )
+    
+    #StreamReader.Stream <= #FileStream
+    #StreamReader.TryReadLine( #Result )
+    
+    If (#Result.IsNull)
+    
+    #COM_SELF.Log( ('Utils : WebRuntimeVersion : Current vl runtime could not be found') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Method : IsWebpageConfigured
+    * Desc : Check to see if PORTALIZE.language is the base webpage
+    Mthroutine Name(IsWebpageConfigured)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Variables
+    Define_Com Class(#XPRIM_File) Name(#PortalsHTMLFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#FileStatus)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#HTML)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Position)
+    Define_Com Class(#PRIM_NMBR) Name(#Length)
+    
+    * First we need to read vlweb.dat to get the current folder
+    #PortalsHTMLFile.Path := *PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + 'bpfportal.html'
+    #COM_SELF.Log( ('Utils : IsWebpageConfigured : trying to read webpage from ' + #PortalsHTMLFile.Path) )
+    
+    * Check file Exists
+    If (#PortalsHTMLFile.Exists)
+    
+    * We have a file, so read teh contents
+    * Read in the file contents
+    #HTML := #PortalsHTMLFile.ReadAllText( #FileStatus )
+    
+    If (#FileStatus.OK)
+    
+    * We have the contents, so check for required string
+    If (#HTML.Contains( 'PORTALIZE.language' ).IsFalse)
+    
+    * Not found, so fix the file and return as not okay
+    
+    * We read, so lets get Position and length
+    #Position := #HTML.PositionOf( '":"' ) + 2
+    #Length := #HTML.PositionOf( ":" (#Position + 1) ) - (#Position + 6)
+    
+    #HTML := #HTML.ReplaceSubstring( #Position #Length 'PORTALIZE.language' )
+    
+    * Lets Update the HTML File
+    #PortalsHTMLFile.WriteAllText Text(#HTML) Append(False) Errorinfo(#FileStatus)
+    If (#FileStatus.OK.IsFalse)
+    
+    #COM_SELF.Log( ('Utils : IsWebpageConfigured : Webpage could not be updated with PORTALIZE.language value') )
+    Return
+    
+    Endif
+    
+    * Return as false
+    #Result := False
+    
+    Else
+    
+    * Page is configured, so return as okay
+    #Result := True
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : IsWebpageConfigured : Webpage could not be read') )
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.Log( ('Utils : IsWebpageConfigured : Webpage could not be found') )
+    
+    Endif
+    
+    Endroutine
+    
+    * Method: GetRuntimePath
+    * Desc: Get the runtime path on the server
+    Mthroutine Name(GetRuntimePath)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    * Set Result to base of the system root
+    #Result := *ROOT_DIR
+    
+    * Check if we are running on windows
+    If (*OSAPI = WIN32)
+    
+    * We are so we need to add X_WIN95
+    #Result += *PATHDELIM + 'x_win95'
+    
+    Endif
+    
+    Endroutine
+    
+    * Method: Log
+    * Input: Text
+    * Desc.: Saves Text appended to log file
+    
+    Mthroutine Name(Log)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Text)
+    
+    * Local Variables
+    Define_Com Class(#XPRIM_Directory) Name(#CheckDir)
+    
+    * Has logging been enabled or override set
+    If (#LoggingEnabled *Or #OverrideDisabled)
+    
+    * Check Filename, if blank we need to set a file name
+    If (#Filename = *blank)
+    
+    * Ensure folder(s) are present
+    #CheckDir := (*PART_DIR + *PATHDELIM + #COM_SELF.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #COM_SELF.GetAlphaValue( 'SYSTEM' 'FOLDER_LOGGING' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    
+    * Set Path
+    #Filename := #CheckDir + *PATHDELIM + "portal_log_" + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + ".txt"
+    
+    * Set File Properies
+    * #LoggingText.Stream <= #LoggingFile
+    * #LoggingFile.Path := #Filename
+    * #LoggingFile.FileAccess := Write
+    * #LoggingFile.FileMode := Create
+    
+    #LoggingFile.Path := #Filename
+    
+    Endif
+    
+    * #LoggingText.WriteLine( (#STD_DTIMX.Now.AsDisplayString( Localized_SQL ) + ' - ' + #Text.CurChars.AsString + ' - ' + #Text) )
+    #LoggingFile.WriteAllText Text((#STD_DTIMX.Now.AsDisplayString( Localized_SQL ) + ' - ' + #Text.CurChars.AsString + ' - ' + #Text + ((10).AsUnicodeString))) Append(True)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(GetControlValue) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Get Control Value and return
+    Fetch Fields(#BPFCodeNumericValue) From_File(BPFSystemCodes) With_Key('LOGGING_SYSTEM' 'SYSTEM_WIDE' 1)
+    
+    * Return Result
+    #Result := (#BPFCodeNumericValue = 1)
+    
+    Endroutine
+    
+    End_Com

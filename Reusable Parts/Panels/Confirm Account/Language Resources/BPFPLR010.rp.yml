@@ -1,0 +1,35 @@
+﻿Reusable Part:
+  Name:               BPFConfirmAccountCheckingPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Confirm Account Checking Panel Strings"
+
+  - JPN:
+      Description:        "Confirm Account Checking Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Checking... well be done in moment"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Just checking with the systems now"
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "It pays to be careful, so we are just checking our systems to ensure all is well before we activate your account. We know you cannot wait cause its so exciting, it will not take long."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "We know you busy, wont be long now"
+    
+    Endroutine
+    
+    End_Com

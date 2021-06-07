@@ -1,0 +1,45 @@
+﻿Reusable Part:
+  Name:               BPFForgetPasswordRequestPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Forget Password Request Panel Strings"
+
+  - JPN:
+      Description:        "Forget Password Request Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Recover your %%APP%% account password"
+    #STRINGSCOLLECTION<'SECONDARINSTRUCTION.CAPTION'> := "Confirm the email address of your account"
+    
+    #STRINGSCOLLECTION<'BODYTEXT.CAPTION'> := "Once you confirm your email address we will send you a message with the steps to follow to recover your password. If you have any issues just lets use now at accounts@myPortal.com.au"
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. Email help is on it way, hold tight"
+    
+    #STRINGSCOLLECTION<'CONFIRMEMAILEDIT.CAPTION'> := "Your email"
+    #STRINGSCOLLECTION<'CONFIRMEMAILEDIT.HELPERTEXT'> := "If this isnt right just change it"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Confirm"
+    
+    #STRINGSCOLLECTION<'CONFIRMEMAILEDIT.CHANGED.INVALID'> := "Error. This address is not valid"
+    
+    #STRINGSCOLLECTION<'SESSION.ONPASSWORDRESETREQUESTFAILED'> := "Error. Your account cannot be verified."
+    
+    Endroutine
+    
+    End_Com

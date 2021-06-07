@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFPasswordResetCompletedPanelStrimgs
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password Reset Completed Panel Strings"
+
+  - JPN:
+      Description:        "Password Reset Completed Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Your password has been reset"
+    
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "You can now login using your new password"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "We have updated your %%APP%% account password, so you can now login using your new password. Make sure you keep it safe and sound. If you have any issues please let us know at accounts@myPortal.com.au"
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "Keep it safe. Make sure you keep your new %%APP%% password somewhere safe"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Done"
+    
+    Endroutine
+    
+    End_Com

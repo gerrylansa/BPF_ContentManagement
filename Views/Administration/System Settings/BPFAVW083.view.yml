@@ -1,0 +1,260 @@
+﻿Web View:
+  Name:               BPFSystemAPIKeysView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal System API Keys  View"
+
+  - JPN:
+      Description:        "Portal System API Keys  View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP007')
+    
+    * Note for this view : This view's control captions are generic to ensure they are not the same as the incoming text for the current language. If a control has the same text as the incoming text, it can cause the view to appear to "jump".
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSystemAPIKeysViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFSystemSettingsDataClient) Name(#PortalSettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(120) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(682) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#SettingsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#APIKeysGuideLinkText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentWidth) Flow(Down) Margintop(8) Columnspan(3)
+    
+    * Settings Panel Layout
+    
+    Define_Com Class(#PRIM_TBLO) Name(#SettingsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow1) Displayposition(1) Parent(#SettingsPanelLayout) Units(Content) Height(632)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#SettingsPanelLayoutRow2) Displayposition(2) Parent(#SettingsPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn1) Displayposition(1) Parent(#SettingsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn2) Displayposition(2) Parent(#SettingsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#SettingsPanelLayoutColumn3) Displayposition(3) Parent(#SettingsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem1) Manage(#SettingsHeading) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#SettingsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem2) Alignment(TopLeft) Column(#SettingsPanelLayoutColumn2) Manage(#MobileSettingsList) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Margintop(16) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#SettingsPanelLayoutItem3) Alignment(TopLeft) Column(#SettingsPanelLayoutColumn2) Manage(#DesktopSettingsList) Parent(#SettingsPanelLayout) Row(#SettingsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Margintop(16) Flow(Down)
+    
+    
+    
+    * Desktop List Layout
+    
+    Define_Com Class(#PRIM_TBLO) Name(#DesktopSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DesktopSettingsLayoutListColumn1) Displayposition(1) Parent(#DesktopSettingsLayoutList) Units(Pixels) Width(180)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DesktopSettingsLayoutListColumn2) Displayposition(2) Parent(#DesktopSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DesktopSettingsLayoutListRow1) Displayposition(1) Parent(#DesktopSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DesktopSettingsLayoutListItem1) Alignment(CenterLeft) Column(#DesktopSettingsLayoutListColumn1) Manage(#DesktopSettingsListLabel) Parent(#DesktopSettingsLayoutList) Row(#DesktopSettingsLayoutListRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DesktopSettingsLayoutListItem2) Alignment(CenterLeft) Column(#DesktopSettingsLayoutListColumn2) Manage(#DesktopSettingsListValue) Parent(#DesktopSettingsLayoutList) Row(#DesktopSettingsLayoutListRow1) Sizing(ContentHeightFitToWidth)
+    
+    * Mobile List Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DesktopSettingsLayoutListItem3) Alignment(TopLeft) Column(#DesktopSettingsLayoutListColumn1) Manage(#DesktopSettingsListBackgroundLabel) Parent(#DesktopSettingsLayoutList) Row(#DesktopSettingsLayoutListRow1) Columnspan(2)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MobileSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MobileSettingsLayoutListColumn1) Displayposition(1) Parent(#MobileSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileSettingsLayoutListRow1) Displayposition(1) Parent(#MobileSettingsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileSettingsLayoutListItem1) Alignment(CenterLeft) Column(#MobileSettingsLayoutListColumn1) Manage(#MobileSettingsListLabel) Parent(#MobileSettingsLayoutList) Row(#MobileSettingsLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileSettingsLayoutListItem2) Alignment(CenterLeft) Column(#MobileSettingsLayoutListColumn1) Manage(#MobileSettingsListValue) Parent(#MobileSettingsLayoutList) Row(#MobileSettingsLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(341) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Style(#NavigationLinkStyle) Caption('Panel Title')
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(341) Parent(#COM_OWNER) Tabposition(3) Top(79) Width(1000) Wordwrap(True) Caption('Instruction text for the panel')
+    
+    * Panels
+    
+    * Settings
+    Define_Com Class(#PRIM_PANL) Name(#SettingsPanel) Displayposition(3) Height(658) Left(401) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(168) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#SettingsPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#SettingsHeading) Caption('Card Heading') Displayposition(1) Left(24) Parent(#SettingsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24) Iconalignment(CenterRight) Icon('edit') Style(#NavigationLinkStyle) Iconcolor(Theme500)
+    
+    Define_Com Class(#PRIM_MD.List) Name(#MobileSettingsList) Displayposition(2) Layoutmanager(#MobileSettingsLayoutList) Left(24) Parent(#SettingsPanel) Rowheight(80) Tabposition(2) Top(64) Height(324) Width(830) Visible(False)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#MobileSettingsListLabel) Caption('LABEL') Displayposition(1) Dragstyle(None) Left(0) Parent(#MobileSettingsList) Tabposition(1) Themedrawstyle('Subheading+ForegroundSecondary') Top(19) Height(16) Width(40) Captionmarginbottom(1) Captionmargintop(0)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#MobileSettingsListValue) Caption('Settings Value') Displayposition(2) Dragstyle(None) Left(0) Parent(#MobileSettingsList) Tabposition(3) Top(35) Height(26) Width(107) Captionmarginbottom(3) Themedrawstyle('Heading3') Captionmargintop(3)
+    
+    Define_Com Class(#PRIM_MD.List) Name(#DesktopSettingsList) Displayposition(3) Layoutmanager(#DesktopSettingsLayoutList) Left(24) Parent(#SettingsPanel) Rowheight(56) Tabposition(3) Top(404) Height(228) Width(830)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#DesktopSettingsListBackgroundLabel) Displayposition(4) Dragstyle(None) Left(0) Parent(#DesktopSettingsList) Tabposition(1) Themedrawstyle('card') Height(56) Top(0) Width(830) Style(#NotaCard)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#DesktopSettingsListLabel) Caption('LABEL') Displayposition(2) Dragstyle(None) Left(0) Parent(#DesktopSettingsList) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Height(19) Top(19) Width(156)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#DesktopSettingsListValue) Caption('Settings Value') Displayposition(1) Dragstyle(None) Left(180) Parent(#DesktopSettingsList) Tabposition(4) Height(26) Top(15) Width(650) Themedrawstyle('Heading3') Captionmarginbottom(3) Captionmargintop(3)
+    
+    
+    * So we can hear events
+    Define_Com Class(#BPFBooleanCodeGroupClass) Name(#CurrentSetting) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_MD.Label) Name(#APIKeysGuideLinkText) Displayposition(4) Left(341) Parent(#COM_OWNER) Tabposition(2) Top(108) Width(186) Wordwrap(True) Caption('How to get an API Key') Icon('keyboard_arrow_right') Iconalignment(AfterCaption) Iconmarginleft(8) Iconmarginright(12) Themedrawstyle('ForegroundMediumPrimary') Style(#NavigationLinkStyle)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #PortalSettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFSystemSettingsDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get portal logging settings
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    #PortalSettings.GetAPIKeys
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    * Rebuild List
+    #COM_SELF.BuildSettingsForPanel
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#SettingsHeading.Click)
+    
+    #Navigate.To( SYSTEMAPIKEYSEDITVIEW )
+    
+    Endroutine
+    
+    Evtroutine Handling(#APIKeysGuideLinkText.Click)
+    
+    #Navigate.To( SYSTEMAPIKEYSGUIDEVIEW )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#PortalSettings.OnGetAPIKeysCompleted)
+    
+    #COM_SELF.BuildSettingsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#PortalSettings.OnGetAPIKeysFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<PORTALSETTINGS.ONGETJSMSETTINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #APIKEYSGUIDELINKTEXT.CAPTION := #STRINGS.Text<APIKEYSGUIDELINKTEXT.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #SETTINGSHEADING.CAPTION := #STRINGS.Text<SETTINGSHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSettingsForPanel) Access(*PRIVATE)
+    
+    *
+    Clr_List Named(#DesktopSettingsList)
+    Clr_List Named(#MobileSettingsList)
+    
+    * Build based on Device
+    If (#SYS_WEB.Device = Mobile)
+    
+    #COM_SELF.BuildMobileList
+    
+    Else
+    
+    #COM_SELF.BuildDesktopList
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(BuildMobileList) Access(*PRIVATE)
+    
+    * Hide & Clear Desktop List
+    #DesktopSettingsList.Visible := False
+    
+    * Show Mobile list
+    #MobileSettingsList.Visible := True
+    
+    * Start wuth loading system logging
+    For Each(#Item) In(#PortalSettings.APIKeys)
+    
+    * Current List Item
+    Add_Entry To_List(#MobileSettingsList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #MobileSettingsList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #MobileSettingsListLabel.CurrentItem.Caption := #STRINGS.Text<('LISTLABEL.CAPTION.' + #Item.Text.UpperCase)>
+    #MobileSettingsListValue.CurrentItem.Caption := #Item.Value
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(BuildDesktopList) Access(*PRIVATE)
+    
+    * Hide & Clear Desktop List
+    #MobileSettingsList.Visible := False
+    
+    * Show Mobile list
+    #DesktopSettingsList.Visible := True
+    
+    * Start wuth loading system logging
+    For Each(#Item) In(#PortalSettings.APIKeys)
+    
+    * Current List Item
+    Add_Entry To_List(#DesktopSettingsList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #DesktopSettingsList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #DesktopSettingsListLabel.CurrentItem.Caption := #STRINGS.Text<('LISTLABEL.CAPTION.' + #Item.Text.UpperCase)>
+    #DesktopSettingsListValue.CurrentItem.Caption := #Item.Value
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

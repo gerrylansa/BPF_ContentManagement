@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFNavigationRelatedViewID
+  Type:               Alpha
+  Length:             9
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Related View Identifier For Nav Event"
+      Label:              "Related View Id"
+      Heading1:           "Related"
+      Heading2:           "View"
+      Heading3:           "Identifier"
+
+  - JPN:
+      Description:        "Related View Identifier For Nav Event"
+      Label:              "Related View Id"
+      Heading1:           "Related"
+      Heading2:           "View"
+      Heading3:           "Identifier"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Marginleft(224) Width(401)
+    
+    End_Com
+    
+    End_Com

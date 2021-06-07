@@ -1,0 +1,506 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsExporter
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Handler To Generate Settings Exports"
+
+  - JPN:
+      Description:        "Handler To Generate Settings Exports"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * JSON Data Writer
+    Define_Com Class(#XPRIM_JsonWriter) Name(#Export)
+    
+    * Group Bys
+    Group_By Name(#Settings) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription)
+    Group_By Name(#AdminUsers) Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserPassword #BPFUserFirstName #BPFUserLastName #BPFUserHasAdminRights #BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserEventToken #BPFUserPrimaryValue #BPFUserSecondaryValue)
+    Group_By Name(#AdminPrefs) Fields(#BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage)
+    Group_By Name(#AdminProfile) Fields(#BPFProfileCompanyName #BPFProfileJobTitle #BPFProfileAddressLine1 #BPFProfileAddressLine2 #BPFProfileSuburbName #BPFProfilePostalCode #BPFProfileStateName #BPFProfileCountry #BPFProfileBirthDate #BPFProfilePhoneNumber)
+    
+    * Data List for Strings
+    Define Field(#FileFullName) Reffld(#BPFFileServiceFullName)
+    Define Field(#FilePrefix) Reffld(#BPFFileServiceFilePrefix)
+    Define Field(#FileSuffix) Reffld(#BPFFileServiceFileSuffix)
+    Define Field(#FileFileDate) Reffld(#BPFFileServiceFileDate)
+    Define Field(#FileFileTime) Reffld(#BPFFileServiceFileTime)
+    Define Field(#FileFileSize) Reffld(#BPFFileServiceFileSize)
+    Define Field(#FileDirFlag) Reffld(#BPFFileServiceFileDirectory)
+    Define Field(#FileCount) Reffld(#Listcount)
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#ErrCode) Reffld(#STD_NUM)
+    
+    Def_List Name(#Strings) Fields(#FileFullName #FilePrefix #FileSuffix #FileFileDate #FileFileTime #FileFileSize #FileDirFlag) Counter(#Filecount) Type(*WORKING) Entrys(*MAX)
+    
+    * Lists
+    Def_List Name(#Languages) Fields(#BPFGenericNVarChar256) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#EmailTemplates) Fields(#BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#PDFContents) Fields(#BPFCodeName #BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#WebContents) Fields(#BPFCodeName #BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#Plugins) Fields(#BPFCodeName #BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    * Methods
+    Mthroutine Name(Generate)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#BPFGenericClob) Name(#Result)
+    
+    * Create a temp file
+    Define_Com Class(#XPRIM_File) Name(#TempFile)
+    #TempFile.CreateTemporaryFile
+    
+    #utils.OverrideDisabled := true
+    
+    * Set output to the result
+    #Export.SetOutputToFile( #TempFile.Path )
+    
+    * Create Root Object
+    #Export.BeginObject
+    
+    * Get System Settings
+    #COM_SELF.ExportSettingsData
+    
+    * Export Admins
+    #COM_SELF.ExportAdminUsers
+    
+    * Add The Templates
+    #COM_SELF.ExportEmailTemplates
+    
+    * Add The PDF resources
+    #COM_SELF.ExportPDFResources
+    
+    * Add the web resources
+    #COM_SELF.ExportWebResources
+    
+    * add Language Support objects
+    #COM_SELF.ExportLanguageSupport
+    
+    * Add the language strings
+    #COM_SELF.ExportLanguageStrings
+    
+    * Add Plugins
+    #COM_SELF.ExportPlugins
+    
+    * End Root Object
+    #Export.EndObject
+    
+    * Send Result
+    #Result := #TempFile.Path
+    
+    Endroutine
+    
+    Mthroutine Name(ExportSettingsData) Access(*PRIVATE)
+    
+    * Name the settigs array
+    
+    #Export.BeginArray( 's' )
+    
+    * Read all entries in the system codes table
+    Select Fields(#Settings) From_File(BPFSystemCodes)
+    
+    * If the code if a language, lets add it to teh language list
+    If ((#BPFCodeGroup = LANGUAGE) *And (#BPFCodeName <> DEFAULT))
+    
+    #BPFGenericNVarChar256 := #BPFCodeName
+    Add_Entry To_List(#Languages)
+    
+    #Utils.Log( ('Going to read for language ' + #BPFGenericNVarChar256) )
+    
+    Endif
+    
+    * First record the file name of any external resource
+    #COM_SELF.AddExternalResource
+    
+    * Add the content to the object
+    #COM_SELF.AddSettingsObject
+    
+    Endselect
+    
+    * All done
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(AddExternalResource)
+    
+    * Check if Email Tenmplate
+    If (#BPFCodeName = 'BODY_TEMPLATE')
+    
+    * Add to email templates
+    Add_Entry To_List(#EmailTemplates)
+    
+    Endif
+    
+    * Check if PDF Content
+    If (#BPFCodeName.LeftMost( 4 ) = 'PDF_')
+    
+    * Add to PDF contents
+    Add_Entry To_List(#PDFContents)
+    
+    Endif
+    
+    * Check if Web Content
+    If (#BPFCodeName.LeftMost( 4 ) = 'WEB_')
+    
+    * Add to PDF contents
+    Add_Entry To_List(#WebContents)
+    
+    Endif
+    
+    * Check if Web Content
+    If (#BPFCodeName = 'PLUGIN')
+    
+    * Add to Plugins
+    Add_Entry To_List(#Plugins)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(AddSettingsObject)
+    
+    * Start the Object
+    #Export.BeginObject
+    
+    * Insert the values
+    #Export.WriteString( #BPFCodeGroup 'cg' )
+    #Export.WriteString( #BPFCodeName 'cn' )
+    #Export.WriteNumber( #BPFCodeSequence 'cs' )
+    #Export.WriteString( #BPFCodeAlphaValue 'av' )
+    #Export.WriteNumber( #BPFCodeNumericValue 'nv' )
+    #Export.WriteString( #BPFCodeDescription 'cd' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endroutine
+    
+    Mthroutine Name(ExportAdminUsers) Access(*PRIVATE)
+    
+    * Start a new array
+    #Export.BeginArray( 'sa' )
+    
+    * Read all admin users - currently all users are admins
+    Select Fields(#AdminUsers) From_File(BPFPortalUserAccounts) Where(#BPFUserHasAdminRights = True)
+    
+    * Admin Object
+    #COM_SELF.AddAdminUserObject
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(AddAdminUserObject) Access(*PRIVATE)
+    
+    * Start the Object
+    #Export.BeginObject
+    
+    * Insert the values
+    #Export.WriteString( #BPFUserAccountInternalKey 'ui' )
+    #Export.WriteString( #BPFUserEmail 'ue' )
+    #Export.WriteString( #BPFUserPassword 'up' )
+    #Export.WriteString( #BPFUserFirstName 'fn' )
+    #Export.WriteString( #BPFUserLastName 'ln' )
+    #Export.WriteBoolean( #BPFUserAccountEnabled 'ae' )
+    #Export.WriteBoolean( #BPFUserHasAdminRights 'ua' )
+    #Export.WriteNumber( #BPFUserInvalidAttempts 'ia' )
+    #Export.WriteString( #BPFUserSecurityQuestion 'si' )
+    #Export.WriteString( #BPFUserSecurityValue 'sv' )
+    #Export.WriteString( #BPFUserEventToken 'et' )
+    #Export.WriteString( #BPFUserPrimaryValue 'ps' )
+    #Export.WriteString( #BPFUserSecondaryValue 'ss' )
+    
+    * Add the preferences
+    Fetch Fields(#AdminPrefs) From_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey)
+    #Export.WriteString( #BPFUserPreferenceBackground 'pb' )
+    #Export.WriteString( #BPFUserPreferenceTheme 'pt' )
+    #Export.WriteString( #BPFUserPreferenceEmailLanguage 'pe' )
+    
+    * Add the profile
+    Fetch Fields(#AdminProfile) From_File(BPFPortalUserProfile) With_Key(#BPFUserAccountInternalKey)
+    #Export.WriteString( #BPFProfileCompanyName 'pcn' )
+    #Export.WriteString( #BPFProfileJobTitle 'pjt' )
+    #Export.WriteString( #BPFProfileAddressLine1 'pa1' )
+    #Export.WriteString( #BPFProfileAddressLine2 'pa2' )
+    #Export.WriteString( #BPFProfileSuburbName 'pa3' )
+    #Export.WriteString( #BPFProfilePostalCode 'ppc' )
+    #Export.WriteString( #BPFProfileStateName 'psn' )
+    #Export.WriteString( #BPFProfileCountry 'pac' )
+    #Export.WriteString( #BPFProfileBirthDate.AsDisplayString( CCYYDDMM ) 'pbd' )
+    #Export.WriteString( #BPFProfilePhoneNumber 'ppn' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endroutine
+    
+    Mthroutine Name(ExportEmailTemplates) Access(*PRIVATE)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#EmailTemplatePath)
+    
+    * Start a new array
+    #Export.BeginArray( 'et' )
+    
+    Selectlist Named(#Languages)
+    
+    * Construct the path
+    #EmailTemplatePath := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFGenericNVarChar256 + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' ) + *PATHDELIM).AsNativeString
+    
+    * Add Each Template
+    Selectlist Named(#EmailTemplates)
+    
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the current language
+    #Export.WriteString( #BPFGenericNVarChar256 'l' )
+    
+    * add the name
+    #Export.WriteString( #BPFCodeAlphaValue 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#EmailTemplatePath + #BPFCodeAlphaValue).AsNativeString 'bd' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endselect
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(ExportPDFResources) Access(*PRIVATE)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    * Start a new array
+    #Export.BeginArray( 'pr' )
+    
+    Selectlist Named(#Languages)
+    
+    * Add Each Template
+    Selectlist Named(#PDFContents)
+    
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    If (#BPFCodeAlphaValue.IsNull.IsFalse)
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the current language
+    #Export.WriteString( #BPFGenericNVarChar256 'l' )
+    
+    * Set the path
+    If (#BPFCodeName.Contains( CONTENT ))
+    
+    #FilePath := (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ) + *PATHDELIM).Substitute( #BPFGenericNVarChar256 ).AsNativeString
+    
+    Else
+    
+    #FilePath := (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_RESOURCES' ) + *PATHDELIM).Substitute( #BPFGenericNVarChar256 ).AsNativeString
+    
+    Endif
+    
+    * add the name
+    #Export.WriteString( #BPFCodeAlphaValue 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + #BPFCodeAlphaValue).AsNativeString 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endif
+    
+    Endselect
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(ExportWebResources) Access(*PRIVATE)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    * Start a new array
+    #Export.BeginArray( 'wc' )
+    
+    Selectlist Named(#Languages)
+    
+    * Add Each Template
+    Selectlist Named(#WebContents)
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the current language
+    #Export.WriteString( #BPFGenericNVarChar256 'l' )
+    
+    * Construct the path
+    #FilePath := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + #BPFGenericNVarChar256 + *PATHDELIM).AsNativeString
+    
+    *
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    
+    * add the name
+    #Export.WriteString( #BPFCodeAlphaValue 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + #BPFCodeAlphaValue).AsNativeString 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endselect
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(ExportLanguageSupport)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    * Construct the path
+    #FilePath := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM).AsNativeString
+    
+    * Start a new array
+    #Export.BeginArray( 'sf' )
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the name
+    #Export.WriteString( 'langsupport.js' 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + 'langsupport.js') 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the name
+    #Export.WriteString( 'bpflng001.json' 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + 'bpflng001.json') 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(ExportLanguageStrings)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#FilePath)
+    
+    * Start a new array
+    #Export.BeginArray( 'ls' )
+    
+    * Work thru the language
+    Selectlist Named(#Languages)
+    
+    * set file path for the language folder
+    #FilePath := *PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #BPFGenericNVarChar256
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #FilePath.AsNativeString 'JSON') To_Get(#Retcode #ErrCode #strings)
+    
+    * No we have the list of string files, process thru
+    Selectlist Named(#Strings)
+    
+    * Create object
+    #Export.BeginObject
+    
+    * add the current language
+    #Export.WriteString( #BPFGenericNVarChar256 'l' )
+    
+    * add the name
+    #Export.WriteString( #FileFullName 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + *PATHDELIM + #FileFullName).AsNativeString 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endselect
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    Mthroutine Name(ExportPlugins) Access(*PRIVATE)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    * Start a new array
+    #Export.BeginArray( 'pg' )
+    
+    * Add Each Template
+    Selectlist Named(#Plugins)
+    
+    * Create object
+    #Export.BeginObject
+    
+    * Construct the path
+    #FilePath := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PLUGINS' ) + *PATHDELIM).AsNativeString
+    
+    * add the name
+    #Export.WriteString( #BPFCodeAlphaValue 'fn' )
+    
+    * add the template
+    #Export.WriteBase64StringFromFile( (#FilePath + #BPFCodeAlphaValue).AsNativeString 'df' )
+    
+    * End the object
+    #Export.EndObject
+    
+    Endselect
+    
+    * End Array
+    #Export.EndArray
+    
+    Endroutine
+    
+    End_Com

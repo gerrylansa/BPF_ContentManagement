@@ -1,0 +1,64 @@
+﻿Reusable Part:
+  Name:               BPFSessionEventOutputItem
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Events Output Data Class"
+
+  - JPN:
+      Description:        "Portal Events Output Data Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Mapping of list fields
+    Group_By Name(#ListFields) Fields(#BPFSessionID #BPFSessionStarted #BPFSessionEnded #BPFSessionEventCount #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFGenericNVarChar2048)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(Identifier) Get(*AUTO #BPFSessionID)
+    Define_Pty Name(Started) Get(GetStartedDateTime)
+    Define_Pty Name(Ended) Get(GetEndedDateTime)
+    Define_Pty Name(Duration) Get(GetDurationinMinutes)
+    Define_Pty Name(EventCount) Get(*AUTO #BPFSessionEventCount)
+    Define_Pty Name(EventDateTime) Get(GetEventDateTime)
+    Define_Pty Name(UserEvent) Get(*AUTO #BPFSessionEventUserInteraction)
+    Define_Pty Name(Event) Get(*AUTO #BPFGenericNVarChar2048)
+    
+    * Rotuines
+    
+    * Properties
+    
+    Ptyroutine Name(GetStartedDateTime)
+    Define_Map For(*OUTPUT) Class(#BPFSessionStarted) Name(#Property)
+    
+    #Property := #BPFSessionStarted.AsLocalizedDateTime
+    
+    Endroutine
+    
+    Ptyroutine Name(GetEndedDateTime)
+    Define_Map For(*OUTPUT) Class(#BPFSessionEnded) Name(#Property)
+    
+    #Property := #BPFSessionEnded.AsLocalizedDateTime
+    
+    Endroutine
+    
+    Ptyroutine Name(GetEventDateTime)
+    Define_Map For(*OUTPUT) Class(#BPFSessionEventDateTime) Name(#Property)
+    
+    #Property := #BPFSessionEventDateTime.AsLocalizedDateTime
+    
+    Endroutine
+    
+    Ptyroutine Name(GetDurationinMinutes)
+    Define_Map For(*OUTPUT) Class(#PRIM_NMBR) Name(#Property)
+    
+    #Property := ((((#BPFSessionEnded.Date.Difference( 1970-01-01 ) * 86400) + #BPFSessionEnded.AsSeconds) - (((#BPFSessionStarted.Date.Difference( 1970-01-01 ) * 86400) + #BPFSessionStarted.AsSeconds))) / 60).Round( Down )
+    
+    Endroutine
+    
+    End_Com

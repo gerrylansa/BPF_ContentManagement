@@ -1,0 +1,38 @@
+﻿Reusable Part:
+  Name:               BPFShareItemViewerStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Viewer Strings"
+
+  - JPN:
+      Description:        "Share Item Viewer Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFExternalLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'DIALOGTITLE.CAPTION.SESSIONERROR'> := "Preview unavailable"
+    #STRINGSCOLLECTION<'DIALOGMESSAGE.CAPTION.SESSIONERROR'> := "Please sign in to view this item"
+    
+    #STRINGSCOLLECTION<'DIALOGTITLE.CAPTION.NOTALLOWED'> := "Preview unavailable"
+    #STRINGSCOLLECTION<'DIALOGMESSAGE.CAPTION.NOTALLOWED'> := "This item is not shared"
+    
+    #STRINGSCOLLECTION<'DIALOGTITLE.CAPTION.MISSING'> := "Preview unavailable"
+    #STRINGSCOLLECTION<'DIALOGMESSAGE.CAPTION.MISSING'> := "This item has been removed"
+    
+    Endroutine
+    
+    End_Com

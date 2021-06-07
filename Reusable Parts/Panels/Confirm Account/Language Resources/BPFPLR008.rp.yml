@@ -1,0 +1,39 @@
+﻿Reusable Part:
+  Name:               BPFConfirmAccountCompletedPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Confirm Account Completed Panel Strings"
+
+  - JPN:
+      Description:        "Confirm Account Completed Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Your all set to go into %%APP%%"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Your account is now active and ready to go"
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION.NEW'> := "Atomic batteries to power, turbines to speed. Holy smokes, your good to go into %%APP%%. Your account has now been activated and is ready for you to login. Thanks for creating your account, and once again welcome to %%APP%%."
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION.ENABLED'> := "Atomic batteries to power, turbines to speed. Holy smokes, your good to go into %%APP%%. Your account is has now been enabled and is ready for you to login."
+    
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "All done"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Login"
+    
+    Endroutine
+    
+    End_Com

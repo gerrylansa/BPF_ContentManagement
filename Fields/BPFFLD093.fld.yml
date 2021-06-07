@@ -1,0 +1,36 @@
+﻿Field:
+  Name:               BPFContentItemID
+  Type:               NVarChar
+  Length:             32
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Identifier"
+      Label:              "Item ID"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Identifier"
+
+  - JPN:
+      Description:        "Content Item Identifier"
+      Label:              "Content Item Id"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Identifier"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(674)
+    
+    End_Com
+    
+    End_Com

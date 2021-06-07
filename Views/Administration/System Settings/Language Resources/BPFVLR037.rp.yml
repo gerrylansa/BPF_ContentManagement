@@ -1,0 +1,44 @@
+﻿Reusable Part:
+  Name:               BPFSystemWebPathsEditViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System Web Paths Edit View Strings"
+
+  - JPN:
+      Description:        "System Web Paths Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit Web Paths"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Edit the current web paths used by the portal in notifications emails sent by the system."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Edit Paths"
+    
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.URL'> := "Portal URL"
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.HOST'> := "Portal Host"
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.PATH'> := "Portal Path"
+    
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONGETWEBPATHSFAILED'> := "Settings saved"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETWEBPATHSCOMPLETED'> := "Web paths updated"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETWEBPATHSFAILED'> := "FAILED to update web paths"
+    
+    Endroutine
+    
+    End_Com

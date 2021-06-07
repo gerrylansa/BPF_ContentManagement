@@ -1,0 +1,44 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserSetContentShareViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin User Set Share View Strings"
+
+  - JPN:
+      Description:        "Admin User Set Share View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Change Content Share"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "To share content with the user select one of the content shares and then click save. Once selected the user will see that content has been shared with them when they next sign in to the portal."
+    
+    #STRINGSCOLLECTION<'CONTROLPANELHEADING.CAPTION'> := "Content Shares"
+    
+    #STRINGSCOLLECTION<'CONTENTSHARESELECTION.CAPTION'> := "Select a share"
+    #STRINGSCOLLECTION<'CONTENTSHARESELECTION.DEFAULT'> := "No content share"
+    
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETUSERACCOUNTFAILED'> := "Error cannot load user data"
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETCONTENTSHARESFAILED'> := "Error cannot load content shares"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETCONTENTSHARECOMPLETED'> := "Content share saved"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETCONTENTSHAREFAILED'> := "Error unable to set content share"
+    
+    Endroutine
+    
+    End_Com

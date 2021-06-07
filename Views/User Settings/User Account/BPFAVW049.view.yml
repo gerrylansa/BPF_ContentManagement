@@ -1,0 +1,291 @@
+﻿Web View:
+  Name:               BPFUserProfileEditView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Profile Edit View"
+
+  - JPN:
+      Description:        "Portal User Profile Edit View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSettingsUserProfileEditStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(984) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#SecurityDetailsEntryPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Flow(Down) Manage(#BottomMargin) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#NewPasswordEntryPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Units(Content) Height(878)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PasswordEntryPanelLayoutColumn3) Displayposition(3) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem1) Manage(#SecurityDetailsPanelHeading) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#NewPasswordEntryPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem3) Column(#NewPasswordEntryPanelLayoutColumn1) Manage(#Divider) Parent(#NewPasswordEntryPanelLayout) Sizing(FitToWidth) Row(#NewPasswordEntryPanelLayoutRow2) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem4) Alignment(CenterRight) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#SaveAction) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem5) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#CompanyNameEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem2) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#JobTitleEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem6) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#AddressLine1Edit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem7) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#AddressLine2Edit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem8) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#SuburbEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem9) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#PostCodeEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem10) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#BirthDayEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem11) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#PhoneNumberEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#NewPasswordEntryPanelLayoutItem1) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#CountryEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#NewPasswordEntryPanelLayoutItem2) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#StateEdit) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(341) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Edit Profile') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(341) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Enter the information about yourself that you would like to share with myPortal. You are the only one who is able to change this information')
+    
+    * Password Entry Panel & Controls
+    Define_Com Class(#PRIM_PANL) Name(#SecurityDetailsEntryPanel) Displayposition(3) Height(936) Left(401) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#NewPasswordEntryPanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#SecurityDetailsPanelHeading) Caption('Your Profile') Displayposition(1) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.Edit) Name(#CompanyNameEdit) Caption('Company') Displayposition(3) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(3) Top(155) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#JobTitleEdit) Caption('Job Title') Displayposition(2) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(2) Top(72) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#AddressLine1Edit) Displayposition(4) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(4) Top(238) Width(830) Caption('Unit / Level')
+    Define_Com Class(#PRIM_MD.Edit) Name(#AddressLine2Edit) Caption('Street Address') Displayposition(5) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(5) Top(321) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#SuburbEdit) Caption('Suburb') Displayposition(6) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(6) Top(404) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#PostCodeEdit) Caption('Post Code') Displayposition(7) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(7) Top(487) Width(830)
+    Define_Com Class(#BPFProfileBirthDate.DateTimeField) Name(#BirthDayEdit) Displayposition(10) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(10) Top(720) Width(830) Caption('Birthday') Promptposition(ScreenCenter) Captiontype(Caption)
+    Define_Com Class(#PRIM_MD.Edit) Name(#PhoneNumberEdit) Caption('Phone') Displayposition(11) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(11) Top(803) Width(830)
+    
+    
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(13) Height(8) Left(0) Parent(#SecurityDetailsEntryPanel) Tabposition(13) Tabstop(False) Themedrawstyle('TopDivider') Top(878) Width(878)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SaveAction) Caption('SAVE') Displayposition(12) Left(754) Parent(#SecurityDetailsEntryPanel) Tabposition(12) Themedrawstyle('ForegroundMediumPrimary') Top(888) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#BottomMargin) Displayposition(4) Left(401) Parent(#COM_OWNER) Tabposition(4) Top(1060) Height(24) Width(880)
+    Define_Com Class(#BPFCountrySelectionControl) Name(#CountryEdit) Displayposition(8) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(8) Tabstop(False) Top(562) Width(830)
+    Define_Com Class(#BPFCountryStateSelectionControl) Name(#StateEdit) Displayposition(9) Left(24) Parent(#SecurityDetailsEntryPanel) Tabposition(9) Tabstop(False) Width(830) Top(637)
+    
+    * References
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    Define_Com Class(#BPFUserProfileClass) Name(#Profile) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to logging data client
+    #CurrentUser <= #Session.CurrentUser
+    
+    * Get direct reference to profile data for events
+    #Profile <= #CurrentUser.Profile
+    
+    * Set Strings
+    #COM_SELF.SetStrings
+    
+    * If we do not have profile data then get it
+    If (#Profile *Is *Null)
+    
+    #CurrentUser.GetUserProfile
+    
+    Else
+    
+    #COM_SELF.Populate
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    
+    Evtroutine Handling(#CurrentUser.OnGetProfileCompleted)
+    
+    * Get a direct reference for events
+    #Profile <= #CurrentUser.Profile
+    
+    * Build Profile
+    #Profile <= #CurrentUser.Profile
+    #COM_SELF.Populate
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnGetProfileFailed)
+    
+    * Show error
+    #BPFPortal.ShowToaster( #STRINGS.Text<'MESSAGES.DATALOADFAILED'> 7500 )
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Profile.OnSaveCompleted)
+    
+    * All Okay so head back to settings screen
+    #SYS_WEB.History.GoBack
+    #BPFPortal.ShowToaster( #STRINGS.Text<MESSAGES.SAVECOMPLETED> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Profile.OnSaveFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'MESSAGES.SAVEFAILED'> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#SaveAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Profile.Save
+    
+    Endroutine
+    
+    * Field Events
+    Evtroutine Handling(#CompanyNameEdit.Changed)
+    
+    #Profile.ProfileCompany := #CompanyNameEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#JobTitleEdit.Changed)
+    
+    #Profile.JobTitle := #JobTitleEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#AddressLine1Edit.Changed)
+    
+    #Profile.AddressLine1 := #AddressLine1Edit
+    
+    Endroutine
+    
+    Evtroutine Handling(#AddressLine2Edit.Changed)
+    
+    #profile.AddressLine2 := #AddressLine2Edit
+    
+    Endroutine
+    
+    Evtroutine Handling(#SuburbEdit.Changed)
+    
+    #Profile.Suburb := #SuburbEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#PostCodeEdit.Changed)
+    
+    #Profile.PostalCode := #PostCodeEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#CountryEdit.Changed)
+    
+    #Profile.Country := #CountryEdit.Control
+    #StateEdit.Load( #Profile.Country )
+    
+    Endroutine
+    
+    Evtroutine Handling(#StateEdit.Changed)
+    
+    #Profile.State := #StateEdit.Control
+    
+    Endroutine
+    
+    Evtroutine Handling(#PhoneNumberEdit.Changed)
+    
+    #Profile.PhoneNumber := #PhoneNumberEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#BirthDayEdit.Changed)
+    
+    #Profile.BirthDate := #BirthDayEdit
+    
+    Endroutine
+    
+    * Methods
+    
+    * Set Strings
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<'PANELHEADING.CAPTION'>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<'INSTRUCTIONTEXT.CAPTION'>
+    #SECURITYDETAILSPANELHEADING.CAPTION := #STRINGS.Text<'SECURITYDETAILSPANELHEADING.CAPTION'>
+    #JOBTITLEEDIT.CAPTION := #STRINGS.Text<'JOBTITLEEDIT.CAPTION'>
+    #COMPANYNAMEEDIT.CAPTION := #STRINGS.Text<'COMPANYNAMEEDIT.CAPTION'>
+    #ADDRESSLINE1EDIT.CAPTION := #STRINGS.Text<'ADDRESSLINE1EDIT.CAPTION'>
+    #ADDRESSLINE2EDIT.CAPTION := #STRINGS.Text<'ADDRESSLINE2EDIT.CAPTION'>
+    #SUBURBEDIT.CAPTION := #STRINGS.Text<'SUBURBEDIT.CAPTION'>
+    #POSTCODEEDIT.CAPTION := #STRINGS.Text<'POSTCODEEDIT.CAPTION'>
+    #COUNTRYEDIT.CONTROL.CAPTION := #STRINGS.Text<'COUNTRYEDIT.CONTROL.CAPTION'>
+    #STATEEDIT.CONTROL.CAPTION := #STRINGS.Text<'STATEEDIT.CONTROL.CAPTION'>
+    #BIRTHDAYEDIT.CAPTION := #STRINGS.Text<'BIRTHDAYEDIT.CAPTION'>
+    #PHONENUMBEREDIT.CAPTION := #STRINGS.Text<'PHONENUMBEREDIT.CAPTION'>
+    #SAVEACTION.CAPTION := #STRINGS.Text<'SAVEACTION.CAPTION'>
+    
+    Endroutine
+    
+    * Populate
+    Mthroutine Name(Populate)
+    
+    * Populate Fields
+    #CompanyNameEdit := #Profile.ProfileCompany
+    #JobTitleEdit := #Profile.JobTitle
+    #AddressLine1Edit := #Profile.AddressLine1
+    #AddressLine2Edit := #Profile.AddressLine2
+    #SuburbEdit := #Profile.Suburb
+    #PostCodeEdit := #Profile.PostalCode
+    #CountryEdit.Control := #Profile.Country
+    #StateEdit.Load( #Profile.Country )
+    #StateEdit.Control := #Profile.State
+    #BirthdayEdit := #Profile.BirthDate
+    #PhoneNumberEdit := #Profile.PhoneNumber
+    
+    Endroutine
+    
+    * Handle Field Events
+    
+    
+    End_Com

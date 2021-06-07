@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFAdminContentSharingViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Content Sharing View"
+
+  - JPN:
+      Description:        "Portal Content Sharing View"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Content & Sharing"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Configure content shares and manager the content that can be viewed inside"
+    
+    #STRINGSCOLLECTION<'CONTENTSHARESCARD.HEADING'> := "Content Shares"
+    #STRINGSCOLLECTION<'CONTENTSHARESCARD.TEXT'> := "Create and configure content shares that can be used to show content to users."
+    #STRINGSCOLLECTION<'CONTENTSHARESCARD.ACTION'> := "Configure Shares"
+    
+    #STRINGSCOLLECTION<'CONTENTLIBRARYCARD.HEADING'> := "Content Library"
+    #STRINGSCOLLECTION<'CONTENTLIBRARYCARD.TEXT'> := "Manage the library of documents and videos that be used as content inside a content share users can view"
+    #STRINGSCOLLECTION<'CONTENTLIBRARYCARD.ACTION'> := "Manage Content"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect the security of user accounts, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

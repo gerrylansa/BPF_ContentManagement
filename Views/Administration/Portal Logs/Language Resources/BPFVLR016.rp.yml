@@ -1,0 +1,46 @@
+﻿Reusable Part:
+  Name:               BPFIntegrationLogControlViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Integration Log Control View Strings"
+
+  - JPN:
+      Description:        "Integration Log Control View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Integration Logging Control"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "You are able to choose if the integration logging is off, on or only happens when an error is encountered. Its is recommend logging is left off unless required. You are also able to clear all integration logs if needed."
+    
+    #STRINGSCOLLECTION<'ENABLEDPANELHEADING.CAPTION'> := "Enable Logs"
+    
+    #STRINGSCOLLECTION<'ENABLEDOPTION1.CAPTION'> := "Off"
+    #STRINGSCOLLECTION<'ENABLEDOPTION2.CAPTION'> := "On"
+    #STRINGSCOLLECTION<'ENABLEDOPTION3.CAPTION'> := "Only on error"
+    
+    #STRINGSCOLLECTION<'CLEARLOGSPANELHEADING.CAPTION'> := "Clear Logs"
+    #STRINGSCOLLECTION<'CLEARLOGSACTION.CAPTION'> := "Clear all Logs"
+    
+    #STRINGSCOLLECTION<'LOGGINGDATA.ONSETINTEGRATIONLOGGINGCONTROLSETTINGCOMPLETED'> := "Settings saved"
+    #STRINGSCOLLECTION<'LOGGINGDATA.ONSETINTEGRATIONLOGGINGCONTROLSETTINGFAILED'> := "FAILED to save settings"
+    #STRINGSCOLLECTION<'LOGGINGDATA.ONINTEGRATIONLOGSREMOVECOMPLETED'> := "Logs removed"
+    #STRINGSCOLLECTION<'LOGGINGDATA.ONINTEGRATIONLOGSREMOVEFAILED'> := "FAILED to save settings"
+    
+    Endroutine
+    
+    End_Com

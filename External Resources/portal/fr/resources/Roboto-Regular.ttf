@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Definitions for User History Listing -->
+
+	<!-- Specify document definitions -->
+	<document page-size="A4"
+		orientattion="portrait"
+		creator="myPortal"
+		author="System Generated"
+		title="Session History"
+		grid="false">
+
+		<!-- Content Sections for this document -->
+
+		<!-- Day Heading for sections - e.g. Wednesday, 31 December 2019 (includes underline) -->
+		<content name="dayheading">
+
+			<!-- Note the x values which run left to right are fixed, the y values are variable to the output and are controlled in generation handler -->
+			<text x1="0" y1="{W$LNEPS1}" height="18" width="473" style="heading1" value="{W$LNEVL1}" />
+			<line x1="0" y1="{W$LNEPS2}" x2="523" y2="{W$LNEPS2}" />
+
+		</content>
+
+		<!-- Session Heading for sections - e.g. 15:59 - 15:45         25 mins                          11 Events -->
+		<content name="sessionheading">
+
+			<!-- Note the x values which run left to right are fixed, the y values are variable to the output and are controlled in generation handler -->
+			<text x1="0" y1="{W$LNEPS1}" height="15" width="80" style="heading2" value="{W$LNEVL1}" />
+			<text x1="120" y1="{W$LNEPS1}" height="15" width="70" style="heading2" value="{W$LNEVL2}" />
+			<text x1="440" y1="{W$LNEPS1}" height="15" width="110" style="heading2" value="{W$LNEVL3}" />
+
+		</content>
+
+		<!-- Session event line in sections - e.g. 15:59:55 - Login successful -->
+		<content name="sessioneventline">
+
+			<!-- Note the x values which run left to right are fixed, the y values are variable to the output and are controlled in generation handler -->
+			<text x1="35" y1="{W$LNEPS1}" height="12" width="473" style="line" value="{W$LNEVL1}" />
+
+		</content>
+
+		<!-- Header -->
+		<content name="header">
+			<text x1="36" y1="830" height="9" width="400" style="footer" value="{W$LNEVL1}" />
+		</content>
+
+		<!-- Content to allow for footer then new page as required -->
+		<content name="footerpage">
+			<text x1="36" y1="25" height="9" width="100" style="footer" value="{W$LNEVL1}" />
+			<text x1="522" y1="25" height="9" width="50" style="footer" value="{W$LNEVL2}" />
+			<if compare="{W$LNEVL3}" value="1" operation="equal">
+   				<page/>
+			</if>
+		</content>
+
+		<!-- Styles for each content line portal/resources/Roboto-Regular.ttf -->
+		<style name="heading1" file="{W$LNEVL1}" size="12" embedded="true"/>
+		<style name="heading2" file="{W$LNEVL1}" size="10" embedded="true"/>
+		<style name="line" file="{W$LNEVL1}" size="8" embedded="true"/>
+		<style name="footer" file="{W$LNEVL1}" size="6" embedded="true"/>
+	</document>

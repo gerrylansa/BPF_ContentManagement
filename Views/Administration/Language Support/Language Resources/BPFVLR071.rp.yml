@@ -1,0 +1,66 @@
+﻿Reusable Part:
+  Name:               BPFPortalLanguageEditViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Edit Language View Strings"
+
+  - JPN:
+      Description:        "Portal Edit Language View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit Language"
+    
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "You can change the language description or edit the locale settings for this language so the portal controls display the correct values."
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.DEFAULT'> := "This language cannot be removed as it is currently the default portal language."
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.INUSE'> := "This language cannot be removed as it is currently being as a users preferred email language."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Details for %%CODE%%"
+    
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.CAPTION'> := "Description"
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.HELPERTEXT'> := "e.g. English"
+    #STRINGSCOLLECTION<'LANGUAGEDESCRIPTIONEDIT.ERROR.BLANK'> := "You need to enter a description"
+    
+    #STRINGSCOLLECTION<'DEFAULTLANGUAGECHECKBOX.CAPTION'> := "Set as default"
+    
+    #STRINGSCOLLECTION<'DEFAULTLANGUAGELABEL.CAPTION'> := "Default Language"
+    
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'LOCALESETTINGSCARD.HEADING'> := "Locale Settings"
+    #STRINGSCOLLECTION<'LOCALESETTINGSCARD.TEXT'> := "Manage the locale settings used by the portal controls to display information such as the days of the week by downloading or uploading the settings."
+    #STRINGSCOLLECTION<'LOCALESETTINGSCARD.ACTION.1'> := "Download settings"
+    #STRINGSCOLLECTION<'LOCALESETTINGSCARD.ACTION.2'> := "Upload settings"
+    
+    #STRINGSCOLLECTION<'REMOVELANGUAGECARD.HEADING'> := "Remove Language"
+    #STRINGSCOLLECTION<'REMOVELANGUAGECARD.TEXT'> := "Remove this language along with all the translations and resources generated for this language."
+    #STRINGSCOLLECTION<'REMOVELANGUAGECARD.ACTION'> := "Remove"
+    
+    #STRINGSCOLLECTION<'RESOURCES.ONGETLANGUAGEOPTIONSFAILED'> := "Failed to get the portal languages"
+    
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONREMOVEFROMSERVERCOMPLETED.MESSAGE'> := "Language removed"
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONREMOVEFROMSERVERCOMPLETED.ACTION'> := "Reload Portal Now"
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONREMOVEFROMSERVERFAILED'> := "Failed to remove language"
+    
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONUPDATEONSERVERCOMPLETED.MESSAGE'> := "Language updated"
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONUPDATEONSERVERCOMPLETED.ACTION'> := "Reload Portal Now"
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONUPDATEONSERVERFAILED'> := "Failed to update language"
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,1 @@
+{"ls":[{"op":"PANELHEADING.CAPTION","s":"ポータル言語"},{"op":"INSTRUCTIONTEXT.CAPTION","s":"言語を選択すると、その設定とローカル情報を管理できます。言語をポータルに追加するには、新規ボタンをクリックしてください。変更後にこれを反映させるためにはポータルをリロードする必要があります。"},{"op":"PORTALLANGUAGESHEADING.CAPTION","s":"言語"},{"op":"RESOURCES.ONGETLANGUAGEOPTIONSFAILED","s":"ポータル言語を取得できませんでした"}]}

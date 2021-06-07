@@ -1,0 +1,196 @@
+﻿Web View:
+  Name:               BPFEmailControlSettingsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Email Control Settings View"
+
+  - JPN:
+      Description:        "Portal Email Control Settings View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP004')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFEmailControlSettingsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFEmailSettingsDataClient) Name(#EmailSettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(294) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#NotificationsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#NotificationsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NotificationsPanelLayoutRow1) Displayposition(1) Parent(#NotificationsPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NotificationsPanelLayoutRow2) Displayposition(2) Parent(#NotificationsPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NotificationsPanelLayoutColumn1) Displayposition(1) Parent(#NotificationsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NotificationsPanelLayoutColumn2) Displayposition(2) Parent(#NotificationsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NotificationsPanelLayoutColumn3) Displayposition(3) Parent(#NotificationsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#NotificationsPanelLayoutItem1) Manage(#NotificationsHeading) Parent(#NotificationsPanelLayout) Row(#NotificationsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#NotificationsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#NotificationsPanelLayoutItem2) Alignment(TopLeft) Column(#NotificationsPanelLayoutColumn2) Manage(#NotificationsList) Parent(#NotificationsPanelLayout) Row(#NotificationsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EverythingLayoutListColumn1) Displayposition(1) Parent(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EverythingLayoutListRow1) Displayposition(1) Parent(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EverythingLayoutListItem1) Alignment(TopCenter) Column(#EverythingLayoutListColumn1) Manage(#NotificationsListSwitch) Parent(#EverythingLayoutList) Row(#EverythingLayoutListRow1)
+    
+    
+    * Main Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Control Email Notifications') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(38) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('You can pick which email notifications are sent by the portal to inform users of events that happen when using the portal. You cannot stop sending emails that are required to verify a user such as the forget password request. It is recommended security notification are not disabled.')
+    
+    * Panels
+    
+    * Notifications
+    Define_Com Class(#PRIM_PANL) Name(#NotificationsPanel) Displayposition(3) Height(270) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(141) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#NotificationsPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#NotificationsHeading) Caption('Email Notifications') Displayposition(1) Left(24) Parent(#NotificationsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.List) Name(#NotificationsList) Displayposition(2) Layoutmanager(#EverythingLayoutList) Left(24) Parent(#NotificationsPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListSwitch) Name(#NotificationsListSwitch) Caption('On sample text') Displayposition(1) Height(44) Left(0) Parent(#NotificationsList) Tabposition(1) Top(0) Width(830) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    * So we can hear events
+    Define_Com Class(#BPFBooleanCodeGroupClass) Name(#CurrentSetting) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #EmailSettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFEmailSettingsDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #COM_SELF.SetStrings
+    
+    * Get portal logging settings
+    #EmailSettings.LoadControlSettings
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#NotificationsListSwitch.Changed)
+    
+    *
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SaveSetting( (#NotificationsList.CurrentItem) )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#EmailSettings.OnLoadControlSettingsCompleted)
+    
+    #COM_SELF.BuildSwitchControlsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#EmailSettings.OnLoadControlSettingsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<EMAILSETTINGS.ONLOADCONTROLSETTINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    
+    Evtroutine Handling(#CurrentSetting.OnSaveCompleted)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( 'Setting saved' )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentSetting.OnSaveFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTSETTING.ONSAVEFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #NOTIFICATIONSHEADING.CAPTION := #STRINGS.Text<NOTIFICATIONSHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSwitchControlsForPanel) Access(*PRIVATE)
+    
+    * Start wuth loading system logging
+    For Each(#Item) In(#EmailSettings.ControlSettings)
+    
+    * Current List Item
+    Add_Entry To_List(#NotificationsList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #NotificationsList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #NotificationsListSwitch.CurrentItem.Caption := #Item.Text
+    #NotificationsListSwitch.CurrentItem.Checked := #Item.Value
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(SaveSetting)
+    Define_Map For(*INPUT) Class(#Prim_md.ListItem) Name(#ListItemForSetting) Pass(*BY_REFERENCE)
+    
+    * Get Current Setting
+    #CurrentSetting <= (#ListItemForSetting.RelatedReference *As #BPFBooleanCodeGroupClass)
+    #CurrentSetting.Value := *Not #CurrentSetting.Value
+    #CurrentSetting.Save
+    
+    Endroutine
+    
+    End_Com

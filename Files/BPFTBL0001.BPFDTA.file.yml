@@ -1,0 +1,188 @@
+﻿File:
+  Name:                           BPFPortalUserAccounts
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0001
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Accounts"
+
+  - JPN:
+      Description:        "Portal User Accounts"
+
+  Real Fields:
+  - BPFFLD009:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD001:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD002:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD003:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD008:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD059:
+      Type:               Boolean
+      Length:             1
+      Decimals:           0
+
+  - BPFFLD004:
+      Type:               Boolean
+      Length:             1
+      Decimals:           0
+
+  - BPFFLD005:
+      Type:               Integer
+      Length:             2
+      Decimals:           0
+
+  - BPFFLD089:
+      Type:               NVarChar
+      Length:             256
+      Decimals:           0
+
+  - BPFFLD021:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD022:
+      Type:               Alphanumeric
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD006:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD019:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD065:
+      Type:               Decimal
+      Length:             10
+      Decimals:           0
+
+  - BPFFLD060:
+      Type:               NVarChar
+      Length:             10
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD009
+
+  Logical Views:
+  - BPFPortalUserAccountByEmail:
+      Identifier:         BPFIDX0001
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0001
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Portal User Accounts by Email Address"
+
+      - JPN:
+          Description:        "Portal User Accounts by Email Address"
+
+      Keys:
+      - BPFFLD001:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  - BPFPortalUserAccountsByToken:
+      Identifier:         BPFIDX0002
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0002
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Portal User Accounts by Event Token"
+
+      - JPN:
+          Description:        "Portal User Accounts by Event Token"
+
+      Keys:
+      - BPFFLD022:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  - BPFPortalUserAccountByStatus:
+      Identifier:         BPFIDX0008
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0008
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Portal User Accounts By Status"
+
+      - JPN:
+          Description:        "Portal User Accounts By Status"
+
+      Keys:
+      - BPFFLD060:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+      - BPFFLD001:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  File Level Triggers:
+  - BPFFLD009:
+    - Associated Table(s) actions:
+        Function:           BPFT002
+        Trigger Points:
+        - Before Insert
+        - Before Update
+        - After Insert
+        - After Update
+        - After Delete

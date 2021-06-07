@@ -1,0 +1,29 @@
+﻿Reusable Part:
+  Name:               BPFEventLabelDataClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Event Label Data Classs"
+
+  - JPN:
+      Description:        "Event Label Data Classs"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Field Mapping
+    Group_By Name(#ListFields) Fields(#BPFCodeAlphaValue #BPFGenericNVarChar2048 #BPFCodeDescription)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(Code) Get(*AUTO #BPFCodeAlphaValue)
+    Define_Pty Name(Label) Get(*AUTO #BPFGenericNVarChar2048)
+    Define_Pty Name(DisplayLevel) Get(*AUTO #BPFCodeDescription)
+    
+    * Routines
+    
+    End_Com

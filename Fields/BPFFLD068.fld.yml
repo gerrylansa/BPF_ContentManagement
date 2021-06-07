@@ -1,0 +1,36 @@
+﻿Field:
+  Name:               BPFSessionSecureCookie
+  Type:               Alpha
+  Length:             40
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Session Secure Cookie"
+      Label:              "Session Secure"
+      Heading1:           "Session"
+      Heading2:           "Secure"
+      Heading3:           "Cookie"
+
+  - JPN:
+      Description:        "Session Secure Cookie"
+      Label:              "Session Secure"
+      Heading1:           "Session"
+      Heading2:           "Secure"
+      Heading3:           "Cookie"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(797)
+    
+    End_Com
+    
+    End_Com

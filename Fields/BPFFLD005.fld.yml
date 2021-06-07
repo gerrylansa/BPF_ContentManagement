@@ -1,0 +1,36 @@
+﻿Field:
+  Name:               BPFUserInvalidAttempts
+  Type:               Integer
+  Length:             2
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Number of Invalid Attempts"
+      Label:              "Number of Inval"
+      Heading1:           "Number"
+      Heading2:           "of"
+      Heading3:           "Invalid"
+
+  - JPN:
+      Description:        "Number of Invalid Attempts"
+      Label:              "Number of Inval"
+      Heading1:           "Number"
+      Heading2:           "of"
+      Heading3:           "Invalid"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(258)
+    
+    End_Com
+    
+    End_Com

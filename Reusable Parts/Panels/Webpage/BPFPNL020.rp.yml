@@ -1,0 +1,202 @@
+﻿Reusable Part:
+  Name:               BPFPortalViews
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Main View Container"
+
+  - JPN:
+      Description:        "Portal Main View Container"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(270) Left(0) Tabposition(1) Top(0) Width(500) Layoutmanager(#PanelLayout)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalViewsStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Backgroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(255:255:255) Opacity(75)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Load Optimization fake references
+    Define_Com Class(#Prim_md.List) Name(#DummyList) Displayposition(5)
+    Define_Com Class(#BPFMenuItemActionCard) Name(#DummyCard)
+    
+    * Definitions
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Panel Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#PanelLayout)
+    
+    * View Container
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#ViewContainer) Parent(#PanelLayout) Row(#LayoutRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#CoverPanel) Parent(#PanelLayout) Row(#LayoutRow1) Margintop(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#ProgressBar) Parent(#PanelLayout) Row(#LayoutRow1) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem4) Alignment(BottomCenter) Column(#LayoutColumn1) Manage(#Toaster) Parent(#PanelLayout) Row(#LayoutRow1) Sizing(ContentWidth) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem6) Manage(#EditStringsAction) Parent(#PanelLayout) Row(#LayoutRow1) Sizing(ContentWidth) Column(#LayoutColumn1) Alignment(TopRight) Marginright(32) Margintop(48)
+    
+    Define_Com Class(#PRIM_MD.ViewContainer) Name(#ViewContainer) Displayposition(4) Parent(#COM_OWNER) Tabposition(2) Height(270) Width(500)
+    
+    * Waiting Controls
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(266) Left(0) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(4) Width(500) Style(#Style1) Visible(False)
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(2) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Theme100+ForegroundTheme500') Width(500) Visible(False)
+    
+    * Strings Button
+    Define_Pty Name(EditStringsAction) Get(*REFERENCE #EditStringsAction)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#EditStringsAction) Caption('Edit Text') Displayposition(3) Left(348) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('MediumTitle') Top(48) Icon('edit') Width(120) Captionmarginleft(4) Iconmarginright(4) Style(#NavigationLinkStyle) Visible(False) Height(44) Paddingleft(16) Paddingright(16)
+    
+    * Popups
+    Define_Pty Name(Toaster) Get(*REFERENCE #Toaster)
+    Define_Com Class(#BPFPortalToaster) Name(#Toaster) Parent(#COM_OWNER) Left(50) Top(222)
+    
+    Define_Com Class(#BPFPortalUserOverflowMenu) Name(#UserMenu)
+    
+    * Extrenal Control References
+    Define_Com Class(#BPFPortalApplicationBar) Name(#PortalAppBar) Reference(*DYNAMIC)
+    Define_Com Class(#BPFPortalNavigationDrawer) Name(#PortalNavDrawer) Reference(*DYNAMIC)
+    
+    * Events
+    Define_Evt Name(OnEditStringsClicked)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Extrenal References
+    #PortalAppBar <= #BPFPortal.AppBar
+    #PortalNavDrawer <= #BPFPortal.NavDrawer
+    
+    * Set Strings
+    #EditStringsAction.Caption := #STRINGS.Text<EDITSTRINGSACTION.CAPTION>
+    
+    * We are only shown due to login completing
+    * #Navigate.To Eventname(HOME) Type(REPLACE) Signalreplaceevent(True)
+    
+    Endroutine
+    
+    * Web page
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Group(#GroupName) Name(#Event)
+    
+    #COM_SELF.HandleNavigationEvent( #GroupName #Event )
+    
+    Endroutine
+    
+    * AppBar
+    Evtroutine Handling(#PortalAppBar.UserIconClicked)
+    
+    #UserMenu.ShowPopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#EditStringsAction.Click)
+    
+    Signal Event(OnEditStringsClicked)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetEditModeState)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #EditStringsAction.Visible := True
+    #EditStringsAction.DisplayPosition := 3
+    
+    Else
+    
+    #EditStringsAction.Visible := False
+    
+    Endif
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Handle Navigation of view
+    Mthroutine Name(HandleNavigationEvent) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Eventgroup)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event)
+    
+    * If we have event from the view group then we need to take action
+    If (#Eventgroup = VIEWS)
+    
+    * We need to grab that view and stuff into the container
+    #Navigate.CurrentEvent.RelatedView.Parent <= #ViewContainer
+    #Navigate.CurrentEvent.RelatedView.Show
+    
+    Endif
+    
+    Endroutine
+    
+    * Set to waiting state
+    Mthroutine Name(SetWaitingState)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #CoverPanel.Visible #ProgressBar.Visible := True
+    #CoverPanel.DisplayPosition := 1
+    
+    Else
+    
+    #CoverPanel.Visible #ProgressBar.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged)
+    
+    If (#SYS_WEB.Device = Desktop)
+    
+    * Set the layout item
+    #PanelLayoutItem6.Alignment := TopRight
+    #PanelLayoutItem6.Sizing := ContentWidth
+    #PanelLayoutItem6.MarginTop := 48
+    #PanelLayoutItem6.MarginBottom := 0
+    
+    * Set the button
+    #EditStringsAction.Caption := #STRINGS.Text<EDITSTRINGSACTION.CAPTION>
+    #EditStringsAction.CaptionMarginLeft #EditStringsAction.IconMarginRight := 4
+    #EditStringsAction.ThemeDrawStyle := 'MediumTitle'
+    #EditStringsAction.PaddingLeft #EditStringsAction.PaddingRight := 16
+    
+    Else
+    
+    * Set the layout item
+    #PanelLayoutItem6.Alignment := BottomRight
+    #PanelLayoutItem6.Sizing := None
+    #PanelLayoutItem6.MarginTop := 0
+    #PanelLayoutItem6.MarginBottom := 48
+    
+    * Set the button
+    #EditStringsAction.Caption := *null
+    #EditStringsAction.CaptionMarginLeft #EditStringsAction.IconMarginRight #EditStringsAction.PaddingLeft #EditStringsAction.PaddingRight := 0
+    #EditStringsAction.ThemeDrawStyle := 'MediumTitle+Rounded'
+    #EditStringsAction.Width := 44
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

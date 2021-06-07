@@ -1,0 +1,72 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1992
+    * Process .......: BPFTRIGGER
+    * Function ......: BPFT001
+    * Type ..........: BPFSESSIONEVENTS File Level Trigger
+    * Created by ....:
+    * Created on ....: 19/05/31 at 14:25:55
+    * Description ...: BPFSessionEvents Trigger
+    * =======================================================
+    
+    Function Options(*DIRECT *NOMESSAGES *LIGHTUSAGE *MLOPTIMISE) Rcv_List(#TRIG_LIST) Trigger(*FILE BPFTBL0004)
+    
+    * =======================================================
+    * Working fields, lists and groups
+    * =======================================================
+    
+    Def_List Name(#TRIG_LIST) Type(*WORKING) Entrys(2)
+    
+    * =======================================================
+    * Function Mainline : BPFT001
+    * =======================================================
+    
+    * Assume a "good" return initially
+    Change Field(#TRIG_RETC) To('OK')
+    
+    Case Of_Field(#TRIG_OPER)
+    
+    * Handle an after insert event
+    When Value_Is('= AFTINS')
+    
+    Execute Subroutine(UpdateEventCount)
+    
+    * Handle an event not catered for
+    Otherwise
+    
+    Abort Msgtxt('File BPFSESSIONEVENTS trigger function invalidly invoked/ used.')
+    
+    Endcase
+    * Return control to the invoker
+    Return
+    *
+    Subroutine Name(UpdateEventCount)
+    
+    * Get After Image
+    Get_Entry Number(1) From_List(#TRIG_LIST)
+    
+    * Check we have a parent
+    Fetch Fields(#BPFSessionEventCount #BPFSessionUserEventCount) From_File(BPFSessions) With_Key(#BPFSessionID)
+    
+    * If Status is okay, then update by 1
+    If_Status Is(*OKAY)
+    
+    * Set the End of Session
+    #BPFSessionEnded := #BPFSessionEnded.Now
+    
+    #BPFSessionEventCount := #BPFSessionEventCount + 1
+    
+    If (#BPFSessionEventUserInteraction)
+    
+    #BPFSessionUserEventCount := #BPFSessionUserEventCount + 1
+    
+    Endif
+    
+    Update Fields(#BPFSessionEnded #BPFSessionEventCount #BPFSessionUserEventCount) In_File(BPFSessions) With_Key(#BPFSessionID)
+    
+    Endif
+    
+    Endroutine

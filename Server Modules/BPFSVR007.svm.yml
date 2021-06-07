@@ -1,0 +1,186 @@
+﻿ServerModule:
+  Name:               BPFAnalyticsSessionDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Analytics & Session Data Server"
+
+  - JPN:
+      Description:        "Portal Analytics & Session Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#AlphaValue) Type(*CHAR) Length(512)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Generic Save for Numeric Values
+    Srvroutine Name(GetAnalytics)
+    
+    * This request is the only non session related event to not require an active session.
+    * This is due to the analytics needing to be set first thing in the browser
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    Field_Map For(*OUTPUT) Field(#BPFCodeAlphaValue) Parameter_Name(TrackingID)
+    
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * - Test -*
+    * Check if IP Address is banned
+    If (#Secure.IsIPAddressBanned)
+    
+    * Set Error
+    #BPFstatus := IP
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    If (#Utils.IsWebpageConfigured.IsFalse)
+    
+    * Set Error
+    #BPFstatus := NC
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    Fetch Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
+    #BPFStatus := #IO$STS
+    
+    Endroutine
+    
+    Srvroutine Name(GetAnalyticsSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    Field_Map For(*OUTPUT) Field(#BPFCodeAlphaValue) Parameter_Name(TrackingID)
+    
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAnalyticsSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    Fetch Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
+    #BPFStatus := #IO$STS
+    
+    Endroutine
+    
+    Srvroutine Name(SaveAnalytics) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    Field_Map For(*INPUT) Field(#BPFCodeAlphaValue) Parameter_Name(TrackingID)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveAnalytics' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    Update Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
+    #BPFStatus := #IO$STS
+    
+    Endroutine
+    
+    Srvroutine Name(GetSessionSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Inbound
+    Field_Map For(*OUTPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetSessionSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #BPFCodeNumericValue := #Utils.GetNumericValue( 'EVENTS' 'ENABLED' )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SaveSessionSettings) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveSessionSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #BPFStatus := #Utils.SetNumericValue( 'EVENTS' 'ENABLED' 1 #BPFCodeNumericValue )
+    
+    Endroutine
+    
+    End_Com

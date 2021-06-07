@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsMenuStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin System Settings Menu Strings"
+
+  - JPN:
+      Description:        "Admin System Settings Menu Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MENUHEADING.CAPTION'> := "System Settings"
+    
+    #STRINGSCOLLECTION<'SYSTEMROLEMENUITEM.CAPTION'> := "System Role"
+    #STRINGSCOLLECTION<'WEBPATHSMENUITEM.CAPTION'> := "Web Paths"
+    #STRINGSCOLLECTION<'INTEGRATIONMENUITEM.CAPTION'> := "Integration Server"
+    #STRINGSCOLLECTION<'FOLDERNAMESMENUITEM.CAPTION'> := "Folder Names"
+    #STRINGSCOLLECTION<'RESOURCESMENUITEM.CAPTION'> := "Resources"
+    #STRINGSCOLLECTION<'TRANSFERMENUITEM.CAPTION'> := "Transfer Settings"
+    
+    #STRINGSCOLLECTION<'ABOUTLINK.CAPTION'> := "About"
+    #STRINGSCOLLECTION<'TERMSLINK.CAPTION'> := "Terms"
+    
+    Endroutine
+    
+    End_Com

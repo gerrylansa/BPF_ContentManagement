@@ -1,0 +1,58 @@
+﻿Reusable Part:
+  Name:               BPFItemViewerForPDF
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "File Viewer for PDFs"
+
+  - JPN:
+      Description:        "File Viewer for PDFs"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(270) Left(0) Tabposition(1) Top(0) Width(500) Layoutmanager(#ViewerLayout)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ViewerLayoutRow1) Displayposition(1) Parent(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ViewerLayoutColumn1) Displayposition(1) Parent(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ViewerLayoutItem1) Alignment(TopCenter) Column(#ViewerLayoutColumn1) Manage(#Viewer) Parent(#ViewerLayout) Row(#ViewerLayoutRow1)
+    
+    * Controls
+    Define_Com Class(#PRIM_WEB.Page) Name(#Viewer) Displayposition(1) Height(270) Parent(#COM_OWNER) Tabposition(1) Tabstop(False) Width(500)
+    
+    * References
+    Define_Com Class(#BPFContentShareItemClass) Name(#ContentShareItem) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#ContentLibraryItem) Reference(*DYNAMIC)
+    
+    * Routines
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #ContentShareItem <= #BPFViewer.ContentShareItem
+    #ContentLibraryItem <= #BPFViewer.ContentLibraryItem
+    
+    If (#ContentShareItem *IsNot *Null)
+    #ContentShareItem.GetObject
+    Endif
+    
+    If (#ContentLibraryItem *IsNot *Null)
+    #ContentLibraryItem.GetObject
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentShareItem.OnGetObjectCompleted)
+    
+    #Viewer.Source := #ContentShareItem.Object
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentLibraryItem.OnGetObjectCompleted)
+    
+    #Viewer.Source := #ContentLibraryItem.Object
+    
+    Endroutine
+    
+    End_Com

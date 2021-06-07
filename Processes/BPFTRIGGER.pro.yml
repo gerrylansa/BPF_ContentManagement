@@ -1,0 +1,45 @@
+﻿Process:
+  Name:                      BPFTriggers
+  Menu Style:                SAA/CUA
+  Anticipated Usage:         Light
+  Optimize For Remote Comms: No
+  Enable For Web:            No
+  Generate XML:              No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "BPF trigger functions"
+
+  - JPN:
+      Description:        "BPF trigger functions"
+
+  Functions:
+  - BPFT001:
+      Name:               BPFT001
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "BPFSessionEvents Trigger"
+
+      - JPN:
+          Description:        "BPFSessionEvents Trigger"
+
+      Allowed Next Functions:
+      - "*ANY"
+
+  - BPFT002:
+      Name:               BPFT002
+      Display on Menu:    Yes
+      Next Function:      MENU
+
+      Multilingual Details:
+      - ENG:
+          Description:        "BPFPortalUserAccount Trigger"
+
+      - JPN:
+          Description:        "BPFPortalUserAccount Trigger"
+
+      Allowed Next Functions:
+      - "*ANY"

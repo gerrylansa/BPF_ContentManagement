@@ -1,0 +1,59 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    Function Options(*DIRECT)
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1989
+    * Process .......: BPFUTILS
+    * Function ......: BPFU001
+    * Created by ....:
+    * Created on ....: 19/08/08 at 16:23:38
+    * Description ...: Initial Portal Import
+    * =======================================================
+    * Notes : This function MUST be changed and compiles again
+    * so the path used to prime #BPFGenericBlob is set
+    * This is to ensure it is run once only and that valid
+    * Development licence is required in order to use the portal
+    * =======================================================
+    
+    * References
+    Define_Com Class(#BPFSystemSettingsImporter) Name(#Import)
+    
+    * =======================================================
+    * Program Mainline : BPFU001
+    * =======================================================
+    
+    Message Msgtxt('Portal Import Started')
+    
+    * Prime Import file
+    #BPFGenericBlob := ''
+    
+    * Prime Local Admin Profile
+    #BPFUserFirstName := ''
+    #BPFUserPassword := ''
+    
+    If (#BPFGenericBlob.FileName.IsNull)
+    
+    Message Msgtxt('Import file not set. Change this function with the path to the export file')
+    Abort
+    
+    Endif
+    
+    If (#BPFUserFirstName.IsNull)
+    
+    Message Msgtxt('Import username not set. Change this function to set the local admin user')
+    Abort
+    
+    Endif
+    
+    If (#BPFUserPassword.IsNull)
+    
+    Message Msgtxt('Import user password not set. Change this function to set the user password')
+    Abort
+    
+    Endif
+    
+    Message Msgtxt('Portal Import has values needed to run, so importing')
+    #Import.Populate( #BPFGenericBlob #BPFUserFirstName.AsNativeString #BPFUserPassword.AsNativeString )
+    Message Msgtxt('Portal Import Completed')

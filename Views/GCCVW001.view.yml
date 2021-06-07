@@ -1,0 +1,548 @@
+﻿Web View:
+  Name:               gcContactsListView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Contacts List View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(893) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout) Componenttag('GCAPP001')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#GCContactsListViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    * Define_Com Class(#GCContactDataClient) Name(#Contacts) Reference(*DYNAMIC)
+    Define_Com Class(#GCContactDataClient) Name(#Contacts) Scope(*APPLICATION)
+    
+    * Panel Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#ListRoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#LoadMoreDisplayStyle) Fontweight(Weight500)
+    
+    * Main Panel Layouts
+    
+    * Desktop
+    Define_Com Class(#PRIM_TBLO) Name(#MainDesktopLayout) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(98) Minwidth(280) Maxwidth(840)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn5) Displayposition(3) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(265) Units(Content) Minheight(220)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow2) Displayposition(2) Parent(#MainDesktopLayout) Height(484) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow4) Displayposition(3) Parent(#MainDesktopLayout) Units(Pixels) Height(120)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem1) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Avatar) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem2) Column(#MainDesktopLayoutColumn2) Manage(#PanelTitle) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Alignment(TopCenter) Margintop(17) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem3) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#PanelExplanation) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Marginleft(24) Marginright(24) Flow(Down) Margintop(16)
+    * Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem8) Column(#MainDesktopLayoutColumn2) Manage(#FooterText) Parent(#MainDesktopLayout) Sizing(ContentHeightFitToWidth) Alignment(TopCenter) Row(#MainDesktopLayoutRow4) MarginLeft(24) MarginRight(24) MarginTop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem5) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#PanelNavigationIcon) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem4) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Search) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24) Marginright(2) Marginleft(2)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ContactListLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContactListLayoutColumn1) Displayposition(1) Parent(#ContactListLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContactListLayoutRow1) Displayposition(1) Parent(#ContactListLayout)
+    
+    * List Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactListLayoutItem1) Alignment(CenterLeft) Column(#ContactListLayoutColumn1) Manage(#ContactListIcon) Parent(#ContactListLayout) Row(#ContactListLayoutRow1) Sizing(ContentWidthAndHeight) Marginleft(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactListLayoutItem2) Alignment(CenterLeft) Column(#ContactListLayoutColumn1) Flow(CenterVertical) Manage(#ContactListPrimaryText) Marginleft(80) Parent(#ContactListLayout) Row(#ContactListLayoutRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactListLayoutItem3) Alignment(CenterLeft) Column(#ContactListLayoutColumn1) Flow(CenterVertical) Manage(#ContactListSecondaryText) Marginleft(80) Parent(#ContactListLayout) Row(#ContactListLayoutRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactListLayoutItem5) Alignment(CenterRight) Column(#ContactListLayoutColumn1) Manage(#ContactListStatusText) Parent(#ContactListLayout) Row(#ContactListLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Left) Marginright(24) Marginbottom(10)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem6) Manage(#ContactPanel) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow2) Sizing(ContentHeightFitToWidth) Column(#MainDesktopLayoutColumn2) Alignment(TopLeft) Margintop(24) Flow(Down)
+    
+    * Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ContactPanelLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContactPanelLayoutColumn1) Displayposition(1) Parent(#ContactPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContactPanelLayoutColumn2) Displayposition(2) Parent(#ContactPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContactPanelLayoutColumn3) Displayposition(3) Parent(#ContactPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContactPanelLayoutRow1) Displayposition(1) Parent(#ContactPanelLayout) Height(62) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContactPanelLayoutRow2) Displayposition(2) Parent(#ContactPanelLayout) Height(316) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContactPanelLayoutRow3) Displayposition(3) Parent(#ContactPanelLayout) Height(80) Units(Content) Minheight(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactPanelLayoutItem1) Manage(#ListFilterTabs) Parent(#ContactPanelLayout) Row(#ContactPanelLayoutRow1) Sizing(FitToWidth) Column(#ContactPanelLayoutColumn2) Margintop(14) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactPanelLayoutItem2) Alignment(BottomLeft) Column(#ContactPanelLayoutColumn1) Manage(#Divider) Parent(#ContactPanelLayout) Row(#ContactPanelLayoutRow1) Sizing(FitToWidth) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactPanelLayoutItem4) Alignment(TopLeft) Column(#ContactPanelLayoutColumn1) Manage(#ContactList) Parent(#ContactPanelLayout) Row(#ContactPanelLayoutRow2) Columnspan(3) Margintop(24) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContactPanelLayoutItem5) Manage(#ContactListActionLabel) Parent(#ContactPanelLayout) Row(#ContactPanelLayoutRow3) Column(#ContactPanelLayoutColumn1) Alignment(TopLeft) Columnspan(3) Sizing(FitToWidth) Margintop(24)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(430) Parent(#COM_OWNER) Tabposition(5) Top(24) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(2) Height(100) Icon('supervisor_account') Left(800) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('MediumTitle+Rounded') Top(24) Width(100) Iconheight(80) Iconpadding(10)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Caption('Manage Contacts') Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(40) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundTheme+Heading3') Top(197) Height(20) Width(792) Wordwrap(True) Captionalignment(Center) Caption('To manage a contact first find and then select the user account')
+    
+    * Search Field
+    Define_Com Class(#PRIM_MD.Edit) Name(#Search) Appearance(EditBox) Captionposition(None) Displayposition(5) Height(48) Helperposition(None) Icon('search') Left(432) Parent(#COM_OWNER) Placeholder('Search for contact by name or email...') Tabposition(1) Top(241) Width(836) Style(#RoundedCornerStyle) Themedrawstyle('Text(48,48,48,1)')
+    
+    * Cards
+    Define_Com Class(#PRIM_PANL) Name(#ContactPanel) Displayposition(6) Height(460) Left(430) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(313) Width(840) Themedrawstyle('Card') Style(#ListRoundedCornerStyle) Layoutmanager(#ContactPanelLayout)
+    
+    * Filter Tabs
+    Define_Com Class(#PRIM_MD.Tab) Name(#ListFilterTabs) Displayposition(1) Height(50) Parent(#ContactPanel) Tabposition(1) Width(790) Style(#NavigationLinkStyle) Left(24) Top(14)
+    Define_Com Class(#PRIM_MD.TabItem) Name(#AllTabItem) Caption('All') Displayposition(1) Height(50) Left(0) Parent(#ListFilterTabs) Tabposition(2) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(114) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER)
+    Define_Com Class(#PRIM_MD.TabItem) Name(#FemaleTabItem) Caption('Female') Displayposition(2) Height(50) Left(114) Parent(#ListFilterTabs) Tabposition(3) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('Female')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#MaleTabItem) Caption('Male') Displayposition(3) Height(50) Left(226) Parent(#ListFilterTabs) Tabposition(1) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(112) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('Male')
+    Define_Com Class(#PRIM_MD.TabItem) Name(#UndisclosedTabItem) Caption('Undisclosed') Displayposition(4) Height(50) Left(338) Parent(#ListFilterTabs) Tabposition(4) Top(0) Themedrawstyle('Heading3+ForegroundTheme500') Width(114) Captionmarginbottom(0) Captionmargintop(0) View(#COM_OWNER) Componenttag('Undisclosed')
+    
+    * Contact List
+    Define_Com Class(#PRIM_MD.List) Name(#ContactList) Displayposition(3) Layoutmanager(#ContactListLayout) Left(0) Parent(#ContactPanel) Rowheight(72) Tabposition(3) Top(86) Height(292) Width(838)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListIcon) Displayposition(1) Icon('account_circle') Left(24) Parent(#ContactList) Tabposition(1) Themedrawstyle('ForegroundMediumPrimary') Top(18) Width(36) Iconheight(36) Iconalignment(AboveCaption) Captionalignment(Center)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListPrimaryText) Caption('Gregory Sippel') Displayposition(4) Height(20) Left(80) Parent(#ContactList) Tabposition(3) Themedrawstyle('Heading3') Top(17) Width(734) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListSecondaryText) Displayposition(5) Height(19) Left(80) Parent(#ContactList) Tabposition(4) Themedrawstyle('ForegroundTheme') Top(37) Width(734) Caption('greg.sippel@lansa.com.au')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListStatusText) Caption('Active') Displayposition(2) Dragstyle(None) Left(773) Parent(#ContactList) Tabposition(5) Top(17) Height(19) Width(41) Iconalignment(AfterCaption)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(2) Height(1) Left(0) Parent(#ContactPanel) Tabposition(2) Tabstop(False) Themedrawstyle('TopDivider') Top(61) Width(838)
+    
+    * List Action Label
+    Define_Com Class(#PRIM_MD.Label) Name(#ContactListActionLabel) Caption('Load more') Displayposition(4) Left(0) Parent(#ContactPanel) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(402) Height(56) Width(838) Style(#LoadMoreDisplayStyle) Captionalignment(Center)
+    
+    * Footer
+    * Define_Com Class(#PRIM_MD.Label) Name(#FooterText) CaptionAlignment(TopCenter) DisplayPosition(6) Height(43) Parent(#COM_OWNER) TabPosition(5) Top(797) Width(792) WordWrap(True) Caption('The settings here can affect the security of user accounts, consider your changes carefully') PaddingBottom(24) Left(454)
+    
+    * References
+    
+    * Global Variables
+    Define_Com Class(#prim_boln) Name(#MoreResults)
+    Define_Com Class(#PRIM_TIMR) Name(#DrawDelay) Interval(25) Startup(Manual)
+    Define_Com Class(#PRIM_TIMR) Name(#ListEntryDelay) Interval(1) Startup(Manual)
+    Define_Com Class(#PRIM_TIMR) Name(#ScrollDelay) Interval(5) Startup(Manual)
+    
+    Define_Com Class(#PRIM_TREE.TreeItem) Name(#MouseOverItem) Reference(*DYNAMIC)
+    Define_Com Class(#prim_nmbr) Name(#CurrentScrollPos)
+    
+    * Filter Items
+    Define_Com Class(#Prim_Lcol<#Prim_md.TabItem>) Name(#FilterItems)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentFilter)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Contacts <= (#Data.GetDataClient( #COM_SELF ) *As #GCContactDataClient)
+    
+    * Persist the view
+    #Navigate.CurrentEvent.PersistView := True
+    
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *Null)
+    #Search := #SYS_WEB.URLParameters<VALUE>.Value
+    Endif
+    
+    If (#SYS_WEB.URLParameters<FILTER> *IsNot *Null)
+    #CurrentFilter := #SYS_WEB.URLParameters<FILTER>.Value
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Menu Display
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    #COM_SELF.SetListActionForLoading
+    
+    #Contacts.GetContacts( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    #Data.KeepDataClient( #COM_SELF )
+    
+    #COM_SELF.CollectFilterItems
+    
+    Endroutine
+    
+    * Panel Navigation
+    Evtroutine Handling(#PanelNavigationIcon.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Search
+    Evtroutine Handling(#Search.GotFocus)
+    
+    #Search.PromptIcon := 'close'
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.Prompting)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #Search.Value := *null
+    #Contacts.GetContacts( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.LostFocus)
+    
+    #Search.PromptIcon := *null
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.Enter #Search.IconClick)
+    
+    If (#COM_SELF.Visible)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    * Test
+    * Update the URL to store teh current search values
+    * #Navigate.To Eventname(#Navigate.CurrentEvent.EventName) Value((#search + '&filter=' + #CurrentFilter)) Signalreplaceevent(False) Type(REPLACE)
+    #SYS_WEB.History.Replace( ('event=' + #Navigate.CurrentEvent.EventName.LowerCase + '&value=' + #Search + '&filter=' + #CurrentFilter) False )
+    
+    * Test
+    
+    #Contacts.GetContacts( #Search #CurrentFilter )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    If ((#COM_SELF.Visible) *AndIf (#ContactList.Items.IsEmpty.IsFalse))
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #Contacts.GetContacts( #Search #CurrentFilter )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#FilterItems<>.Click) Com_Sender(#Sender)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading
+    
+    #FilterItems<>.View <= *NULL
+    #Sender.View <= #COM_SELF
+    
+    #CurrentFilter := #Sender.ComponentTag
+    
+    * #Navigate.To Eventname(#Navigate.CurrentEvent.EventName) Value((#search + '&filter=' + #CurrentFilter)) Signalreplaceevent(False) Type(REPLACE)
+    #SYS_WEB.History.Replace( ('event=' + #Navigate.CurrentEvent.EventName.LowerCase + '&value=' + #Search + '&filter=' + #CurrentFilter) False )
+    #Contacts.GetContacts( #Search #CurrentFilter )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Contacts.OnGetContactsCompleted) Moreresult(#More)
+    
+    #MoreResults := #More
+    #COM_SELF.HandleBuildList
+    
+    Endroutine
+    
+    Evtroutine Handling(#Contacts.OnContactUpdated) Contact(#Updated)
+    
+    #COM_SELF.UpdateContactInList( #Updated )
+    
+    Endroutine
+    
+    * Timers
+    Evtroutine Handling(#DrawDelay.Tick)
+    
+    #SYS_WEB.Console.Log Text('Drawdelay tick')
+    
+    #DrawDelay.Stop
+    
+    #COM_SELF.SetListActionAfterLoad
+    
+    * #ContactList.Items<1>.Focus := True
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Okay, the next 4 events are here to deal with list jumping in IE and Chromiumn based browsers
+    * It should noted that Firefox actually works as intended, thats a first. So the issue is the list jumps
+    * due to focus suddenly being paid attention to. This causes scrolling which we can see. So if a sudden
+    * scroll happen this code causes it to be treated as a click. After reading this, have a "drink".
+    Evtroutine Handling(#COM_OWNER.ScrollChanged) Com_Sender(#sender)
+    
+    If ((#Session.IsFireFox))
+    Return
+    Endif
+    
+    If ((#MouseOverItem *IsNot *Null) *And ((#CurrentScrollPos < 400) *Or (#Session.IsIE)) *And ((#COM_SELF.VerticalScrollPos > 407) *And (#COM_SELF.VerticalScrollPos < 410)))
+    
+    #MouseOverItem <= *null
+    #COM_SELF.VerticalScrollPos := #CurrentScrollPos
+    
+    If (#Session.CurrentUser.EmailAdress <> (#ContactList.Items<#ListEntry>.RelatedReference *As #BPFUserAccountAdminItem).EmailAdress)
+    
+    #Navigate.To Eventname(ADMINUSERACCOUNTVIEW) Value((#ContactList.Items<#ListEntry>.RelatedReference *As #BPFUserAccountAdminItem).Identifier)
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #Strings.Text<MESSAGE.ERROR.OWNACCOUNT> )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContactList.ItemMouseEnter) Item(#Item)
+    
+    #MouseOverItem <= #Item
+    #ListEntryDelay.Start
+    
+    #CurrentScrollPos := #COM_SELF.VerticalScrollPos
+    
+    Endroutine
+    
+    Evtroutine Handling(#ListEntryDelay.Tick)
+    
+    #ListEntryDelay.Stop
+    
+    If (#MouseOverItem *IsNot *Null)
+    #ListEntry := #MouseOverItem.Entry
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContactList.MouseLeave)
+    
+    #MouseOverItem <= *null
+    #ListEntry := 0
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContactList.ItemClick)
+    
+    #SYS_WEB.Console.Log Text(('ContactList clicked on Email = &1').TrimSubstitute( (#ContactList.CurrentItem.RelatedReference *As #GCContactItem).Identifier.AsString ))
+    
+    #Navigate.To Eventname(CONTACTEDITVIEW) Value((#ContactList.CurrentItem.RelatedReference *As #GCContactItem).Identifier.AsString)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContactListActionLabel.Click)
+    
+    * Action only a load more situation
+    If (#ContactListActionLabel.ComponentTag.UpperCase <> 'LOAD_MORE')
+    Return
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetListActionForLoading( False )
+    
+    #COM_SELF.HandleBuildList
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PanelTitle.Caption := #Strings.Text<PANELTITLE.CAPTION>
+    #PanelExplanation.Caption := #Strings.Text<PANELEXPLANATION.CAPTION>
+    #Search.Placeholder := #Strings.Text<SEARCH.PLACEHOLDER>
+    #AllTabItem.Caption := #Strings.Text<ALLTABITEM.CAPTION>
+    #FemaleTabItem.Caption := #Strings.Text<FEMALETABITEM.CAPTION>
+    #MaleTabItem.Caption := #Strings.Text<MALETABITEM.CAPTION>
+    #UndisclosedTabItem.Caption := #Strings.Text<UNDISCLOSEDTABITEM.CAPTION>
+    #ContactListActionLabel.Caption := #Strings.Text<ACCOUNTLISTACTIONLABEL.CAPTION.MORE>
+    
+    Endroutine
+    
+    
+    Mthroutine Name(HandleBuildList) Access(*PRIVATE)
+    
+    * List Control
+    Define_Com Class(#PRIM_NMBR) Name(#UpperIndex)
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Back to for loop
+    For Each(#Item) In(#Contacts.Contacts)
+    
+    #Index := #Index + 1
+    Continue If(#Index <= #ContactList.Items.ItemCount)
+    
+    #COM_SELF.AddContactToList( #Item )
+    
+    #UpperIndex := #UpperIndex + 1
+    Leave If(#UpperIndex = 25)
+    
+    Endfor
+    
+    * Set Message
+    #DrawDelay.Start
+    
+    Endroutine
+    
+    Mthroutine Name(AddContactToList) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#GCContactItem) Name(#Item) Pass(*BY_REFERENCE)
+    
+    * Add new Item to list
+    Add_Entry To_List(#ContactList)
+    
+    * Bind the data to the item
+    #ContactList.CurrentItem.RelatedReference <= #Item
+    
+    * Set the account icon
+    #ContactListIcon.CurrentItem.Icon := #Item.IconName
+    * #ContactListIcon.CurrentItem.ThemeDrawStyle := #Item.StatusColour
+    
+    * Set Primary & Secondary Text
+    #ContactListPrimaryText.CurrentItem.Caption := #Item.ContactFirstName + ' ' + #Item.ContactLastName
+    #ContactListSecondaryText.CurrentItem.Caption := #Item.ContactEmailAddress
+    
+    * Set Status Text
+    #ContactListStatusText.CurrentItem.Visible := (#SYS_WEB.Device = Desktop)
+    * If (#ContactListStatusText.CurrentItem.Visible)
+    *
+    * #ContactListStatusText.CurrentItem.Caption := #Strings.Text<(#Item.Status.UpperCase + 'TABITEM.CAPTION')>
+    *
+    * If (#Item.Status <> 'Active')
+    *
+    * #ContactListStatusText.CurrentItem.ThemeDrawStyle := #Item.StatusColour
+    *
+    * Endif
+    *
+    * Endif
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateContactInList) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#GCContactItem) Name(#Item) Pass(*BY_REFERENCE)
+    
+    * Get Current Entry
+    Get_Entry Number(#ContactList.FindReference( #Item ).Entry) From_List(#ContactList)
+    
+    If_Status Is(*OKAY)
+    
+    * Set the account icon
+    #ContactListIcon.CurrentItem.Icon := #Item.IconName
+    * #ContactListIcon.CurrentItem.ThemeDrawStyle := #Item.StatusColour
+    
+    * Set Primary & Secondary Text
+    #ContactListPrimaryText.CurrentItem.Caption := #Item.ContactFirstName + ' ' + #Item.ContactLastName
+    #ContactListSecondaryText.CurrentItem.Caption := #Item.ContactEmailAddress
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetListActionForLoading) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ClearList) Mandatory(True)
+    
+    If (#ClearList)
+    
+    * Clear
+    Clr_List Named(#ContactList)
+    
+    Endif
+    
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL #Strings.Text<CONTACTLISTACTIONLABEL.CAPTION.LOAD> )
+    
+    Endroutine
+    
+    Mthroutine Name(SetListActionAfterLoad)
+    
+    * If we have more results to load
+    If (#ContactList.Items.ItemCount < #Contacts.Contacts.ItemCount)
+    
+    * We show loading more
+    #COM_SELF.SetListActionDisplay( True #LoadMoreDisplayStyle ForegroundMediumPrimary #Strings.Text<CONTACTLISTACTIONLABEL.CAPTION.MORE> 'LOAD_MORE' )
+    
+    Endif
+    
+    * if we have no more results to load
+    If (#ContactList.Items.ItemCount = #Contacts.Contacts.ItemCount)
+    
+    * Do we have more results on the server
+    If (#MoreResults)
+    
+    * We show Refine search
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL #Strings.Text<CONTACTLISTACTIONLABEL.CAPTION.FULL> )
+    
+    Else
+    
+    If (#ContactList.Items.ItemCount > 0)
+    
+    * No more results on server, so no message needed
+    #ContactListActionLabel.Visible := False
+    
+    Else
+    
+    * No Results found
+    #COM_SELF.SetListActionDisplay( True *NULL *NULL #Strings.Text<CONTACTLISTACTIONLABEL.CAPTION.EMPTY> )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetListActionDisplay) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Visible)
+    Define_Map For(*INPUT) Class(#prim_vs.Style) Name(#Style) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#DrawStyle) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Message) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Tag) Mandatory(*NULL)
+    
+    If (#Visible)
+    
+    * Set Style
+    #ContactListActionLabel.Style <= #Style
+    #ContactListActionLabel.ThemeDrawStyle := #DrawStyle
+    
+    * Set Text
+    #ContactListActionLabel := #Message
+    #ContactListActionLabel.ComponentTag := #Tag
+    
+    * Ensure we can see Action Label
+    #ContactListActionLabel.Visible := True
+    
+    Else
+    
+    * If not visible then just hide
+    #ContactListActionLabel.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(CollectFilterItems) Access(*PRIVATE)
+    
+    For Each(#control) In(#ListFilterTabs.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.TabItem)
+    
+    *
+    If (#control.ComponentTag.LowerCase = #CurrentFilter.LowerCase)
+    
+    #control.View <= #Com_Self
+    
+    Endif
+    
+    #FilterItems.Insert( #control )
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

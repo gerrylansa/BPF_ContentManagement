@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFFileServiceFileDirectory
+  Type:               Alpha
+  Length:             1
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Directory Indicator of File"
+      Label:              "Directory Indic"
+      Heading1:           "Directory"
+      Heading2:           "Indicator"
+      Heading3:           "of"
+
+  - JPN:
+      Description:        "Directory Indicator of File"
+      Label:              "Directory Indic"
+      Heading1:           "Directory"
+      Heading2:           "Indicator"
+      Heading3:           "of"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(196)
+    
+    End_Com
+    
+    End_Com

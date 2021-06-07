@@ -1,0 +1,348 @@
+﻿Reusable Part:
+  Name:               BPFUserAccountAdminDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Client for Admin of User Accounts"
+
+  - JPN:
+      Description:        "Data Client for Admin of User Accounts"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Application References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(UserAccounts) Get(*REFERENCE #UserAccounts)
+    Define_Pty Name(UserAccount) Get(GetUserAccount)
+    
+    Define_Pty Name(IsAdministrationVerified) Get(*AUTO #IsAdminActionVerified) Set(*AUTO #IsAdminActionVerified)
+    Define_Com Class(#PRIM_BOLN) Name(#IsAdminActionVerified)
+    
+    * Events
+    Define_Evt Name(OnGetUserAccountsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#MoreResult)
+    
+    Define_Evt Name(OnGetUserAccountsFailed)
+    
+    Define_Evt Name(OnGetUserAccountCompleted)
+    Define_Evt Name(OnGetUserAccountFailed)
+    
+    Define_Evt Name(OnVerifyAdminAccountCompleted)
+    Define_Evt Name(OnVerifyAdminAccountFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnAccountUpdated)
+    Define_Map For(*INPUT) Class(#BPFUserAccountAdminItem) Name(#Account) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnGetContentSharesCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareClass>) Name(#ContentShares) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnGetContentSharesFailed)
+    
+    * Objects
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#BPFUserAccountAdminItem>) Name(#UserAccounts)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetUserAccount)
+    Define_Map For(*OUTPUT) Class(#BPFUserAccountAdminItem) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFUserAccountInternalKey) Name(#Key)
+    
+    * Search till the first match
+    For Each(#Item) In(#UserAccounts)
+    
+    Continue If(#Key.UpperCase <> #item.Identifier)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#UserAccounts<>.OnSetAdminRoleCompleted #UserAccounts<>.OnSetDisabledCompleted) Com_Sender(#Sender)
+    
+    Signal Event(OnAccountUpdated) Account(#Sender)
+    
+    Endroutine
+    
+    * Methods
+    
+    * Verification
+    Mthroutine Name(VerifyAdminAccount)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#WithPassword)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Define Connection to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.VerifyAdminAccount) Name(#Request)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserPassword := (#Buffer.Substring( 1 5 ) + #WithPassword + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Execute request
+    #Request.ExecuteAsync Password(#BPFUserPassword) Status(#BPFStatus)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#BPFStatus = OK)
+    
+    Signal Event(OnVerifyAdminAccountCompleted)
+    
+    Else
+    
+    If (#BPFStatus = IP)
+    
+    #BPFPortal.Navigate.ToDisabled
+    
+    Else
+    
+    Signal Event(OnVerifyAdminAccountFailed) Reason(#BPFStatus)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    Signal Event(OnVerifyAdminAccountFailed) Reason(FAILED)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * User Accounts
+    
+    Mthroutine Name(GetUserAccounts)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#UserValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#StatusValue) Mandatory(*NULL)
+    
+    * No status, they just want to search by name
+    If (#StatusValue.IsNull)
+    
+    #COM_SELF.GetUserAccountsByName( #UserValue )
+    Return
+    
+    Endif
+    
+    * if we have status and it not removed, we need choose the right index
+    If ((#StatusValue.IsNull.IsFalse) *AndIf (#StatusValue.UpperCase <> REMOVED))
+    
+    #COM_SELF.GetUserAccountsByStatus( #StatusValue #UserValue )
+    Return
+    
+    Endif
+    
+    * Remove is a status, but means with search the removed accounts
+    If ((#StatusValue.IsNull.IsFalse) *AndIf (#StatusValue.UpperCase = REMOVED))
+    
+    #COM_SELF.GetRemovedAccountsByName( #UserValue )
+    Return
+    
+    Endif
+    
+    Endroutine
+    
+    * By name Only
+    Mthroutine Name(GetUserAccountsByName) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#UserValue)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+     
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetAccountsByName) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Uservalue(#UserValue) Userdata(#UserAccounts) Moreresults(#More) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetUserAccountsCompleted) Moreresult(#More)
+    
+    Else
+    
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * By Status and/or name
+    Mthroutine Name(GetUserAccountsByStatus) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#StatusValue)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#UserValue)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetAccountsByStatus) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Statusvalue(#StatusValue) Uservalue(#UserValue) Userdata(#UserAccounts) Moreresults(#More) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetUserAccountsCompleted) Moreresult(#More)
+    
+    Else
+    
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Get Account by ID only
+    Mthroutine Name(GetUserAccountsByID)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#UserValue)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetAccountByID) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Uservalue(#UserValue) Userdata(#UserAccounts) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetUserAccountCompleted)
+    
+    Else
+    
+    Signal Event(OnGetUserAccountFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetUserAccountFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Removed Accounts
+    Mthroutine Name(GetRemovedAccountsByName) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#UserValue)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_BOLN) Name(#More)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetRemovedAccounts) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Uservalue(#UserValue) Userdata(#UserAccounts) Moreresults(#More) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetUserAccountsCompleted) Moreresult(#More)
+    
+    Else
+    
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetUserAccountsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Shares for users
+    Mthroutine Name(GetShares)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetContentShares) Name(#Request)
+    
+    * Return Data
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareClass>) Name(#ContentShares)
+    
+    * Make Request
+    #Request.ExecuteAsync Shares(#ContentShares) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetContentSharesCompleted) Contentshares(#ContentShares)
+    
+    Else
+    
+    Signal Event(OnGetContentSharesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetContentSharesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

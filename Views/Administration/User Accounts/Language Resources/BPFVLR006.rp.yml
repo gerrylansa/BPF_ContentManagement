@@ -1,0 +1,48 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserSelectAccountActionViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Select Account Action View Strings"
+
+  - JPN:
+      Description:        "Select Account Action View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Account Actions"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "The account %%EMAIL%% has a status of %%STATUS%% so you can select from the follwing actions"
+    
+    #STRINGSCOLLECTION<'ACTIONSHEADING.CAPTION'> := "Actions"
+    
+    #STRINGSCOLLECTION<'ACTIONSLABEL.CAPTION.DISABLE'> := "Disable Account"
+    #STRINGSCOLLECTION<'ACTIONSLABEL.CAPTION.ENABLE'> := "Enable Account"
+    #STRINGSCOLLECTION<'ACTIONSLABEL.CAPTION.RESENDPASSWORD'> := "Resend Password Reset"
+    #STRINGSCOLLECTION<'ACTIONSLABEL.CAPTION.RESENDACTIVATE'> := "Resend Activate Account"
+    #STRINGSCOLLECTION<'ACTIONSLABEL.CAPTION.RESENDSECURITY'> := "Resend Security Reset"
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.STATUS.ACTIVE'> := "Active"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.STATUS.DISABLED'> := "Disabled"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.STATUS.RESET'> := "Reset"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.STATUS.NEW'> := "New"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.STATUS.PENDING'> := "Pending"
+    
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETUSERACCOUNTFAILED'> := "Failed to user information"
+    
+    Endroutine
+    
+    End_Com

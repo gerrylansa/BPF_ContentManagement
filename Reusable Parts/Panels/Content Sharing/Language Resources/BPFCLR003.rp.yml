@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFShareFolderNavigationOverFlowMenuStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Folder Overflow Actions Strings"
+
+  - JPN:
+      Description:        "Share Folder Overflow Actions Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'ITEMNEWMENUOPTION.CAPTION'> := "New Item"
+    #STRINGSCOLLECTION<'ITEMADDFOLDERMENUOPTION.CAPTION'> := "Add Folder"
+    #STRINGSCOLLECTION<'ITEMCOPYMENUOPTION.CAPTION'> := "Copy"
+    #STRINGSCOLLECTION<'ITEMMOVEMENUOPTION.CAPTION'> := "Move"
+    #STRINGSCOLLECTION<'ITEMRENAMEMENUOPTION.CAPTION'> := "Rename"
+    #STRINGSCOLLECTION<'ITEMREMOVEMENUOPTION.CAPTION'> := "Remove"
+    #STRINGSCOLLECTION<'ITEMINFOMENUOPTION.CAPTION'> := "Details"
+    
+    Endroutine
+    
+    End_Com

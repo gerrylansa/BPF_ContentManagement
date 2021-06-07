@@ -1,0 +1,98 @@
+﻿Reusable Part:
+  Name:               BPFPortalNavigationDrawer
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Main Navigation Drawer"
+
+  - JPN:
+      Description:        "Portal Main Navigation Drawer"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(1080) Left(0) Tabposition(1) Top(0) Themedrawstyle('RightDivider') Width(51) Layoutmanager(#NavigationDrawerLayout)
+    
+    * Definitions
+    
+    * Global Objects
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Navigation Drawer Layout
+    Define_Com Class(#PRIM_TBLO) Name(#NavigationDrawerLayout) Sizing(ContentWidth)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NavigationDrawerLayoutColumn1) Displayposition(1) Parent(#NavigationDrawerLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NavigationDrawerLayoutRow1) Displayposition(1) Parent(#NavigationDrawerLayout)
+    
+    * Current Menu
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MenuLayoutItem) Alignment(TopLeft) Column(#NavigationDrawerLayoutColumn1) Parent(#NavigationDrawerLayout) Row(#NavigationDrawerLayoutRow1) Manage(#MenuContainer) Sizing(ContentWidthFitToHeight)
+    Define_Com Class(#PRIM_MD.ViewContainer) Name(#MenuContainer) Displayposition(1) Parent(#COM_OWNER) Tabposition(1) Height(1080) Width(50)
+    
+    Define_Pty Name(CurrentMenuID) Get(*AUTO #CurrentMenu)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentMenu)
+    
+    * Routines
+    
+    * Properties
+    
+    * Events
+    Define_Evt Name(OnMenuMessage)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#MessageText)
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Group(#GroupName) Name(#Event)
+    
+    #COM_SELF.HandleNavigationEvent( #GroupName #Event )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleNavigationEvent) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Eventgroup)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event)
+    
+    * If we have event from the view group then we need to take action
+    If (#Eventgroup = VIEWS)
+    
+    If (#Navigate.CurrentEvent.RelatedMenuID <> *blank)
+    
+    If (#CurrentMenu <> #Navigate.CurrentEvent.RelatedMenuID)
+    
+    #CurrentMenu := #Navigate.CurrentEvent.RelatedMenuID
+    #Navigate.CurrentEvent.RelatedMenu.Parent <= #MenuContainer
+    
+    #Navigate.CurrentEvent.RelatedMenu.Show
+    
+    Endif
+    
+    Else
+    
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *Null)
+    
+    If (#CurrentMenu <> #Navigate.Event<#SYS_WEB.URLParameters<VALUE>.Value>.RelatedMenuID)
+    
+    #CurrentMenu := #Navigate.Event<#SYS_WEB.URLParameters<VALUE>.Value>.RelatedMenuID
+    #Navigate.Event<#SYS_WEB.URLParameters<VALUE>.Value>.RelatedMenu.Parent <= #MenuContainer
+    
+    #Navigate.Event<#SYS_WEB.URLParameters<VALUE>.Value>.RelatedMenu.Show
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SendMessageToMenu)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#MessageText)
+    
+    Signal Event(OnMenuMessage) Messagetext(#MessageText)
+    
+    Endroutine
+    
+    End_Com

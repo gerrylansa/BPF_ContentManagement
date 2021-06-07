@@ -1,0 +1,1662 @@
+﻿ServerModule:
+  Name:               BPFSessionDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Session Data Server"
+
+  - JPN:
+      Description:        "Portal Session Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the fields below must be define in HTTP Variables as
+    
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_USER_AGENT
+    * Default : not provided. Please configure HTTP header variables
+    * Func Parms : Field - WUSRAGT Type - L Length - 256 Dec. 0
+    Define Field(#WUSRAGT) Type(*CHAR) Length(256)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#retcode) Type(*CHAR) Length(2)
+    Define Field(#WTIMEOUT) Type(*DEC) Length(7) Decimals(0)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    
+    Define Field(#gAnalyticsHandle) Reffld(#BPFUserEmail)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSecuiryCheckPassed) Type(*BOOLEAN)
+    Define Field(#sSecuiryExtTaskActive) Type(*BOOLEAN)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSecuiryCheckPassed #sSecuiryExtTaskActive #sSessionAuthenicated #sIsoCode)
+    
+    * Persisted Fields For New Accounts
+    Define Field(#NewUserEmail) Reffld(#BPFUserEmail)
+    Define Field(#NewUserFirst) Reffld(#BPFUserFirstName)
+    Define Field(#NewUserLast) Reffld(#BPFUserLastName)
+    Define Field(#NewUserPassword) Reffld(#BPFUserPassword)
+    Define Field(#NewUserPrimary) Reffld(#BPFUserPrimaryValue)
+    Define Field(#NewUserQuestion) Reffld(#BPFUserSecurityQuestion)
+    Define Field(#NewUserSecurityValue) Reffld(#BPFUserSecurityValue)
+    Define Field(#NewUserSecondary) Reffld(#BPFUserSecondaryValue)
+    Define Field(#NewUserLanguage) Reffld(#BPFUserPreferenceEmailLanguage)
+    
+    * Persist Fields for General Usage
+    Persist Fields(#NewUserEmail #NewUserFirst #NewUserLast #NewUserPassword #NewUserPrimary #NewUserQuestion #NewUserSecurityValue #NewUserSecondary #NewUserLanguage)
+    
+    * Lists
+    
+    * Login
+    Def_List Name(#LoginUserData) Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserHasAdminRights #BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage #BPFUserPreferenceContentShare) Type(*WORKING) Entrys(1)
+    
+    * Misc
+    Def_List Name(#AlphaCodes) Fields(#BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue) Type(*WORKING) Entrys(*MAX)
+    
+    * Group_Bys
+    Group_By Name(#NewAccountGroup) Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserPassword #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserEventToken #BPFUserPrimaryValue #BPFUserSecondaryValue)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * User Access
+    
+    Srvroutine Name(Login) Session(*REQUIRED)
+    
+    * Input Values
+    Field_Map For(*INPUT) Field(#BPFUserEmail) Parameter_Name(user)
+    Field_Map For(*INPUT) Field(#BPFUserPassword) Parameter_Name(password)
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    Field_Map For(*INPUT) Field(#WUSRAGT) Parameter_Name(HTTPVariable2)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Output Values
+    List_Map For(*OUTPUT) List(#LoginUserData) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    Field_Map For(*OUTPUT) Field(#TrackingID) Parameter_Name(Grouping)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserPassword) Name(#SavePassword)
+    Define_Com Class(#BPFUserPassword) Name(#CheckPassword)
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(Login) : Starting login checks') )
+    
+    * - Test -*
+    *  Check for duplicated request and if IP Address is banned
+    If (#Secure.CheckIsValidRequest( 'Login' #WRQSCKE #WRQSTID #WRQSTTS True False ))
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : IP is blocked so returning') )
+    
+    * Set Error
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * - Test - *
+    * If we have an persisted internal ID, then we have an "authenicated" session. So
+    * do not allow the login to proceed
+    If (#sUserAccountIdentifier.IsNull.IsFalse)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : Session is authenicated so returning') )
+    
+    * Session Authenicated Error
+    #BPFstatus := SA
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Since the user is attempting a login, lets create the session now as an event will be logged by this
+    * routine. This will avoid a session being created without an event being logged against it. To create a
+    * session their needs to be no tracking ID
+    If (#TrackingID.IsNull)
+    
+    * Create the session without related user, as currently we are unsure who they are
+    #TrackingID := #SessionTracker.CreateNewSession( *Null )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    Endif
+    
+    * Ensure we are working with lowercase email
+    #BPFUserEmail := #BPFUserEmail.LowerCase
+    
+    * Save The Password
+    #SavePassword := #BPFUserPassword
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : Checking details for requested user account ' + #BPFUserEmail) )
+    
+    * Check for user
+    Fetch Fields(#BPFUserAccountInternalKey #BPFUserPassword #BPFUserAccountEnabled #BPFUserHasAdminRights #BPFUserInvalidAttempts #BPFUserEventToken #BPFUserPrimaryValue #BPFUserFirstName #BPFUserLastName #BPFUserLastAuthorised) From_File(BPFPortalUserAccountByEmail) With_Key(#BPFUserEmail)
+    
+    If_Status Is_Not(*NORECORD)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : User account exists') )
+    
+    * Events need to be tied to an account, so attached an account if none is related or start a new session if the account is different
+    If (#SessionTracker.HasRelatedUser( #TrackingID ))
+    
+    * Check if they still the same, if yes then nothing to do
+    If (#SessionTracker.CheckRelatedUserIs( #TrackingID #BPFUserAccountInternalKey ).isFalse)
+    
+    * No, well then...
+    
+    * Track the change of user
+    #SessionTracker.LogEvent( #TrackingID TRACKING.ACCOUNTCHANGED False #BPFUserEmail.AsNativeString )
+    
+    * New Session for new user
+    #TrackingID := #SessionTracker.CreateNewSession( #BPFUserAccountInternalKey )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    Endif
+    
+    Else
+    
+    * No related user means, this is the first accounted matched for this session
+    #SessionTracker.UpdateRelatedUserID( #TrackingID #BPFUserAccountInternalKey )
+    
+    Endif
+    
+    If (#BPFUserAccountEnabled)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : User account enabled so preparing to compare password') )
+    
+    * Cleanup data and hold a clear copy till later
+    #CheckPassword := #Secure.CleanString( #SavePassword #WTRANSID )
+    #SavePassword := #CheckPassword
+    
+    * Convert for comparison
+    #CheckPassword := #Secure.SecureString( #CheckPassword #BPFUserPrimaryValue )
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : User account password preparation completed, checking for match') )
+    
+    If (#BPFUserPassword <> #CheckPassword)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(Login) : Provided password does not match user account, adding invalid attempt') )
+    
+    #BPFUserInvalidAttempts := #BPFUserInvalidAttempts + 1
+    
+    If (#BPFUserInvalidAttempts = #utils.GetNumericValue( SECURITY LOGIN_ATTEMPT_LIMIT ))
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : Login attempted limit reach, disabling account') )
+    
+    * Disable account
+    #BPFUserAccountEnabled := False
+    
+    * Ensure they cannot use a possible active event token
+    #BPFUserEventToken := *NULL
+    
+    * Set Return status
+    #BPFstatus := NV
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID LOGIN.PASSWORD.FAILED False #BPFUserInvalidAttempts.asstring )
+    #SessionTracker.LogEvent( #TrackingID LOGIN.FAILED.DISABLED False )
+    
+    * Send email
+    If (#Notification.Send( 'ACCOUNT_DISABLED' #BPFUserAccountInternalKey.AsNativeString ))
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : disabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : disabled notifcation not sent') )
+    
+    Endif
+    
+    Else
+    
+    #BPFstatus := ER
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID LOGIN.PASSWORD.FAILED False #BPFUserInvalidAttempts.asstring )
+    
+    Endif
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : IP attempt limit reached, so returning') )
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : Password on user account matches so authenicating session') )
+    
+    * Get the user's preferences
+    Fetch Fields(#BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage #BPFUserPreferenceContentShare) From_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey)
+    
+    * Ensure Content share is ONLY *Null
+    #BPFUserPreferenceContentShare := #BPFUserPreferenceContentShare.AsValue
+    
+    * Since the user has provided valid details, reset counters and tokens
+    #BPFUserInvalidAttempts := 0
+    #BPFUserEventToken := *null
+    
+    * Set Return as Okay
+    #BPFstatus := OK
+    
+    * Resalt the password
+    #BPFUserPrimaryValue := *null
+    #BPFUserPassword := #Secure.SecureString( #SavePassword #BPFUserPrimaryValue )
+    
+    * Set User Data for Return
+    Add_Entry To_List(#LoginUserData)
+    
+    * All okay, so end the external session in order to be able to get a new session value
+    #COM_OWNER.EndSession
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID LOGIN.SUCCESS True )
+    
+    * Set Last Auth
+    #BPFUserLastAuthorised := #Utils.GetDateTimeInEpoch
+    
+    Endif
+    
+    * Update the user account for this attempt
+    Update Fields(#BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserPassword #BPFUserEventToken #BPFUserPrimaryValue #BPFUserLastAuthorised) In_File(BPFPortalUserAccounts) With_Key(#BPFUserAccountInternalKey)
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : User account has been disabled') )
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : IP attempt limit reached, so returning') )
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFstatus := NV
+    
+    * Log and end session
+    #SessionTracker.LogEvent( #TrackingID LOGIN.FAILED.DISABLED False )
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : User account does not exist') )
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(Login) : IP attempt limit reached, so returning') )
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFstatus := NV
+    
+    #SessionTracker.LogEvent( #TrackingID LOGIN.FAILED.NOACCOUNT False #BPFUserEmail.AsNativeString )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetAnalytics)
+    
+    Field_Map For(*INPUT) Field(#gAnalyticsHandle) Parameter_Name(AnalyticsHandle)
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Get Language
+    Field_Map For(*INPUT) Field(#sIsoCode) Parameter_Name(LanguageCode)
+    
+    Define_Com Class(#BPFUserEmail) Name(#CheckUser)
+    
+    * Cleanup and ensure lowercase
+    #CheckUser := #Secure.CleanString( #gAnalyticsHandle #WTRANSID ).lowercase
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : Clean user is ' + #CheckUser.AsNativeString) )
+    
+    Fetch Fields(#BPFUserAccountInternalKey #BPFUserAccountEnabled #BPFUserLastAuthorised) From_File(BPFPortalUserAccountByEmail) With_Key(#CheckUser)
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : search result was ' + #BPFUserAccountInternalKey.AsNativeString + '/' + #BPFUserAccountEnabled.asstring + ' status is  ' + #IO$STS) )
+    
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : User found') )
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : user last authorised at ' + #BPFUserLastAuthorised.AsString) )
+    
+    #std_int := #Utils.GetDateTimeInEpoch - #BPFUserLastAuthorised
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : Diff is  ' + #std_int.AsString) )
+    
+    * Now check transaction log
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : checking if trans id ' + #WTRANSID + ' used') )
+    Check_For In_File(BPFPortalUserTransactionIDLog) With_Key(#BPFUserAccountInternalKey #WTRANSID)
+    
+    If_Status Is(*NOTEQUALKEY)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : trans ID NOT used') )
+    
+    If (#std_int <= 25)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : user request is within window') )
+    
+    If (#BPFUserAccountEnabled)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : requesting user enabled') )
+    
+    * Set Up Session Values AGAIN !!
+    #sUserAccountIdentifier := #BPFUserAccountInternalKey
+    #TrackingID := #SessionTracker.GetCurrentUserTackingID( #sUserAccountIdentifier )
+    
+    * Before going back, record the trans ID
+    #BPFUserTransactionID := #WTRANSID
+    #BPFUserTransactionIDRecorded := #BPFUserTransactionIDRecorded.Now
+    Insert Fields(#BPFUserAccountInternalKey #BPFUserTransactionID #BPFUserTransactionIDRecorded) To_File(BPFPortalUserTransactionIDLog)
+    
+    #COM_SELF.StartSession( 3600 )
+    #sSessionAuthenicated := True
+    
+    * Remove IP from being banned
+    #Secure.ClearRecordedIPAddress
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : Restarting user session, tracker is ' + #TrackingID.AsNativeString) )
+    
+    Else
+    
+    * Abort
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    * Abort
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    * Abort
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    * Abort
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(Logout) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    Field_Map For(*OUTPUT) Field(#io$sts)
+    
+    * Force validation of request for logout
+    #Secure.CheckIsValidRequest( 'Logout' #WRQSCKE #WRQSTID #WRQSTTS true )
+    
+    * Log and end session
+    #SessionTracker.LogEvent( #TrackingID LOGOUT.SUCCESS True )
+    
+    #Com_owner.EndSession
+    #Secure.ClearValidSessionRequests( #WRQSCKE )
+    
+    #io$sts := OK
+    
+    Endroutine
+    
+    * Account Validation
+    
+    Srvroutine Name(ValidateEventToken) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserEventToken) Parameter_Name(Token)
+    Field_Map For(*INPUT) Field(#BPFUserAccountEnabled) Parameter_Name(Finalise)
+    Field_Map For(*INPUT) Field(#WUSRAGT) Parameter_Name(HTTPVariable2)
+    
+    * Security Info
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFStatus) Parameter_Name(Status)
+    
+    If (#Secure.CheckIsValidRequest( 'ValidateEventToken' #WRQSCKE #WRQSTID #WRQSTTS true false ))
+    
+    Fetch Fields(#BPFUserAccountInternalKey) From_File(BPFPortalUserAccountsByToken) With_Key(#BPFUserEventToken)
+    
+    #BPFUserEventToken := *NULL
+    Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#BPFUserAccountInternalKey)
+    
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    * - Test - *
+    * If we have an persisted internal ID, then we have an "authenicated" session. So
+    * do not allow the login to proceed
+    If (#sUserAccountIdentifier.IsNull.IsFalse)
+    
+    * Session Authenicated Error
+    #BPFstatus := ACTIVE
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Create the session without related user, as currently we are unsure who they are
+    #TrackingID := #SessionTracker.CreateNewSession( *Null )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    If (#BPFUserEventToken <> *BLANK)
+    
+    * Check for the existance of the token
+    Fetch Fields(#BPFUserAccountInternalKey) From_File(BPFPortalUserAccountsByToken) With_Key(#BPFUserEventToken)
+    
+    * Check Status
+    If_Status Is(*OKAY)
+    
+    * Update the session with matched user
+    #SessionTracker.UpdateRelatedUserID( #TrackingID #BPFUserAccountInternalKey )
+    
+    * So activate and return okay status
+    
+    * Set Field Values
+    #BPFUserEventToken := *NULL
+    #sSecuiryExtTaskActive := True
+    #sSessionAuthenicated := True
+    #sSecuiryCheckPassed := True
+    
+    Update Fields(#BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#BPFUserAccountInternalKey)
+    
+    If_Status Is(*OKAY)
+    
+    * Since it Okay hang on the Internal ID
+    #sUserAccountIdentifier := #BPFUserAccountInternalKey
+    
+    * Set Status for return
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID TOKEN.VALIDATION.SUCCESS False )
+    
+    Else
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID TOKEN.VALIDATION.FAILED.ACCOUNT False )
+    
+    Endif
+    
+    #Secure.ClearRecordedIPAddress
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    * No match, so return in shame
+    #BPFStatus := NOMATCH
+    #SessionTracker.LogEvent( #TrackingID TOKEN.VALIDATION.FAILED.MISSING False )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    * No match, so return in shame
+    #BPFStatus := NOTOKEN
+    #SessionTracker.LogEvent( #TrackingID TOKEN.VALIDATION.FAILED.NOTSENT False )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(VerifyUserAccount) Session(*REQUIRED)
+    
+    * Input Values
+    Field_Map For(*INPUT) Field(#BPFUserPassword) Parameter_Name(password)
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserPassword) Name(#SavePassword)
+    Define_Com Class(#BPFUserPassword) Name(#CheckPassword)
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Local Reference
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * - Test -*
+    * Check request is valid and if IP Address is banned
+    If (#Secure.CheckIsValidRequest( 'VerifyUserAccount' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated False ))
+    
+    * Set Error
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Save The Password
+    #SavePassword := #BPFUserPassword
+    
+    * Regardless of the outcome ensure that security check has not been passed
+    #sSecuiryCheckPassed := False
+    
+    * Check_For In_File(LTAUMF01) With_Key(#LTAUSR #LTAPSW)
+    Fetch Fields(#BPFUserPassword #BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserPrimaryValue) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Check if Account is Enabled
+    If (#BPFUserAccountEnabled)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(VerifyUserAccount) : Securing string') )
+    
+    * Cleanup data and hold a clear copy till later
+    #CheckPassword := #Secure.CleanString( #SavePassword #WTRANSID )
+    #SavePassword := #CheckPassword
+    
+    * Convert for comparison
+    #CheckPassword := #Secure.SecureString( #CheckPassword #BPFUserPrimaryValue )
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(VerifyUserAccount) : Securing string completed') )
+    
+    If (#BPFUserPassword <> #CheckPassword)
+    
+    #BPFUserInvalidAttempts := #BPFUserInvalidAttempts + 1
+    
+    If (#BPFUserInvalidAttempts = #utils.GetNumericValue( SECURITY LOGIN_ATTEMPT_LIMIT ))
+    
+    #BPFUserAccountEnabled := False
+    #BPFstatus := NV
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.LIMIT False )
+    
+    * Send email
+    If (#Notification.Send( 'ACCOUNT_DISABLED' #sUserAccountIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(VerifyUserAccount) : disabled notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(VerifyUserAccount) : disabled notifcation not sent') )
+    
+    Endif
+    
+    Else
+    
+    #BPFstatus := ER
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.PASSWORD False )
+    
+    Endif
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Endif
+    
+    Else
+    
+    * Since the user has provided valid details, reset counters and tokens
+    #BPFUserInvalidAttempts := 0
+    #BPFUserEventToken := *null
+    
+    * Set Return as Okay
+    #BPFstatus := OK
+    
+    * We have passed the security check, so flag that
+    #sSecuiryCheckPassed := True
+    #Secure.ClearRecordedIPAddress
+    
+    * Resalt the password
+    #BPFUserPrimaryValue := *null
+    #BPFUserPassword := #Secure.SecureString( #SavePassword #BPFUserPrimaryValue )
+    
+    * Log Event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.SUCCESS True )
+    
+    * Okay so send email
+    If (#Notification.Send( 'ACCOUNT_VERIFIED' #sUserAccountIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(VerifyUserAccount) : notifcation sent') )
+    
+    Else
+    
+    #Utils.Log( ('Session Data Server : Srvroutine Name(VerifyUserAccount) : notifcation not sent') )
+    
+    Endif
+    
+    Endif
+    
+    * Update the user account for this attempt
+    Update Fields(#BPFUserAccountEnabled #BPFUserInvalidAttempts #BPFUserPassword #BPFUserPrimaryValue) In_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFstatus := NV
+    
+    * Log event
+    #SessionTracker.LogEvent( #TrackingID ACCOUNT.CHECK.FAILED.DISABLED False )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(CheckForAccount) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserEmail) Parameter_Name(UserAccount)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#IO$STS) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'CheckForAccount' #WRQSCKE #WRQSTID #WRQSTTS True )
+    
+    * Check for existance of an account by email address, all addresses stored lowercase
+    Check_For In_File(BPFPortalUserAccountByEmail) With_Key(#BPFUserEmail.lowercase)
+    
+    Endroutine
+    
+    * Session Management
+    
+    Srvroutine Name(StartServerSession)
+    
+    * Input
+    Field_Map For(*INPUT) Field(#WTIMEOUT) Parameter_Name(Interval)
+    
+    * Get Language
+    Field_Map For(*INPUT) Field(#sIsoCode) Parameter_Name(LanguageCode)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Assume Failure
+    #BPFStatus := ERROR
+    
+    * - Test -*
+    * Check if IP Address is banned
+    If (#Secure.IsIPAddressBanned)
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Set Default Timeout
+    If (#WTIMEOUT.IsNull)
+    
+    #WTIMEOUT := 900
+    
+    Endif
+    
+    * Start Session
+    #COM_SELF.StartSession Timeout(#WTIMEOUT)
+    
+    * Return Success
+    #BPFStatus := OKAY
+    
+    Endroutine
+    
+    Srvroutine Name(noop) Session(*REQUIRED)
+    
+    * Dummy routine to check for session timeout
+    
+    Endroutine
+    
+    Srvroutine Name(CheckSession) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Get Language
+    Field_Map For(*INPUT) Field(#sIsoCode) Parameter_Name(LanguageCode)
+    
+    * Output Values
+    List_Map For(*OUTPUT) List(#LoginUserData) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    Field_Map For(*OUTPUT) Field(#TrackingID) Parameter_Name(Grouping)
+    
+    * - Test -*
+    * Check for duplicated request and if IP Address is banned
+    If (#Secure.CheckIsValidRequest( 'CheckSession' #WRQSCKE #WRQSTID #WRQSTTS True False ))
+    
+    * Set Error
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    If (#Utils.IsWebpageConfigured.IsFalse)
+    
+    * Set Error
+    #BPFstatus := NC
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    If (#sUserAccountIdentifier.IsNull.IsFalse *And #sSecuiryExtTaskActive.IsFalse)
+    
+    * Get User Account
+    Fetch Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserHasAdminRights) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Get the user's preferences
+    Fetch Fields(#BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage #BPFUserPreferenceContentShare) From_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    
+    * Ensure Content share is ONLY *Null
+    #BPFUserPreferenceContentShare := #BPFUserPreferenceContentShare.AsValue
+    Add_Entry To_List(#LoginUserData)
+    
+    #Com_owner.StartSession Timeout(3600)
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(StartSessionExpiry) Session(*REQUIRED)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Assume Failure
+    #BPFStatus := ERROR
+    
+    * End Session
+    #COM_SELF.StartSession Timeout(15)
+    
+    * Return Success
+    #BPFStatus := OKAY
+    
+    Endroutine
+    
+    Srvroutine Name(EndServerSession) Session(*REQUIRED)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Assume Failure
+    #BPFStatus := ERROR
+    
+    * End Session
+    #COM_SELF.EndSession
+    
+    * Return Success
+    #BPFStatus := OKAY
+    
+    Endroutine
+    
+    * Account Creation
+    
+    Srvroutine Name(StoreNewUserDetails) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserFirstName) Parameter_Name(FirstName)
+    Field_Map For(*INPUT) Field(#BPFUserLastName) Parameter_Name(LastName)
+    Field_Map For(*INPUT) Field(#BPFUserEmail) Parameter_Name(UserAccount)
+    Field_Map For(*INPUT) Field(#BPFUserPassword) Parameter_Name(UserPassword)
+    Field_Map For(*INPUT) Field(#BPFUserPreferenceEmailLanguage) Parameter_Name(EmailLanguage)
+    
+    * Inbound Transaction ID
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    Field_Map For(*INPUT) Field(#WUSRAGT) Parameter_Name(HTTPVariable2)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserPassword) Name(#SavePassword)
+    
+    * Local Reference
+    #Secure.CheckIsValidRequest( 'StoreNewUserDetails' #WRQSCKE #WRQSTID #WRQSTTS true )
+    
+    * Since the user is attempting to create a nw account, we will always create a new session now as this will be a new account. If we do
+    * have a tracking ID, then just record the swap of session first.
+    If (#TrackingID.IsNull.IsFalse)
+    
+    * Track the change of user
+    #SessionTracker.LogEvent( #TrackingID TRACKING.NEWACCOUNT False )
+    
+    Endif
+    
+    * Create the session without related user, as currently we are unsure who they are
+    #TrackingID := #SessionTracker.CreateNewSession( *Null )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    * Just ensure that an account hasnt been committed
+    Check_For In_File(BPFPortalUserAccountByEmail) With_Key(#BPFUserEmail.lowercase)
+    
+    * If not, proceed.
+    If_Status Is(*NOTEQUALKEY)
+    
+    * Save The Password
+    #SavePassword := #BPFUserPassword
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(StoreNewUserDetails) : Securing string') )
+    
+    * Clean up user password and secure
+    #BPFUserPassword := #Secure.CleanString( #SavePassword #WTRANSID )
+    #BPFUserPassword := #Secure.SecureString( #BPFUserPassword #BPFUserPrimaryValue )
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(StoreNewUserDetails) : Securing string completed') )
+    
+    * Persist Pending Account Information
+    #NewUserEmail := #BPFUserEmail.lowercase
+    #NewUserFirst := #BPFUserFirstName
+    #NewUserLast := #BPFUserLastName
+    #NewUserPassword := #BPFUserPassword
+    #NewUserPrimary := #BPFUserPrimaryValue
+    #NewUserLanguage := #BPFUserPreferenceEmailLanguage
+    
+    * Return Okay
+    #BPFStatus := OKAY
+    
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.DETAILS.SUCCESS False )
+    
+    Else
+    
+    * Otherwise flag it exists
+    #BPFStatus := EXISTS
+    
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.DETAILS.FAILED.EXISTS False )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(StoreNewUserSecurity) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserSecurityQuestion) Parameter_Name(Question)
+    Field_Map For(*INPUT) Field(#BPFUserSecurityValue) Parameter_Name(Value)
+    
+    * Inbound Transaction ID
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserSecurityValue) Name(#SaveValue)
+    
+    #Secure.CheckIsValidRequest( 'StoreNewUserSecurity' #WRQSCKE #WRQSTID #WRQSTTS true )
+    
+    * Save The Value
+    #SaveValue := #BPFUserSecurityValue
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Securing string') )
+    
+    * Clean up user password and secure
+    #BPFUserSecurityValue := #Secure.CleanString( #SaveValue #WTRANSID )
+    #BPFUserSecurityValue := #Secure.SecureString( #BPFUserSecurityValue.LowerCase #BPFUserSecondaryValue )
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Securing string completed') )
+    
+    * Persist Pending Account Information
+    #NewUserQuestion := #BPFUserSecurityQuestion
+    #NewUserSecurityValue := #BPFUserSecurityValue
+    #NewUserSecondary := #BPFUserSecondaryValue
+    
+    * Return Okay
+    #BPFStatus := OKAY
+    
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.SECURITY.SUCCESS False )
+    
+    Endroutine
+    
+    Srvroutine Name(CreateStoredNewUser) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'CreateStoredNewUser' #WRQSCKE #WRQSTID #WRQSTTS true )
+    
+    * Do one last account check
+    Check_For In_File(BPFPortalUserAccountByEmail) With_Key(#NewUserEmail)
+    If_Status Is(*EQUALKEY)
+    
+    #BPFStatus := USERERROR
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.CREATE.FAILED.EXISTED False )
+    
+    Return
+    
+    Endif
+    
+    * All clear so, Map Stored Values to Table Fields
+    #BPFUserEmail := #NewUserEmail
+    #BPFUserPassword := #NewUserPassword
+    #BPFUserFirstName := #NewUserFirst
+    #BPFUserLastName := #NewUserLast
+    #BPFUserPrimaryValue := #NewUserPrimary
+    #BPFUserSecurityQuestion := #NewUserQuestion
+    #BPFUserSecurityValue := #NewUserSecurityValue
+    #BPFUserSecondaryValue := #NewUserSecondary
+    #BPFUserPreferenceEmailLanguage := #NewUserLanguage
+    
+    * Set Enabled False
+    #BPFUserAccountEnabled := False
+    
+    * Set Invalid Attempts
+    #BPFUserInvalidAttempts := 0
+    
+    * Set Welcome Event Token
+    #BPFUserEventToken := *GUID
+    
+    * Set Internal Key
+    #BPFUserAccountInternalKey := *GUID
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Attempting to insert stored details to account table for ' + #BPFUserAccountInternalKey.AsNativeString) )
+    
+    * Commit to Database
+    Insert Fields(#NewAccountGroup) To_File(BPFPortalUserAccounts) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    * Send Welcome Email if all okay
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : account insert successful') )
+    
+    * Set their language preference
+    Update Fields(#BPFUserPreferenceEmailLanguage) In_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey) Io_Error(*NEXT) Val_Error(*NEXT)
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Update preference ended with status ' + #io$sts) )
+    
+    #SessionTracker.UpdateRelatedUserID( #TrackingID #BPFUserAccountInternalKey )
+    
+    If (#Notification.Send( 'WELCOME' #BPFUserAccountInternalKey.AsNativeString ))
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Notification successful') )
+    
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.CREATE.SUCCESS true )
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Notification Failed') )
+    
+    #BPFStatus := SENDERROR
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.CREATE.SUCCESS.NOTSENT False )
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Update successful') )
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID NEWACCOUNT.CREATE.FAILED False )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetSecurityQuestions) Session(*REQUIRED)
+    
+    * Security Info
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound List
+    List_Map For(*OUTPUT) List(#AlphaCodes) Parameter_Name(DefaultQuestions)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetSecurityQuestions' #WRQSCKE #WRQSTID #WRQSTTS True )
+    
+    * Read Questions from Codes Table
+    Select Fields(#AlphaCodes) From_File(BPFSystemCodes) With_Key('SECURITY' ('DEFAULT_QUESTIONS'))
+    
+    * Get value from language JSON
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #sIsoCode #BPFCodeAlphaValue )
+    Add_Entry To_List(#AlphaCodes)
+    
+    Endselect
+    
+    * Sort in display sequence
+    Sort_List Named(#AlphaCodes) By_Fields(#BPFCodeNumericValue)
+    
+    Endroutine
+    
+    * Password Reset & Recovery
+    Srvroutine Name(PasswordResetRequest) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserEmail) Parameter_Name(ForUserEmail)
+    Field_Map For(*INPUT) Field(#WUSRAGT) Parameter_Name(HTTPVariable2)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * - Test -*
+    * * Check if IP Address is banned
+    * If (#Secure.IsIPAddressBanned)
+    If (#Secure.CheckIsValidRequest( 'PasswordResetRequest' #WRQSCKE #WRQSTID #WRQSTTS True False ))
+    
+    * Set Error
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Since the user is attempting a password reset request, lets create the session now as an event will be logged by this
+    * routine. This will avoid a session being created without an event being logged against it. To create a
+    * session their needs to be no tracking ID
+    If (#TrackingID.IsNull)
+    
+    * Create the session without related user, as currently we are unsure who they are
+    #TrackingID := #SessionTracker.CreateNewSession( *Null )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    Endif
+    
+    * Ensure lower case on email
+    #BPFUserEmail := #BPFUserEmail.LowerCase
+    
+    * Check for user email in user accounts
+    Fetch Fields(#BPFUserAccountInternalKey #BPFuserAccountEnabled #BPFUserSecurityQuestion #BPFUserSecurityValue) From_File(BPFPortalUserAccountByEmail) With_Key(#BPFUserEmail) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    * Did we get a match
+    If_Status Is(*OKAY)
+    
+    * Events need to be tied to an account, so attached an account if none is related or start a new session if the account is different
+    If (#SessionTracker.HasRelatedUser( #TrackingID ))
+    
+    * Check if they still the same, if yes then nothing to do
+    If (#SessionTracker.CheckRelatedUserIs( #TrackingID #BPFUserAccountInternalKey ).isFalse)
+    
+    * No, well then...
+    
+    * Track the change of user
+    #SessionTracker.LogEvent( #TrackingID TRACKING.ACCOUNTCHANGED False #BPFUserEmail.AsNativeString )
+    
+    * New Session for new user
+    #TrackingID := #SessionTracker.CreateNewSession( #BPFUserAccountInternalKey )
+    
+    * New session, so record the user agent string for the administrator
+    #SessionTracker.LogEvent( #TrackingID USER.DEVICE False #WUSRAGT )
+    
+    Endif
+    
+    Else
+    
+    * No related user means, this is the first accounted matched for this session
+    #SessionTracker.UpdateRelatedUserID( #TrackingID #BPFUserAccountInternalKey )
+    
+    Endif
+    
+    * Check user is enab;ed
+    If (#BPFUserAccountEnabled)
+    
+    * Check user has secuirty informatio set
+    If ((#BPFUserSecurityValue <> *blank) *And (#BPFUserSecurityQuestion <> *blank))
+    
+    * User Security is set, so we have all we need
+    * Track we have valid request
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.ACCOUNTOK False )
+    
+    * Set the event token
+    #BPFUserEventToken := *GUID
+    
+    * Update the table
+    Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#BPFUserAccountInternalKey)
+    
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(PasswordResetRequest) : Account table update successful') )
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.TOKENSET False )
+    
+    * Okay so send email
+    If (#Notification.Send( 'RESET_PASSWORD' #BPFUserAccountInternalKey.AsNativeString ))
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(PasswordResetRequest) : notifcation successful') )
+    
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.SUCCESS True )
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(PasswordResetRequest) : notifcation successful') )
+    
+    #BPFStatus := SNDERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.FAILED.EMAIL False )
+    
+    Endif
+    
+    #Secure.ClearRecordedIPAddress
+    #sSecuiryExtTaskActive := False
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(PasswordResetRequest) : Account table update failed') )
+    
+    #BPFStatus := UPDERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.FAILED.TOKEN False )
+    
+    Endif
+    
+    * Remove IP from being banned
+    #Secure.ClearRecordedIPAddress
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    * User has no security settings
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.FAILED.SECURITY False )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    * Disabled User
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.FAILED.DISABLED False )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := NOMATCH
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.REQUEST.FAILED.NOACCOUNT False #BPFUserEmail.AsNativeString )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetSecurityQuestion) Session(*REQUIRED)
+    
+    * Security Info
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Parameters
+    Field_Map For(*OUTPUT) Field(#BPFUserSecurityQuestion) Parameter_Name(UserQuestion)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetSecurityQuestion' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated false )
+    
+    * We can get the question ID from the account as we should have an active session
+    Fetch Fields(#BPFUserSecurityQuestion) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    * Regardless of the outcome ensure that security check has not been passed
+    #sSecuiryCheckPassed := False
+    
+    If_Status Is(*OKAY)
+    
+    * Now we can get the text
+    * Fetch Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('SECURITY' ('DEFAULT_QUESTIONS_' + #sIsoCode.UpperCase) #BPFUserSecurityIdentifier)
+    *
+    * If_Status Is(*OKAY)
+    *
+    * #BPFStatus := OK
+    *
+    * Else
+    *
+    * #BPFStatus := ERROR
+    *
+    * Endif
+    
+    * #BPFCodeAlphaValue := #Utils.GetAlphaValueForLanguage( #sIsoCode 'SECURITY' 'DEFAULT_QUESTIONS' )
+    
+    If (#BPFUserSecurityQuestion.IsNull)
+    
+    #BPFStatus := ERROR
+    
+    Else
+    
+    #BPFStatus := OK
+    
+    Endif
+    
+    #Secure.ClearRecordedIPAddress
+    
+    Else
+    
+    If (#secure.AddAttemptForIPAddress)
+    
+    #BPFStatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := NOMATCH
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(CheckSecurityDetails) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserSecurityValue) Parameter_Name(Value)
+    
+    * Inbound Transaction ID
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserSecurityValue) Name(#SaveValue)
+    Define_Com Class(#BPFUserSecurityValue) Name(#CheckValue)
+    
+    * - Test -*
+    * Check for duplicated request and if IP Address is banned
+    If (#Secure.CheckIsValidRequest( 'CheckSecurityDetails' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated False ))
+    
+    * Set Error
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    * Do not proceed past this point
+    Return
+    
+    Endif
+    
+    * Save The Value
+    #SaveValue := #BPFUserSecurityValue
+    
+    Fetch Fields(#BPFUserAccountEnabled #BPFUserSecurityValue #BPFUserSecondaryValue) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If_Status Is(*OKAY)
+    
+    If (#BPFUserAccountEnabled)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CheckSecurityDetails) : Securing string') )
+    
+    * Clean up user password and secure
+    #Checkvalue := #Secure.CleanString( #SaveValue #WTRANSID )
+    #Checkvalue := #Secure.SecureString( #Checkvalue.LowerCase #BPFUserSecondaryValue )
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(CheckSecurityDetails) : Comparing strings') )
+    
+    If (#CheckValue = #BPFUserSecurityValue)
+    
+    #BPFStatus := OK
+    
+    * We have passed the security check, so flag that
+    #sSecuiryCheckPassed := True
+    #Secure.ClearRecordedIPAddress
+    
+    *
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHECK.SUCCESS True )
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := NOMATCH
+    
+    *
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHECK.FAILED.NOMATCH false )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    
+    #BPFStatus := ERROR
+    
+    *
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHECK.FAILED.DISABLED false )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    
+    #BPFStatus := ERROR
+    
+    *
+    #SessionTracker.LogEvent( #TrackingID SECURITY.CHECK.FAILED.NOACCOUNT false )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(ResetUserPassword) Session(*REQUIRED)
+    
+    * Inbound Parameters
+    Field_Map For(*INPUT) Field(#BPFUserPassword) Parameter_Name(Value)
+    Field_Map For(*INPUT) Field(#BooleanValue) Parameter_Name(Force)
+    
+    * Inbound Transaction ID
+    Field_Map For(*INPUT) Field(#WTRANSID) Parameter_Name(HTTPVariable1)
+    
+    * Security Info
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local References
+    Define_Com Class(#BPFEmailNotificationsSender) Name(#Notification)
+    
+    * Local Variables
+    Define_Com Class(#BPFUserPassword) Name(#SaveValue)
+    Define_Com Class(#BPFUserPassword) Name(#CheckValue)
+    
+    If (#Secure.CheckIsValidRequest( 'ResetUserPassword' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated false ))
+    
+    #BPFStatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    * Okay have we passed the security check?
+    If (#sSecuiryCheckPassed)
+    
+    * Save The Value
+    #SaveValue := #BPFUserPassword
+    
+    Fetch Fields(#BPFUserAccountEnabled) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If_Status Is(*OKAY)
+    
+    If ((#BPFUserAccountEnabled) *OrIf (#BooleanValue))
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : Securing string') )
+    
+    * Clean up user password and secure
+    #Checkvalue := #Secure.CleanString( #SaveValue #WTRANSID )
+    #BPFUserPassword := #Secure.SecureString( #Checkvalue #BPFUserPrimaryValue )
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : Updating user account table with password and salt') )
+    
+    * Ensure account enabled if forced
+    #BPFUserAccountEnabled := True
+    Update Fields(#BPFUserPassword #BPFUserAccountEnabled #BPFUserPrimaryValue) In_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : update successful') )
+    
+    * Okay so send email
+    If (#Notification.Send( 'PASSWORD_CHANGED' #sUserAccountIdentifier.AsNativeString ))
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : notifcation successful') )
+    
+    #BPFStatus := OK
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.SUCCESS true )
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : notifcation failed') )
+    
+    #BPFStatus := SNDERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.SUCCESS.NOTSENT False )
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Data Server : Srvroutine Name(ResetUserPassword) : update failed') )
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.FAILED.ACCOUNT True )
+    
+    Endif
+    
+    #Secure.IsIPAddressBanned
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.FAILED.DISABLED false )
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.FAILED.NOACCOUNT false )
+    
+    Endif
+    
+    * Once changed or failed to change the security check is no longer valid.
+    #sSecuiryCheckPassed := False
+    
+    * Need to look at external flag and turn off session auth flag off if the process is external
+    If (#sSecuiryExtTaskActive)
+    
+    #sSessionAuthenicated := False
+    #sSecuiryExtTaskActive := False
+    
+    Endif
+    
+    Else
+    
+    * Record Invalid attempt on IP Address
+    If (#Secure.AddAttemptForIpAddress)
+    
+    #BPFstatus := IP
+    #COM_SELF.EndSession
+    
+    Return
+    
+    Endif
+    
+    #BPFStatus := ERROR
+    #SessionTracker.LogEvent( #TrackingID PASSWORD.RESET.FAILED.SECURITY false 'failed as security check not passed' )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

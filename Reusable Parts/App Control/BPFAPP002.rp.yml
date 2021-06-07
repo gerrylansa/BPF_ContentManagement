@@ -1,0 +1,1141 @@
+﻿Reusable Part:
+  Name:               BPFSessionManager
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Session Manager"
+
+  - JPN:
+      Description:        "Portal Session Manager"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Application Scoped Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    Define_Com Class(#BPFClientTabManager) Name(#ClientTabs)
+    Define_Com Class(#BPFActionMessages) Name(#Message)
+    
+    * Properties
+    Define_Pty Name(PortalLanguages) Get(*REFERENCE #PortalLanguages)
+    Define_Com Class(#BPFClientLanguageStrings) Name(#PortalLanguages)
+    
+    Define_Pty Name(RequestedAccount) Get(*AUTO #RequestedAccount) Set(*AUTO #RequestedAccount)
+    Define_Com Class(#PRIM_ALPH) Name(#RequestedAccount)
+    
+    Define_Pty Name(CurrentUser) Get(*REFERENCE #CurrentUser)
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    
+    Define_Pty Name(Expired) Get(*AUTO #SessionExpired)
+    Define_Com Class(#PRIM_BOLN) Name(#SessionExpired)
+    
+    Define_Pty Name(Active) Get(*AUTO #Active)
+    Define_Com Class(#PRIM_BOLN) Name(#Active)
+    
+    Define_Pty Name(ServerSessionActive) Get(*AUTO #ServerSessionActive)
+    Define_Com Class(#PRIM_BOLN) Name(#ServerSessionActive)
+    
+    Define_Pty Name(EventLabels) Get(*REFERENCE #EventLabels)
+    Define_Com Class(#prim_lcol<#BPFEventLabelDataClass>) Name(#EventLabels)
+    
+    Define_Pty Name(IsIE) Get(getIsIE)
+    Define_Pty Name(IsFireFox) Get(getIsFireFox)
+    
+    Define_Pty Name(Message) Get(*REFERENCE #Message)
+    Define_Pty Name(ClientTabs) Get(*REFERENCE #ClientTabs)
+    
+    * Events
+    
+    * Login
+    Define_Evt Name(LoginCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#EntryQueryString) Mandatory(*NULL)
+    
+    Define_Evt Name(LoginFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    * Logout
+    Define_Evt Name(LogoutRequested)
+    Define_Evt Name(LogoutCompleted)
+    
+    * Session Control
+    Define_Evt Name(SessionStarted)
+    Define_Evt Name(SessionEnded)
+    
+    * Get Security Questions
+    Define_Evt Name(OnGetSecurityQuestionCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFAlphaValuesItemClass>) Name(#Questions) Pass(*BY_REFERENCE)
+    Define_Evt Name(OnGetSecurityQuestionFailed)
+    
+    * Get Security Check Question
+    Define_Evt Name(OnGetSecurityCheckQuestionCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Question) Pass(*BY_REFERENCE)
+    Define_Evt Name(OnGetSecurityCheckQuestionFailed)
+    
+    * Account Check
+    Define_Evt Name(OnCheckAccountCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#AccountExists)
+    Define_Evt Name(OnCheckAccountFailed)
+    
+    * Token Check
+    Define_Evt Name(OnValidateTokenCompleted)
+    Define_Evt Name(OnValidateTokenFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    * Reset Password Request
+    Define_Evt Name(OnPasswordResetRequestCompleted)
+    Define_Evt Name(OnPasswordResetRequestFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    * Check Security Details
+    Define_Evt Name(OnCheckSecurityDetailsCompleted)
+    Define_Evt Name(OnCheckSecurityDetailsFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    * Reset User Password
+    Define_Evt Name(OnResetUserPasswordCompleted)
+    Define_Evt Name(OnResetUserPasswordFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnVerifyUserAccountCompleted)
+    Define_Evt Name(OnVerifyUserAccountFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    * Objects
+    Define_Com Class(#PRIM_NMBR) Name(#ExpiryLimit)
+    Define_Com Class(#PRIM_NMBR) Name(#ExpiryValue) Value(900)
+    Define_Com Class(#PRIM_BOLN) Name(#CheckonIdleEnd)
+    Define_Com Class(#PRIM_BOLN) Name(#ViaMessageAction)
+    Define_Com Class(#PRIM_ALPH) Name(#EntryQueryString)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(getIsIE)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    #Property := #Browser.IsInternetExplorer
+    
+    Endroutine
+    
+    Ptyroutine Name(getIsFireFox)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    #Property := #Browser.IsFireFox
+    
+    Endroutine
+    
+    * Events
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Register tab for management
+    #ClientTabs.RegisterTab
+    
+    If (#Navigate.CurrentEvent *Is *Null)
+    
+    #COM_SELF.HandleCheckSession
+    
+    Else
+    
+    If (#Navigate.CurrentEvent.IsTokenEvent.IsFalse)
+    
+    #SYS_WEB.History.replace Querystring(*null) Signal(False)
+    #COM_SELF.HandleCheckSession
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    
+    * This is an event that will only fire if the word "mobile" is found in the user agent string of the browser.
+    * It is to cover the situation when the user put the page or the browser into the background, and then kills the
+    * tab or the browser without making it active again. Without this a stray tracking session may get created on the
+    * server.
+    Evtroutine Handling(#Browser.OnMobileBrowserVisbilityChange) Visible(#Visible)
+    
+    * We only care about this at login, as soon after this a suer will be attached to the session
+    If (#Navigate.CurrentEvent.EventGroup.UpperCase = LOGIN)
+    
+    * When they are looking at the login, start a session otherwise end it. We dont need to notify anything
+    * as tehy are coming and going from the same point.
+    
+    If (#Visible)
+    
+    #COM_SELF.StartServerSession( False )
+    
+    Else
+    
+    #COM_SELF.EndServerSession( False )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#SYS_APPLN.Idle) Seconds(#Seconds)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#IdleCheck)
+    Define_Com Class(#PRIM_NMBR) Name(#IdleNoop)
+    Define_Com Class(#PRIM_NMBR) Name(#IdleExpiry)
+    
+    * Check if browser has been minimised, if so decrease limit as internval between events goes up from 5 to 25 seconds
+    If (#Browser.PageHidden)
+    
+    #ExpiryLimit := (#ExpiryValue / 5)
+    
+    Else
+    
+    #ExpiryLimit := #ExpiryValue
+    
+    Endif
+    
+    * Get Check Values
+    #IdleCheck := #Seconds.mod( (#ExpiryLimit * 0.05) )
+    #IdleNoop := #Seconds.mod( (#ExpiryLimit * 0.75) )
+    #IdleExpiry := #Seconds.mod( #ExpiryLimit )
+    
+    * Check if we have check on idle end
+    If (#IdleCheck = 0)
+    
+    #CheckonIdleEnd := True
+    
+    Endif
+    
+    * Check if we have reached heartbeat time
+    If (#IdleNoop = 0)
+    
+    #CheckonIdleEnd := True
+    #COM_SELF.CheckSession
+    
+    Endif
+    
+    * Check if we have reached expiry
+    If (#IdleExpiry = 0)
+    
+    #Navigate.BackToTarget( INITIAL )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#SYS_APPLN.IdleEnd)
+    
+    #COM_SELF.CheckSession
+    
+    Endroutine
+    
+    Evtroutine Handling(#SYS_WEB.CloseQuery)
+    
+    * Remove tab from management
+    #ClientTabs.DeregisterTab
+    
+    If (#Active)
+    
+    * If we get the chance and are the last tab set session to expire
+    If (#ClientTabs.IsLastTab)
+    
+    #COM_SELF.SetSessionToExpire
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.EndServerSession( False False )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Browser.OnPageHide)
+    
+    If (#Active)
+    
+    * #COM_SELF.Logout( True False )
+    
+    Else
+    
+    #COM_SELF.EndServerSession( False False )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Message.OnActionRecieved) Actionvalue(#Action)
+    
+    If (#Action = LOGIN)
+    
+    * Just do this if the session is not active
+    If (#Active.IsFalse)
+    
+    #COM_SELF.HandleCheckSession Signalhome(True)
+    
+    Endif
+    
+    Endif
+    
+    If (#Action = LOGOUT)
+    
+    * Just do this if the session is active
+    If (#Active)
+    
+    #ViaMessageAction := True
+    #Navigate.BackToTarget Target(INITIAL)
+    
+    Endif
+    
+    Endif
+    
+    If (#Action = 'LOGIN_ATTEMPT')
+    
+    #Navigate.BackToTarget Target(INITIAL)
+    
+    Endif
+    
+    If (#Action = 'UPDATEUSERDETAILS')
+    
+    If (#Active)
+    
+    #CurrentUser.UpdateDetailsFromServer
+    
+    Endif
+    
+    Endif
+    
+    *
+    If (#action = 'BROWSERRELOAD')
+    
+    #Browser.Reload
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(Login)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Password) Mandatory(*NULL)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    Define_Com Class(#PRIM_NMBR) Name(#TimerIndex)
+    
+    * Define Connection to Server Routine
+    Define_Com Class(#BPFSessionDataServer.login) Name(#Request)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#Status)
+    Define_Com Class(#PRIM_ALPH) Name(#sessionValue)
+    
+    * Data Object to recieve server values
+    Define_Com Class(#Prim_LCOL<#BPFUserAccountClass>) Name(#Data)
+    
+    * If user and password blank then look for the token value
+    * If ((#RequestedAccount = *blank) *And (#Password = *blank))
+    
+    * #sessionValue := #SYS_WEB.LocalStorage<'bpf.session.token'>.value.Decrypt( '*null' )
+    
+    * #RequestedAccount := #sessionValue.Substring( 1 (#sessionValue.PositionOf( '%xx/xx%' ) - 1) )
+    * #password := #sessionValue.Substring( (#sessionValue.PositionOf( '%xx/xx%' ) + 7) )
+    
+    * Endif
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserPassword := (#Buffer.Substring( 1 5 ) + #Password + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Execute request
+    #Request.ExecuteAsync User(#RequestedAccount) Password(#BPFUserPassword) Data(#Data) Status(#BPFStatus) Grouping(#sessionValue)
+    
+    * Turn off transaction ID
+    #Browser.UseTransactionID := False
+    
+    * Handle the request events
+    Evtroutine Handling(#Request.Completed)
+    
+    Case Of_Field(#BPFStatus)
+    
+    When Value_Is(= SA)
+    
+    Signal Event(LoginFailed) Reason(ACTIVE)
+    
+    When Value_Is(= NV)
+    
+    Signal Event(LoginFailed) Reason(DISABLED)
+    
+    When Value_Is(= ER)
+    
+    Signal Event(LoginFailed) Reason(INVALID)
+    
+    When Value_Is(= IP)
+    
+    #Navigate.ToDisabled
+    
+    Otherwise
+    
+    * Create current user account
+    #CurrentUser <= *New #BPFUserAccountClass.Create( #Data )
+    
+    * Set Analytics
+    If (#Com_self.SetAnalytics)
+    
+    * Announce to other windows that we have logged in
+    #Message.SendAction( 'LOGIN' )
+    
+    #ExpiryValue := 2700
+    #SessionExpired := False
+    #Active := True
+    
+    * Set Tab as active
+    #ClientTabs.SetTabActive
+    
+    * Default Requested Account value, as we now have an active account
+    #RequestedAccount := *Null
+    
+    * Signal were logged in
+    Signal Event(LoginCompleted) Entryquerystring(#EntryQueryString)
+    
+    * Set Post Login Actions to start from here
+    
+    * Get Labels for events
+    #COM_SELF.GetEventLabels
+    
+    Else
+    
+    Signal Event(LoginFailed) Reason(INVALID)
+    
+    Endif
+    
+    Endcase
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    
+    Signal Event(LoginFailed) Reason(FAILED)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetAnalytics)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    Define_Com Class(#BPFSessionDataServer.SetAnalytics) Name(#Request)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    Define_Com Class(#PRIM_ALPH) Name(#analytcisHandle)
+    
+    * Assume, success
+    #Result := True
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #analytcisHandle := (#Buffer.Substring( 1 5 ) + #CurrentUser.EmailAdress + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    #Request.Execute Languagecode(#Browser.UserLanguage) Analyticshandle(#analytcisHandle)
+    
+    #Browser.UseTransactionID := False
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handle)
+    
+    #Handle := True
+    #Result := False
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(HandleCheckSession)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SignalHome) Mandatory(False)
+    
+    * Define Request to Server Module
+    Define_Com Class(#BPFSessionDataServer.CheckSession) Name(#Request)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#sessionValue)
+    
+    * Data Object to recieve server values
+    Define_Com Class(#Prim_LCOL<#BPFUserAccountClass>) Name(#Data)
+    
+    * Capture query string on entry if it exists
+    If ((#SYS_WEB.URL.Contains( '?' )) *AndIf (#SYS_WEB.URL.LowerCase.Contains( 'event=home' ).IsFalse))
+    
+    #EntryQueryString := #SYS_WEB.URL.Substring( (#SYS_WEB.URL.LastPositionOf( '?' ) + 1) )
+    
+    Endif
+    
+    * Okay, no for something completely different. Do we have a valid language anymorre
+    If (#PortalLanguages.Strings<#Browser.UserLanguage>.IsNull)
+    
+    * This cannot be, as all langauges have a description. So its no longer valid and must be purged
+    If (#SYS_WEB.LocalStorage<'BPF.LANGUAGE.OVERRIDE'> *IsNot *Null)
+    
+    #SYS_WEB.LocalStorage<'BPF.LANGUAGE.OVERRIDE'> := *null
+    
+    Else
+    
+    * HTML must not be configured correctly, put a silent message out as the portal is not alive yet.
+    * Actually message will be put out by the login account panel.
+    
+    #SYS_WEB.console.log( ('Language support not configured, entry page is missing PORTALIZE.language value in LANSA.init.') Error )
+    
+    Endif
+    
+    #ClientTabs.DeregisterTab
+    #Navigate.Reload
+    
+    Endif
+    
+    * Make a request and see if we get data returned
+    #Request.Execute Languagecode(#Browser.UserLanguage) Data(#Data) Grouping(#sessionValue) Status(#BPFStatus)
+    
+    If (#Data.IsEmpty)
+    
+    * No Data means we have no authenicated session as teh user data coudl not be found.
+    
+    If (#BPFStatus = IP)
+    
+    #ClientTabs.DeregisterTab
+    #Navigate.ToDisabled
+    
+    Endif
+    
+    If (#BPFStatus = NC)
+    
+    #SYS_WEB.console.log( ('Language support not configured, entry page is missing PORTALIZE.language value in LANSA.init. Session') Error )
+    
+    #ClientTabs.DeregisterTab
+    #Navigate.ToConfigError
+    
+    Endif
+    
+    Else
+    
+    * We data, so we have a sessiom that can be used.
+    
+    * Create current user account
+    #CurrentUser <= *New #BPFUserAccountClass.Create( #Data )
+    
+    * Setup session initial values
+    #Active := True
+    #ExpiryValue := 2700
+    #SessionExpired := False
+    
+    * Set tab as active
+    #ClientTabs.SetTabActive
+    
+    * Get Labels for events
+    #COM_SELF.GetEventLabels
+    
+    * If we arent signalling home, then the user has most likely navigated here when a session was active. Signalling home normally means an
+    * inactive session has been told to login. However we cannot always tell the navigation type, so if this is the case and we dont have a
+    * query string then we will ovveride signal home to be true to allow the correct navigation structure to be initialised.
+    If (#SignalHome.IsFalse)
+    
+    #SignalHome := ((#Browser.NavigationType = 'unknown') *And (#SYS_WEB.URL.Lowercase.Contains( '?event=' ).isfalse))
+    
+    Endif
+    
+    * If the user navigated here or we have been told to signal home, we need to adjust the URL based on the query string as teh tab will not have any
+    * browser history steps or we are at an insecure event URL.
+    If ((#Browser.NavigationType = 'navigate') *Or (#SignalHome))
+    
+    * Do we have a query string
+    If (#SYS_WEB.URL.Lowercase.Contains( '?event=' ))
+    
+    * Yes, then add two history steps, 1) for login and 2) for secure home. Then add back the query string.
+    #SYS_WEB.History.Replace Querystring(*Null) Signal(False)
+    #SYS_WEB.History.Add Querystring('event=home') Signal(False)
+    
+    If (#EntryQueryString.IsNull.IsFalse)
+    
+    #SYS_WEB.History.Add Querystring(#EntryQueryString) Signal(False)
+    
+    Endif
+    
+    Else
+    
+    * No, then they asked for login so add the secure root to history
+    #SYS_WEB.History.Add Querystring('event=home') Signal(False)
+    
+    Endif
+    
+    * Clear the captured query string.
+    #EntryQueryString := *null
+    
+    Endif
+    
+    * *Special Case* *
+    * Handle a login by another window,by signalling login completed if required.
+    If (#SignalHome)
+    
+    Signal Event(LoginCompleted)
+    
+    Endif
+    
+    Endif
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(VerifyUserAccount)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#WithPassword)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Define Connection to Server Routine
+    Define_Com Class(#BPFSessionDataServer.VerifyUserAccount) Name(#Request)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserPassword := (#Buffer.Substring( 1 5 ) + #WithPassword + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    * Execute request
+    #Request.ExecuteAsync Password(#BPFUserPassword) Status(#BPFStatus)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#BPFStatus = OK)
+    
+    Signal Event(OnVerifyUserAccountCompleted)
+    
+    Else
+    
+    If (#BPFStatus = IP)
+    
+    #Navigate.ToDisabled
+    
+    Else
+    
+    Signal Event(OnVerifyUserAccountFailed) Reason(#BPFStatus)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    Signal Event(OnVerifyUserAccountFailed) Reason(FAILED)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(CheckSession)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#WakePoint)
+    Define_Com Class(#BPFSessionDataServer.noop) Name(#Request)
+    
+    * Only call if we reach the check limit
+    If (#CheckonIdleEnd)
+    
+    #Request.ExecuteAsync
+    #CheckonIdleEnd := False
+    
+    Endif
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    
+    If (#Reason.UpperCase = SESSIONINVALID)
+    
+    #COM_SELF.Logout
+    
+    Endif
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(Logout)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Silent) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SendAsync) Mandatory(True)
+    
+    * Define Server Call
+    Define_Com Class(#BPFSessionDataServer.Logout) Name(#Request)
+    
+    #EntryQueryString := *null
+    
+    * Set tab as inactive
+    #ClientTabs.SetTabInActive
+    
+    If (#Active)
+    
+    * Set Active now, timing is key
+    #Active := False
+    #ExpiryValue := 900
+    
+    If (#Silent.IsFalse)
+    Signal Event(LogoutRequested)
+    Endif
+    
+    If (#SendAsync)
+    
+    #Request.ExecuteAsync
+    
+    Else
+    
+    #Request.Execute
+    
+    Endif
+    
+    Endif
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    * Rest Session Values
+    #SessionExpired := True
+    #CurrentUser <= *null
+    
+    If (#ViaMessageAction)
+    
+    #ViaMessageAction := False
+    
+    Else
+    
+    #Message.SendAction( 'LOGOUT' )
+    
+    Endif
+    
+    If (#Silent.IsFalse)
+    Signal Event(LogoutCompleted)
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    
+    #ViaMessageAction := False
+    
+    If (#Reason.UpperCase = SESSIONINVALID)
+    
+    Signal Event(LogoutCompleted)
+    
+    Endif
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(CheckForAccount)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#EmailAddress)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.CheckForAccount) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Useraccount(#EmailAddress) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    Signal Event(OnCheckAccountCompleted) Accountexists((#Status = EQ))
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCheckAccountFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetSecurityQuestions)
+    
+    * Local Collections
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaValuesItemClass>) Name(#QuestionsList)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.GetSecurityQuestions) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Defaultquestions(#QuestionsList)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    Signal Event(OnGetSecurityQuestionCompleted) Questions(#QuestionsList)
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSecurityQuestionFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ValidateEventToken)
+    Define_Map For(*INPUT) Class(#BPFUserEventToken) Name(#ForToken)
+    Define_Map For(*INPUT) Class(#BPFUserAccountEnabled) Name(#Finalise) Mandatory(True)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.ValidateEventToken) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Token(#ForToken) Finalise(#Finalise) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnValidateTokenCompleted)
+    
+    Else
+    
+    Signal Event(OnValidateTokenFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnValidateTokenFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Password Recovery
+    
+    Mthroutine Name(RequestPasswordReset)
+    Define_Map For(*INPUT) Class(#BPFUserEmail) Name(#ForEmail)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.PasswordResetRequest) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruseremail(#ForEmail) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnPasswordResetRequestCompleted)
+    
+    Else
+    
+    If (#Status = IP)
+    
+    #Navigate.ToDisabled
+    
+    Else
+    
+    Signal Event(OnPasswordResetRequestFailed) Reason(#Status)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnPasswordResetRequestFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetSecurityCheckQuestion)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.GetSecurityQuestion) Name(#Request)
+    
+    *
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#UserQuestion)
+    
+    * Make Request
+    #Request.ExecuteAsync Userquestion(#UserQuestion) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetSecurityCheckQuestionCompleted) Question(#UserQuestion)
+    
+    Else
+    
+    Signal Event(OnGetSecurityCheckQuestionFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSecurityCheckQuestionFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(CheckSecuirtyDetails)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SecurityValue) Mandatory(*NULL)
+    
+    * Define Connection to Server Routine
+    Define_Com Class(#BPFSessionDataServer.CheckSecurityDetails) Name(#Request)
+    
+    * Define Send Buffer
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    * Populate Buffer and Send Value
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserSecurityValue := (#Buffer.Substring( 1 5 ) + #SecurityValue + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    #Request.ExecuteAsync Value(#BPFUserSecurityValue) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnCheckSecurityDetailsCompleted)
+    
+    Else
+    
+    If (#Status = IP)
+    
+    #Navigate.ToDisabled
+    
+    Else
+    
+    Signal Event(OnCheckSecurityDetailsFailed) Reason(#Status)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCheckSecurityDetailsFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ResetUserPassword)
+    
+    * Define Inbound Parameters
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#PasswordValue) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Force) Mandatory(False)
+    
+    * Define Connection to Server Routine
+    Define_Com Class(#BPFSessionDataServer.ResetUserPassword) Name(#Request)
+    
+    * Define Send Buffer
+    Define_Com Class(#PRIM_ALPH) Name(#Buffer)
+    
+    * Set Trans ID on
+    #Browser.UseTransactionID := True
+    
+    * Populate Buffer and Send Value
+    #Buffer := #Browser.GetRandomValue.asstring
+    #BPFUserPassword := (#Buffer.Substring( 1 5 ) + #PasswordValue + #Buffer.Substring( 6 )).Encrypt( #Buffer )
+    
+    #Request.ExecuteAsync Value(#BPFUserPassword) Force(#Force) Status(#Status)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnResetUserPasswordCompleted)
+    
+    Else
+    
+    If (#Status = IP)
+    
+    #Navigate.ToDisabled
+    
+    Endif
+    
+    Signal Event(OnResetUserPasswordFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnResetUserPasswordFailed) Reason(#Reason)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Event Labels, well they are partly related to SESSION events
+    Mthroutine Name(GetEventLabels)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSystemSetingsDataServer.GetEventLabels) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Labels(#EventLabels)
+    
+    * Handle Request Events
+    Evtroutine Handling(#Request.Completed)
+    
+    * No events required
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    * No events required
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Server Session Control
+    
+    * Start a Session
+    Mthroutine Name(StartServerSession)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#FireEvent) Mandatory(True)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.StartServerSession) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Languagecode(#Browser.UserLanguage) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    * Flag we have session
+    #ServerSessionActive := True
+    
+    If (#FireEvent)
+    
+    Signal Event(SessionStarted)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Set session expiry
+    Mthroutine Name(SetSessionToExpire)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.StartSessionExpiry) Name(#Request)
+    
+    * Make Request
+    #Request.Execute Status(#Status)
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    
+    Endroutine
+    
+    Endroutine
+    
+    * End a Session
+    Mthroutine Name(EndServerSession)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#FireEvent) Mandatory(True)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SendAsync) Mandatory(True)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFSessionDataServer.EndServerSession) Name(#Request)
+    
+    * Flag we have no session
+    #ServerSessionActive := False
+    
+    * Make Request
+    If (#SendAsync)
+    
+    #Request.ExecuteAsync Status(#Status)
+    
+    Else
+    
+    #Request.Execute Status(#Status)
+    
+    Endif
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#FireEvent)
+    
+    Signal Event(SessionEnded)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled)
+    
+    #Handled := True
+    
+    If (#FireEvent)
+    
+    Signal Event(SessionEnded)
+    
+    Endif
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

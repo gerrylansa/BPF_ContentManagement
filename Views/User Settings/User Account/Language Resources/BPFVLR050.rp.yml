@@ -1,0 +1,52 @@
+﻿Reusable Part:
+  Name:               BPFUserAccountEditStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Account Edit View Strings"
+
+  - JPN:
+      Description:        "User Account Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit Account"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enter the information about you that we will use to communicate with you. You are the only one who is able to change this information."
+    
+    #STRINGSCOLLECTION<'ACCOUNTDETAILSPANELHEADING.CAPTION'> := "Your Account"
+    
+    #STRINGSCOLLECTION<'USEREMAILEDIT.CAPTION'> := "Email"
+    #STRINGSCOLLECTION<'USEREMAILEDIT.INUSE.ERROR'> := "In use. An account already uses this email address."
+    #STRINGSCOLLECTION<'USEREMAILEDIT.INUSE.OKAY'> := "Your good to go."
+    #STRINGSCOLLECTION<'USEREMAILEDIT.ENTRY.ERROR'> := "Please enter your email address"
+    #STRINGSCOLLECTION<'USEREMAILEDIT.VALID.ERROR'> := "Your email address is not valid"
+    
+    #STRINGSCOLLECTION<'FIRSTNAMEEDIT.CAPTION'> := "First name"
+    #STRINGSCOLLECTION<'FIRSTNAMEEDIT.ERROR'> := "Please enter your first name"
+    
+    #STRINGSCOLLECTION<'LASTNAMEEDIT.CAPTION'> := "Last name"
+    #STRINGSCOLLECTION<'LASTNAMEEDIT.ERROR'> := "Please enter your last name"
+    
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'MESSAGE.ONCHECKACCOUNTFAILED'> := "Unable to validate email address"
+    #STRINGSCOLLECTION<'MESSAGE.ONSETACCOUNTDETAILSCOMPLETED'> := "Account updated"
+    #STRINGSCOLLECTION<'MESSAGE.ONSETACCOUNTDETAILSFAILED'> := "FAILED to update account details."
+    
+    Endroutine
+    
+    End_Com

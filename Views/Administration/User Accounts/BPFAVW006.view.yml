@@ -1,0 +1,224 @@
+﻿Web View:
+  Name:               BPFAdminUserSelectAccountActionView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Select Account Action View"
+
+  - JPN:
+      Description:        "Portal Select Account Action View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Style(#NavigationLinkStyle) Componenttag('BPFAPP008')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFAdminUserSelectAccountActionViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFUserAccountAdminDataClient) Name(#UserAccounts) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(294) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ActionsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ActionsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActionsPanelLayoutRow1) Displayposition(1) Parent(#ActionsPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActionsPanelLayoutRow2) Displayposition(2) Parent(#ActionsPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActionsPanelLayoutColumn1) Displayposition(1) Parent(#ActionsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActionsPanelLayoutColumn2) Displayposition(2) Parent(#ActionsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActionsPanelLayoutColumn3) Displayposition(3) Parent(#ActionsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsPanelLayoutItem1) Manage(#ActionsHeading) Parent(#ActionsPanelLayout) Row(#ActionsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ActionsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsPanelLayoutItem2) Alignment(TopLeft) Column(#ActionsPanelLayoutColumn2) Manage(#ActionsList) Parent(#ActionsPanelLayout) Row(#ActionsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ActionsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActionsLayoutListColumn1) Displayposition(1) Parent(#ActionsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActionsLayoutListRow1) Displayposition(1) Parent(#ActionsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutListItem2) Alignment(TopLeft) Column(#ActionsLayoutListColumn1) Manage(#ActionsLabel) Parent(#ActionsLayoutList) Row(#ActionsLayoutListRow1)
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Account Actions') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('The account &1 has a status of &2 so you can select from the follwing actions')
+    
+    * Panels
+    
+    * Notifications
+    Define_Com Class(#PRIM_PANL) Name(#ActionsPanel) Displayposition(3) Height(270) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ActionsPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ActionsHeading) Caption('Actions') Displayposition(1) Left(24) Parent(#ActionsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.List) Name(#ActionsList) Displayposition(2) Layoutmanager(#ActionsLayoutList) Left(24) Parent(#ActionsPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ActionsLabel) Caption('Text') Displayposition(1) Dragstyle(None) Left(0) Parent(#ActionsList) Tabposition(1) Top(0) Height(44) Width(830) Iconalignment(CenterRight) Icon('keyboard_arrow_right') Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    * References
+    Define_Com Class(#BPFUserAccountAdminItem) Name(#CurrentAccount) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #UserAccounts <= (#Data.GetDataClient( #COM_SELF ) *As #BPFUserAccountAdminDataClient)
+    
+    Endroutine
+    
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to current user
+    #CurrentAccount <= #UserAccounts.UserAccount<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    If (#CurrentAccount *IsNot *Null)
+    
+    * Setup Panel
+    #COM_SELF.SetPanelDisplay
+    #COM_SELF.SetValidOptions
+    
+    * All Done
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Else
+    
+    #UserAccounts.GetUserAccountsByID( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#ActionsList.ItemClick)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To Eventname(adminaccountverification) Value((#ActionsList.CurrentItem.ComponentTag + '&id=' + #CurrentAccount.Identifier))
+    
+    Endroutine
+    
+    * Data
+    
+    Evtroutine Handling(#UserAccounts.OnGetUserAccountCompleted)
+    
+    * Get Reference to current user
+    #CurrentAccount <= #UserAccounts.UserAccount<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * Setup Panel
+    #COM_SELF.SetPanelDisplay
+    #COM_SELF.SetValidOptions
+    
+    * All Done
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserAccounts.OnGetUserAccountFailed)
+    
+    * Show error
+    #BPFPortal.ShowToaster( #STRINGS.Text<USERACCOUNTS.ONGETUSERACCOUNTFAILED> 7500 )
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #ACTIONSHEADING.CAPTION := #STRINGS.Text<ACTIONSHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(SetPanelDisplay) Access(*PRIVATE)
+    
+    * Set title and Text
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress ).Replace( '%%STATUS%%' #STRINGS.Text<('CURRENTACCOUNT.STATUS.' + #CurrentAccount.Status.UpperCase)> )
+    
+    Endroutine
+    
+    Mthroutine Name(SetValidOptions) Access(*PRIVATE)
+    
+    Case Of_Field(#CurrentAccount.Status.UpperCase)
+    
+    When Value_Is(= ACTIVE)
+    
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.DISABLE> 'ADMINUSERSETACCOUNTDISABLED' )
+    
+    When Value_Is(= DISABLED)
+    
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.ENABLE> 'ADMINUSERSETACCOUNTENABLED' )
+    
+    When Value_Is(= RESET)
+    
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.RESENDPASSWORD> 'ADMINUSERSENDPASSWORDRESET' )
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.DISABLE> 'ADMINUSERSETACCOUNTDISABLED' )
+    
+    When Value_Is(= NEW)
+    
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.RESENDACTIVATE> 'ADMINUSERSENDCONFIRMACCOUNT' )
+    
+    When Value_Is(= PENDING)
+    
+    #COM_SELF.AddListEntry( #STRINGS.Text<ACTIONSLABEL.CAPTION.RESENDSECURITY> 'ADMINUSERSENDSECURITYRESET' )
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(AddListEntry) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Label)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Destination)
+    
+    * Current List Item
+    Add_Entry To_List(#ActionsList)
+    
+    * Set Destination
+    #ActionsList.CurrentItem.ComponentTag := #Destination
+    
+    * Set Caption
+    #ActionsLabel.CurrentItem.Caption := #Label
+    
+    Endroutine
+    
+    End_Com

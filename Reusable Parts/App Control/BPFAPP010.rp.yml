@@ -1,0 +1,188 @@
+﻿Reusable Part:
+  Name:               BPFClientTabManager
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Client Tab Manager"
+
+  - JPN:
+      Description:        "Portal Client Tab Manager"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * **WARNING** *
+    * This is an experimental componement that is design to help manage the tab instances to help ensure
+    * that the server session is expired once the user navigates away of possible. The logic here will not
+    * function in Edge or Safari due the implementation the localStorage and Histort API browser support.
+    * if you experience any issues, then remove the definition of this object from the session manager.
+    
+    * Definitions
+    
+    * Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Properties
+    
+    Define_Pty Name(InactivityTimeout) Get(*AUTO #LastActionTimeout) Set(*AUTO #LastActionTimeout)
+    Define_Com Class(#PRIM_NMBR) Name(#LastActionTimeout)
+    
+    Define_Pty Name(ClientID) Get(*AUTO #TabClientID)
+    Define_Com Class(#PRIM_ALPH) Name(#TabClientID)
+    
+    Define_Pty Name(IsLastTab) Get(GetIsLastTab)
+    
+    * Events
+    * Objects
+    
+    * Variables
+    Define_Com Class(#PRIM_BOLN) Name(#Supported)
+    Define_Com Class(#PRIM_BOLN) Name(#OtherClientsExist)
+    
+    * Routines
+    Ptyroutine Name(GetIsLastTab)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    * Set Last Tab as false
+    #Property := True
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    For Each(#BPFStorageItem) In(#SYS_WEB.LocalStorage)
+    
+    Continue If(#BPFStorageItem.Name.Contains( 'BPF.CLIENT.' ).isFalse)
+    
+    * We found one, so this is not the last tab
+    #Property := False
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #Supported := ((#Browser.IsAppleSafari.IsFalse) *AndIf (#Browser.IsOldEdge.IsFalse))
+    
+    Endroutine
+    
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Group(#Group)
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    If (#Group = VIEWS)
+    
+    #SYS_WEB.LocalStorage.Add Key('BPF.LAST.ACTION') Value(#BPFGenericDateTime.Now.AsDisplayString( CCYYMMDDHHMMSS ))
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(RegisterTab)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#TimeoutInSeconds) Mandatory(3000)
+    
+    * This methods primary job is to set the tab ID. It has a secondary function of checking if an tacking key has
+    * been orphaned due to the inability for the thread to complete teh pending actions
+    
+    Define_Com Class(#PRIM_DAT) Name(#Now)
+    Define_Com Class(#PRIM_DAT) Name(#Then)
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    * Setup Client Instance ID in Session Storage
+    #SYS_WEB.SessionStorage.Remove( BPF.CLIENT.ID )
+    #TabClientID := #BPFGenericDateTime.Now.AsLocalizedDateTime.AsSeconds.AsString
+    #SYS_WEB.SessionStorage.ADD( BPF.CLIENT.ID #TabClientID )
+    
+    * Set Timeout
+    #LastActionTimeout := #TimeoutInSeconds
+    
+    * Check the Last Action Timestamp exists
+    If (#SYS_WEB.LocalStorage<BPF.LAST.ACTION> *IsNot *Null)
+    
+    * Get The Tiem now and for teh last actions
+    #Then := #SYS_WEB.LocalStorage<BPF.LAST.ACTION>.value.AsDateTime( CCYYMMDDHHMMSS )
+    #Now := #BPFGenericDateTime.Now
+    
+    * Calculate the different
+    #STD_INT := ((#Now.Date.Difference( 1970-01-01 ) * 86400) + #Now.Now.Time.AsSeconds) - ((#Then.Date.Difference( 1970-01-01 ) * 86400) + #Then.Time.AsSeconds)
+    
+    * If likely inactive
+    If (#STD_INT >= #LastActionTimeout)
+    
+    * Update Last Action Timestamp
+    #SYS_WEB.LocalStorage.Add Key('BPF.LAST.ACTION') Value(#BPFGenericDateTime.Now.AsDisplayString( CCYYMMDDHHMMSS ))
+    
+    * Scan for orphan clients
+    For Each(#Key) In(#SYS_WEB.LocalStorage)
+    
+    * We have an orphan if its a client with a value
+    If ((#Key.Name.Contains( 'BPF.CLIENT.' )) *AndIf (#Key.Value.IsNull.IsFalse))
+    
+    * Kill the ophaan as nobody want its any more
+    #SYS_WEB.LocalStorage.Remove( #Key.Name )
+    
+    Endif
+    
+    Endfor
+    
+    Endif
+    
+    Endif
+    
+    * Update the localStorage Key for Client and Start as inactive
+    #SYS_WEB.LocalStorage.Add( ('BPF.CLIENT.' + #TabClientID) *blank )
+    
+    Endroutine
+    
+    Mthroutine Name(DeregisterTab)
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    * Remove Client Instance ID
+    #SYS_WEB.LocalStorage.Remove( ('BPF.CLIENT.' + #TabClientID) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetTabInActive)
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    #SYS_WEB.LocalStorage.Add( ('BPF.CLIENT.' + #TabClientID) *blank )
+    
+    Endroutine
+    
+    Mthroutine Name(SetTabActive)
+    
+    * Do not action is unsupported by browser
+    If (#Supported.IsFalse)
+    Return
+    Endif
+    
+    #SYS_WEB.LocalStorage.Add( ('BPF.CLIENT.' + #TabClientID) #TabClientID )
+    
+    Endroutine
+    
+    End_Com

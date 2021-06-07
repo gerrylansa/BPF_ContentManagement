@@ -1,0 +1,270 @@
+﻿Reusable Part:
+  Name:               BPFNewAccountTermsPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal New Account Terms Approval"
+
+  - JPN:
+      Description:        "Portal New Account Terms Approval"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_View) Displayposition(1) Height(426) Tabposition(1) Width(666) Layoutmanager(#Layout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFNewAccountTermsPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Panel Layouts
+    
+    * Base Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(3) Parent(#Layout) Units(Content) Width(252)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(2) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(48) Units(Pixels)
+    
+    * Detail Panel Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#DialogLogo) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#MainInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(TopLeft) Column(#LayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Marginbottom(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem9) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#DetailsPanelActionButton) Parent(#Layout) Row(#LayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem10) Alignment(CenterRight) Column(#LayoutColumn3) Manage(#DetailsPanelNextButton) Parent(#Layout) Row(#LayoutRow2) Sizing(None)
+    
+    * Mobile Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#TermsPanel) Parent(#Layout) Row(#LayoutRow1) Columnspan(2) Margintop(76)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MobileLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MobileLayoutColumn1) Displayposition(1) Parent(#MobileLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileLayoutRow1) Displayposition(1) Parent(#MobileLayout) Units(Content) Height(56)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileLayoutRow2) Displayposition(2) Parent(#MobileLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileLayoutRow3) Displayposition(3) Parent(#MobileLayout) Height(48) Units(Pixels)
+    
+    * Details Panel Mobile Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem1) Manage(#MainInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#MobileLayoutColumn1) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem2) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem8) Alignment(CenterLeft) Column(#MobileLayoutColumn1) Manage(#DetailsPanelActionButton) Parent(#MobileLayout) Row(#MobileLayoutRow3) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem9) Alignment(CenterRight) Column(#MobileLayoutColumn1) Manage(#DetailsPanelNextButton) Parent(#MobileLayout) Row(#MobileLayoutRow3) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem3) Alignment(TopLeft) Column(#MobileLayoutColumn1) Manage(#TermsPanel) Parent(#MobileLayout) Row(#MobileLayoutRow2)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopLeft) Column(#Layout1Column1) Manage(#TermsPage) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogLogo) Caption('myPortal. So you know what we are both signed up to') Displayposition(1) Left(414) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3+ForegroundTheme') Top(0) Height(378) Width(252) Captionalignment(Center) Wordwrap(True) Iconalignment(AboveCaption) Icon('assignment') Iconheight(118) Iconthemedrawstyle('ForegroundMediumPrimary') Captionmarginleft(14) Captionmarginright(14)
+    Define_Com Class(#PRIM_MD.Label) Name(#MainInstruction) Caption('myPortal terms and conditions') Displayposition(2) Left(0) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading2') Top(0) Height(27) Wordwrap(True) Width(414)
+    Define_Com Class(#PRIM_MD.Label) Name(#SecondaryInstruction) Caption('Please read and acknowledge your acceptance') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(3) Top(27) Height(29) Wordwrap(True) Width(414) Paddingbottom(8)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DetailsPanelActionButton) Displayposition(4) Left(0) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(384) Caption('Back') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DetailsPanelNextButton) Caption('Next') Displayposition(5) Left(334) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('MediumTitle') Top(384) Width(80) Enabled(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_PANL) Name(#TermsPanel) Displayposition(6) Left(0) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(76) Width(414) Height(302) Verticalscroll(True) Layoutmanager(#Layout1)
+    
+    
+    Define_Com Class(#PRIM_WEB.HtmlContainer) Name(#TermsPage) Description('Web Page') Displayposition(1) Height(298) Parent(#TermsPanel) Tabposition(1) Tabstop(False) Width(414)
+    
+    * Parent
+    Define_Com Class(#BPFCreateAccountDialog) Name(#Dialog) Reference(*DYNAMIC)
+    
+    * Reference to Data Object
+    Define_Com Class(#BPFUserAccountClass) Name(#NewAccount) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Creation
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get reference to parent
+    #Dialog <= #BPFPortal.CreateDialog
+    #NewAccount <= #Dialog.NewAccount
+    
+    #COM_SELF.SetStrings
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    * Get Terms
+    #COM_SELF.GetTermsPage
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#NewAccount.OnStoredAccountCreated)
+    
+    #Dialog.SetWaitingState( OFF )
+    #Navigate.To Eventname(NEWACCOUNTCREATED)
+    
+    Endroutine
+    
+    Evtroutine Handling(#NewAccount.OnStoredAccountFailed)
+    
+    #Dialog.SetWaitingState( OFF )
+    #Navigate.To Eventname(NEWACCOUNTFAILED)
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#DetailsPanelActionButton.Click)
+    
+    #TermsPage.html := *null
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#DetailsPanelNextButton.Click)
+    
+    #TermsPage.Html := *null
+    #Dialog.SetWaitingState( ON )
+    
+    #NewAccount.CreateStoredAccount
+    
+    Endroutine
+    
+    Evtroutine Handling(#TermsPanel.ScrollChanged)
+    
+    #DetailsPanelNextButton.Enabled := (#TermsPanel.VerticalScrollRemainder <= 10)
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+    #SECONDARYINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION>
+    #DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+    #DETAILSPANELACTIONBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELACTIONBUTTON.CAPTION>
+    #DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>
+    
+    Endroutine
+    
+    * Get Terms Page
+    Mthroutine Name(GetTermsPage)
+    
+    * Define Local request object
+    Define_Com Class(#prim_web.HttpRequest) Name(#Request)
+    
+    * Set request path
+    #Request.Url := 'content/' + #Browser.UserLanguage + '/myPortalterms.html'
+    
+    * Make Request
+    #Request.ExecuteAsync
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    #TermsPage.html := #Request.Response.Content
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed)
+    
+    #TermsPage.Html := '<h3>' + #STRINGS.Text<MESSAGE.TERMSPAGE.FAILED> + '</h3>'
+    
+    Endroutine
+    
+    Endroutine
+    
+    
+    * Validation of Data
+    
+    Mthroutine Name(ClearAllErrors) Access(*PRIVATE)
+    
+    * Check if we have any errors
+    For Each(#Control) In(#COM_SELF.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.Edit)
+    
+    If (#Control.HasError)
+    
+    #Control.ClearError
+    
+    Endif
+    
+    Endfor
+    
+    Endroutine
+    
+    * Responsive Design
+    
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.SetForMobile
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.SetForTablet
+    
+    Otherwise
+    
+    #COM_SELF.SetForDesktop
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(SetForMobile) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #MobileLayout)
+    
+    #COM_SELF.LayoutManager <= #MobileLayout
+    
+    Endif
+    Endroutine
+    
+    Mthroutine Name(SetForTablet) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetForDesktop) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := True
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

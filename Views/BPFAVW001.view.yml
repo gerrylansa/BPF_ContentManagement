@@ -1,0 +1,286 @@
+﻿Web View:
+  Name:               BPFPortalHomeView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Home View"
+
+  - JPN:
+      Description:        "Portal Home View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Layoutmanager(#PanelLayout) Height(536) Width(1680) Verticalscroll(True)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalHomeViewStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#PanelLayout) Sizing(ContentHeight) Margintop(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn1) Displayposition(1) Parent(#PanelLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn2) Displayposition(2) Parent(#PanelLayout) Width(44) Minwidth(140) Maxwidth(440)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn3) Displayposition(3) Parent(#PanelLayout) Width(44) Minwidth(140) Maxwidth(440)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn4) Displayposition(4) Parent(#PanelLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow1) Displayposition(1) Parent(#PanelLayout) Height(69) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow2) Displayposition(2) Parent(#PanelLayout) Height(399) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow3) Displayposition(3) Parent(#PanelLayout) Height(24) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem1) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#PanelHeading) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(ContentHeightFitToWidth) Columnspan(2) Flow(Down) Marginbottom(12) Marginleft(16) Marginright(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem2) Manage(#PanelWelcomeHeading) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#PanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Columnspan(2) Marginleft(16) Marginright(16)
+    
+    * Last Session Card Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem3) Manage(#LastSessionCard) Parent(#PanelLayout) Row(#PanelLayoutRow2) Sizing(FitToWidth) Column(#PanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Columnspan(2) Margintop(32)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#LastSessionCardLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LastSessionCardLayoutColumnLeft) Displayposition(1) Parent(#LastSessionCardLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardLayoutColumn2) Displayposition(2) Parent(#LastSessionCardLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardLayoutColumnRight) Displayposition(3) Parent(#LastSessionCardLayout) Minwidth(24)
+    
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LastSessionCardLayoutLayoutRow1) Displayposition(1) Parent(#LastSessionCardLayout) Height(297) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LastSessionCardLayoutLayoutRow2) Displayposition(2) Parent(#LastSessionCardLayout) Units(Pixels) Height(12)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LastSessionCardLayoutLayoutRow3) Displayposition(3) Parent(#LastSessionCardLayout) Units(Pixels) Height(56)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardLayoutItem1) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#LastSessionCardHeading) Parent(#LastSessionCardLayout) Row(#LastSessionCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardLayoutItem2) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#LastSessionCardText) Parent(#LastSessionCardLayout) Row(#LastSessionCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(4) Marginbottom(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardLayoutItem4) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#LastSessionCardList) Parent(#LastSessionCardLayout) Row(#LastSessionCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(16)
+    
+    
+    * Lists
+    
+    * Last Session
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardLayoutItem3) Manage(#LastSessionCardAction) Parent(#LastSessionCardLayout) Row(#LastSessionCardLayoutLayoutRow3) Column(#LastSessionCardLayoutColumnLeft) Alignment(TopLeft) Flow(Down) Columnspan(3)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#LastSessionCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LastSessionCardDesktopLayoutListColumn1) Displayposition(1) Parent(#LastSessionCardDesktopLayoutList) Units(Pixels) Width(180)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LastSessioneCardDesktopLayoutListColumn2) Displayposition(2) Parent(#LastSessionCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LastSessionCardDesktopLayoutListRow1) Displayposition(1) Parent(#LastSessionCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardDesktopLayoutListItem1) Alignment(CenterLeft) Column(#LastSessionCardDesktopLayoutListColumn1) Manage(#LastSessionCardBackgroundLabel) Parent(#LastSessionCardDesktopLayoutList) Row(#LastSessionCardDesktopLayoutListRow1) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardDesktopLayoutListItem2) Alignment(CenterLeft) Column(#LastSessionCardDesktopLayoutListColumn1) Manage(#LastSessionCardListLabel) Parent(#LastSessionCardDesktopLayoutList) Row(#LastSessionCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardDesktopLayoutListItem3) Alignment(CenterLeft) Column(#LastSessioneCardDesktopLayoutListColumn2) Manage(#LastSessionCardListValue) Parent(#LastSessionCardDesktopLayoutList) Row(#LastSessionCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#LastSessionCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LastSessionCardMobileLayoutListColumn1) Displayposition(1) Parent(#LastSessionCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LastSessionCardMobileLayoutListRow1) Displayposition(1) Parent(#LastSessionCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardMobileLayoutListItem1) Alignment(TopLeft) Column(#LastSessionCardMobileLayoutListColumn1) Manage(#LastSessionCardBackgroundLabel) Parent(#LastSessionCardMobileLayoutList) Row(#LastSessionCardMobileLayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardMobileLayoutListItem2) Alignment(CenterLeft) Column(#LastSessionCardMobileLayoutListColumn1) Manage(#LastSessionCardListLabel) Parent(#LastSessionCardMobileLayoutList) Row(#LastSessionCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LastSessionCardMobileSettingsListItem3) Alignment(CenterLeft) Column(#LastSessionCardMobileLayoutListColumn1) Manage(#LastSessionCardListValue) Parent(#LastSessionCardMobileLayoutList) Row(#LastSessionCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Caption('Welcome,') Displayposition(1) Height(47) Left(416) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Title+ForegroundMediumPrimary') Top(44) Width(848)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelWelcomeHeading) Displayposition(2) Left(416) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading1') Top(103) Width(848) Height(10) Wordwrap(True)
+    
+    * Last Session
+    
+    * Panel
+    Define_Com Class(#PRIM_PANL) Name(#LastSessionCard) Displayposition(3) Left(400) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(145) Width(880) Height(367) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#LastSessionCardLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#LastSessionCardHeading) Caption('Your last session') Displayposition(1) Left(24) Parent(#LastSessionCard) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(830) Height(27) Wordwrap(True) Iconalignment(CenterRight) Style(#NavigationLinkStyle) Iconcolor(Theme500)
+    Define_Com Class(#PRIM_MD.Label) Name(#LastSessionCardText) Captionalignment(TopLeft) Displayposition(2) Height(10) Left(24) Parent(#LastSessionCard) Tabposition(2) Top(55) Width(830) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#LastSessionCardAction) Caption('Manage your activity') Displayposition(4) Left(0) Parent(#LastSessionCard) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Top(309) Height(56) Width(878) Iconalignment(CenterRight) Icon('keyboard_arrow_right') Iconmarginright(24) Captionalignment(CenterLeft) Captionmarginleft(24) Style(#NavigationLinkStyle)
+    
+    
+    * List
+    Define_Com Class(#PRIM_MD.List) Name(#LastSessionCardList) Displayposition(3) Layoutmanager(#LastSessionCardDesktopLayoutList) Left(24) Parent(#LastSessionCard) Rowheight(56) Tabposition(3) Top(69) Height(228) Width(830)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#LastSessionCardBackgroundLabel) Displayposition(4) Dragstyle(None) Left(0) Parent(#LastSessionCardList) Tabposition(1) Themedrawstyle('card') Height(56) Top(0) Width(830) Style(#NotaCard)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#LastSessionCardListLabel) Caption('LABEL') Displayposition(1) Dragstyle(None) Left(0) Parent(#LastSessionCardList) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Height(19) Top(19) Width(156)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#LastSessionCardListValue) Caption('Settings Value') Displayposition(2) Dragstyle(None) Left(180) Parent(#LastSessionCardList) Tabposition(4) Height(26) Top(15) Width(650) Themedrawstyle('Heading3') Captionmarginbottom(3) Captionmargintop(3)
+    
+    * References
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData) Reference(*DYNAMIC)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to current user
+    #CurrentUser <= #Session.CurrentUser
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Set Welcome
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #LASTSESSIONCARDHEADING.CAPTION := #STRINGS.Text<LASTSESSIONCARDHEADING.CAPTION>
+    #LASTSESSIONCARDACTION.CAPTION := #STRINGS.Text<LASTSESSIONCARDACTION.CAPTION>
+    
+    * Get User Information
+    #CurrentUser.GetLastSession
+    
+    * Set Panel text
+    #COM_SELF.SetPanelText
+    
+    
+    Endroutine
+    
+    * webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    If (#SessionData *IsNot *Null)
+    
+    #COM_SELF.HandleLastSessionCardSetup
+    
+    Endif
+    
+    Endroutine
+    
+    * action
+    Evtroutine Handling(#LastSessionCardAction.Click)
+    
+    #Navigate.To Eventname(USERACTIVITYSETTINGS)
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#CurrentUser.OnSetAccountDetailsCompleted)
+    
+    * Set Panel text
+    #COM_SELF.SetPanelText
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnGetLastSessionCompleted) Sessiondata(#LastSessionData)
+    
+    * Build Profile
+    #SessionData <= #LastSessionData
+    #COM_SELF.HandleLastSessionCardSetup
+    
+    * Turn off loading
+    If (#BPFPortal.ViewsPanel *IsNot *Null)
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnGetLastSessionFailed)
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetPanelText) Access(*PRIVATE)
+    
+    * Set Welcome Text
+    
+    * Early morning message
+    If ((#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour >= 0) *And (#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour <= 5))
+    
+    #PanelWelcomeHeading := #STRINGS.Text<PANELWELCOMEHEADING.CAPTION.EARLY>
+    
+    Endif
+    
+    * Morning message
+    If ((#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour >= 6) *And (#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour <= 11))
+    
+    #PanelWelcomeHeading := #STRINGS.Text<PANELWELCOMEHEADING.CAPTION.MORNING>
+    
+    Endif
+    
+    * Aftrenon message
+    If ((#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour >= 12) *And (#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour <= 17))
+    
+    #PanelWelcomeHeading := #STRINGS.Text<PANELWELCOMEHEADING.CAPTION.AFTERNOON>
+    
+    Endif
+    
+    * Evening message
+    If ((#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour >= 18) *And (#BPFGenericDateTime.Now.AsLocalizedDateTime.Time.Hour <= 23))
+    
+    #PanelWelcomeHeading := #STRINGS.Text<PANELWELCOMEHEADING.CAPTION.EVENING>
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleLastSessionCardSetup) Access(*PRIVATE)
+    
+    Define_Com Class(#Prim_dc.UnicodeString) Name(#DateString)
+    
+    * Set Layout Manager
+    * Build based on Device
+    If (#SYS_WEB.Device = Mobile)
+    
+    #LastSessionCardList.LayoutManager <= #LastSessionCardMobileLayoutList
+    
+    Else
+    
+    #LastSessionCardList.LayoutManager <= #LastSessionCardDesktopLayoutList
+    
+    Endif
+    
+    * Prime the account card
+    Clr_List Named(#LastSessionCardList)
+    
+    If (#SYS_WEB.Device = Mobile)
+    
+    #LastSessionCardList.RowHeight := 56
+    
+    Else
+    
+    #LastSessionCardList.RowHeight := 32
+    
+    Endif
+    
+    * Set instruction text
+    If (#SessionData.ItemCount > 0)
+    
+    * #LastSessionCardText := #STRINGS.Text<LASTSESSIONCARDTEXT.CAPTION>.replace( '%%DATE%%' (#SessionData<1>.EventDateTime.Date.AsDisplayString( ML_DDDDDDDDD ) + ', ' + #SessionData<1>.EventDateTime.Date.AsDisplayString( DDxxbMMMMMMMMMbCCYY )) ).replace( '%%TIME%%' #SessionData<1>.EventDateTime.Time.AsDisplayString( HHsMMsSS ).Substring( 1 5 ) )
+    
+    #DateString := #BPFPortal.AppStrings.Text<APP.FORMAT.DAYANDDATE>.Replace( '%%DAYLONG%%' #SessionData<1>.EventDateTime.Date.AsDisplayString( ML_DDDDDDDDD ) ).Replace( '%%DAYSHORT%%' #SessionData<1>.EventDateTime.Date.Day.AsString ).Replace( '%%MONTHLONG%%' #SessionData<1>.EventDateTime.Date.AsDisplayString( MMMMMMMMMM ) ).Replace( '%%YEAR%%' #SessionData<1>.EventDateTime.Date.Year.AsString )
+    #LastSessionCardText := #STRINGS.Text<LASTSESSIONCARDTEXT.CAPTION>.replace( '%%DATE%%' #DateString ).replace( '%%TIME%%' #SessionData<1>.EventDateTime.Time.AsDisplayString( HHsMMsSS ).Substring( 1 5 ) )
+    
+    
+    * Add Email
+    For Each(#Event) In(#SessionData)
+    
+    #COM_SELF.AddLastSessionCardItem( #Event.EventDateTime.Time.AsDisplayString( HHsMMsSS ) #Event.Event )
+    
+    Endfor
+    
+    Else
+    
+    #LastSessionCardText := #STRINGS.Text<LASTSESSIONCARDTEXT.CAPTION.NOSESSIONS>
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(AddLastSessionCardItem) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Label)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    * If blank, then dont worry about showing
+    If (#Value.IsNull)
+    Return
+    Endif
+    
+    * Insert Item
+    If (#Label.IsNull.IsFalse)
+    
+    * Insert Item
+    Add_Entry To_List(#LastSessionCardList)
+    
+    * Format Item
+    #LastSessionCardListLabel.CurrentItem.Caption := #Label
+    #LastSessionCardListValue.CurrentItem.Caption := #Value
+    
+    Else
+    
+    * Update Current Item
+    #LastSessionCardListValue.CurrentItem.Caption += (10).AsUnicodeString + #Value
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFUserPasswordVerificationStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Password Verification View Strings"
+
+  - JPN:
+      Description:        "User Password Verification View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.CHANGEPASSWORD'> := "Change Account Password"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.CHANGESECURITY'> := "Change Security Credentials"
+    
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "In order to change this account setting, we need to make sure it is you changing it. So please enter your password below to verify that it is you"
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRYPANELHEADING.CAPTION'> := "Verify Password"
+    #STRINGSCOLLECTION<'PASSWORDENTRY.CAPTION'> := "Enter your password"
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRYACTION.CAPTION'> := "VERIFY"
+    #STRINGSCOLLECTION<'SESSION.ONVERIFYUSERACCOUNTFAILED'> := "Verification failed"
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRY.BLANK'> := "You forgot your password"
+    
+    Endroutine
+    
+    End_Com

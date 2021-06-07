@@ -1,0 +1,78 @@
+﻿File:
+  Name:                           BPFPortalUserTransactionIDLog
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0008
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Register of User Transaction ID"
+
+  - JPN:
+      Description:        "Register of User Transaction ID"
+
+  Real Fields:
+  - BPFFLD009:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD066:
+      Type:               Alphanumeric
+      Length:             10
+      Decimals:           0
+
+  - BPFFLD067:
+      Type:               Date Time
+      Length:             26
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD009
+  - BPFFLD066
+
+  Logical Views:
+  - BPFPortalUserTransIDbyOldestDate:
+      Identifier:         BPFIDX0010
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0010
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Register of User Trans IDs By Oldest Dat"
+
+      - JPN:
+          Description:        "Register of User Trans IDs By Oldest Dat"
+
+      Keys:
+      - BPFFLD009:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+      - BPFFLD067:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned

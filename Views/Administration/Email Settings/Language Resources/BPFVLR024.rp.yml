@@ -1,0 +1,52 @@
+﻿Reusable Part:
+  Name:               BPFEmailSMTPSettingsViewString
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Email SMTP Settings View Strings"
+
+  - JPN:
+      Description:        "Email SMTP Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "SMTP Server Settings"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "View or edit the current settings used to access the SMTP server that send emails from the portal to the end users. You can use the test option to send a testing emails to ensure the settings are working correctly."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "SMTP Settings"
+    #STRINGSCOLLECTION<'TESTINGHEADING.CAPTION'> := "Send Test Email"
+    
+    #STRINGSCOLLECTION<'TESTADDRESSEDIT.CAPTION'> := "Email Address"
+    #STRINGSCOLLECTION<'TESTADDRESSEDIT.ERROR'> := "Please enter a valid address"
+    
+    #STRINGSCOLLECTION<'ADDRESS.CAPTION'> := "ADDRESS"
+    #STRINGSCOLLECTION<'PORT.CAPTION'> := "PORT"
+    #STRINGSCOLLECTION<'USER.CAPTION'> := "USER"
+    #STRINGSCOLLECTION<'PASSWORD.CAPTION'> := "PASSWORD"
+    #STRINGSCOLLECTION<'SECURE.CAPTION'> := "SECURE"
+    
+    #STRINGSCOLLECTION<'SENDTESTACTION.CAPTION'> := "SEND"
+    
+    #STRINGSCOLLECTION<'VIEWLOG.LABEL'> := "View Logs"
+    
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONLOADSMTPSETTINGSFAILED'> := "Failed to get settings"
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONTESTSENDCOMPLETED'> := "Email sent successful"
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONTESTSENDFAILED'> := "FAILED to send Email"
+    
+    Endroutine
+    
+    End_Com

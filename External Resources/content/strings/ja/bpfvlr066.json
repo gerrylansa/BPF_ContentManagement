@@ -1,0 +1,1 @@
+{"ls":[{"op":"INSTRUCTIONTEXT.CAPTION","s":"特定の言語の以下のリソースの文字列を表示します。翻訳を変更するには、編集アイコンをクリックします"},{"op":"TRANSLATIONLABEL.CAPTION","s":"翻訳"},{"op":"EXAMPLECODELINKTEXT.CAPTION","s":"このリソースの使い方"},{"op":"RESOURCES.ONGETRESOURCEFAILED","s":"リソースオブジェクトの解析に失敗しました"},{"op":"CURRENTRESOURCE.ONLOADSTRINGSFAILED","s":"選択したリソースからテキストを読み込めませんでした"}]}

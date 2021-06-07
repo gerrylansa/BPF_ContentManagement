@@ -1,0 +1,46 @@
+﻿Reusable Part:
+  Name:               BPFResetSecurityPasswordPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Reset Security Password Panel Strings"
+
+  - JPN:
+      Description:        "Reset Security Password Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Enter your new %%APP%% password"
+    
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Enter your new password and then confirm it entry"
+    
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.CAPTION'> := "New Password"
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.HELPERTEXT.BLANK'> := "Please enter your password"
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.HELPERTEXT.WEAK'> := "This password is to weak"
+    
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.CAPTION'> := "Confirm"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.HELPERTEXT.BLANK'> := "Please confirm your password"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.HELPERTEXT.NOMATCH'> := "The passwords do not match"
+    
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. Just be sure to keep this information somewhere safe."
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Confirm"
+    
+    Endroutine
+    
+    End_Com

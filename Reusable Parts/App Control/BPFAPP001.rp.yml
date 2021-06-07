@@ -1,0 +1,699 @@
+﻿Reusable Part:
+  Name:               BPFNavigationManager
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Navigation Manager"
+
+  - JPN:
+      Description:        "Portal Navigation Manager"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Reference Application Object
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(ManagedAppDrawer) Get(*REFERENCE #NavigationDrawer)
+    Define_Com Class(#PRIM_MD.AppDrawer) Name(#NavigationDrawer) Reference(*DYNAMIC)
+    
+    Define_Pty Name(CurrentEvent) Get(GetCurrentEvent)
+    
+    Define_Pty Name(ValueInQueryString) Get(GetValueFromQueryString)
+    
+    Define_Pty Name(Event) Get(GetEvent)
+    
+    Define_Pty Name(InitialURL) Get(*AUTO #InitalURL)
+    
+    * Events
+    Define_Evt Name(LoginDialogRequested)
+    
+    Define_Evt Name(OnNavigationEvent)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Group)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value) Mandatory(*NULL)
+    
+    * Collections
+    
+    * Navigation Events
+    Define_Com Class(#PRIM_LCOL<#BPFNavigationEventItem>) Name(#NavigationEvents)
+    
+    * Static Components
+    
+    * Key Application URLs
+    Define_Com Class(#PRIM_ALPH) Name(#InitalURL)
+    Define_Com Class(#PRIM_ALPH) Name(#SecuredRootURL)
+    Define_Com Class(#PRIM_ALPH) Name(#TargetURL)
+    Define_Com Class(#PRIM_ALPH) Name(#TargetEvent)
+    Define_Com Class(#PRIM_ALPH) Name(#DisableURL)
+    Define_Com Class(#PRIM_ALPH) Name(#ConfigErrorURL)
+    Define_Com Class(#PRIM_ALPH) Name(#TargetURLReplacement)
+    Define_Com Class(#PRIM_BOLN) Name(#TargetURLReplace)
+    Define_Com Class(#PRIM_BOLN) Name(#TargetURLStopAtHome)
+    Define_Com Class(#PRIM_ALPH) Name(#TargetQueryString)
+    
+    * Navigation Flags
+    Define_Com Class(#PRIM_BOLN) Name(#IsNavigatingToTargetURL)
+    
+    * Navigation Control Timer
+    Define_Com Class(#PRIM_TIMR) Name(#NavigationTimer) Startup(Manual) Interval(100)
+    
+    * Current Index
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentEventIndex)
+    
+    * Routines
+    Ptyroutine Name(GetCurrentEvent)
+    Define_Map For(*OUTPUT) Class(#BPFNavigationEventItem) Name(#Property) Pass(*BY_REFERENCE)
+    
+    * Return event based on current index
+    If (#CurrentEventIndex = 0)
+    
+    If (#SYS_WEB.URLParameters<EVENT> *IsNot *Null)
+    
+    Loc_Entry In_List(#NavigationEvents) Where(#BPFNavigationEventName.UpperCase = #SYS_WEB.URLParameters<EVENT>.Value.UpperCase) Ret_Number(#CurrentEventIndex) Ret_Entry(*NO)
+    
+    If_Status Is(*NORECORD)
+    
+    Return
+    
+    Endif
+    
+    Else
+    
+    #CurrentEventIndex := 1
+    
+    Endif
+    
+    Endif
+    
+    #Property <= #NavigationEvents<#CurrentEventIndex>
+    
+    Endroutine
+    
+    Ptyroutine Name(GetEvent)
+    Define_Map For(*OUTPUT) Class(#BPFNavigationEventItem) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFNavigationEventName) Name(#Key)
+    
+    * Local Values
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Get the index & return event
+    Loc_Entry In_List(#NavigationEvents) Where(#BPFNavigationEventName.UpperCase = #Key.UpperCase) Ret_Number(#Index) Ret_Entry(*NO)
+    
+    If (#Index > 0)
+    #Property <= #NavigationEvents<#Index>
+    Endif
+    
+    Endroutine
+    
+    Ptyroutine Name(GetValueFromQueryString)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    * Assume Null
+    #Property := *null
+    
+    If (#SYS_WEB.URL.UpperCase.Contains( '&VALUE' ))
+    
+    #Property := #SYS_WEB.URLParameters<VALUE>.value
+    
+    Endif
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance) Com_Sender(#sender)
+    
+    #COM_SELF.SetNavigationEvents
+    
+    Endroutine
+    
+    * Listen for URL Changes
+    Evtroutine Handling(#SYS_WEB.URLChanged)
+    
+    #COM_SELF.HandleURLChanged
+    
+    Endroutine
+    
+    * Root Timer Tick
+    Evtroutine Handling(#NavigationTimer.Tick)
+    
+    #COM_SELF.NavigateToTargetURL
+    
+    Endroutine
+    
+    * Public Methods
+    
+    * Ask for a view change
+    Mthroutine Name(To)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#EventName)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Type) Mandatory(ADD)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SignalReplaceEvent) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value) Mandatory(*null)
+    
+    * Define Local Object
+    Define_Com Class(#PRIM_ALPH) Name(#QueryString)
+    
+    * Set Event in QueryString if required
+    If (#EventName.IsNull.IsFalse)
+    
+    #QueryString := 'event=' + #EventName.LowerCase
+    
+    Endif
+    
+    * Set Value in Query String if required
+    If (#Value.IsNull.IsFalse)
+    
+    #QueryString += '&value=' + #Value.LowerCase
+    
+    Endif
+    
+    * Either Add or Replace to History
+    If (#Type.UpperCase = ADD)
+    
+    #SYS_WEB.History.Add( #QueryString )
+    
+    Else
+    
+    * Dont know why this Loc_entry was below, as when you change a URL but dont signal you do navigate anywhere.
+    * Hence you are still looking at the same event as teh navigatino got you here asked for. A true for a replace
+    * is the same as add, but no step in history is added. Hence, the HandleURLChanged will be processed and the
+    * currenteventindex will change.
+    
+    * So code is left here until I am sure it was a mistake.
+    
+    * Reset Current Event Index if signal is false
+    * If (#SignalReplaceEvent.IsFalse)
+    *
+    * Loc_Entry In_List(#NavigationEvents) Where((#BPFNavigationEventName.LowerCase = #SYS_WEB.URLParameters<EVENT>.value.LowerCase) *And (#BPFIsSecuredNavigationEvent = #Session.Active)) Ret_Number(#CurrentEventIndex)
+    *
+    * Endif
+    
+    #SYS_WEB.History.Replace( #QueryString #SignalReplaceEvent )
+    
+    Endif
+    
+    Endroutine
+    
+    * Handle Navigation Back to Target URL
+    Mthroutine Name(BackToTarget)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Target) Mandatory(ROOT)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ReplaceWith) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Replace) Mandatory(True)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#TargetMissingUseHome) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#NewQueryString) Mandatory(*NULL)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#StringIndex)
+    
+    #TargetEvent := *null
+    #TargetURLReplacement := #ReplaceWith
+    #TargetURLReplace := #Replace
+    #TargetURLStopAtHome := #TargetMissingUseHome
+    #TargetQueryString := #NewQueryString
+    
+    Case Of_Field(#Target.UpperCase)
+    
+    When Value_Is(= ROOT)
+    
+    #TargetURL := #SecuredRootURL
+    
+    When Value_Is(= INITIAL)
+    
+    #TargetURL := #InitalURL
+    
+    Otherwise
+    
+    If (#COM_SELF.Event<#Target> *IsNot *NULL)
+    
+    #TargetEvent := #Target
+    #TargetURL := #InitalURL + '?event=' + #Target
+    
+    Else
+    
+    Return
+    
+    Endif
+    
+    Endcase
+    
+    #StringIndex := #SYS_WEB.URL.CurChars
+    If (#SYS_WEB.URL.Contains( '&value=' ))
+    #StringIndex := (#SYS_WEB.URL.PositionOf( '&value=' ) - 1)
+    Endif
+    
+    If (#SYS_WEB.URL.LeftMost( #StringIndex ) <> #TargetURL)
+    
+    #IsNavigatingToTargetURL := True
+    #SYS_WEB.History.GoBack
+    
+    Else
+    
+    If (#TargetURLReplacement.IsNull.IsFalse)
+    
+    If (#TargetURLReplace)
+    
+    If (#TargetQueryString.IsNull)
+    
+    #SYS_WEB.History.Replace( ('event=' + #TargetURLReplacement.LowerCase) )
+    
+    Else
+    
+    #SYS_WEB.History.Replace( ('event=' + #TargetURLReplacement.LowerCase + '&' + #TargetQueryString) )
+    
+    Endif
+    
+    Else
+    
+    If (#TargetQueryString.IsNull)
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetURLReplacement.LowerCase) )
+    
+    Else
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetURLReplacement.LowerCase + '&' + #TargetQueryString) )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(Reload)
+    
+    * Navigate back to Initial URL
+    #SYS_WEB.Navigate Url(#InitalURL) Target(Current)
+    
+    Endroutine
+    
+    Mthroutine Name(ToDisabled)
+    
+    * Navigate back to Initial URL
+    #SYS_WEB.Navigate Url(#DisableURL) Target(Current)
+    
+    Endroutine
+    
+    Mthroutine Name(ToConfigError)
+    
+    * Navigate back to Initial URL
+    #SYS_WEB.Navigate Url(#ConfigErrorURL) Target(Current)
+    
+    Endroutine
+    
+    Mthroutine Name(EndAllPersistedViews)
+    
+    * Scan Navigation Event Items
+    For Each(#Item) In(#NavigationEvents)
+    
+    * We will only action persisted views
+    Continue If(#Item.PersistView)
+    #Item.PersistView := False
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(ClearAllRelatedMenus)
+    
+    * Kill all active menus
+    #NavigationEvents<>.CleanupRelatedMenu
+    
+    Endroutine
+    
+    * Private Methods
+    
+    * Handle Root Timer Tick
+    Mthroutine Name(NavigateToTargetURL) Access(*PRIVATE)
+    
+    #NavigationTimer.Stop
+    
+    If (#TargetURL.Contains( '?' ))
+    
+    #SYS_WEB.History.Replace( #TargetURL.Substring( (#TargetURL.LastPositionOf( '?' ) + 1) ) False )
+    
+    Else
+    
+    #SYS_WEB.History.Replace( *blank False )
+    
+    Endif
+    
+    #COM_SELF.HandleURLChanged
+    
+    Endroutine
+    
+    
+    * Process a view change
+    Mthroutine Name(HandleURLChanged) Access(*PRIVATE)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#StringIndex)
+    Define_Com Class(#PRIM_BOLN) Name(#StoppedAtHome)
+    
+    * If we are navigating to Target URL
+    If (#IsNavigatingToTargetURL)
+    
+    #NavigationTimer.Stop
+    
+    #StringIndex := #SYS_WEB.URL.CurChars
+    If (#SYS_WEB.URL.Contains( '&value=' ))
+    #StringIndex := (#SYS_WEB.URL.PositionOf( '&value=' ) - 1)
+    Endif
+    
+    If (#SYS_WEB.URL.LeftMost( #StringIndex ) <> #TargetURL)
+    
+    * Check if have been asked to stop navigation at home is a target was not found, and do so if we are at home.
+    If ((#TargetURLStopAtHome) *And (#SYS_WEB.URL.LeftMost( #StringIndex ) = #SecuredRootURL))
+    
+    #StoppedAtHome := True
+    
+    Else
+    
+    #NavigationTimer.Start
+    #SYS_WEB.History.GoBack
+    
+    Return
+    
+    Endif
+    
+    Endif
+    
+    If (#TargetURLReplacement.IsNull.IsFalse)
+    
+    If (#TargetURLReplace)
+    
+    If (#TargetQueryString.IsNull)
+    
+    #SYS_WEB.History.Replace( ('event=' + #TargetURLReplacement.LowerCase) False )
+    
+    Else
+    
+    #SYS_WEB.History.Replace( ('event=' + #TargetURLReplacement.LowerCase + '&' + #TargetQueryString) False )
+    
+    Endif
+    
+    Else
+    
+    If (#TargetQueryString.IsNull)
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetURLReplacement.LowerCase) False )
+    
+    Else
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetURLReplacement.LowerCase + '&' + #TargetQueryString) False )
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    If (#StoppedAtHome *And (#TargetEvent.IsNull.IsFalse))
+    
+    If (#TargetQueryString.IsNull)
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetEvent.LowerCase) False )
+    
+    Else
+    
+    #SYS_WEB.History.Add( ('event=' + #TargetEvent.LowerCase + '&' + #TargetQueryString) False )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    #IsNavigatingToTargetURL := False
+    
+    Endif
+    
+    If (#SYS_WEB.URL.UpperCase.Contains( '?' ))
+    
+    If (#SYS_WEB.URL.UpperCase.Contains( '?EVENT' ))
+    
+    If (#SYS_WEB.URLParameters<EVENT> *IsNot *Null)
+    
+    Loc_Entry In_List(#NavigationEvents) Where((#BPFNavigationEventName.LowerCase = #SYS_WEB.URLParameters<EVENT>.value.LowerCase) *And (#BPFIsSecuredNavigationEvent = #Session.Active)) Ret_Number(#CurrentEventIndex)
+    
+    If_Status Is(*OKAY)
+    
+    If (#SYS_WEB.URL.UpperCase.Contains( '&VALUE' ))
+    
+    Signal Event(OnNavigationEvent) Group(#BPFNavigationEventGroupName.UpperCase) Name(#BPFNavigationEventName.UpperCase) Value(#SYS_WEB.URLParameters<VALUE>.value)
+    
+    Else
+    
+    Signal Event(OnNavigationEvent) Group(#BPFNavigationEventGroupName.UpperCase) Name(#BPFNavigationEventName.UpperCase)
+    
+    Endif
+    
+    * Log PageView
+    #BPFPortal.ga.UpdatePageView( #BPFNavigationEventName )
+    
+    Return
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    #SYS_WEB.History.Replace( *null )
+    
+    Else
+    
+    #CurrentEventIndex := 1
+    Signal Event(LoginDialogRequested)
+    
+    * Log PageView
+    #BPFPortal.ga.UpdatePageView( '' )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetNavigationEvents) Access(*PRIVATE)
+    
+    * Set Inital URL
+    If (#SYS_WEB.URL.Contains( '?' ))
+    
+    #InitalURL := #SYS_WEB.URL.Substring( 1 (#SYS_WEB.URL.PositionOf( '?' ) - 1) )
+    
+    Else
+    
+    #InitalURL := #SYS_WEB.URL
+    
+    Endif
+    
+    * Set Disabled URL
+    If (#Browser.UserLanguage.IsNull)
+    
+    #DisableURL := #InitalURL.ReplaceSubstring( (#InitalURL.LastPositionOf( '/' ) + 1) ('content/accessdiabled.html').CurChars ('content/en-AU/accessdisabled.html') )
+    #ConfigErrorURL := #InitalURL.ReplaceSubstring( (#InitalURL.LastPositionOf( '/' ) + 1) ('content/accessdiabled.html').CurChars ('content/en-AU/configerror.html') )
+    
+    Else
+    
+    #DisableURL := #InitalURL.ReplaceSubstring( (#InitalURL.LastPositionOf( '/' ) + 1) ('content/accessdiabled.html').CurChars ('content/' + #Browser.UserLanguage + '/accessdisabled.html') )
+    #ConfigErrorURL := #InitalURL.ReplaceSubstring( (#InitalURL.LastPositionOf( '/' ) + 1) ('content/accessdiabled.html').CurChars ('content/' + #Browser.UserLanguage + '/configerror.html') )
+    
+    Endif
+    
+    * Add Events
+    
+    * Login Events
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'login' 'enteruseraccount' false false 'BPFPNL003' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'login' 'enteraccountpassword' false false 'BPFPNL004' )) )
+    
+    * InSecure Events
+    
+    * Create Account
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'createaccount' 'createuseraccount' false false 'BPFPNL001' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'createaccount' 'createusersecurity' false false 'BPFPNL002' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'createaccount' 'createuserterms' false false 'BPFPNL005' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'createaccount' 'newaccountcreated' false false 'BPFPNL006' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'createaccount' 'newaccountfailed' false false 'BPFPNL007' )) )
+    
+    * Activate Account
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'activatenewaccount' false false 'BPFPNL010' true )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'enableuseraccount' false false 'BPFPNL010' true )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'activatenewaccountcompleted' false false 'BPFPNL008' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'enableuseraccountcompleted' false false 'BPFPNL008' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'activatenewaccountfailed' false false 'BPFPNL009' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'enableuseraccountfailed' false false 'BPFPNL009' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'activatesessionactivefailed' false false 'BPFPNL026' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'confirmaccount' 'enableusersessionactivefailed' false false 'BPFPNL026' )) )
+    
+    * Password Request
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'forgetpassword' 'requestpasswordreset' false false 'BPFPNL011' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'forgetpassword' 'requestpasswordcompleted' false false 'BPFPNL015' )) )
+    
+    * Password Reset
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'resetaccountpassword' false false 'BPFPNL012' true )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetsecuritycheck' false false 'BPFPNL014' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetnewpassword' false false 'BPFPNL016' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetcheckfailed' false false 'BPFPNL013' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetcompleted' false false 'BPFPNL017' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetfailed' false false 'BPFPNL013' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'passwordreset' 'passwordresetactivefailed' false false 'BPFPNL027' )) )
+    
+    * Reset Security
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecurity' false false 'BPFPNL021' true )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecurityfailed' false false 'BPFPNL022' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecuritycompleted' false false 'BPFPNL023' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecuritydetails' false false 'BPFPNL024' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecuritypassword' false false 'BPFPNL025' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'securityreset' 'resetaccountsecurityactivefailed' false false 'BPFPNL028' )) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetUserNavigation)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#LoadAdminstrationViews) Mandatory(False)
+    
+    * Set Secured Root
+    #SecuredRootURL := #InitalURL + '?event=home'
+    
+    * Secured Events
+    
+    * Setting Root Event and URL
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'home' true true 'BPFAVW001' False 'BPFPNL029' )) )
+    
+    * Setting Other secure events
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'spare' true false 'BPFAVW002' False 'BPFPNL029' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'sharedfiles' true false 'BPFAVW076' False 'BPFPNL029' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portaltermsofservice' true false 'BPFAVW059' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portalabout' true false 'BPFAVW063' )) )
+    
+    * Settings
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'settings' true false 'BPFAVW003' False 'BPFPNL029' )) )
+    
+    * Verification
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'verifyuseraccount' true false 'BPFAVW018' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'verifyusersecurity' true false 'BPFAVW051' False 'BPFPNL030' )) )
+    
+    * User Details
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useraccountprofileview' true false 'BPFAVW048' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'userprofileeditview' true false 'BPFAVW049' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useraccounteditview' true false 'BPFAVW050' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'usersecurityremoveaccount' true false 'BPFAVW052' False 'BPFPNL030' )) )
+    
+    * User Security
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'usersecuritysettings' true false 'BPFAVW017' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'usersecuritychangepassword' true false 'BPFAVW019' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'usersecuritychangesecurity' true false 'BPFAVW020' False 'BPFPNL030' )) )
+    
+    * Activity Settings
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useractivitysettings' true false 'BPFAVW004' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useractivityview' true false 'BPFAVW005' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useractivitydeleteview' true false 'BPFAVW007' False 'BPFPNL030' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'useractivitydownloadview' true false 'BPFAVW008' False 'BPFPNL030' )) )
+    
+    * Preferences
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'userpreferencesview' true false 'BPFAVW044' False 'BPFPNL030' )) )
+    
+    If (#LoadAdminstrationViews)
+    
+    * Administation
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'administration' true false 'BPFAVW009' False 'BPFPNL029' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminaccountverification' true false 'BPFAVW056' )) )
+    
+    * User Accounts
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminuseraccountslistview' true false 'BPFAVW053' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminuseraccountview' true false 'BPFAVW054' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersessioneventsview' true false 'BPFAVW055' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersetadminrightsview' true false 'BPFAVW057' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminuserselectaccountaction' true false 'BPFAVW006' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersetaccountdisabled' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersetaccountenabled' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersendpasswordreset' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersendconfirmaccount' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersendsecurityreset' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersecurityreset' true false 'BPFAVW058' False 'BPFPNL033' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminusersetcontentshare' true false 'BPFAVW086' False 'BPFPNL033' )) )
+    
+    * Email Settings
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminemailsettingsview' true false 'BPFAVW022' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailcontrolsettingsview' true false 'BPFAVW023' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailsmtpsettingsview' true false 'BPFAVW024' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailsmtpsettingseditview' true false 'BPFAVW025' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailtemplatesview' true false 'BPFAVW026' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailtemplatepreview' true false 'BPFAVW027' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'emailtemplateeditview' true false 'BPFAVW028' False 'BPFPNL031' )) )
+    
+    * Content Sharing
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'admincontentsharingview' true false 'BPFAVW074' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentsharesview' true false 'BPFAVW075' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'editcontentshareview' true false 'BPFAVW076' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'createcontentshareview' true false 'BPFAVW077' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentlibrarylistview' true false 'BPFAVW078' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemdetailsview' true false 'BPFAVW079' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemfileeditview' true false 'BPFAVW080' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemfileaddview' true false 'BPFAVW080' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemyoutubeeditview' true false 'BPFAVW082' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemyoutubeaddview' true false 'BPFAVW082' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'contentitemdeleteview' true false 'BPFAVW081' False 'BPFPNL031' )) )
+    
+    * Analytics & Sessions
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminanalyticssessionsview' true false 'BPFAVW031' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'analyticssettingsview' true false 'BPFAVW032' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'sessionsettingsview' true false 'BPFAVW033' False 'BPFPNL031' )) )
+    
+    * Configure Security
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminconfiguresecurityview' true false 'BPFAVW013' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securityloginattemptsview' true false 'BPFAVW015' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securityquestionsview' true false 'BPFAVW029' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securityquestionseditview' true false 'BPFAVW030' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securityvalidrequestsettingsview' true false 'BPFAVW060' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securityipmonitoringsettingsview' true false 'BPFAVW061' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'securitycurrentipbansview' true false 'BPFAVW062' False 'BPFPNL031' )) )
+    
+    * Languages
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminlanguageview' true false 'BPFAVW064' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'languageresourcesview' true false 'BPFAVW065' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'languageresourcestringsview' true false 'BPFAVW066' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'languageresourcestringsedit' true false 'BPFAVW067' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'languageresourcesusage' true false 'BPFAVW068' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'languageslistview' true false 'BPFAVW069' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'createlanguageview' true false 'BPFAVW070' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'editlanguageview' true false 'BPFAVW071' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'uploadlocalesettingsview' true false 'BPFAVW072' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'downloadlocalesettingsview' true false 'BPFAVW073' False 'BPFPNL031' )) )
+    
+    * Logging
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminloggingview' true false 'BPFAVW010' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portallogslistview' true false 'BPFAVW011' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portallogcontentview' true false 'BPFAVW012' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portallogcontrolview' true false 'BPFAVW021' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portalfoldercontentview' true false 'BPFAVW014' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'portalintergationlogview' true false 'BPFAVW016' False 'BPFPNL031' )) )
+    
+    * System Settings
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'adminsystemsettingsview' true false 'BPFAVW034' False 'BPFPNL031' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemsettingsroleview' true false 'BPFAVW035' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemwebpathsview' true false 'BPFAVW036' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemwebpathseditview' true false 'BPFAVW037' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemjsmsettingsview' true false 'BPFAVW038' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemjsmsettingseditview' true false 'BPFAVW039' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemapikeysview' true false 'BPFAVW083' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemapikeyseditview' true false 'BPFAVW084' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemapikeysguideview' true false 'BPFAVW085' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemfoldernamesview' true false 'BPFAVW040' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemfoldernameseditview' true false 'BPFAVW041' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemsettingsresourcesview' true false 'BPFAVW046' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemsettingsresourceseditview' true false 'BPFAVW047' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'admintransfersettingsview' true false 'BPFAVW045' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemsettingsexportview' true false 'BPFAVW042' False 'BPFPNL032' )) )
+    #NavigationEvents.Insert( (*New #BPFNavigationEventItem.create( 'views' 'systemsettingsimportview' true false 'BPFAVW043' False 'BPFPNL032' )) )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

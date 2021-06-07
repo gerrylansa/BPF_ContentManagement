@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFEmailControlSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Email Control Settings View Strings"
+
+  - JPN:
+      Description:        "Email Control Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Control Email Notifications"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "You can pick which email notifications are sent by the portal to inform users of events that happen when using the portal. You cannot stop sending emails that are required to verify a user such as the forget password request. It is recommended security notification are not disabled."
+    
+    #STRINGSCOLLECTION<'NOTIFICATIONSHEADING.CAPTION'> := "Email Notifications"
+    
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONLOADCONTROLSETTINGSFAILED'> := "Failed to get settings"
+    #STRINGSCOLLECTION<'CURRENTSETTING.ONSAVEFAILED'> := "Failed to get settings"
+    
+    Endroutine
+    
+    End_Com

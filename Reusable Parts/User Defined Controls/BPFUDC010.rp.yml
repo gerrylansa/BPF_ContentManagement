@@ -1,0 +1,147 @@
+﻿Reusable Part:
+  Name:               BPFYouTubeDataRequester
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Google YouTube Data API Requester"
+
+  - JPN:
+      Description:        "Google YouTube Data API Requester"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * This is your API Key for Google YouTube API access.
+    * It needs to be entered in order for this control to work.
+    * If no API key is specified, this control will return no data.
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#APIKey)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(IsAPIKeyEntered) Get(GetIsAPIKeyEntered)
+    
+    * Events
+    Define_Evt Name(OnRequestCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Title) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Description) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#DurationInSeconds) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Licenced)
+    
+    Define_Evt Name(OnRequestFailed)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Reason) Mandatory(*NULL)
+    
+    * Routines
+    Ptyroutine Name(GetIsAPIKeyEntered)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    * If we have a value in the ApiKey then a request can be made
+    #Property := #APIKey.IsNull.IsFalse
+    
+    Endroutine
+    
+    Mthroutine Name(RequestData)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForVideoID)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#WithAPIKey)
+    
+    * Define the server request for the JSON resource
+    Define_Com Class(#prim_web.HttpRequest) Name(#Request)
+    Define_Com Class(#prim_web.json) Name(#JSON)
+    
+    If ((#ForVideoID.IsNull.IsFalse) *And (#WithAPIKey.IsNull.IsFalse))
+    
+    * Set the URL to the Google API and request teh snippet and content data
+    #Request.URL := ' https://www.googleapis.com/youtube/v3/videos?id=' + #ForVideoID + '&key=' + #WithAPIKey + '&part=snippet,contentDetails'
+    
+    * Make Request for language option json for object
+    #Request.ExecuteAsync
+    
+    Endif
+    
+    * When the request completes and is successful
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Request.Response.StatusCode = 200)
+    
+    * Get the returned result, place it into a local JSON object and pass it for processing
+    #JSON := #Request.Response.Content
+    #COM_SELF.ParseReturnData( (#JSON.RootItem<'items'> *As #prim_web.JsonArray) )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed)
+    
+    Signal Event(OnRequestFailed) Reason(FAILED)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ParseReturnData)
+    Define_Map For(*INPUT) Class(#prim_web.JsonArray) Name(#Items) Pass(*BY_REFERENCE)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Title)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Description)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#DurationString)
+    Define_Com Class(#PRIM_BOLN) Name(#Licenced)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Hours)
+    Define_Com Class(#PRIM_NMBR) Name(#Minutes)
+    Define_Com Class(#PRIM_NMBR) Name(#Seconds)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#DurationInSeconds)
+    
+    If (#Items.ItemCount > 0)
+    
+    * If (#Items.ItemAt<1>.Item<'contentDetails'>.Item<'licensedContent'>.AsBoolean = True)
+    
+    * Get the Title from the snippets section of the first item
+    #Title := #Items.ItemAt<1>.Item<'snippet'>.Item<'localized'>.Item<'title'>.AsString
+    #Description := #Items.ItemAt<1>.Item<'snippet'>.Item<'localized'>.Item<'description'>.AsString
+    #DurationString := #Items.ItemAt<1>.Item<'contentDetails'>.Item<'duration'>.AsString
+    
+    * Do Minutes
+    #DurationString := #DurationString.RemoveCharacters( "PT" )
+    
+    If (#DurationString.Contains( 'H' ))
+    
+    #Hours := ((#DurationString.Substring( 1 (#DurationString.PositionOf( 'H' )) ).RemoveCharacters( 'H' ))).AsNumber * 3600
+    #DurationString := #DurationString.DeleteSubstring( 1 (#DurationString.PositionOf( 'H' )) )
+    
+    Endif
+    If (#DurationString.Contains( 'M' ))
+    
+    
+    #Minutes := ((#DurationString.Substring( 1 (#DurationString.PositionOf( 'M' )) ).RemoveCharacters( 'M' ))).AsNumber * 60
+    #DurationString := #DurationString.DeleteSubstring( 1 (#DurationString.PositionOf( 'M' )) )
+    
+    Endif
+    If (#DurationString.Contains( 'S' ))
+    
+    #Seconds := ((#DurationString.Substring( 1 (#DurationString.PositionOf( 'S' )) ).RemoveCharacters( 'S' ))).AsNumber
+    
+    Endif
+    
+    #DurationInSeconds := #Hours + #Minutes + #Seconds
+    
+    * Licence
+    #Licenced := #Items.ItemAt<1>.Item<'contentDetails'>.Item<'licensedContent'>.AsBoolean
+    
+    * Signal all done
+    Signal Event(OnRequestCompleted) Title(#Title) Description(#Description) Durationinseconds(#DurationInSeconds) Licenced(#Licenced)
+    
+    Else
+    
+    * Signal Invalid
+    Signal Event(OnRequestFailed) Reason(INVALID)
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

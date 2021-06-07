@@ -1,0 +1,116 @@
+﻿Reusable Part:
+  Name:               BPFBaseServerLanguageResource
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Base Language Resource"
+
+  - JPN:
+      Description:        "Server Side Base Language Resource"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Application References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Poperties
+    Define_Pty Name(Strings) Get(*REFERENCE #StringsCollection)
+    Define_Pty Name(Text) Get(GetText)
+    
+    * String Collection
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#StringsCollection)
+    
+    Ptyroutine Name(GetText) Options(*FINAL)
+    Define_Map For(*OUTPUT) Class(#PRIM_DC.UnicodeString) Name(#Property)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    
+    * Check the specific language first, and if null fall back to generic
+    If (#StringsCollection<#Key>.IsNull)
+    
+    * Return default test
+    #Property := 'No matching string found.'
+    
+    Else
+    
+    * Return String
+    #Property := #StringsCollection<#Key>
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Private
+    
+    * This is common to all language resources, the object gets pass by child create instance
+    Mthroutine Name(SetStrings) Options(*FINAL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Object)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Isocode)
+    
+    * Load up the defaults, these will be replaced below. If a string doesnt match, then teh default
+    * will remain and be used
+    #COM_SELF.BuildDefaults
+    
+    * Load the JSON for the resource for the requested language
+    #COM_SELF.GetStringData( #Object #Isocode )
+    
+    Endroutine
+    
+    Mthroutine Name(GetStringData) Options(*FINAL) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Object)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Isocode)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result) Mandatory(False)
+    
+    * JSON File
+    Define_Com Class(#XPRIM_File) Name(#File)
+    
+    * JSON Document & Elements
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    Define_Com Class(#Prim_JSON.Array) Name(#StringsArray) Reference(*DYNAMIC)
+    
+    #Utils.Log( ('Attempting to loading resource  ' + #Object) )
+    #Utils.Log( ('For language code ' + #Isocode) )
+    
+    * Set the path
+    #File.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #Isocode + *PATHDELIM + #Object + '.json').AsNativeString
+    
+    If (#File.Exists)
+    
+    #Utils.Log( ('Found resource file ' + #File.Path) )
+    
+    * Load JSON Document
+    #JSONDocument.LoadFromString( #File.ReadAllText )
+    
+    #StringsArray <= #JSONDocument.RootNode<"ls">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Strings loaded, found ' + #StringsArray.ItemCount.asstring) )
+    
+    * Overide Defaults
+    For Each(#String) In(#StringsArray)
+    
+    #StringsCollection<#String<'op'>.value.asstring> := #String<'s'>.value.asstring
+    #Utils.Log( ('Loading default ' + #String<'op'>.value.asstring + ' string ' + #String<'s'>.value.asstring) )
+    
+    Endfor
+    
+    * All Loaded
+    #Result := true
+    
+    Else
+    
+    #Utils.Log( ('Failed load language resource ' + #File.Path) )
+    
+    Endif
+    
+    Endroutine
+    
+    * For children to add the specific defaults
+    Mthroutine Name(BuildDefaults) Options(*ABSTRACT) Access(*PRIVATE)
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,838 @@
+﻿Web View:
+  Name:               BPFContentShareFolderItemsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Folder Items View"
+
+  - JPN:
+      Description:        "Edit Content Share View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(300) Width(1700) Layoutmanager(#MainDesktopLayout) Componenttag('BPFAPP012')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFEditContentShareViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFContentSharingDataClient) Name(#Sharing) Reference(*DYNAMIC)
+    
+    * Panel Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#NoBorderStyle) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0) Fontweight(Bold) Fontsize(13)
+    Define_Com Class(#PRIM_VS.Style) Name(#NoBorderRightStyle) Borderbottom(0) Borderright(0)
+    Define_Com Class(#PRIM_VS.Style) Name(#RowLineStyle) Linecolor(ThemeDivider)
+    
+    * Main Panel Layouts
+    
+    * Desktop
+    Define_Com Class(#PRIM_TBLO) Name(#MainDesktopLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(99)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn4) Displayposition(3) Parent(#MainDesktopLayout) Width(10) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(48) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow3) Displayposition(2) Parent(#MainDesktopLayout) Minheight(100)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem1) Manage(#NavigationActionsPanel) Alignment(TopLeft) Column(#MainDesktopLayoutColumn1) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem2) Manage(#Divider) Alignment(BottomLeft) Column(#MainDesktopLayoutColumn1) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(FitToWidth) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem3) Manage(#FolderListing) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Column(#MainDesktopLayoutColumn2) Alignment(TopLeft)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem4) Manage(#NoContentsHint) Column(#MainDesktopLayoutColumn2) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Sizing(FitToWidth) Alignment(CenterLeft)
+    
+    * Panel Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ItemPanelItem) Alignment(TopRight) Column(#MainDesktopLayoutColumn4) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Sizing(FitToHeight)
+    
+    * Controls
+    
+    * View Level
+    
+    Define_Com Class(#BPFShareFolderNavigationActionsPanel) Name(#NavigationActionsPanel) Displayposition(4) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Width(1700)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(3) Height(1) Left(0) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Themedrawstyle('TopDivider') Top(47) Width(1700)
+    Define_Com Class(#PRIM_LIST) Name(#FolderListing) Displayposition(1) Left(17) Parent(#COM_OWNER) Tabposition(2) Top(48) Width(1673) Height(252) Rowheight(48) Columnlines(False) Columnheaderheight(48) Columnmarginleft(24) Columnmarginright(24) Style(#NoBorderStyle) Selectionstyle(All) Columnsortarrow(False) Itemthemedrawstyle('text(0,0,0,0.54)')
+    Define_Com Class(#PRIM_MD.Label) Name(#NoContentsHint) Caption('Add folders or items') Displayposition(2) Left(17) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3+text(0,0,0,0.54)') Top(126) Width(1673) Iconalignment(AboveCaption) Icon('insert_drive_file') Iconheight(72) Height(96) Captionalignment(Center) Visible(False)
+    
+    * Panels
+    Define_Com Class(#BPFShareItemInfoPanel) Name(#ItemPanel) Reference(*DYNAMIC) Displayposition(3) Tabposition(5)
+    
+    * Folder Listsing Columns
+    Define_Com Class(#PRIM_LIST.Icon) Name(#FolderListingIconColumn) Columncaptionalign(Left) Columncaptiontype(Caption) Columnwidth(32) Displayposition(1) Parent(#FolderListing) Columnstyle(#NoBorderRightStyle) Cellthemedrawstyle('text(0,0,0,0.54)')
+    Define_Com Class(#PRIM_LIST.String) Name(#FolderListingNameColumn) Columncaption('Name') Columncaptionalign(Left) Columncaptiontype(Caption) Columnunits(Proportion) Columnwidth(98) Displayposition(2) Parent(#FolderListing) Columnstyle(#NoBorderRightStyle) Cellthemedrawstyle('BottomDivider+text(0,0,0,0.72)')
+    Define_Com Class(#PRIM_LIST.String) Name(#FolderListingModifiedColumn) Columncaption('Modified') Columncaptionalign(Left) Columncaptiontype(Caption) Columnwidth(200) Displayposition(3) Parent(#FolderListing) Columnstyle(#NoBorderRightStyle) Cellthemedrawstyle('BottomDivider')
+    Define_Com Class(#PRIM_LIST.String) Name(#FolderListingDetailColumn) Columncaption('Details') Columncaptionalign(Left) Columncaptiontype(Caption) Columnwidth(200) Displayposition(4) Parent(#FolderListing) Columnstyle(#NoBorderRightStyle) Cellthemedrawstyle('BottomDivider')
+    Define_Com Class(#Prim_List.String) Name(#FolderListingRightGutterColumn) Parent(#FolderListing) Displayposition(7) Columnmaxwidth(64) Columnminwidth(12) Columncaptiontype(Caption) Columnunits(Proportion) Columnwidth(5) Cellmarginbottom(-5) Sortdirection(Descending) Columnthemedrawstyle('border(250,250,250)') Cellthemedrawstyle('border(250,250,250)+back(250,250,250)+text(250,250,250)')
+    Define_Com Class(#Prim_List.String) Name(#FolderListingPrimarySortColumn) Parent(#FolderListing) Displayposition(5) Sortposition(1) Sortdirection(Descending) Columnvisible(False) Visible(False) Source(#BPFGenericBoolean)
+    Define_Com Class(#Prim_List.String) Name(#FolderListingSecondarySortColumn) Parent(#FolderListing) Displayposition(6) Sortposition(2) Columnvisible(False) Visible(False) Source(#BPFGenericNVarChar256)
+    
+    * References
+    Define_Com Class(#BPFContentShareClass) Name(#CurrentShare) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentShareItemClass) Name(#CurrentItem) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems)
+    
+    * Global
+    Define_Com Class(#PRIM_TIMR) Name(#DrawDelay) Startup(Manual) Interval(25)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Challenge, figure out why this line of code is here. The winner get a free ice cream (limit $5 AUD).
+    * I know I will never have to pay out as first you need to read the comments and second you need to read the comments
+    * So I am safe.
+    #COM_SELF.Visible := False
+    
+    * Get References
+    #Sharing <= (#Data.GetDataClient( #COM_SELF ) *As #BPFContentSharingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Set Strings
+    #COM_SELF.SetStrings
+    
+    * Set device
+    #COM_SELF.SetTheme
+    #COM_SELF.HandleDeviceChanged
+    
+    * Get the reference to the parent room
+    #CurrentShare <= #Sharing.Share<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    If (#CurrentShare *IsNot *NULL)
+    
+    * Build Current Folder Items
+    #COM_SELF.HandleGetItems
+    
+    Else
+    
+    #Sharing.GetShareByIdentifier( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Okay dont remove this event, it seems that when logout is requested if the list
+    * has enrties in it the runtime fails to finish it cleanup of the DOM before trying
+    * to complete the navigation back to teh login screen. You get a ec of null error. When
+    * a logout is requested, removing the entries prevents the crash for what I can see.
+    Evtroutine Handling(#Session.LogoutRequested)
+    
+    Clr_List Named(#FolderListing)
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.OnNavigationEvent)
+    
+    * We need this to be the walking dead
+    #Navigate.CurrentEvent.CleanupRelatedView
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Sharing.OnGetSharesCompleted)
+    
+    * Get the reference to the parent room
+    #CurrentShare <= #Sharing.Share<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * Build Current Folder Items
+    #COM_SELF.HandleGetItems
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.OnGetSharesFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NS)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETSHARESFAILED.NOTSHARED'> 7500 )
+    
+    #BPFPortal.NavDrawer.SendMessageToMenu( 'REMOVESHARE' )
+    #Navigate.BackToTarget( ROOT )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETSHARESFAILED'> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.OnDeleteShareCompleted)
+    
+    #Navigate.BackToTarget( 'contentsharesview' )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.OnDeleteShareFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONDELETESHAREFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnGetFolderItemsCompleted)
+    
+    #COM_SELF.HandleBuildFolderListing
+    
+    * DO NOT REPEAT THIS, unless you need to copy this pattern.
+    If (#COM_SELF.Visible.IsFalse)
+    
+    #Com_self.show
+    #COM_SELF.Visible := True
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnGetFolderItemsFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NS)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONGETFOLDERITEMSFAILED.NOTSHARED'> 7500 )
+    
+    #BPFPortal.NavDrawer.SendMessageToMenu( 'REMOVESHARE' )
+    #Navigate.BackToTarget( ROOT )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONGETFOLDERITEMSFAILED'> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnAddFolderCompleted) Newfolder(#NewFolder)
+    
+    #COM_SELF.AddFolderItem( #NewFolder )
+    
+    #NoContentsHint.Visible := #CurrentShare.FolderItems.IsEmpty
+    
+    #FolderListing.VerticalScrollTo( #FolderListing.CurrentItem Center )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnAddFolderFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONADDFOLDERFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRemoveItemsCompleted)
+    
+    #COM_SELF.HandleRemoveItemsCompleted
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRemoveItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONREMOVEITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnMoveItemsCompleted)
+    
+    #COM_SELF.HandleRemoveItemsCompleted
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnMoveItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONMOVEITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnCopyItemsCompleted #CurrentShare.OnAddItemsCompleted) Newitems(#NewItems)
+    
+    For Each(#Item) In(#NewItems)
+    
+    #COM_SELF.AddFolderItem( #Item )
+    
+    Endfor
+    
+    #NoContentsHint.Visible := #CurrentShare.FolderItems.IsEmpty
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnCopyItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONCOPYITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnAddItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONADDITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRenameCompleted)
+    
+    * Set Location bar
+    #NavigationActionsPanel.Title.Caption := #CurrentShare.ShareName
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRenameFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTSHARE.ONRENAMEFAILED'> 7500 )
+    
+    Endroutine
+    
+    * List Actions
+    Evtroutine Handling(#FolderListing.ItemDoubleClick)
+    
+    If ((#FolderListing.CurrentItem.RelatedReference *As #BPFContentShareItemClass).IsFolder)
+    
+    #COM_SELF.HandleFolderNavigation( (#FolderListing.CurrentItem.RelatedReference *As #BPFContentShareItemClass) )
+    
+    Else
+    
+    #SYS_WEB.Navigate Url('bpfviewer.html?share=' + (#FolderListing.CurrentItem.RelatedReference *As #BPFContentShareItemClass).Identifier) Target(New)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#FolderListing.ItemGotSelection)
+    
+    #COM_SELF.HandleSelections( ADD (#FolderListing.CurrentItem.RelatedReference *As #BPFContentShareItemClass) )
+    #NavigationActionsPanel.SetActionDisplay( #FolderListing.SelectedRowCount )
+    
+    Endroutine
+    
+    Evtroutine Handling(#FolderListing.ItemClick)
+    
+    #CurrentItem <= (#FolderListing.CurrentItem.RelatedReference *As #BPFContentShareItemClass)
+    
+    If (#ItemPanel *IsNot *Null)
+    
+    #ItemPanel.Update( #CurrentItem )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#FolderListing.ItemLostSelection) Item(#Item)
+    
+    #COM_SELF.HandleSelections( REMOVE (#Item.RelatedReference *As #BPFContentShareItemClass) )
+    
+    Endroutine
+    
+    * Item Actions
+    
+    Evtroutine Handling(#NavigationActionsPanel.InfoActionClicked)
+    
+    #COM_SELF.HandleOpenDetailsPanel
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.RenameActionClicked)
+    
+    If (#CurrentItem *IsNot *Null)
+    
+    #COM_SELF.HandleRename( #CurrentItem )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.AddFolderActionClicked)
+    
+    #COM_SELF.HandleAddFolder
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.RemoveActionClicked)
+    
+    #COM_SELF.HandleRemove
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.MoveActionClicked)
+    
+    #COM_SELF.HandleMove
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.CopyActionClicked)
+    
+    If (#SelectedItems.IsEmpty.IsFalse)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentShare.CopyItems( #SelectedItems )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.AddItemActionClicked)
+    
+    #COM_SELF.HandleAddItem
+    
+    Endroutine
+    
+    Evtroutine Handling(#NavigationActionsPanel.RenameShareAction)
+    
+    #COM_SELF.HandleShareRename
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemPanel.CloseClicked)
+    
+    #COM_SELF.HandleCloseDetailsPanel
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemPanel.RemoveShareClicked)
+    
+    #COM_SELF.HandleRemoveShare
+    
+    Endroutine
+    
+    * Controls
+    Evtroutine Handling(#DrawDelay.Tick)
+    
+    #DrawDelay.Stop
+    
+    * Set Scroll if needed
+    If (#SYS_WEB.URLParameters<POS> *IsNot *Null)
+    
+    #FolderListing.VerticalScrollPos := #SYS_WEB.URLParameters<POS>.value.AsNumber
+    
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSelections)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Action)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#Item) Pass(*BY_REFERENCE)
+    
+    If (#Action.UpperCase = ADD)
+    
+    * #CurrentItem <= #Item
+    #SelectedItems.Insert( #Item )
+    
+    Else
+    
+    #SelectedItems.Remove( #Item )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleGetItems) Access(*PRIVATE)
+    
+    * Set Location bar
+    #NavigationActionsPanel.Title.Caption := #CurrentShare.ShareName
+    
+    * Set Breadcrumb
+    #NavigationActionsPanel.BuildCrumb
+    
+    If (#SYS_WEB.URLParameters<FOLDER> *Is *NULL)
+    
+    #CurrentShare.GetFolderItems( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Else
+    
+    #CurrentShare.GetFolderItems( #SYS_WEB.URLParameters<FOLDER>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleFolderNavigation) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#For) Pass(*BY_REFERENCE)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#QueryString)
+    
+    * Set waiting state
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Get QueryString
+    #QueryString := #SYS_WEB.URL.Substring( (#SYS_WEB.URL.PositionOf( '?' ) + 1) )
+    
+    * Handle Scroll parameter
+    If (#SYS_WEB.URLParameters<POS> *IsNot *Null)
+    
+    #QueryString := #QueryString.Replace( ('&pos=' + #SYS_WEB.URLParameters<POS>.value) ('&pos=' + #FolderListing.VerticalScrollPos.asstring) )
+    
+    Else
+    
+    #QueryString += '&pos=' + #FolderListing.VerticalScrollPos.asstring
+    
+    Endif
+    
+    * Update current URL in history
+    #SYS_WEB.History.Replace Querystring(#QueryString) Signal(False)
+    
+    * Reset pos
+    #QueryString := #QueryString.RemoveAll( ('&pos=' + #FolderListing.VerticalScrollPos.asstring) )
+    
+    * Handle Parent Folder parameter
+    If (#SYS_WEB.URLParameters<FOLDER> *IsNot *Null)
+    
+    #QueryString := #QueryString.Replace( ('&folder=' + #SYS_WEB.URLParameters<FOLDER>.value) ('&folder=' + #For.Identifier) )
+    
+    Else
+    
+    #QueryString += '&folder=' + #For.Identifier
+    
+    Endif
+    
+    * Handle Path parameter
+    If (#SYS_WEB.URLParameters<PATH> *IsNot *Null)
+    
+    #QueryString := #QueryString.Replace( ('&path=' + #SYS_WEB.URLParameters<PATH>.value) ('&path=' + (#SYS_WEB.URLParameters<PATH>.value.UrlEncode + '\' + #For.ItemName.UrlEncode)) )
+    
+    Else
+    
+    #QueryString += '&path=' + ('\' + #For.ItemName.UrlEncode)
+    
+    Endif
+    
+    * Now Navigate
+    #SYS_WEB.History.Add( #QueryString )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleBuildFolderListing) Access(*PRIVATE)
+    
+    #FolderListing.Virtualization := None
+    
+    #NoContentsHint.Visible := #CurrentShare.FolderItems.IsEmpty
+    
+    For Each(#Item) In(#CurrentShare.FolderItems)
+    
+    #COM_SELF.AddFolderItem( #Item )
+    
+    Endfor
+    
+    #DrawDelay.Start
+    
+    Endroutine
+    
+    Mthroutine Name(AddFolderItem)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#NewItem) Pass(*BY_REFERENCE)
+    
+    * Set Sort
+    #BPFGenericBoolean := #NewItem.IsFolder
+    #BPFGenericNVarChar256 := #NewItem.ItemName
+    
+    Add_Entry To_List(#FolderListing)
+    
+    #FolderListing.CurrentItem.RelatedReference <= #NewItem
+    
+    #FolderListing.CurrentItem.Styles.Add( #RowLineStyle )
+    #FolderListing.CurrentItem.Styles.Add( #NavigationLinkStyle )
+    
+    #FolderListingIconColumn.CurrentItem.ThemeDrawStyle := #NewItem.TypeColour
+    #FolderListingIconColumn.CurrentItem.Icon := #NewItem.TypeIcon
+    
+    #FolderListingNameColumn.CurrentItem.Value := #NewItem.ItemName
+    
+    #FolderListingModifiedColumn.CurrentItem.Value := #NewItem.LastActionedDate.Date.Day.AsString + ' ' + #NewItem.LastActionedDate.Date.AsDisplayString( MMM ) + ' ' + #NewItem.LastActionedDate.Date.Year.AsString
+    
+    If (#NewItem.IsFolder)
+    
+    #FolderListingDetailColumn.CurrentItem.Value := #NewItem.ItemCount.asstring + ' ' + #STRINGS.Text<'FOLDERLISTINGDETAILCOLUMN.FOLDERTEXT'>
+    
+    Else
+    
+    If (#NewItem.Type = YTV)
+    
+    #FolderListingDetailColumn.CurrentItem.Value := #NewItem.ContentDuration
+    
+    Else
+    
+    If (#NewItem.ContentSize<KB> < 1024)
+    
+    #FolderListingDetailColumn.CurrentItem.Value := #NewItem.ContentSize<KB>.asstring + ' KB'
+    
+    Else
+    
+    #FolderListingDetailColumn.CurrentItem.Value := #NewItem.ContentSize<MB>.asstring + ' MB'
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleOpenDetailsPanel) Access(*PRIVATE)
+    
+    * Create new instance
+    If (#ItemPanel *Is *Null)
+    
+    #ItemPanel <= (*New #BPFShareItemInfoPanel)
+    #ItemPanelItem.Manage <= #ItemPanel
+    #ItemPanel.Parent <= #COM_OWNER
+    
+    If (#FolderListing.SelectedRowCount > 0)
+    
+    #ItemPanel.Open( #CurrentShare #CurrentItem )
+    
+    Else
+    
+    #ItemPanel.Open( #CurrentShare )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleCloseDetailsPanel) Access(*PRIVATE)
+    
+    If (#ItemPanel *IsNot *Null)
+    
+    #ItemPanel.Parent <= *Null
+    #ItemPanelItem.Manage <= *Null
+    
+    #ItemPanel <= *Null
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    #FolderListingModifiedColumn.ColumnVisible := (#SYS_WEB.Device <> Mobile)
+    #FolderListingDetailColumn.ColumnVisible := (#SYS_WEB.Device <> Mobile)
+    #FolderListingRightGutterColumn.ColumnVisible := (#SYS_WEB.Device <> Mobile)
+    
+    Endroutine
+    
+    Mthroutine Name(HandleRename) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#ForItem) Pass(*BY_REFERENCE)
+    
+    Define_Com Class(#BPFShareItemRenameDialog) Name(#Dialog)
+    Define_Com Class(#BPFContentShareItemClass) Name(#Item) Reference(*DYNAMIC)
+    Define_Com Class(#prim_List.ListItem) Name(#FoundItem) Reference(*DYNAMIC)
+    
+    #Item <= #ForItem
+    #Dialog.OpenDialog( #Item )
+    
+    Evtroutine Handling(#Item.OnItemRenameCompleted)
+    
+    * Find Item
+    #FoundItem <= #FolderListing.FindReference( #Item )
+    
+    * Get Entry
+    Get_Entry Number(#FoundItem.Entry)
+    
+    * Reset Sort
+    #BPFGenericBoolean := #Item.IsFolder
+    #BPFGenericNVarChar256 := #Item.ItemName
+    
+    * Update
+    Upd_Entry In_List(#FolderListing)
+    
+    * Set Sort
+    #FolderListingPrimarySortColumn.CurrentItem.Value := #Item.IsFolder.Asstring
+    #FolderListingSecondarySortColumn.CurrentItem.Value := #Item.ItemName
+    
+    #FolderListingNameColumn.CurrentItem.Value := #Item.ItemName
+    
+    #FolderListing.VerticalScrollTo( #FoundItem Center )
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(HandleRemove)
+    
+    * Dialog
+    Define_Com Class(#BPFShareItemConfirmRemoveDialog) Name(#Dialog)
+    
+    If (#SelectedItems.IsEmpty.IsFalse)
+    
+    #Dialog.OpenDialog( #SelectedItems )
+    
+    Endif
+    
+    Evtroutine Handling(#Dialog.OnActionConfirmed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentShare.RemoveItems( #SelectedItems )
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(HandleRemoveItemsCompleted)
+    
+    Define_Com Class(#prim_List.ListItem) Name(#FoundItem) Reference(*DYNAMIC)
+    
+    For Each(#Victim) In(#SelectedItems)
+    
+    * Find Item
+    #FoundItem <= #FolderListing.FindReference( #Victim )
+    
+    Dlt_Entry Number(#FoundItem.Entry)
+    
+    Endfor
+    
+    #SelectedItems.RemoveAll
+    #CurrentItem <= *NULL
+    
+    #NavigationActionsPanel.SetActionDisplay( #FolderListing.SelectedRowCount )
+    
+    #NoContentsHint.Visible := #FolderListing.Items.IsEmpty
+    
+    Endroutine
+    
+    Mthroutine Name(HandleAddFolder) Access(*PRIVATE)
+    
+    * Dialog
+    Define_Com Class(#BPFShareItemAddFolderDialog) Name(#Dialog)
+    
+    #Dialog.OpenDialog( #CurrentShare )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleMove) Access(*PRIVATE)
+    
+    * Dialog
+    Define_Com Class(#BPFShareItemSetDestinationDialog) Name(#Dialog)
+    
+    If (#SelectedItems.IsEmpty.IsFalse)
+    
+    #Dialog.OpenDialog( #CurrentShare #SelectedItems )
+    
+    Endif
+    
+    Evtroutine Handling(#Dialog.OnActionConfirmed) Destination(#NewFolder)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentShare.MoveItems( #NewFolder #SelectedItems )
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(HandleAddItem) Access(*PRIVATE)
+    
+    * Dialog
+    Define_Com Class(#BPFShareItemAddContentDialog) Name(#Dialog)
+    
+    #Dialog.OpenDialog( #Sharing #CurrentShare )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleShareRename) Access(*PRIVATE)
+    
+    * Dialog
+    Define_Com Class(#BPFShareRenameDialog) Name(#Dialog)
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    #Dialog.OpenDialog( #CurrentShare )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleRemoveShare) Access(*PRIVATE)
+    
+    * Dialog
+    Define_Com Class(#BPFShareItemConfirmRemoveDialog) Name(#Dialog)
+    
+    #Dialog.OpenDialog
+    
+    Evtroutine Handling(#Dialog.OnActionConfirmed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Sharing.DeleteShare( #CurrentShare )
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #NoContentsHint.Caption := #Strings.Text<'NOCONTENTSHINT.CAPTION'>
+    #FolderListingNameColumn.ColumnCaption := #STRINGS.Text<'FOLDERLISTINGNAMECOLUMN.COLUMNCAPTION'>
+    #FolderListingModifiedColumn.ColumnCaption := #STRINGS.Text<'FOLDERLISTINGMODIFIEDCOLUMN.COLUMNCAPTION'>
+    #FolderListingDetailColumn.ColumnCaption := #STRINGS.Text<'FOLDERLISTINGDETAILCOLUMN.COLUMNCAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.SetLightThemeColours
+    
+    Else
+    
+    #COM_SELF.SetDarkThemeColours
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetLightThemeColours) Access(*PRIVATE)
+    
+    #FolderListing.ItemThemeDrawStyle := 'text(0,0,0,0.54)'
+    #FolderListingNameColumn.CellThemeDrawStyle := 'BottomDivider+text(0,0,0,0.72)'
+    #FolderListingRightGutterColumn.CellThemeDrawStyle := 'border(250,250,250)+back(250,250,250)+text(250,250,250)'
+    #FolderListingRightGutterColumn.ColumnThemeDrawStyle := 'border(250,250,250)'
+    
+    Endroutine
+    
+    Mthroutine Name(SetDarkThemeColours) Access(*PRIVATE)
+    
+    #FolderListing.ItemThemeDrawStyle := ''
+    #FolderListingNameColumn.CellThemeDrawStyle := 'BottomDivider'
+    #FolderListingRightGutterColumn.CellThemeDrawStyle := 'border(48,48,48)+back(48,48,48)+text(48,48,48)'
+    #FolderListingRightGutterColumn.ColumnThemeDrawStyle := 'border(48,48,48)'
+    
+    Endroutine
+    
+    End_Com

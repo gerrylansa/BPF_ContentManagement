@@ -1,0 +1,18 @@
+﻿Field:
+  Name:               xContactIdentification
+  Type:               Integer
+  Length:             4
+  Decimals:           0
+  Default Value:      "*NULL"
+  Edit Mask:          3
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - RB
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContactIdentification"
+      Label:              "xContactIdentif"
+      Heading1:           "xContactIdentificati"

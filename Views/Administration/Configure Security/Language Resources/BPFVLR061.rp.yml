@@ -1,0 +1,65 @@
+﻿Reusable Part:
+  Name:               BPFSecurityIPMonitoringSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Security IP Bans Settings  View Strings"
+
+  - JPN:
+      Description:        "Security IP Bans Settings  View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "IP Address Monitoring"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "The portal can monitor IP addresses for suspicious request behaviour. You can are able to enabled monitoring fo IP addresses and set a limit on the number of requests from an IP that appear to be invalid. A background server process can also be controlled and configured to check if IP addresses that have been banned and clear is ban after a defined amount of time."
+    
+    #STRINGSCOLLECTION<'ENABLEDCONTROLPANELHEADING.CAPTION'> := "Monitoring"
+    #STRINGSCOLLECTION<'ENABLEIPMONITORING.CAPTION'> := "Enabled"
+    #STRINGSCOLLECTION<'INVALIDATTEMPTSDROPDOWN.CAPTION'> := "Request Limit"
+    
+    #STRINGSCOLLECTION<'CLEANUPCONTROLPANELHEADING.CAPTION'> := "Clearing Bans"
+    #STRINGSCOLLECTION<'CURRENTVALUEWARNINGTEXT.CAPTION'> := "Current values will be active once process restarts"
+    #STRINGSCOLLECTION<'BANCLEARSERVICETOGGLE.CAPTION.RUNNING'> := "Process is currently is running"
+    #STRINGSCOLLECTION<'BANCLEARSERVICETOGGLE.CAPTION.ENDING'> := "Process is currently is ending"
+    
+    #STRINGSCOLLECTION<'BANDURATIONDROPDOWN.CAPTION'> := "Ban Duration"
+    #STRINGSCOLLECTION<'BANDURATIONDROPDOWN.ITEM.43200.CAPTION'> := "12 Hours"
+    #STRINGSCOLLECTION<'BANDURATIONDROPDOWN.ITEM.86400.CAPTION'> := "1 Day"
+    #STRINGSCOLLECTION<'BANDURATIONDROPDOWN.ITEM.172800.CAPTION'> := "2 Days"
+    #STRINGSCOLLECTION<'BANDURATIONDROPDOWN.ITEM.604800.CAPTION'> := "1 Week"
+    
+    #STRINGSCOLLECTION<'CHECKINTERVALDROPDOWN.CAPTION'> := "Check Every"
+    #STRINGSCOLLECTION<'CHECKINTERVALDROPDOWN.ITEM.900000.CAPTION'> := "15 minutes"
+    #STRINGSCOLLECTION<'CHECKINTERVALDROPDOWN.ITEM.1800000.CAPTION'> := "30 minutes"
+    #STRINGSCOLLECTION<'CHECKINTERVALDROPDOWN.ITEM.3600000.CAPTION'> := "60 minutes"
+    #STRINGSCOLLECTION<'CHECKINTERVALDROPDOWN.ITEM.7200000.CAPTION'> := "120 minutes"
+    
+    #STRINGSCOLLECTION<'MESSAGE.SETTINGSAVED'> := "Setting Saved."
+    #STRINGSCOLLECTION<'MESSAGE.SETTINGSAVED.ERROR'> := "Failed to save settings."
+    
+    #STRINGSCOLLECTION<'VIEWIPBANSACTION.CAPTION.NOBANS'> := "No Addresses Banned"
+    #STRINGSCOLLECTION<'VIEWIPBANSACTION.CAPTION.BAN'> := "%%NUM%% Address banned"
+    #STRINGSCOLLECTION<'VIEWIPBANSACTION.CAPTION.BANS'> := "%%NUM%% Addresses banned"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETIPMONITORINGSTATUSFAILED'> := "FAILED to get status"
+    
+    #STRINGSCOLLECTION<'SERVICE.MESSAGE.RUN'> := "Process is now running"
+    #STRINGSCOLLECTION<'SERVICE.MESSAGE.END'> := "Process is now ending"
+    
+    Endroutine
+    
+    End_Com

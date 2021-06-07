@@ -1,0 +1,309 @@
+﻿Web Dialog:
+  Name:               BPFShareItemAddContentDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Set Add Content Dialog"
+
+  - JPN:
+      Description:        "Share Item Set Add Content Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Width(612) Height(532) Layoutmanager(#DialogLayout) Style(#DialogStyle) Themedrawstyle('text(0,0,0,0.87)')
+    
+    * Application References
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Strings
+    Define_Com Class(#BPFShareItemAddContentDialogStrings) Name(#Strings)
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#DialogStyle) Cornerbottomleft(4) Cornerbottomright(4) Cornertopleft(4) Cornertopright(4) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#CoverStyle) Backgroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(255:255:255) Opacity(75)
+    Define_Com Class(#PRIM_VS.Style) Name(#NoBorderStyle) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    
+    * Dialog Layout
+    Define_Com Class(#PRIM_TBLO) Name(#DialogLayout)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow1) Displayposition(1) Parent(#DialogLayout) Height(24) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow2) Displayposition(2) Parent(#DialogLayout) Height(40) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow3) Displayposition(3) Parent(#DialogLayout) Height(52) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow4) Displayposition(4) Parent(#DialogLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow5) Displayposition(5) Parent(#DialogLayout) Height(32) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow6) Displayposition(6) Parent(#DialogLayout) Height(24) Units(Pixels)
+    
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn1) Displayposition(1) Parent(#DialogLayout) Units(Pixels) Width(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn2) Displayposition(2) Parent(#DialogLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn3) Displayposition(3) Parent(#DialogLayout) Units(Pixels) Width(24)
+    
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopLeft) Column(#DialogLayoutColumn2) Manage(#DialogTitle) Parent(#DialogLayout) Row(#DialogLayoutRow2) Sizing(ContentWidthFitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Alignment(CenterRight) Column(#DialogLayoutColumn2) Manage(#DialogClose) Parent(#DialogLayout) Row(#DialogLayoutRow2) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Alignment(TopRight) Column(#DialogLayoutColumn2) Manage(#DialogConfirm) Parent(#DialogLayout) Row(#DialogLayoutRow5) Sizing(ContentWidthFitToHeight) Flow(Left) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item4) Alignment(TopRight) Column(#DialogLayoutColumn2) Manage(#DialogCancel) Parent(#DialogLayout) Row(#DialogLayoutRow5) Sizing(ContentWidthFitToHeight) Flow(Left) Marginright(24)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item5) Alignment(TopLeft) Column(#DialogLayoutColumn2) Manage(#ItemsList) Parent(#DialogLayout) Row(#DialogLayoutRow4) Columnspan(2) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item6) Manage(#ProgressBar) Parent(#DialogLayout) Row(#DialogLayoutRow1) Sizing(FitToWidth) Column(#DialogLayoutColumn1) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem1) Manage(#CoverPanel) Parent(#DialogLayout) Row(#DialogLayoutRow1) Column(#DialogLayoutColumn1) Alignment(TopLeft) Columnspan(3) Rowspan(5) Margintop(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem2) Alignment(CenterLeft) Column(#DialogLayoutColumn2) Manage(#NoChildHint) Parent(#DialogLayout) Row(#DialogLayoutRow3) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(502) Left(0) Parent(#COM_OWNER) Tabposition(8) Tabstop(False) Top(4) Width(610) Style(#CoverStyle) Visible(False)
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(3) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Theme100+ForegroundTheme500') Width(610) Visible(False)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem3) Manage(#Search) Parent(#DialogLayout) Row(#DialogLayoutRow3) Sizing(FitToWidth) Column(#DialogLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Add Content') Displayposition(2) Left(24) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading2') Top(24) Width(110) Height(40) Iconmarginright(16)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogClose) Displayposition(4) Left(562) Parent(#COM_OWNER) Tabposition(4) Top(32) Width(24) Height(24) Icon('close') Iconheight(16) Paddingbottom(4) Paddingleft(4) Paddingright(4) Paddingtop(4)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DialogConfirm) Caption('ADD') Displayposition(7) Left(510) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('MediumTitle') Top(474) Width(52) Height(32) Paddingleft(10) Paddingright(10) Enabled(False)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogCancel) Caption('CANCEL') Displayposition(8) Left(409) Parent(#COM_OWNER) Tabposition(6) Top(474) Width(77) Height(32) Paddingleft(10) Paddingright(10)
+    
+    Define_Com Class(#PRIM_List) Name(#ItemsList) Displayposition(6) Left(24) Parent(#COM_OWNER) Rowheight(48) Tabposition(7) Top(116) Height(358) Width(586) Columnheaderheight(0) Columnlines(False) Rowlines(False) Virtualization(None) Style(#NoBorderStyle) Columnsortarrow(False) Columnstyle(#NoBorderStyle) Selectionstyle(All)
+    Define_Com Class(#PRIM_List.Icon) Name(#ItemListIcon) Parent(#ItemsList) Displayposition(1) Columnwidth(38) Iconmarginleft(0) Iconmarginright(0) Iconalignment(CenterLeft) Cellmarginleft(4)
+    Define_Com Class(#PRIM_List.String) Name(#ItemListName) Displayposition(2) Parent(#ItemsList) Columnunits(Proportion) Columnwidth(1)
+    *
+    Define_Com Class(#PRIM_MD.Label) Name(#NoChildHint) Caption('No content found') Displayposition(9) Left(24) Parent(#COM_OWNER) Tabposition(1) Top(54) Icon('content_ copy') Iconalignment(AboveCaption) Captionalignment(Center) Height(72) Width(562) Iconheight(48) Themedrawstyle('Heading3+text(0,0,0,0.54)') Visible(False)
+    Define_Com Class(#PRIM_MD.Edit) Name(#Search) Appearance(EditBox) Captionposition(None) Displayposition(5) Height(40) Helperposition(None) Icon('search') Left(24) Parent(#COM_OWNER) Placeholder('Search') Tabposition(9) Top(64) Width(562) Themedrawstyle('Text(48,48,48,1)')
+    
+    * References
+    * Define_Com Class(#PRIM_DC.UnicodeString) Name(#CurrentFolder)
+    
+    Define_Com Class(#BPFContentSharingDataClient) Name(#Sharing) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentShareClass) Name(#CurrentShare) Reference(*DYNAMIC)
+    
+    Define_Com Class(#PRIM_LCOL<#BPFContentLibraryItemClass>) Name(#SelectedItems)
+    
+    * Routines
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFPortal.SizeChanged #COM_OWNER.Prepare)
+    
+    #COM_SELF.HandleSetWidth
+    
+    Endroutine
+    
+    * Navigate
+    Evtroutine Handling(#Navigate.OnNavigationEvent)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    * Search
+    Evtroutine Handling(#Search.GotFocus)
+    
+    #Search.PromptIcon := 'close'
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.LostFocus)
+    
+    #Search.PromptIcon := *null
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.IconClick #Search.Enter)
+    
+    #COM_SELF.SetWaitingState( ON )
+    #Sharing.GetLibraryItems( #Search.Value )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Search.Prompting)
+    
+    #COM_SELF.SetWaitingState( ON )
+    
+    #Search.value := *null
+    #Sharing.GetLibraryItems( #Search.Value )
+    
+    Endroutine
+    
+    * List
+    Evtroutine Handling(#ItemsList.ItemGotSelection) Item(#Item)
+    
+    #COM_SELF.HandleSelections( ADD (#Item.RelatedReference *As #BPFContentLibraryItemClass) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemsList.ItemLostSelection) Item(#Item)
+    
+    #COM_SELF.HandleSelections( REMOVE (#Item.RelatedReference *As #BPFContentLibraryItemClass) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#DialogCancel.Click #DialogClose.Click)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    Evtroutine Handling(#DialogConfirm.Click)
+    
+    * If an item is selected us it otherwise last set parent
+    If (#SelectedItems.IsEmpty.IsFalse)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #CurrentShare.AddItems( #SelectedItems )
+    
+    Endif
+    
+    * Close the dialog
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsCompleted) Moreresult(#More)
+    
+    * Rebuild
+    #COM_SELF.BuildItemsList
+    #COM_SELF.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(OpenDialog)
+    Define_Map For(*INPUT) Class(#BPFContentSharingDataClient) Name(#Client) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFContentShareClass) Name(#ForShare) Pass(*BY_REFERENCE)
+    
+    * Set Reference
+    #Sharing <= #Client
+    #CurrentShare <= #ForShare
+    
+    * Open the dialog
+    #COM_SELF.Show
+    
+    * Get Folders
+    #COM_SELF.SetWaitingState( ON )
+    
+    * Set initial current and load
+    #Sharing.GetLibraryItems
+    
+    Endroutine
+    
+    Mthroutine Name(CloseDialog)
+    
+    * Clear References
+    #Sharing <= *Null
+    
+    * Close
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    
+    Mthroutine Name(BuildItemsList)
+    
+    * Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#FolderName)
+    * Build List
+    Clr_List Named(#ItemsList)
+    #COM_SELF.HandleSelections( REMOVEALL )
+    
+    For Each(#Item) In(#Sharing.ContentLibrary)
+    
+    * Okay so add to list
+    Add_Entry To_List(#ItemsList)
+    
+    #ItemsList.CurrentItem.RelatedReference <= #Item
+    
+    #ItemListIcon.CurrentItem.Icon := #Item.ItemTypeIcon
+    #ItemListIcon.CurrentItem.ThemeDrawStyle := #Item.ItemTypeColour
+    
+    #ItemListName.CurrentItem.Value := #Item.ItemName
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSelections)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Action)
+    Define_Map For(*INPUT) Class(#BPFContentLibraryItemClass) Name(#Item) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    
+    Case Of_Field(#Action.UpperCase)
+    
+    When Value_Is(= ADD)
+    
+    #SelectedItems.Insert( #Item )
+    
+    When Value_Is(= REMOVE)
+    
+    #SelectedItems.Remove( #Item )
+    
+    When Value_Is(= REMOVEALL)
+    
+    #SelectedItems.RemoveAll
+    
+    Endcase
+    
+    #DialogConfirm.Enabled := (#ItemsList.Items.IsEmpty.IsFalse)
+    
+    Endroutine
+    
+    
+    Mthroutine Name(SetWaitingState) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #CoverPanel.Visible #ProgressBar.Visible := True
+    #CoverPanel.DisplayPosition := 1
+    
+    Else
+    
+    #CoverPanel.Visible #ProgressBar.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSetWidth) Access(*PRIVATE)
+    
+    If (#SYS_WEB.WebPage.Width < 650)
+    
+    #COM_SELF.Width := #SYS_WEB.WebPage.Width - 32
+    
+    Else
+    
+    #COM_SELF.Width := 612
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #DIALOGTITLE.CAPTION := #STRINGS.Text<'DIALOGTITLE.CAPTION'>
+    #DIALOGCANCEL.CAPTION := #STRINGS.Text<'DIALOGCANCEL.CAPTION'>
+    #DIALOGCONFIRM.CAPTION := #STRINGS.Text<'DIALOGCONFIRM.CAPTION'>
+    #SEARCH.PLACEHOLDER := #STRINGS.Text<'SEARCH.PLACEHOLDER'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    #NoChildHint.ThemeDrawStyle := 'Heading3+text(0,0,0,0.54)'
+    
+    Else
+    
+    #COM_SELF.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    #NoChildHint.ThemeDrawStyle := 'Heading3+text(255,255,255,0.54)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

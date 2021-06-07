@@ -1,0 +1,178 @@
+﻿Web View:
+  Name:               BPFPortalLogFileContentsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Log Contents View"
+
+  - JPN:
+      Description:        "Portal Log Contents View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP003')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalLogFileContentsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Main Panel Layout
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedTopCorners) Cornertopleft(8) Cornertopright(8) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedBottomCorners) Cornerbottomleft(8) Cornerbottomright(8) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn2) Displayposition(2) Parent(#MainLayout) Width(98) Maxwidth(960)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn3) Displayposition(3) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(1) Parent(#MainLayout) Height(231) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#ViewTitle) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentWidth) Flow(Down) Marginbottom(56)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#HeadingLine) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#FileContents) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(24)
+    
+    * References
+    Define_Com Class(#BPFFileSystemObjectDataItem) Name(#CurrentLog) Reference(*DYNAMIC)
+    
+    * Variables
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopRight) Column(#MainLayoutColumn2) Manage(#DownLoadLink) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Alignment(TopLeft) Column(#MainLayoutColumn2) Manage(#Spacer) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Manage(#Divider) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Column(#MainLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentPath)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentDelimiter)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ViewTitle) Caption('File Contents') Displayposition(1) Left(370) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Icon('arrow_back') Captionmarginleft(16) Width(165) Height(48) Iconmarginleft(12) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#HeadingLine) Displayposition(2) Left(370) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('card+Heading3') Top(128) Width(960) Style(#RoundedTopCorners) Height(62) Captionmarginleft(24) Captionmarginright(16)
+    Define_Com Class(#PRIM_LABL) Name(#FileContents) Displayposition(5) Left(370) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('card+Subheading') Top(215) Height(40) Width(960) Style(#RoundedBottomCorners) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DownLoadLink) Displayposition(6) Left(1284) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('ForegroundMediumPrimary') Top(24) Height(46) Width(46) Icon('cloud_download') Iconpadding(11) Style(#NavigationLinkStyle) Visible(False)
+    Define_Com Class(#PRIM_LABL) Name(#Spacer) Displayposition(4) Left(370) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('card+Subheading') Top(191) Height(24) Width(960) Tabstop(False) Selectable(True) Marginbottom(16) Margintop(24) Marginright(24) Marginleft(24) Style(#NotaCard)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(3) Height(1) Left(370) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Themedrawstyle('TopDivider') Top(190) Width(960)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #LoggingData <= (#Data.GetDataClient( #COM_SELF ) *As #BPFPortalLoggingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #VIEWTITLE.CAPTION := #STRINGS.Text<VIEWTITLE.CAPTION>
+    
+    * Get Value Property
+    * Check URL, as we might be reading via a full path and get data references
+    If (#SYS_WEB.URLParameters<VALUE> *IsNot *Null)
+    
+    #CurrentPath := #SYS_WEB.URLParameters<VALUE>.value
+    #CurrentDelimiter := #SYS_WEB.URLParameters<VALUE>.value.Substring( 1 1 )
+    
+    If (#CurrentDelimiter.ContainsOnly( '\/' ))
+    
+    #CurrentLog <= #LoggingData.FolderItem<#CurrentPath.Substring( (#CurrentPath.LastPositionOf( #CurrentDelimiter ) + 1) )>
+    
+    * In case we have no items
+    If (#CurrentLog *Is *Null)
+    
+    #CurrentLog <= *New #BPFFileSystemObjectDataItem.Create( #CurrentPath.Substring( (#CurrentPath.LastPositionOf( #CurrentDelimiter ) + 1) ) )
+    
+    Endif
+    
+    #CurrentPath := #CurrentPath.LeftMost( (#CurrentPath.LastPositionOf( #CurrentDelimiter ) - 1) )
+    
+    Else
+    
+    #CurrentLog <= #LoggingData.FolderItem<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * In case we have no items
+    If (#CurrentLog *Is *Null)
+    
+    #CurrentLog <= *New #BPFFileSystemObjectDataItem.Create( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #CurrentLog <= #LoggingData.FolderItem
+    
+    Endif
+    
+    * Set Additionial Display values
+    #COM_SELF.SetDisplay
+    
+    * Load data
+    #CurrentLog.LoadContents Requestpath(#CurrentPath)
+    
+    Endroutine
+    
+    
+    * Navigation
+    Evtroutine Handling(#ViewTitle.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#DownLoadLink.Click)
+    
+    #CurrentLog.Download
+    
+    Endroutine
+    
+    * User Account
+    Evtroutine Handling(#CurrentLog.OnLoadContentsCompleted)
+    
+    #HeadingLine.Caption := #CurrentLog.FullName
+    
+    #DownLoadLink.Visible := True
+    
+    #COM_SELF.OutputFileContents
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentLog.OnLoadContentsFailed)
+    
+    #DownLoadLink.Visible := False
+    
+    #FileContents.Caption := #STRINGS.Text<CURRENTLOG.ONLOADCONTENTSFAILED>
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    
+    * Methods
+    Mthroutine Name(OutputFileContents)
+    
+    * Output Values
+    #FileContents.Caption += #CurrentLog.Contents
+    
+    Endroutine
+    
+    Mthroutine Name(SetDisplay)
+    
+    #HeadingLine.Styles.Add( #FontWeight500Style )
+    
+    Endroutine
+    
+    End_Com

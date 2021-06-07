@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFForgetPasswordCompletedPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Forget Password Request Complete Strings"
+
+  - JPN:
+      Description:        "Forget Password Request Complete Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "We have your password reset request"
+    #STRINGSCOLLECTION<'SECONDARINSTRUCTION.CAPTION'> := "You will recieve your email soon"
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "We have your request and are sending you an email that will help you reset your password. Just follow the steps in the email and you will be back up and running in no time. If you have any issues please let us know at accounts@myPortal.com.au"
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "Do not panic, %%APP%% has sent help and it is on its way"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Done"
+    
+    Endroutine
+    
+    End_Com

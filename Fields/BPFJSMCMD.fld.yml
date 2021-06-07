@@ -1,0 +1,35 @@
+﻿Field:
+  Name:               BPFJSMCOMMAND
+  Type:               NChar
+  Length:             512
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal JSM Command"
+      Label:              "JSM Command"
+      Heading1:           "JSM"
+      Heading2:           "Command"
+
+  - JPN:
+      Description:        "Portal JSM Command"
+      Label:              "JSM Command"
+      Heading1:           "JSM"
+      Heading2:           "Command"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

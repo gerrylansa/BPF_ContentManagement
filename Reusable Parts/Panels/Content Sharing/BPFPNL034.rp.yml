@@ -1,0 +1,422 @@
+﻿Reusable Part:
+  Name:               BPFShareItemInfoPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Info Panel"
+
+  - JPN:
+      Description:        "Share Item Info Panel"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(800) Left(0) Tabposition(1) Top(0) Width(320) Layoutmanager(#PanelLayout) Themedrawstyle('LeftDivider+text(0,0,0,0.87)') Verticalscroll(True)
+    
+    * Application References
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Strings
+    Define_Com Class(#BPFShareItemInfoPanelStrings) Name(#Strings)
+    
+    * Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#PanelLayout) Marginbottom(16) Marginleft(16) Marginright(16) Margintop(16)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn2) Displayposition(2) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow1) Displayposition(1) Parent(#PanelLayout) Height(180) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn1) Displayposition(1) Parent(#PanelLayout) Units(Pixels) Width(100)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow2) Displayposition(2) Parent(#PanelLayout) Height(72) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow3) Displayposition(3) Parent(#PanelLayout) Height(66) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow4) Displayposition(4) Parent(#PanelLayout) Height(33) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow5) Displayposition(5) Parent(#PanelLayout) Height(33) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow6) Displayposition(6) Parent(#PanelLayout) Height(33) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow7) Displayposition(7) Parent(#PanelLayout) Height(33) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow8) Displayposition(8) Parent(#PanelLayout) Height(33) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem1) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemContentShareName) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem2) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemContentIcon) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem3) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemContentDescription) Parent(#PanelLayout) Row(#PanelLayoutRow2) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem4) Alignment(TopRight) Column(#PanelLayoutColumn2) Manage(#PanelClose) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem5) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ContentDetailsLabel) Parent(#PanelLayout) Row(#PanelLayoutRow2) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem6) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemModifiedInfoLabel) Parent(#PanelLayout) Row(#PanelLayoutRow8) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem7) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentCreatedBy) Parent(#PanelLayout) Row(#PanelLayoutRow7) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem8) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemContentNameLabel) Parent(#PanelLayout) Row(#PanelLayoutRow4) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem9) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentName) Parent(#PanelLayout) Row(#PanelLayoutRow4) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem10) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemContentTypeLabel) Parent(#PanelLayout) Row(#PanelLayoutRow6) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem12) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentCreated) Parent(#PanelLayout) Row(#PanelLayoutRow7) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem13) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemCreatedInfoLabel) Parent(#PanelLayout) Row(#PanelLayoutRow7) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem14) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentModifiedBy) Parent(#PanelLayout) Row(#PanelLayoutRow8) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem15) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentModified) Parent(#PanelLayout) Row(#PanelLayoutRow8) Sizing(ContentHeightFitToWidth) Flow(Down)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem11) Manage(#ItemContentType) Parent(#PanelLayout) Row(#PanelLayoutRow6) Sizing(ContentHeightFitToWidth) Column(#PanelLayoutColumn2) Alignment(TopLeft)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem16) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#ItemTokenNameLabel) Parent(#PanelLayout) Row(#PanelLayoutRow5) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem17) Alignment(TopLeft) Column(#PanelLayoutColumn2) Manage(#ItemContentToken) Parent(#PanelLayout) Row(#PanelLayoutRow5) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem18) Alignment(TopCenter) Column(#PanelLayoutColumn1) Manage(#DeleteShareAction) Parent(#PanelLayout) Row(#PanelLayoutRow3) Columnspan(2) Flow(Down) Sizing(ContentWidthAndHeight) Margintop(24)
+    
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PanelClose) Displayposition(1) Left(263) Parent(#COM_OWNER) Tabposition(4) Top(16) Icon('close') Width(40) Height(40) Iconcolor(Theme500)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentShareName) Displayposition(2) Left(16) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(16) Width(287) Height(18) Iconalignment(TopRight) Wordwrap(True) Paddingbottom(12) Captionmarginright(42) Paddingtop(6)
+    Define_Com Class(#PRIM_MD.Icon) Name(#ItemContentIcon) Displayposition(3) Left(16) Parent(#COM_OWNER) Tabposition(2) Top(34) Width(287) Height(162) Iconheight(132)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentDescription) Captionalignment(TopLeft) Displayposition(4) Height(24) Left(16) Parent(#COM_OWNER) Tabposition(3) Top(196) Wordwrap(True) Width(287) Paddingtop(24)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentDetailsLabel) Caption('Library details') Displayposition(5) Left(16) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('Heading3') Top(220) Width(287) Height(48) Paddingtop(24) Icon('content_copy') Iconalignment(CenterRight) Iconmarginright(12) Iconcolor(Theme500) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentNameLabel) Caption('Name') Displayposition(7) Left(16) Parent(#COM_OWNER) Tabposition(7) Themedrawstyle('ForegroundSecondary') Top(334) Height(33) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentName) Displayposition(8) Left(116) Parent(#COM_OWNER) Tabposition(12) Top(334) Height(12) Width(187) Wordwrap(True) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentTypeLabel) Caption('Type') Displayposition(11) Left(16) Parent(#COM_OWNER) Tabposition(8) Themedrawstyle('ForegroundSecondary') Top(400) Height(33) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentType) Displayposition(12) Left(116) Parent(#COM_OWNER) Tabposition(13) Top(400) Height(12) Width(187) Paddingtop(12) Wordwrap(True)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemModifiedInfoLabel) Caption('Modified') Displayposition(16) Left(16) Parent(#COM_OWNER) Tabposition(10) Themedrawstyle('ForegroundSecondary') Top(466) Height(33) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentCreatedBy) Displayposition(14) Left(116) Parent(#COM_OWNER) Tabposition(17) Top(433) Height(12) Width(187) Paddingtop(12) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentCreated) Displayposition(15) Left(116) Parent(#COM_OWNER) Tabposition(15) Top(445) Height(10) Width(187) Paddingtop(4) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemCreatedInfoLabel) Caption('Created') Displayposition(13) Left(16) Parent(#COM_OWNER) Tabposition(9) Themedrawstyle('ForegroundSecondary') Top(433) Height(33) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentModifiedBy) Displayposition(17) Left(116) Parent(#COM_OWNER) Tabposition(16) Top(466) Height(12) Width(187) Paddingtop(12) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentModified) Displayposition(18) Left(116) Parent(#COM_OWNER) Tabposition(14) Top(478) Height(10) Width(187) Paddingtop(4) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemTokenNameLabel) Caption('Content') Displayposition(9) Left(16) Parent(#COM_OWNER) Tabposition(6) Themedrawstyle('ForegroundSecondary') Top(367) Height(33) Paddingtop(12)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemContentToken) Displayposition(10) Left(116) Parent(#COM_OWNER) Tabposition(11) Top(367) Height(12) Width(187) Wordwrap(True) Paddingtop(12)
+    
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DeleteShareAction) Caption('Remove') Displayposition(6) Left(128) Parent(#COM_OWNER) Tabposition(18) Themedrawstyle('ForegroundMediumPrimary') Top(292) Height(42) Width(63) Paddingbottom(10) Paddingtop(11) Paddingleft(4) Paddingright(4)
+    
+    * Events
+    Define_Evt Name(CloseClicked)
+    Define_Evt Name(RemoveShareClicked)
+    
+    
+    * References
+    Define_Com Class(#BPFContentShareItemClass) Name(#CurrentItem) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentShareClass) Name(#CurrentShare) Reference(*DYNAMIC)
+    
+    Define_Com Class(#PRIM_BOLN) Name(#DataIsLoaded)
+    Define_Com Class(#PRIM_TIMR) Name(#OpenDelay) Interval(325) Startup(Manual)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Strings
+    #COM_SELF.SetStrings
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    #ContentDetailsLabel.Style <= #NavigationLinkStyle
+    
+    Else
+    
+    #ContentDetailsLabel.Style <= *Null
+    
+    Endif
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#PanelClose.Click)
+    
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentDetailsLabel.Click)
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    * Record Context
+    #SYS_WEB.SessionStorage.Add( 'BPF.SHARES.INFOCONTEXT' #CurrentItem.ContentIdentifier.LowerCase )
+    #Navigate.To Eventname(CONTENTITEMDETAILSVIEW) Value(#CurrentItem.ContentIdentifier)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#DeleteShareAction.Click)
+    
+    Signal Event(RemoveShareClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRemoveItemsCompleted)
+    
+    If (#CurrentShare.FolderItems.contains( #CurrentItem ).IsFalse)
+    
+    #COM_SELF.Close
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentShare.OnRenameCompleted) Newname(#NewName)
+    
+    #ItemContentShareName := #NewName
+    #DeleteShareAction.Caption := #STRINGS.Text<'DELETESHAREACTION.CAPTION'> + ' ' + #CurrentShare.ShareName
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentItem.OnGetLoadExtraDetailsCompleted)
+    
+    #COM_SELF.PopulateExtraDetails
+    #DataIsLoaded := True
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentItem.OnGetLoadExtraDetailsFailed) Reason(#Reason)
+    
+    If (#Reason = NS)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTITEM.ONGETLOADEXTRADETAILSFAILED.NOTSHARED'> 7500 )
+    
+    #BPFPortal.NavDrawer.SendMessageToMenu( 'REMOVESHARE' )
+    #Navigate.BackToTarget( ROOT )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTITEM.ONGETLOADEXTRADETAILSFAILED.ERROR'> 7500 )
+    
+    Endif
+    
+    #DataIsLoaded := True
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentItem.OnItemRenameCompleted)
+    
+    * Update Item Name
+    #ItemContentShareName := #CurrentItem.ItemName
+    
+    If (#CurrentItem.IsFolder)
+    
+    #ItemContentModifiedBy := #CurrentItem.ItemModifiedName
+    #ItemContentModified := #CurrentItem.ItemModified.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentItem.ItemModified.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + #CurrentItem.ItemModified.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentItem.ItemModified.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#OpenDelay.Tick)
+    
+    #OpenDelay.Stop
+    
+    If (#DataIsLoaded.IsFalse)
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(Open)
+    Define_Map For(*INPUT) Class(#BPFContentShareClass) Name(#ForShare) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#ForItem) Mandatory(*NULL) Pass(*BY_REFERENCE)
+    
+    * Set References
+    #CurrentShare <= #ForShare
+    #CurrentItem <= #ForItem
+    
+    * Set Width
+    If (#SYS_WEB.WebPage.Width < 344)
+    
+    #COM_SELF.Width := (#SYS_WEB.WebPage.width - 12)
+    
+    Endif
+    
+    * Build Screen
+    #COM_SELF.Update Foritem(#CurrentItem)
+    
+    Endroutine
+    
+    Mthroutine Name(Close)
+    
+    * Clear References
+    #CurrentItem <= *Null
+    
+    * Signal
+    Signal Event(CloseClicked)
+    
+    Endroutine
+    
+    Mthroutine Name(Update)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemClass) Name(#ForItem) Pass(*BY_REFERENCE)
+    
+    * Start delayed waiting state
+    #DataIsLoaded := False
+    #OpenDelay.Start
+    
+    * Set Reference
+    #CurrentItem <= #ForItem
+    
+    * Set Control Display
+    If (#ForItem *Is *Null)
+    
+    #DataIsLoaded := True
+    
+    #COM_SELF.SetContentFieldsToShow Showdelete((#Session.CurrentUser.IsAdministrator) *And (#SYS_WEB.URL.Contains( '&folder=' ).IsFalse))
+    #COM_SELF.PopulateShareDetails
+    
+    Else
+    
+    * Get Extra Details
+    #CurrentItem.GetExtraDetails
+    
+    If (#CurrentItem.IsFolder)
+    
+    #COM_SELF.SetContentFieldsToShow( False False True True True True True )
+    #COM_SELF.PopulateFolderDetails
+    
+    Else
+    
+    #COM_SELF.SetContentFieldsToShow( True True True True True True True )
+    #COM_SELF.PopulateFileDetails
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetContentFieldsToShow) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowDeescription) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowLibrary) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowName) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowContent) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowType) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowCreated) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowModified) Mandatory(False)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowDelete) Mandatory(False)
+    
+    #ItemContentDescription.Visible := #ShowDeescription
+    #ContentDetailsLabel.Visible := #ShowLibrary
+    #DeleteShareAction.Visible := #ShowDelete
+    #ItemContentNameLabel.Visible #ItemContentName.Visible := #ShowName
+    #ItemTokenNameLabel.Visible #ItemContentToken.Visible := #ShowContent
+    #ItemContentTypeLabel.Visible #ItemContentType.Visible := #ShowType
+    #ItemCreatedInfoLabel.Visible #ItemContentCreatedBy.Visible #ItemContentCreated.Visible := #ShowCreated
+    #ItemModifiedInfoLabel.Visible #ItemContentModifiedBy.Visible #ItemContentModified.Visible := #ShowCreated
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateShareDetails) Access(*PRIVATE)
+    
+    #ItemContentShareName := #CurrentShare.ShareName
+    
+    #ItemContentIcon.IconHeight := 132
+    #ItemContentIcon.ThemeDrawStyle := ForegroundTheme500
+    #ItemContentIcon.Icon := #CurrentShare.IconName
+    
+    #DeleteShareAction.Caption := #STRINGS.Text<'DELETESHAREACTION.CAPTION'> + ' ' + #CurrentShare.ShareName
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateFileDetails) Access(*PRIVATE)
+    
+    * Set titles
+    #ItemContentNameLabel.Caption := #STRINGS.Text<'ITEMCONTENTNAMELABEL.CAPTION.FILE'>
+    #ItemTokenNameLabel.Caption := #STRINGS.Text<'ITEMTOKENNAMELABEL.CAPTION.FILE'>
+    
+    * Item Name
+    #ItemContentShareName := #CurrentItem.ItemName
+    
+    * Icon
+    If (#CurrentItem.Type = YTV)
+    
+    #ItemContentIcon.IconHeight := #ItemContentIcon.Height
+    #ItemContentIcon.IconFileName := #CurrentItem.VideoThumbnailURL
+    
+    Else
+    
+    #ItemContentIcon.IconHeight := 132
+    
+    #ItemContentIcon.ThemeDrawStyle := #CurrentItem.TypeColour
+    #ItemContentIcon.Icon := #CurrentItem.TypeIcon
+    
+    Endif
+    
+    * Content Name
+    #ItemContentName := #CurrentItem.ContentName
+    
+    * Content Token
+    If (#CurrentItem.Type = YTV)
+    
+    #ItemContentToken := 'Youtube ID ' + #CurrentItem.ContentToken
+    
+    Else
+    
+    #ItemContentToken := #CurrentItem.ContentToken
+    
+    Endif
+    
+    * Type
+    #ItemContentType := #CurrentItem.TypeDescription
+    
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateFolderDetails) Access(*PRIVATE)
+    
+    * Set titles
+    #ItemContentNameLabel.Caption := #STRINGS.Text<'ITEMCONTENTNAMELABEL.CAPTION.FOLDER'>
+    #ItemTokenNameLabel.Caption := #STRINGS.Text<'ITEMTOKENNAMELABEL.CAPTION.FOLDER'>
+    
+    * Item Name
+    #ItemContentShareName := #CurrentItem.ItemName
+    
+    * Icon
+    #ItemContentIcon.IconHeight := 132
+    
+    #ItemContentIcon.ThemeDrawStyle := #CurrentItem.TypeColour
+    #ItemContentIcon.Icon := #CurrentItem.TypeIcon
+    
+    * Counts
+    #ItemContentName := #CurrentItem.ContentCount.asstring
+    #ItemContentToken := #CurrentItem.FolderCount.asstring
+    
+    * Type
+    #ItemContentType := #CurrentItem.TypeDescription
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateExtraDetails) Access(*PRIVATE)
+    
+    * Description
+    #ItemContentDescription := #CurrentItem.ContentDescription
+    
+    If (#CurrentItem.IsFolder)
+    
+    * Created
+    #ItemContentCreatedBy := #CurrentItem.ItemCreatedName
+    
+    #ItemContentCreated.Caption := #CurrentItem.ItemCreated.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentItem.ItemCreated.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + ' ' + #CurrentItem.ItemCreated.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentItem.ItemCreated.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    * Modified
+    #ItemContentModifiedBy := #CurrentItem.ItemModifiedName
+    #ItemContentModified := #CurrentItem.ItemModified.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentItem.ItemModified.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + #CurrentItem.ItemModified.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentItem.ItemModified.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    Else
+    
+    * Created
+    #ItemContentCreatedBy := #CurrentItem.ContentCreatedName
+    
+    #ItemContentCreated.Caption := #CurrentItem.ContentCreated.Date.Day.asstring + ' ' + #CurrentItem.ContentCreated.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + ' ' + #CurrentItem.ContentCreated.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentItem.ContentCreated.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    * Modified
+    #ItemContentModifiedBy := #CurrentItem.ContentModifiedName
+    #ItemContentModified := #CurrentItem.ContentModified.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentItem.ContentModified.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + #CurrentItem.ContentModified.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentItem.ContentModified.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings) Access(*PRIVATE)
+    
+    #ContentDetailsLabel.Caption := #STRINGS.Text<'CONTENTDETAILSLABEL.CAPTION'>
+    #ItemContentTypeLabel.Caption := #STRINGS.Text<'ITEMCONTENTTYPELABEL.CAPTION'>
+    #ItemCreatedInfoLabel.Caption := #STRINGS.Text<'ITEMCREATEDINFOLABEL.CAPTION'>
+    #ItemModifiedInfoLabel.Caption := #STRINGS.Text<'ITEMMODIFIEDINFOLABEL.CAPTION'>
+    
+    Endroutine
+    
+    End_Com

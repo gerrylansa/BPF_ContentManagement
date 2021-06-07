@@ -1,0 +1,68 @@
+{
+  "ls": [
+    {
+      "op": "PANELHEADING.CAPTION",
+      "s": "Modifier le compte"
+    },
+    {
+      "op": "INSTRUCTIONTEXT.CAPTION",
+      "s": "Entrez les informations vous concernant que nous utiliserons pour communiquer avec vous. Vous êtes le seul à pouvoir modifier ces informations."
+    },
+    {
+      "op": "ACCOUNTDETAILSPANELHEADING.CAPTION",
+      "s": "Votre compte"
+    },
+    {
+      "op": "USEREMAILEDIT.CAPTION",
+      "s": "Email"
+    },
+    {
+      "op": "USEREMAILEDIT.INUSE.ERROR",
+      "s": "Utilisé. Un compte utilise déjà cette adresse e-mail."
+    },
+    {
+      "op": "USEREMAILEDIT.INUSE.OKAY",
+      "s": "Votre bon aller."
+    },
+    {
+      "op": "USEREMAILEDIT.ENTRY.ERROR",
+      "s": "Veuillez saisir votre adresse e-mail"
+    },
+    {
+      "op": "USEREMAILEDIT.VALID.ERROR",
+      "s": "Votre adresse e-mail n'est pas valide"
+    },
+    {
+      "op": "FIRSTNAMEEDIT.CAPTION",
+      "s": "Prénom"
+    },
+    {
+      "op": "FIRSTNAMEEDIT.ERROR",
+      "s": "Entrez votre prénom s'il vous plait"
+    },
+    {
+      "op": "LASTNAMEEDIT.CAPTION",
+      "s": "Nom de famille"
+    },
+    {
+      "op": "LASTNAMEEDIT.ERROR",
+      "s": "Veuillez entrer votre nom de famille"
+    },
+    {
+      "op": "SAVEACTION.CAPTION",
+      "s": "ENREGISTRER"
+    },
+    {
+      "op": "MESSAGE.ONCHECKACCOUNTFAILED",
+      "s": "Impossible de valider l'adresse e-mail"
+    },
+    {
+      "op": "MESSAGE.ONSETACCOUNTDETAILSCOMPLETED",
+      "s": "Compte mis à jour"
+    },
+    {
+      "op": "MESSAGE.ONSETACCOUNTDETAILSFAILED",
+      "s": "ÉCHEC pour mettre à jour les détails du compte."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+﻿Field:
+  Name:               xContactCity
+  Type:               NVarChar
+  Length:             50
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContactCity"
+      Label:              "xContactCity"
+      Heading1:           "xContactCity"

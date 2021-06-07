@@ -1,0 +1,181 @@
+﻿Reusable Part:
+  Name:               BPFConfirmAccountFailedPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Confirm Account Failed"
+
+  - JPN:
+      Description:        "Portal Confirm Account Failed"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_View) Displayposition(1) Height(426) Tabposition(1) Width(666) Layoutmanager(#Layout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFConfirmAccountFailedPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Panel Layouts
+    
+    * Base Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(3) Parent(#Layout) Units(Content) Width(252)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(2) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(48) Units(Pixels)
+    
+    * Detail Panel Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#DialogLogo) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#MainInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(TopLeft) Column(#LayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Marginbottom(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem10) Alignment(CenterRight) Column(#LayoutColumn3) Manage(#DetailsPanelNextButton) Parent(#Layout) Row(#LayoutRow2) Sizing(None)
+    
+    * Mobile Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Manage(#PanelText) Parent(#Layout) Row(#LayoutRow1) Column(#LayoutColumn1) Alignment(TopLeft) Flow(Down) Columnspan(2)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MobileLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MobileLayoutColumn1) Displayposition(1) Parent(#MobileLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileLayoutRow1) Displayposition(1) Parent(#MobileLayout)
+    
+    * Details Panel Mobile Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem1) Manage(#MainInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#MobileLayoutColumn1) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem2) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem9) Alignment(BottomRight) Column(#MobileLayoutColumn1) Manage(#DetailsPanelNextButton) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(None) Marginbottom(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem3) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#PanelText) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth) Margintop(16)
+    
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogLogo) Displayposition(1) Left(414) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3+ForegroundTheme') Top(0) Height(378) Width(252) Captionalignment(Center) Wordwrap(True) Iconalignment(AboveCaption) Icon('error') Iconheight(118) Iconthemedrawstyle('ForegroundMediumPrimary') Captionmarginleft(14) Captionmarginright(14) Caption('All done')
+    Define_Com Class(#PRIM_MD.Label) Name(#MainInstruction) Displayposition(2) Left(0) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading2') Top(0) Height(27) Wordwrap(True) Width(414) Caption('Sorry... something is a miss here')
+    Define_Com Class(#PRIM_MD.Label) Name(#SecondaryInstruction) Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(3) Height(21) Wordwrap(True) Width(414) Caption('The details for the request are not valid') Top(27)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DetailsPanelNextButton) Caption('Done') Displayposition(4) Left(334) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('MediumTitle') Top(384) Width(80) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelText) Caption('The link you have used to try and activate your account is not a valid one. If you clicked the link in your weclome email and got this error, then let us know at accounts@myportal.com.au. Otherwise, I think you might be up to no good here. In which case, please stop.') Displayposition(5) Left(0) Parent(#COM_OWNER) Tabposition(5) Top(72) Height(378) Width(414) Captionalignment(TopLeft) Wordwrap(True)
+    
+    
+    * Parent
+    Define_Com Class(#BPFConfirmAccountActiveDialog) Name(#Dialog) Reference(*DYNAMIC)
+    
+    * Reference to Data Object
+    
+    * Non Visual Objects
+    
+    * Rotuines
+    
+    * Events
+    
+    * Creation
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get reference to parent
+    #Dialog <= #BPFPortal.ConfirmAccountDialog
+    #COM_SELF.SetStrings
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Data
+    
+    
+    * Actions
+    Evtroutine Handling(#DetailsPanelNextButton.Click)
+    
+    #Navigate.To Eventname(*null) Signalreplaceevent(True) Type(REPLACE)
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+    #SECONDARYINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION>
+    #PANELTEXT.CAPTION := #STRINGS.Text<PANELTEXT.CAPTION>
+    #DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+    #DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>
+    
+    Endroutine
+    
+    * Responsive Design
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.SetForMobile
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.SetForTablet
+    
+    Otherwise
+    
+    #COM_SELF.SetForDesktop
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(SetForMobile) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #MobileLayout)
+    
+    #COM_SELF.LayoutManager <= #MobileLayout
+    
+    Endif
+    Endroutine
+    
+    Mthroutine Name(SetForTablet) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetForDesktop) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := True
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

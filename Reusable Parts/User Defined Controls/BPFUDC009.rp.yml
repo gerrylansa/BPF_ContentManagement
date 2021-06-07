@@ -1,0 +1,521 @@
+﻿Reusable Part:
+  Name:               BPFShareFolderNavigationActionsPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Fiolder Navigation Actions Panel"
+
+  - JPN:
+      Description:        "Share Fiolder Navigation Actions Panel"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(48) Left(0) Tabposition(1) Top(0) Width(1024) Layoutmanager(#MainLayout)
+    
+    * Application References
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    
+    * Strings
+    Define_Com Class(#BPFShareFolderNavigationActionsPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#PRIM_VS.Style) Name(#ColumnHeadingLabelStyle) Fontweight(Weight500) Fontsize(13) Cursor(Hand)
+    
+    * Main Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn1) Displayposition(1) Parent(#MainLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainLayoutColumn2) Displayposition(2) Parent(#MainLayout) Units(Content) Width(330)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Manage(#PanelNavigationIcon) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToHeight) Column(#MainLayoutColumn1) Alignment(CenterLeft) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Manage(#PanelTitle) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentWidthAndHeight) Column(#MainLayoutColumn1) Alignment(CenterLeft) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Manage(#ActionsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(ContentWidthFitToHeight) Column(#MainLayoutColumn2) Alignment(TopRight) Flow(Left)
+    
+    * Actions Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#ActionsLayout) Sizing(ContentWidth)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActionsLayoutRow1) Displayposition(1) Parent(#ActionsLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActionsLayoutColumn1) Displayposition(1) Parent(#ActionsLayout) Units(Content) Width(330)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem1) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionNewItem) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem2) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionAddFolder) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem3) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#LeftDivider) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem4) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionCopy) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem5) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionMove) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem6) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionRename) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem7) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionRemove) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem8) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#RightDivider) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem9) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionInfo) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(None) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActionsLayoutItem10) Alignment(CenterLeft) Column(#ActionsLayoutColumn1) Manage(#ItemActionSpacer) Parent(#ActionsLayout) Row(#ActionsLayoutRow1) Sizing(FitToHeight) Flow(Right)
+    
+    * Navigation Controls
+    
+    Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(0) Parent(#COM_OWNER) Tabposition(3) Top(0) Style(#NavigationLinkStyle) Paddingright(12) Width(60)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PanelTitle) Displayposition(2) Left(60) Parent(#COM_OWNER) Tabposition(2) Width(10) Height(10) Style(#ColumnHeadingLabelStyle) Top(19) Paddingleft(2) Paddingright(2) Captionalignment(CenterLeft) Themedrawstyle('Heading2+text(0,0,0,0.87)')
+    
+    * Actions
+    
+    * Panel
+    Define_Com Class(#PRIM_PANL) Name(#ActionsPanel) Parent(#COM_OWNER) Displayposition(3) Tabposition(1) Top(0) Left(694) Height(48) Layoutmanager(#ActionsLayout) Width(330) Themedrawstyle('text(0,0,0,0.54)')
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionNewItem) Displayposition(1) Parent(#ActionsPanel) Tabposition(10) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('add') Left(0) Hint('Add Content Item') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionAddFolder) Displayposition(2) Parent(#ActionsPanel) Tabposition(3) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('create_new_folder') Left(40) Hint('Add Folder') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_PANL) Name(#LeftDivider) Displayposition(3) Height(32) Left(80) Parent(#ActionsPanel) Tabposition(1) Tabstop(False) Themedrawstyle('back(229,229,299,1)') Top(8) Width(1)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionCopy) Displayposition(4) Parent(#ActionsPanel) Tabposition(5) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('content_copy') Left(81) Hint('Copy') Visible(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionMove) Displayposition(5) Parent(#ActionsPanel) Tabposition(6) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('subdirectory_arrow_right') Left(121) Hint('Move') Visible(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionRename) Displayposition(6) Parent(#ActionsPanel) Tabposition(8) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('edit') Left(161) Hint('Rename') Visible(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionRemove) Displayposition(7) Parent(#ActionsPanel) Tabposition(9) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Icon('delete') Left(201) Hint('Remove') Visible(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_PANL) Name(#RightDivider) Displayposition(8) Height(32) Left(241) Parent(#ActionsPanel) Tabposition(2) Tabstop(False) Themedrawstyle('back(229,229,299,1)') Top(8) Width(1) Visible(False)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ItemActionInfo) Displayposition(9) Icon('info_outline') Left(242) Parent(#ActionsPanel) Tabposition(7) Top(4) Height(40) Width(40) Themedrawstyle('Rounded') Hint('Info') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#ItemActionSpacer) Displayposition(10) Left(282) Parent(#ActionsPanel) Tabposition(4) Top(0) Height(48) Width(48)
+    
+    * Properties
+    Define_Pty Name(Title) Get(*REFERENCE #PanelTitle)
+    
+    * Events
+    Define_Evt Name(InfoActionClicked)
+    Define_Evt Name(RenameActionClicked)
+    Define_Evt Name(AddFolderActionClicked)
+    Define_Evt Name(RemoveActionClicked)
+    Define_Evt Name(MoveActionClicked)
+    Define_Evt Name(CopyActionClicked)
+    Define_Evt Name(AddItemActionClicked)
+    Define_Evt Name(RenameShareAction)
+    
+    
+    * Global Variables
+    
+    * OverFlow Menu
+    Define_Com Class(#BPFShareFolderNavigationOverflowMenu) Name(#Menu) Reference(*DYNAMIC) Parent(#COM_OWNER)
+    
+    * Breadcrumbs
+    Define_Com Class(#PRIM_TIMR) Name(#ResetDelay) Startup(Manual) Interval(250)
+    Define_Com Class(#PRIM_TIMR) Name(#CrumbDelay) Startup(Manual) Interval(25)
+    
+    * Breadcrumb Collections
+    Define_Com Class(#PRIM_LCOL<#PRIM_MD.FlatButton>) Name(#CrumbButtons)
+    Define_Com Class(#PRIM_LCOL<#PRIM_MD.Label>) Name(#CrumbSpacers)
+    Define_Com Class(#PRIM_LCOL<#PRIM_TBLO.Item>) Name(#CrumbItems)
+    Define_Com Class(#PRIM_BOLN) Name(#LastRenameState)
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentSelectionCount)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#CrumbTheme)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Window
+    
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFPortal.SizeChanged)
+    
+    #ResetDelay.Stop
+    #ResetDelay.Start
+    
+    Endroutine
+    
+    * Navigation
+    
+    Evtroutine Handling(#PanelNavigationIcon.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CrumbButtons<>.Click) Com_Sender(#Sender)
+    
+    If (#CrumbButtons.ItemCount > 1)
+    
+    #SYS_WEB.History.GoBack( (#CrumbButtons.ItemCount - #CrumbButtons.IndexOf<#Sender>) )
+    
+    Else
+    
+    Signal Event(RenameShareAction)
+    
+    Endif
+    
+    Endroutine
+    
+    * Actions
+    
+    Evtroutine Handling(#ItemActionInfo.Click)
+    
+    If (#SYS_WEB.Device = Mobile)
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    #COM_SELF.ShowOverFlowMenu
+    
+    Else
+    
+    Signal Event(InfoActionClicked)
+    
+    Endif
+    
+    Else
+    
+    Signal Event(InfoActionClicked)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Menu.ItemInfoClicked)
+    
+    Signal Event(InfoActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionRename.Click #Menu.ItemRenameClicked)
+    
+    Signal Event(RenameActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionAddFolder.Click #Menu.ItemAddFolderClicked)
+    
+    Signal Event(AddFolderActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionRemove.Click #Menu.ItemRemoveClicked)
+    
+    Signal Event(RemoveActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionMove.Click #Menu.ItemMoveClicked)
+    
+    Signal Event(MoveActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionCopy.Click #Menu.ItemCopyClicked)
+    
+    Signal Event(CopyActionClicked)
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemActionNewItem.Click #Menu.ItemAddClicked)
+    
+    Signal Event(AddItemActionClicked)
+    
+    Endroutine
+    
+    * Timer
+    Evtroutine Handling(#ResetDelay.Tick)
+    
+    #ResetDelay.Stop
+    #ResetDelay.Interval := 250
+    
+    * Reset
+    #CrumbButtons<>.Visible #CrumbSpacers<>.Visible := True
+    
+    #CrumbDelay.Stop
+    #CrumbDelay.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#CrumbDelay.Tick)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    Define_Com Class(#PRIM_NMBR) Name(#Item)
+    
+    #CrumbDelay.Stop
+    #CrumbDelay.Interval := 1
+    
+    #Index := 0
+    
+    * Do we have any Breadcrumbs
+    If (#CrumbButtons.IsEmpty.IsFalse)
+    
+    * Yes, so check if the left most crumb and spacer need to be hidden
+    Begin_Loop Using(#Item) To((#CrumbButtons.ItemCount - 1))
+    
+    * Test to see if the last crumb is past the actions panel
+    If (((#CrumbButtons.Last.left + #CrumbButtons.Last.width) - #index) > (#ActionsPanel.left - 2))
+    
+    * It is. Okay this logic is here baswd on the assumption that the runtime doesnt update
+    * the left position for the right most crumb hen the left most crumb is hidden. So instead
+    * we apply an offset by totalling the width of crumb and space
+    #Index := #Index + #CrumbButtons<#Item>.Width
+    #CrumbButtons<#Item>.Visible := False
+    
+    If (#Item <= #CrumbSpacers.ItemCount)
+    #Index := #Index + #CrumbSpacers<#Item>.Width
+    #CrumbSpacers<#Item>.Visible := False
+    Endif
+    
+    Else
+    
+    Leave
+    
+    Endif
+    
+    End_Loop
+    
+    Endif
+    
+    Endroutine
+    
+    * OverFlow Menu
+    Evtroutine Handling(#Menu.Closed)
+    
+    #Menu <= *Null
+    
+    Endroutine
+    
+    * Public Methods
+    Mthroutine Name(BuildCrumb)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#CurrentPath)
+    Define_Com Class(#PRIM_NMBR) Name(#Limit)
+    Define_Com Class(#PRIM_NMBR) Name(#Index)
+    
+    * Insert PanelTitle
+    #CrumbButtons.Insert( #PanelTitle )
+    
+    If (#SYS_WEB.URLParameters<PATH> *IsNot *Null)
+    
+    #CurrentPath := #SYS_WEB.URLParameters<PATH>.value
+    #Limit := #CurrentPath.OccurrencesOf( '\' )
+    
+    Begin_Loop To(#Limit)
+    
+    #Index := #CurrentPath.PositionOf( '\' 2 )
+    
+    If (#Index > 0)
+    
+    #COM_SELF.AddCrumb( (#CurrentPath.Substring( 2 (#Index - 2) )) )
+    #CurrentPath := #CurrentPath.DeleteSubstring( 1 (#Index - 1) )
+    
+    Else
+    
+    #COM_SELF.AddCrumb( (#CurrentPath.Substring( 2 )) )
+    
+    Endif
+    
+    End_Loop
+    
+    #ResetDelay.Start
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetActionDisplay)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#SelectionCount)
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    #CurrentSelectionCount := #SelectionCount
+    
+    If (#SYS_WEB.Device <> Mobile)
+    
+    * Set Button display
+    #ItemActionCopy.Visible := (#CurrentSelectionCount > 0)
+    #ItemActionMove.Visible := (#CurrentSelectionCount > 0)
+    #ItemActionRename.Visible := (#CurrentSelectionCount = 1)
+    #ItemActionRemove.Visible := (#CurrentSelectionCount > 0)
+    
+    * Set Right Divider
+    #RightDivider.Visible := (#CurrentSelectionCount > 0)
+    
+    * Width Changed
+    If (#LastRenameState <> #ItemActionRename.Visible)
+    #ResetDelay.Interval #CrumbDelay.Interval := 1
+    #ResetDelay.Start
+    Endif
+    
+    #LastRenameState := #ItemActionRename.Visible
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(ShowOverFlowMenu)
+    
+    #Menu <= (*New #BPFShareFolderNavigationOverflowMenu)
+    #Menu.Open( #CurrentSelectionCount )
+    
+    Endroutine
+    
+    * Private Methods
+    
+    Mthroutine Name(AddCrumb) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Text)
+    
+    * Start with the item for the spacer
+    #CrumbItems.Insert( (*New #Prim_tblo.item) )
+    #CrumbItems.last.Row <= #MainLayoutRow1
+    #CrumbItems.last.Column <= #MainLayoutColumn1
+    #CrumbItems.last.Alignment := CenterLeft
+    #CrumbItems.Last.Flow := Right
+    #CrumbItems.last.Sizing := ContentWidthAndHeight
+    
+    * Now the spacer
+    #CrumbSpacers.Insert( (*New #PRIM_MD.Label) )
+    #CrumbSpacers.last.Icon := 'keyboard_arrow_right'
+    #CrumbSpacers.last.IconHeight := 24
+    
+    * Set Management
+    #CrumbItems.Last.Manage <= #CrumbSpacers.last
+    #CrumbItems.last.Parent <= #MainLayout
+    
+    * Another layout items, same again please
+    #CrumbItems.Insert( (*New #Prim_tblo.item) )
+    #CrumbItems.last.Row <= #MainLayoutRow1
+    #CrumbItems.last.Column <= #MainLayoutColumn1
+    #CrumbItems.last.Alignment := CenterLeft
+    #CrumbItems.Last.Flow := Right
+    #CrumbItems.last.Sizing := ContentWidthAndHeight
+    
+    * Now the button
+    #CrumbButtons.insert( (*New #PRIM_MD.FlatButton) )
+    #CrumbButtons.last.Caption := #Text
+    #CrumbButtons.last.CaptionAlignment := Center
+    #CrumbButtons.last.ThemeDrawStyle := 'Heading2' + #CrumbTheme
+    #CrumbButtons.last.Style <= #ColumnHeadingLabelStyle
+    #CrumbButtons.last.PaddingLeft #CrumbButtons.last.PaddingRight := 4
+    
+    * Set Management
+    #CrumbItems.last.Manage <= #CrumbButtons.Last
+    #CrumbItems.last.Parent <= #MainLayout
+    
+    * Set Parent
+    #CrumbSpacers.Last.Parent <= #COM_OWNER
+    #CrumbButtons.Last.Parent <= #COM_OWNER
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged)
+    
+    If (#Session.CurrentUser.IsAdministrator)
+    
+    * Set Standard Buttons
+    #ItemActionNewItem.Visible := (#SYS_WEB.Device <> Mobile)
+    #ItemActionAddFolder.Visible := (#SYS_WEB.Device <> Mobile)
+    #LeftDivider.Visible := (#SYS_WEB.Device <> Mobile)
+    #ItemActionSpacer.Visible := (#SYS_WEB.Device <> Mobile)
+    
+    * Swap Icon
+    If (#SYS_WEB.Device = Mobile)
+    
+    #ItemActionInfo.Icon := 'more_vert'
+    
+    #ItemActionCopy.Visible := False
+    #ItemActionMove.Visible := False
+    #ItemActionRename.Visible := False
+    #ItemActionRemove.Visible := False
+    #RightDivider.Visible := False
+    
+    Else
+    
+    #ItemActionInfo.Icon := 'info_outline'
+    
+    #COM_SELF.SetActionDisplay( #CurrentSelectionCount )
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.SetViewOnly
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetViewOnly)
+    
+    #ItemActionInfo.Icon := 'info_outline'
+    
+    #ItemActionNewItem.Visible := (#Session.CurrentUser.IsAdministrator)
+    #ItemActionAddFolder.Visible := (#Session.CurrentUser.IsAdministrator)
+    #LeftDivider.Visible := (#Session.CurrentUser.IsAdministrator)
+    #ItemActionCopy.Visible := (#Session.CurrentUser.IsAdministrator)
+    #ItemActionMove.Visible := (#Session.CurrentUser.IsAdministrator)
+    #ItemActionRename.Visible := (#Session.CurrentUser.IsAdministrator)
+    #ItemActionRemove.Visible := (#Session.CurrentUser.IsAdministrator)
+    #RightDivider.Visible := (#Session.CurrentUser.IsAdministrator)
+    
+    If (#SYS_WEB.Device = Mobile)
+    
+    #ItemActionSpacer.Width := 16
+    
+    Else
+    
+    #ItemActionSpacer.Width := 48
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #ItemActionNewItem.Hint := #STRINGS.Text<'ITEMACTIONNEWITEM.HINT'>
+    #ItemActionAddFolder.Hint := #STRINGS.Text<'ITEMACTIONADDFOLDER.HINT'>
+    #ItemActionCopy.Hint := #STRINGS.Text<'ITEMACTIONCOPY.HINT'>
+    #ItemActionMove.Hint := #STRINGS.Text<'ITEMACTIONMOVE.HINT'>
+    #ItemActionRename.Hint := #STRINGS.Text<'ITEMACTIONRENAME.HINT'>
+    #ItemActionRemove.Hint := #STRINGS.Text<'ITEMACTIONREMOVE.HINT'>
+    #ItemActionInfo.Hint := #STRINGS.Text<'ITEMACTIONINFO.HINT'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.SetLightThemeColours
+    
+    Else
+    
+    #COM_SELF.SetDarkThemeColours
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetLightThemeColours)
+    
+    #PanelTitle.ThemeDrawStyle := 'Heading2+text(0,0,0,0.87)'
+    #CrumbTheme := '+text(0,0,0,0.72)'
+    #ActionsPanel.ThemeDrawStyle := 'text(0,0,0,0.54)+back(250,250,250,1)'
+    
+    Endroutine
+    
+    Mthroutine Name(SetDarkThemeColours)
+    
+    #PanelTitle.ThemeDrawStyle := 'Heading2'
+    #CrumbTheme := '+text(255,255,255,0.72)'
+    #ActionsPanel.ThemeDrawStyle := 'text(255,255,255,0.54)+back(48,48,48,1)'
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,404 @@
+﻿Reusable Part:
+  Name:               BPFEmailNotificationsSender
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Handler to send notification emails"
+
+  - JPN:
+      Description:        "Handler to send notification emails"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    Define_Com Class(#BPFEmailSendingJSMHanlder) Name(#Email)
+    
+    * Working Fields
+    Define Field(#FILE_RETC) Type(*CHAR) Length(2) Label('Return Code')
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#IsoCode)
+    Define Field(#BodyCount) Reffld(#LISTCOUNT)
+    
+    * Global
+    * Define_Com Class(#XPRIM_File) Name(#FileHandler)
+    * Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    * Define_Com Class(#PRIM_IOC.FileStream) Name(#EmailBodyFile)
+    * Define_Com Class(#PRIM_DC.UnicodeString) Name(#BodySource)
+    
+    * Group_Bys
+    Group_By Name(#UserInformation) Fields(#BPFUserFirstName #BPFUserEmail #BPFUserEventToken #BPFUserPreferenceEmailLanguage)
+    
+    * Collections
+    Define_Com Class(#PRIM_LCOL<#prim_dc.UnicodeString>) Name(#EmailBody)
+    
+    * Routines
+    
+    * Send Notification Message
+    Mthroutine Name(Send)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#NotificationType)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#UserIdenitifer)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#NewUserAddress) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#OverrideIsoCode) Mandatory(*NULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume Failure
+    #Result := False
+    
+    * Check if this email notification is enabled, 0 is disbaled
+    If (#Utils.GetNumericValue( ('EMAIL_' + #NotificationType) 'ENABLED' ) = 0)
+    
+    Return
+    
+    Endif
+    
+    * Ensure logging for this email if override enabled
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_EMAIL' ('EMAIL_' + #NotificationType) ) > 0)
+    
+    * Hold Override Language
+    #IsoCode := #OverrideIsoCode
+    
+    *
+    #Utils.log( ('Notification Sender : send invoked for Type ' + #NotificationType) )
+    #Utils.log( ('Notification Sender : send invoked for User ' + #UserIdenitifer) )
+    
+    * Get User Data
+    If (#Com_self.GetUserInformation( #UserIdenitifer ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Failed to get user information') )
+    * Return in Shame....
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : get of user information successful') )
+    
+    Endif
+    
+    * Set email Parameters
+    If (#COM_SELF.SetEmailParameters( ('EMAIL_' + #NotificationType) #Utils.GetAlphaValue( SYSTEM URL_FULL ) #NewUserAddress ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Failed to set email parameters') )
+    
+    * Return in Shame....
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : set of email parameters successful') )
+    
+    Endif
+    
+    * Send Email, I hope we dont return in shame...
+    If (#COM_SELF.SendNotificationEmail.IsFalse)
+    
+    * You end in shame didn't you, for crying out loud !!
+    #Utils.log( ('Notification Sender : Failed to send email') )
+    
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : email send successful') )
+    
+    Endif
+    
+    *
+    * #EmailBodyFile.FileShare := Delete
+    
+    * Remove email body
+    * #FileHandler.Delete Errorinfo(#DataStatus)
+    * #Utils.log( ('Notification Sender : email body file delete completed wtih status ' + #DataStatus.ErrorCode + '/' + #DataStatus.ErrorMessage) )
+    
+    * Ensure Override reset
+    #Utils.OverrideDisabled := False
+    
+    * You did it, you really did it. Oh my goodness that a unheard off.
+    #Result := True
+    Return
+    
+    Endroutine
+    
+    Mthroutine Name(GetUserInformation) Access(*PRIVATE)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#UserIdenitifer)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Values
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#PortalRole)
+    
+    * Check if we have an email address
+    If (#UserIdenitifer.Contains( '@' ).IsFalse)
+    
+    * Fetch Data from User Table(s), via Internal ID as this isnt an email address
+    Fetch Fields(#UserInformation) From_File(BPFPortalUserAccounts) With_Key(#UserIdenitifer)
+    Fetch Fields(#BPFUserPreferenceEmailLanguage) From_File(BPFPortalUserPreferences) With_Key(#UserIdenitifer)
+    
+    * Return Result
+    #Result := (#IO$STS = OK)
+    
+    * Okay now we have the user we need to check the system role is not production
+    * to ensure that email can be sent or overriden as required
+    #PortalRole := #Utils.GetAlphaValue( 'SYSTEM' 'ROLE' )
+    If (#PortalRole <> PROD)
+    
+    * Okay the system is not production, override for development or check is allowed for testing
+    Case Of_Field(#PortalRole)
+    
+    When Value_Is(= DEV)
+    
+    * For development we need to override the users TO address to the system override
+    #BPFUserEmail := #Utils.GetAlphaValue( 'SYSTEM_DEV' 'OVERRIDE_EMAIL' )
+    #Utils.log( ('Notification Sender : system is set to development so overriding user email to ' + #BPFUserEmail.AsNativeString) )
+    
+    When Value_Is(= TEST)
+    
+    * For testing we need to see that the email has an allowed domain, if not we need to block it from being sent
+    
+    * Assume not allowed
+    #Result := False
+    
+    * For testing check the user
+    Select Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) Where(#BPFUserEmail.UpperCase.Substring( (#BPFUserEmail.PositionOf( '@' ) + 1) ) = #BPFCodeAlphaValue.UpperCase) With_Key('SYSTEM_TEST' 'ALLOWED_DOMAIN')
+    
+    #Utils.log( ('Notification Sender : system is set to testing and has allowed domain ' + #BPFUserEmail.AsNativeString) )
+    
+    * Set Result as okay if we find a match
+    #Result := True
+    Leave
+    
+    Endselect
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( ('Notification Sender : send stopped as system is set to testing and user email is an invalid domain ' + #BPFUserEmail.AsNativeString) )
+    
+    Endif
+    
+    Endcase
+    
+    Endif
+    
+    * Use default system language if preferenc not set
+    If (#BPFUserPreferenceEmailLanguage.IsNull)
+    
+    #BPFUserPreferenceEmailLanguage := #Utils.GetAlphaValue( 'LANGUAGE' 'DEFAULT' )
+    
+    Endif
+    
+    Else
+    
+    * This is so set values
+    #BPFUserFirstName := 'Test User'
+    #BPFUserEmail := #UserIdenitifer
+    #BPFUserEventToken := '0123456789'
+    #BPFUserPreferenceEmailLanguage := #IsoCode
+    #Result := True
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetEmailParameters) Access(*PRIVATE)
+    
+    * Inputs
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#NotificationType)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#HostAddress)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#NewEmailAddress)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local
+    Define_Com Class(#PRIM_BOLN) Name(#ReadResult)
+    
+    * Stream In
+    Define_Com Class(#PRIM_IOC.FileStream) Name(#FileStream)
+    Define_Com Class(#PRIM_IOC.StreamReader) Name(#StreamReader)
+    
+    * Stream Out
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#EmailBodyLine) Reference(*DYNAMIC)
+    
+    * Assume Failure
+    #Result := False
+    
+    * Attempt Load
+    If (#Email.Open( #Utils.GetAlphaValue( 'JSMSETTINGS' 'SERVICE_TRACE' ).AsNativeString #NotificationType ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Email send handler open failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Email send handler open successful') )
+    
+    Endif
+    
+    * Set from address, Name and subject
+    If (#Email.Set( 'FROM' #Utils.GetAlphaValueForLanguage( #BPFUserPreferenceEmailLanguage #NotificationType 'FROM_ADDRESS' ) ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Email set FROM failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Email set FROM successful') )
+    
+    Endif
+    
+    If (#Email.Set( 'FROM_NAME' #Utils.GetAlphaValueForLanguage( #BPFUserPreferenceEmailLanguage #NotificationType 'FROM_NAME' ) ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Email SET FROM_NAME failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Email SET FROM_NAME successful') )
+    
+    Endif
+    
+    If (#Email.Set( 'SUBJECT' #Utils.GetAlphaValueForLanguage( #BPFUserPreferenceEmailLanguage #NotificationType 'SUBJECT' ) ).isFalse)
+    
+    #Utils.log( ('Notification Sender : Email set SUBJECT failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Email set SUBJECT successful') )
+    
+    Endif
+    
+    * Set To Address
+    If (#Email.Set( 'TO' #BPFUserEmail ).IsFalse)
+    
+    #Utils.log( ('Notification Sender : Email set TO failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Email set TO successful') )
+    
+    Endif
+    
+    
+    * process bodyTemplate to build #EmailBody
+    #Utils.log( ('Notification Sender : loading email template starting') )
+    
+    
+    * Set Body templaet file name
+    * Set Path
+    #FileStream.Path := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFUserPreferenceEmailLanguage + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' ) + *PATHDELIM + #Utils.GetAlphaValueForLanguage( #BPFUserPreferenceEmailLanguage #NotificationType BODY_TEMPLATE ))
+    #StreamReader.Stream <= #FileStream
+    #Utils.log( ('Notification Sender : email template to be loaded ' + #FileStream.Path) )
+    
+    * Clear Email List
+    #EmailBody.RemoveAll
+    
+    * Load up the email list
+    #EmailBodyLine <= *New #Prim_dc.UnicodeString
+    Dountil Cond(#StreamReader.TryReadLine( #EmailBodyLine ).IsFalse)
+    
+    * Replace softcoded values
+    #EmailBodyLine := #EmailBodyLine.ReplaceAll( '&1' #BPFUserFirstName )
+    #EmailBodyLine := #EmailBodyLine.ReplaceAll( '&2' (#HostAddress + '?event=' + #Utils.GetAlphaValueForLanguage( #BPFUserPreferenceEmailLanguage #NotificationType QUERYSTRING_PARM ) + '&value=' + #BPFUserEventToken) )
+    #EmailBodyLine := #EmailBodyLine.ReplaceAll( '&3' #HostAddress )
+    #EmailBodyLine := #EmailBodyLine.ReplaceAll( '&4' #NewEmailAddress )
+    
+    #Utils.log( ('Notification Sender : Adding line to body ' + #EmailBodyLine) )
+    
+    * Add to the body list
+    #EmailBody.Insert( #EmailBodyLine )
+    
+    #EmailBodyLine <= *New #Prim_dc.UnicodeString
+    
+    Enduntil
+    
+    If (#EmailBody.IsEmpty)
+    
+    #Utils.log( ('Notification Sender : Failed to load email template') )
+    Return
+    
+    Else
+    
+    #Utils.log( ('Notification Sender : Generation of email body completed with ' + #EmailBody.ItemCount.asstring + ' lines added') )
+    
+    Endif
+    
+    * If (#StreamReader.TryReadString( 99999999 #BodySource ))
+    
+    * Apply softcoded values
+    * #BodySource := #BodySource.ReplaceAll( '&1' #BPFUserFirstName )
+    * #BodySource := #BodySource.ReplaceAll( '&2' (#HostAddress + '?event=' + #Utils.GetAlphaValueForLanguage( #IsoCode #NotificationType QUERYSTRING_PARM ) + '&value=' + #BPFUserEventToken) )
+    * #BodySource := #BodySource.ReplaceAll( '&3' #HostAddress )
+    * #BodySource := #BodySource.ReplaceAll( '&4' #NewEmailAddress )
+    
+    * #Utils.log( ('Notification Sender : Generated email body is ' + #BodySource) )
+    
+    * Create Output File
+    
+    * Set Output File path
+    * #FileHandler.Path := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_OUTPUT' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_OUTPUT' ) + *PATHDELIM + *GUID + '.txt').AsNativeString
+    *
+    * #Utils.log( ('Notification Sender : Email Body output to ' + #EmailBodyFile.Path) )
+    *
+    * #EmailBodyFile.Path := #FileHandler.Path
+    * #EmailBodyFile.FileAccess := Write
+    * #EmailBodyFile.FileMode := CreateNew
+    * #EmailBodyWriter.WriteString( #Source )
+    
+    * Else
+    
+    * #Utils.log( ('Notification Sender : Failed to load email template') )
+    * Return
+    
+    * Endif
+    
+    * Wow, we made it. That was quite a journey together. Ahhhh.....
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(SendNotificationEmail) Access(*PRIVATE)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    If (#Email.Send( '*HTML' #EmailBody ).IsFalse)
+    
+    #utils.log( ('Email send failed') )
+    Return
+    
+    Else
+    
+    #utils.log( ('Email Send successful') )
+    
+    Endif
+    
+    #Result := #Email.Close
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( ('Email Close failed') )
+    
+    Else
+    
+    #Utils.log( ('Email close successful') )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

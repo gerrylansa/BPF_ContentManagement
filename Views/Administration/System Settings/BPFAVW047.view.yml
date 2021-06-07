@@ -1,0 +1,230 @@
+﻿Web View:
+  Name:               BPFSystemSettingsResourcesEditView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Resources Edit View"
+
+  - JPN:
+      Description:        "Portal Resources Edit View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP007')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSystemSettingsResourcesEditViewString) Name(#Strings)
+    Define_Com Class(#BPFClientLanguageStrings) Name(#UserLangStrings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFSystemSettingsDataClient) Name(#PortalSettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(213) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ResourcesPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Settings Panel Layout
+    
+    
+    * Rows and Columns
+    
+    * Layout Items
+    
+    * Testing Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ResourcePanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourcePanelLayoutRow1) Displayposition(1) Parent(#ResourcePanelLayout) Units(Content) Height(131)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ResourcePanelLayoutRow2) Displayposition(2) Parent(#ResourcePanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn1) Displayposition(1) Parent(#ResourcePanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn2) Displayposition(2) Parent(#ResourcePanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ResourcePanelLayoutColumn3) Displayposition(3) Parent(#ResourcePanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem1) Manage(#ResourcesHeading) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ResourcePanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem2) Alignment(TopLeft) Column(#ResourcePanelLayoutColumn2) Manage(#ResourceNameEdit) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem3) Alignment(CenterRight) Column(#ResourcePanelLayoutColumn2) Manage(#SaveAction) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow2) Sizing(None)
+    
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ResourcePanelLayoutItem4) Manage(#UploadFile) Parent(#ResourcePanelLayout) Row(#ResourcePanelLayoutRow1) Sizing(None) Column(#ResourcePanelLayoutColumn2) Alignment(TopRight) Margintop(12) Marginleft(8)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Edit Resource') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Upload a new resource file or edit the properties of this resource and then save you changes.')
+    
+    * Panels
+    
+    * Resources Panel
+    Define_Com Class(#PRIM_PANL) Name(#ResourcesPanel) Displayposition(3) Height(189) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ResourcePanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#ResourcesHeading) Caption('Resource Properties') Displayposition(2) Left(24) Parent(#ResourcesPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24) Iconalignment(CenterRight) Icon('cloud_upload') Iconcolor(Theme500)
+    Define_Com Class(#PRIM_MD.Edit) Name(#ResourceNameEdit) Caption('Resource Field') Displayposition(3) Left(24) Parent(#ResourcesPanel) Tabposition(2) Top(56) Width(830)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SaveAction) Caption('SAVE') Displayposition(4) Left(754) Parent(#ResourcesPanel) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(141) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_WEB.FilePicker) Name(#UploadFile) Displayposition(1) Ellipses(Word) Height(48) Left(818) Parent(#ResourcesPanel) Tabposition(4) Tabstop(False) Top(12) Verticalalignment(Center) Width(44) Style(#NavigationLinkStyle)
+    
+    * So we can hear events
+    Define_Com Class(#BPFSystemSettingResourceClass) Name(#CurrentResource) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #PortalSettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFSystemSettingsDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get portal logging settings
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    * Get Reference to logging data client
+    #CurrentResource <= #PortalSettings.Resource<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    If (#CurrentResource *Is *Null)
+    
+    #PortalSettings.GetNamedResource( #SYS_WEB.URLParameters<LANG>.value #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Else
+    
+    #PanelHeading := #STRINGS.Text<PANELHEADING.CAPTION.FORMAT>.Replace( '%%RESOURCE%%' #STRINGS.Text<(#CurrentResource.Text + 'LABEL.CAPTION')> ).Replace( '%%LANG%%' #UserLangStrings.Text<(#SYS_WEB.URLParameters<LANG>.value)> )
+    
+    * Build the screen
+    #COM_SELF.BuildSettingsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    * Rebuild List
+    If (#CurrentResource *IsNot *Null)
+    
+    #COM_SELF.BuildSettingsForPanel
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Fields
+    Evtroutine Handling(#ResourceNameEdit.Changed)
+    
+    #ResourceNameEdit.ClearError
+    #CurrentResource.Value := #ResourceNameEdit.Value
+    
+    Endroutine
+    
+    Evtroutine Handling(#UploadFile.FileSelected) File(#File)
+    
+    #CurrentResource.File := #File.Blob
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#SaveAction.Click)
+    
+    If (#ResourceNameEdit.Value.IsNull.Isfalse)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Save the data
+    #CurrentResource.Save( #SYS_WEB.URLParameters<LANG>.value )
+    
+    Else
+    
+    #ResourceNameEdit.ShowError( #STRINGS.Text<RESOURCENAMEEDIT.SHOWERROR> )
+    
+    Endif
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#PortalSettings.OnGetResourceCompleted)
+    
+    #CurrentResource <= #PortalSettings.Resource<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    #PanelHeading := #STRINGS.Text<PANELHEADING.CAPTION.FORMAT>.Replace( '%%RESOURCE%%' #STRINGS.Text<(#CurrentResource.Text + 'LABEL.CAPTION')> ).Replace( '%%LANG%%' #UserLangStrings.Text<(#SYS_WEB.URLParameters<LANG>.value)> )
+    
+    * Build the screen
+    #COM_SELF.BuildSettingsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#PortalSettings.OnGetResourceFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<PORTALSETTINGS.ONGETRESOURCESFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnSaveCompleted)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONSAVECOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentResource.OnSaveFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTRESOURCE.ONSAVEFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    * #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #RESOURCESHEADING.CAPTION := #STRINGS.Text<RESOURCESHEADING.CAPTION>
+    #SAVEACTION.CAPTION := #STRINGS.Text<SAVEACTION.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSettingsForPanel) Access(*PRIVATE)
+    
+    * Populate the settings
+    #ResourceNameEdit.Caption := #STRINGS.Text<(#CurrentResource.Text + 'LABEL.CAPTION')>
+    #ResourceNameEdit.Value := #CurrentResource.Value
+    
+    Endroutine
+    
+    End_Com

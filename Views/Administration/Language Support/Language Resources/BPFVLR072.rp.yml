@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFPortalLocaleUploadViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Locale Upload View Strings"
+
+  - JPN:
+      Description:        "Portal Locale Upload View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Upload Locale Settings"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Upload a new locale settings file that will replace the current settings."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Upload"
+    #STRINGSCOLLECTION<'WARNINGTEXT.CAPTION'> := "Warning : You are about to upload a locale settings file to the portal. All current locale settings will be replaced. This may cause the functions and controls within the portal and runtime to stop working if they are not correct. It is recommended that you export the current locale settings first jusy in case issues are encountered."
+    
+    #STRINGSCOLLECTION<'RESOURCES.ONGETLANGUAGEOPTIONSFAILED'> := "Failed to get the portal languages"
+    
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONUPLOADLOCALESETTINGSCOMPLETED'> := "Upload completed"
+    #STRINGSCOLLECTION<'CURRENTLANGUAGE.ONUPLOADLOCALESETTINGSFAILED'> := "Failed to upload locale file"
+    
+    Endroutine
+    
+    End_Com

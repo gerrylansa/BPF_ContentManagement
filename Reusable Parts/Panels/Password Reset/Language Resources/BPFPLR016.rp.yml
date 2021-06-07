@@ -1,0 +1,45 @@
+﻿Reusable Part:
+  Name:               BPFPasswordResetNewEntryPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password Reset New Entry Panel Strings"
+
+  - JPN:
+      Description:        "Password Reset New Entry Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Enter your new %%APP%% password"
+    #STRINGSCOLLECTION<'SECONDARINSTRUCTION.CAPTION'> := "Enter your new password and then confirm it's entry"
+    
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.CAPTION'> := "New Password"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.CAPTION'> := "Confirm"
+    
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. Just be sure to keep this information somewhere safe."
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Next"
+    
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.ERROR.BLANK'> := "Please enter your password"
+    #STRINGSCOLLECTION<'NEWPASSWORDEDIT.ERROR.WEAK'> := "This password is to weak"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.ERROR.BLANK'> := "Please confirm your password"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORDEDIT.ERROR.NOMATCH'> := "The passwords do not match"
+    
+    Endroutine
+    
+    End_Com

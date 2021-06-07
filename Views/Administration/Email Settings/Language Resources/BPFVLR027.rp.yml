@@ -1,0 +1,35 @@
+﻿Reusable Part:
+  Name:               BPFEmailTemplatePreviewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Email Template Preview Strings"
+
+  - JPN:
+      Description:        "Email Template Preview Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Preview"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "This is a preview of how email template might look to the end user as email clients can vary in how they display HTML emails. You can customise this email by clicking on the edit icon."
+    
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONLOADEMAILTEMPLATEFAILED'> := "Failed to load template"
+    #STRINGSCOLLECTION<'CURRENTTEMPLATE.ONLOADFAILED'> := "Failed to load template"
+    
+    Endroutine
+    
+    End_Com

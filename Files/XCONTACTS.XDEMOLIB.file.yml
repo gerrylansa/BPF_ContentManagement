@@ -1,0 +1,399 @@
+﻿File:
+  Name:                           xContacts
+  File Type:                      PC Other File
+  Library:                        XDEMOLIB
+  Record Format Name:             XCONTACTS
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            No
+  Create RRNO Column:             No
+  Auto RRNO Is Fixed:             No
+  Convert Special Characters:     Yes
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "xContacts"
+
+  Real Fields:
+  - XCONTACTI:
+      Type:               Integer
+      Length:             4
+      Decimals:           0
+      Identity Column:    Yes
+
+      PC Column Data:
+        Name:               xContactIdentification
+        Data Type:          4
+        Precision:          10
+        Length:             4
+        Scale:              0
+        Radix:              10
+        Nullable:           0
+
+  - XCONTACTT:
+      Type:               NVarChar
+      Length:             40
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactTitle
+        Data Type:          -8
+        Precision:          40
+        Length:             80
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTL:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactLastName
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTF:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactFirstName
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTG:
+      Type:               Char
+      Length:             15
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactGender
+        Data Type:          1
+        Precision:          15
+        Length:             15
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTE:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactEmailAddress
+        Data Type:          -9
+        Precision:          200
+        Length:             400
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTM:
+      Type:               Char
+      Length:             15
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactMobilePhone
+        Data Type:          1
+        Precision:          15
+        Length:             15
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTH:
+      Type:               Char
+      Length:             15
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactHomePhone
+        Data Type:          1
+        Precision:          15
+        Length:             15
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACT1:
+      Type:               Char
+      Length:             15
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactFaxNumber
+        Data Type:          1
+        Precision:          15
+        Length:             15
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTB:
+      Type:               Char
+      Length:             15
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactBusinessPhone
+        Data Type:          1
+        Precision:          15
+        Length:             15
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTN:
+      Type:               NVarChar
+      Length:             2000
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactNotes
+        Data Type:          -9
+        Precision:          2000
+        Length:             4000
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTP:
+      Type:               NVarChar
+      Length:             255
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactPhoto
+        Data Type:          -9
+        Precision:          255
+        Length:             510
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACT2:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactInterests
+        Data Type:          -9
+        Precision:          200
+        Length:             400
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACT3:
+      Type:               Date
+      Length:             10
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactBirthdate
+        Data Type:          91
+        Precision:          10
+        Length:             6
+        Scale:              0
+        Radix:              -1
+        Nullable:           1
+
+  - XCONTACT4:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactHometown
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTC:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactCity
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTJ:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactJobTitle
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACT5:
+      Type:               NVarChar
+      Length:             50
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactCompany
+        Data Type:          -9
+        Precision:          50
+        Length:             100
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACTA:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactAddress
+        Data Type:          -9
+        Precision:          200
+        Length:             400
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - XCONTACT6:
+      Type:               NVarChar
+      Length:             500
+      Decimals:           0
+
+      PC Column Data:
+        Name:               xContactCompanySite
+        Data Type:          -9
+        Precision:          500
+        Length:             1000
+        Scale:              -1
+        Radix:              -1
+        Nullable:           0
+
+  - X@UPID1:
+      Type:               Signed
+      Length:             7
+      Decimals:           0
+
+      PC Column Data:
+        Name:               @@UPID
+        Data Type:          3
+        Precision:          7
+        Length:             9
+        Scale:              0
+        Radix:              10
+        Nullable:           0
+
+  Primary Keys:
+  - XCONTACTI
+
+  Logical Views:
+  - PK__xContact__47581F0B2BD6739E:
+      Identifier:         PKXXXCONTA
+      Unique Key:         Yes
+      Access Path:        Immediate
+      Dynamic Select:     No
+      Parameters:         " "
+
+      Multilingual Details:
+      - ENG:
+          Description:        "External File, 'XCONTACTS'"
+
+      Keys:
+      - XCONTACTI:
+          Key Order:          Ascending
+          Numeric Ordering:   Signed
+
+  - xContactsByName:
+      Identifier:         XCONTACTSB
+      Unique Key:         No
+      Access Path:        Immediate
+      Dynamic Select:     No
+      Parameters:         " "
+
+      Multilingual Details:
+      - ENG:
+          Description:        "External File, 'XCONTACTS'"
+
+      Keys:
+      - XCONTACTL:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+      - XCONTACTF:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  Other File Definition:
+    Table:              xContacts
+    Owner:              XDEMOLIB
+    Database Type:      MSSQLS
+    Qualifier:          V15
+    Data Source:        V15
+    Encrypted:          Yes
+    Read-only File:     No
+    Add LOB Columns:    No
+    Quote Character:    "\""
+
+    Connection Parameters: |
+      2D30E9FF2CCDF41A356345ED4AE952927BA3C347617ADC377A3760F6F3DEF4D44D531AF8FFC5C8622D1CF0E5B408CD345785
+      FB89715980C249182CC1EE406D035B4B9D8F5605B5C4D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A4
+      7D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D
+      8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595
+      D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D140
+      56A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A4
+      7D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D
+      8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595
+      D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D140
+      56A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A4
+      7D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D
+      8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595
+      D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D140
+      56A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A4
+      7D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D
+      8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595
+      D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D140
+      56A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A4
+      7D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D
+      8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595D14056A47D9D8595

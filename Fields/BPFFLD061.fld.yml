@@ -1,0 +1,38 @@
+﻿Field:
+  Name:               BPFGenericDateTime
+  Type:               DateTime
+  Length:             26
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - ISO
+  - SUTC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Generic Date Time"
+      Label:              "Generic Date Ti"
+      Heading1:           "Generic"
+      Heading2:           "Date"
+      Heading3:           "Time"
+
+  - JPN:
+      Description:        "Generic Date Time"
+      Label:              "Generic Date Ti"
+      Heading1:           "Generic"
+      Heading2:           "Date"
+      Heading3:           "Time"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVDT) Name(#VisualDateTime) Defaultvisual(True) Componentversion(1) Height(21) Width(581)
+    
+    End_Com
+    
+    End_Com

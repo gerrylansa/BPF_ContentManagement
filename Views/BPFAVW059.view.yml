@@ -1,0 +1,114 @@
+﻿Web View:
+  Name:               BPFPortalTermsofServiceView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Terms of Service View"
+
+  - JPN:
+      Description:        "Portal Terms of Service View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalTermsofServiceViewString) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8)
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(65) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout) Height(372) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Manage(#TermsPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(ContentHeightFitToWidth) Column(#LayoutColumn3) Alignment(TopLeft) Margintop(24)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#TermsPanelLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TermsPanelLayoutColumn1) Displayposition(1) Parent(#TermsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TermsPanelLayoutColumn2) Displayposition(2) Parent(#TermsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#TermsPanelLayoutColumn3) Displayposition(3) Parent(#TermsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#TermsPanelLayoutRow3) Displayposition(1) Parent(#TermsPanelLayout) Height(322) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#TermsPanelLayoutRow1) Displayposition(2) Parent(#TermsPanelLayout) Height(24) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#TermsPanelayoutItem1) Manage(#TermsPage) Parent(#TermsPanelLayout) Row(#TermsPanelLayoutRow3) Sizing(ContentHeightFitToWidth) Column(#TermsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Caption('Terms of Service') Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(10) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True)
+    
+    Define_Com Class(#PRIM_PANL) Name(#TermsPanel) Displayposition(3) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(113) Width(880) Height(348) Layoutmanager(#TermsPanelLayout) Style(#RoundedCornerStyle) Themedrawstyle('Card')
+    Define_Com Class(#PRIM_WEB.HtmlContainer) Name(#TermsPage) Description('Web Page') Displayposition(1) Height(298) Parent(#TermsPanel) Tabposition(1) Tabstop(False) Width(830) Left(24) Top(24)
+    
+    * References
+    
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    
+    #COM_SELF.GetTermsPage
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Methods
+    
+    * Get Terms Page
+    Mthroutine Name(GetTermsPage) Access(*PRIVATE)
+    
+    * Define Local request object
+    Define_Com Class(#prim_web.HttpRequest) Name(#Request)
+    
+    * Set request path
+    #Request.Url := 'content/' + #Browser.UserLanguage + '/myPortalterms.html'
+    
+    * Make Request
+    #Request.ExecuteAsync
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    #TermsPage.html := #Request.Response.Content
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed)
+    
+    #TermsPage.Html := '<h3>' + #STRINGS.Text<TERMSPAGE.FAILED> + '</h3>'
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

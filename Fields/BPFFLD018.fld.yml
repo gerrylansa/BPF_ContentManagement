@@ -1,0 +1,35 @@
+﻿Field:
+  Name:               BPFCodeDescription
+  Type:               NVarChar
+  Length:             4096
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Code Description"
+      Label:              "Code Descriptio"
+      Heading1:           "Code"
+      Heading2:           "Description"
+
+  - JPN:
+      Description:        "Code Description"
+      Label:              "Code Descriptio"
+      Heading1:           "Code"
+      Heading2:           "Description"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

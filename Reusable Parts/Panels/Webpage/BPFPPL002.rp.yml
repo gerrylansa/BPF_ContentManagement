@@ -1,0 +1,144 @@
+﻿Reusable Part:
+  Name:               BPFPortalUserOverflowMenu
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Overflow Menu for User Actions"
+
+  - JPN:
+      Description:        "Portal Overflow Menu for User Actions"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PPNL) Caption('Caption') Closebutton(True) Left(0) Height(228) Top(0) Layoutmanager(#Layout) Width(300) Themedrawstyle('Card') Style(#RoundedCard)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Fontweight(Weight500)
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCard) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumnLeft) Displayposition(1) Parent(#Layout) Units(Pixels) Width(20)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(2) Parent(#Layout) Units(Pixels) Width(96)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(3) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumnRight) Displayposition(4) Parent(#Layout) Units(Pixels) Width(20)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRowTop) Displayposition(1) Parent(#Layout) Height(20) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(2) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(3) Parent(#Layout) Height(56) Units(Pixels)
+    
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#Avatar) Parent(#Layout) Row(#LayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Column(#LayoutColumn1) Manage(#SignOutAction) Parent(#Layout) Row(#LayoutRow2) Sizing(FitToWidth) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#UserFullname) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#UserEmailText) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem5) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#ViewAccountAction) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToWidth) Marginbottom(8) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem6) Alignment(TopLeft) Column(#LayoutColumnLeft) Manage(#SectionColour) Parent(#Layout) Row(#LayoutRow2) Columnspan(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem7) Manage(#UserLanguage) Parent(#Layout) Row(#LayoutRow1) Sizing(None) Column(#LayoutColumn1) Columnspan(2) Alignment(BottomCenter) Marginbottom(12)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(1) Height(72) Icon('person') Left(20) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('MediumTitle+Rounded') Top(20) Width(72) Iconheight(72)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SignOutAction) Caption('Sign out') Displayposition(2) Left(20) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Borders1+ForegroundTheme') Top(182) Height(32) Opacity(87) Width(258)
+    Define_Com Class(#PRIM_MD.Label) Name(#UserFullname) Caption('Users Fullname') Displayposition(3) Left(116) Parent(#COM_OWNER) Tabposition(4) Top(20) Height(21) Width(162) Wordwrap(True) Themedrawstyle('Strong')
+    Define_Com Class(#PRIM_MD.Label) Name(#UserEmailText) Caption('user.fullname@lansa.com.au') Displayposition(4) Left(116) Parent(#COM_OWNER) Tabposition(5) Top(41) Height(19) Width(162) Themedrawstyle('Subheading') Wordwrap(True)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#ViewAccountAction) Caption('myPortal Account') Displayposition(5) Left(116) Parent(#COM_OWNER) Tabposition(6) Themedrawstyle('MediumTitle+Subheading') Top(68) Width(162) Style(#Style1)
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#UserLanguage) Parent(#COM_OWNER) Displayposition(7) Top(110) Left(67)
+    Define_Com Class(#PRIM_MD.Label) Name(#SectionColour) Displayposition(6) Left(0) Parent(#COM_OWNER) Tabposition(7) Top(170) Height(56) Width(298) Themedrawstyle('Back(248,248,248,1)+TopDivider')
+    
+    * Reference for events
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to current user
+    #CurrentUser <= #Session.CurrentUser
+    
+    * Set Action
+    #ViewAccountAction.Caption := #BPFPortal.AppName + ' Account'
+    #SignOutAction.Caption := #BPFPortal.AppSignout
+    
+    #COM_SELF.Populate
+    
+    Endroutine
+    
+    
+    Evtroutine Handling(#CurrentUser.OnSetAccountDetailsCompleted)
+    
+    * Update user info
+    #UserFullname.Caption := #Session.CurrentUser.FullName
+    #UserEmailText.Caption := #Session.CurrentUser.EmailAdress
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare) Left(#left) Top(#top)
+    
+    #Top := #BPFPortal.AppBar.Height - 8
+    #left := (#SYS_WEB.WebPage.Width - #COM_SELF.Width) - 16
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #SectionColour.ThemeDrawStyle := 'Back(248,248,248,1)+TopDivider'
+    
+    Else
+    
+    #SectionColour.ThemeDrawStyle := 'Back(96,96,96,1)+TopDivider'
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ViewAccountAction.Click)
+    
+    #Navigate.BackToTarget( ROOT USERACCOUNTPROFILEVIEW False )
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserLanguage.Changed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Set the override in localStorage
+    #Browser.UserLanguage := #UserLanguage.Control
+    #Session.Message.SendAction( BROWSERRELOAD )
+    
+    #Browser.Reload
+    
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#SignOutAction.Click)
+    
+    #Navigate.BackToTarget Target(INITIAL)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Mthroutine Name(Populate)
+    
+    * Set Link Style
+    #SignOutAction.styles.Add( #NavigationLinkStyle )
+    #ViewAccountAction.styles.Add( #NavigationLinkStyle )
+    
+    * Set Avatar
+    #Avatar.Icon := #Session.CurrentUser.IconName
+    
+    * user
+    #UserFullname.Caption := #Session.CurrentUser.FullName
+    #UserEmailText.Caption := #Session.CurrentUser.EmailAdress
+    
+    * Language
+    #UserLanguage.Control.PromptPosition := Bottom
+    #UserLanguage.Control := #Browser.UserLanguage
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,38 @@
+Transfer Settings
+
+Export or import the settings used by the portal
+
+Import
+
+Upload portal settings from an export file.
+
+Import settings
+
+Export
+
+Download the portal settings to an export file.
+
+Export settings
+
+These settings can affect the portals operation. So be sure you understand the impact of the change.
+
+
+
+*Language Support
+Define_Com Class(#BPFadminTransferSettingsViewStrings) Name(#Strings)
+
+#COM_SELF.SetStrings
+
+Mthroutine Name(SetStrings)
+
+#PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+#PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+#IMPORTCARD.HEADING := #STRINGS.Text<IMPORTCARD.HEADING>
+#IMPORTCARD.TEXT := #STRINGS.Text<IMPORTCARD.TEXT>
+#IMPORTCARD.ACTION := #STRINGS.Text<IMPORTCARD.ACTION>
+#EXPORTCARD.HEADING := #STRINGS.Text<EXPORTCARD.HEADING>
+#EXPORTCARD.TEXT := #STRINGS.Text<EXPORTCARD.TEXT>
+#EXPORTCARD.ACTION := #STRINGS.Text<EXPORTCARD.ACTION>
+#FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>
+
+Endroutine

@@ -1,0 +1,51 @@
+﻿Reusable Part:
+  Name:               BPFSettingsUserProfileEditStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Setting User Profile Edit View Strings"
+
+  - JPN:
+      Description:        "Setting User Profile Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit Profile"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enter the information about yourself that you would like to share with %%APP%%. You are the only one who is able to change this information"
+    
+    #STRINGSCOLLECTION<'SECURITYDETAILSPANELHEADING.CAPTION'> := "Your Profile"
+    
+    #STRINGSCOLLECTION<'JOBTITLEEDIT.CAPTION'> := "Job Title"
+    #STRINGSCOLLECTION<'COMPANYNAMEEDIT.CAPTION'> := "Company"
+    #STRINGSCOLLECTION<'ADDRESSLINE1EDIT.CAPTION'> := "Unit / Level"
+    #STRINGSCOLLECTION<'ADDRESSLINE2EDIT.CAPTION'> := "Street Address"
+    #STRINGSCOLLECTION<'SUBURBEDIT.CAPTION'> := "Suburb"
+    #STRINGSCOLLECTION<'POSTCODEEDIT.CAPTION'> := "Post Code"
+    #STRINGSCOLLECTION<'COUNTRYEDIT.CONTROL.CAPTION'> := "Country"
+    #STRINGSCOLLECTION<'STATEEDIT.CONTROL.CAPTION'> := "State"
+    #STRINGSCOLLECTION<'BIRTHDAYEDIT.CAPTION'> := "Birthday"
+    #STRINGSCOLLECTION<'PHONENUMBEREDIT.CAPTION'> := "Phone"
+    
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'MESSAGES.DATALOADFAILED'> := "Failed to get profile data"
+    #STRINGSCOLLECTION<'MESSAGES.SAVECOMPLETED'> := "Profile updated"
+    #STRINGSCOLLECTION<'MESSAGES.SAVEFAILED'> := "FAILED to update profile."
+    
+    Endroutine
+    
+    End_Com

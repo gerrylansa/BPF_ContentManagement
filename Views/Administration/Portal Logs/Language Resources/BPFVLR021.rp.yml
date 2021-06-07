@@ -1,0 +1,65 @@
+﻿Reusable Part:
+  Name:               BPFPortalLogControlViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Log Control View Strings"
+
+  - JPN:
+      Description:        "Portal Log Control View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Manage Portal Logging"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "You are able to choose if the portal enables logging for all modules, or just the module you need should you need to track down any problems. It is recommend logging is left off unless required, so only enabled what you need for shortest time possible."
+    
+    #STRINGSCOLLECTION<'EVERYTHINGPANELHEADING.CAPTION'> := "System Wide"
+    #STRINGSCOLLECTION<'EVERYTHINGLISTSWITCH.CAPTION.ALL'> := "All logs"
+    
+    #STRINGSCOLLECTION<'PROCESSESPANELHEADING.CAPTION'> := "Cleanup Porcesses"
+    #STRINGSCOLLECTION<'PROCESSESLISTSWITCH.CAPTION.BANNED'> := "Clear banned addresses"
+    #STRINGSCOLLECTION<'PROCESSESLISTSWITCH.CAPTION.REQUESTS'> := "Request validation data"
+    #STRINGSCOLLECTION<'PROCESSESLISTSWITCH.CAPTION.RUNTIME'> := "Keep runtime logs"
+    
+    #STRINGSCOLLECTION<'EMAILLOGSPANELHEADING.CAPTION'> := "Email Sending"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.CREATED'> := "On account created"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.FORGET'> := "On forget password"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.DISABLED'> := "On account disabled"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.PASSWORD'> := "On password changes"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.VERIFICATION'> := "On user verification"
+    #STRINGSCOLLECTION<'EMAILLOGSLISTSWITCH.CAPTION.SECURITY'> := "On security detail changes"
+    
+    #STRINGSCOLLECTION<'DATACALLSLOGSPANELHEADING.CAPTION'> := "Data Calls"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR001'> := "For session data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR002'> := "For account data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR003'> := "For logging data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR004'> := "For email settings data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR005'> := "For system codes"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR006'> := "For security data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR007'> := "For analytics data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR008'> := "For settings data"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR009'> := "For user administration"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR010'> := "For language resources"
+    #STRINGSCOLLECTION<'DATACALLSLOGSLISTSWITCH.CAPTION.BPFSVR011'> := "For content sharing"
+    
+    #STRINGSCOLLECTION<'LOGGINGDATA.ONGETPORTALLOGGINGCONTROLSETTINGSFAILED'> := "Failed to get settings"
+    #STRINGSCOLLECTION<'CURRENTSETTING.ONSAVECOMPLETED'> := "Setting saved"
+    #STRINGSCOLLECTION<'CURRENTSETTING.ONSAVEFAILED'> := "FAILED to save settings"
+    
+    Endroutine
+    
+    End_Com

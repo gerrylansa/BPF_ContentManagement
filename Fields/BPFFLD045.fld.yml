@@ -1,0 +1,33 @@
+﻿Field:
+  Name:               BPFGenericCLOB
+  Type:               CLOB
+  Length:             0
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Generic CLOB"
+      Label:              "Portal Generic"
+      Heading1:           "Portal"
+      Heading2:           "Generic"
+      Heading3:           "CLOB"
+
+  - JPN:
+      Description:        "Portal Generic CLOB"
+      Label:              "Portal Generic"
+      Heading1:           "Portal"
+      Heading2:           "Generic"
+      Heading3:           "CLOB"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    End_Com

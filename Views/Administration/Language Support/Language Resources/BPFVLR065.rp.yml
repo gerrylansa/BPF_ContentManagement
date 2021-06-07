@@ -1,0 +1,57 @@
+﻿Reusable Part:
+  Name:               BPFLanguageResourceListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Resource List View Strings"
+
+  - JPN:
+      Description:        "Language Resource List View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Edit Language Resources"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "To edit a language resource first find and then select the language resource"
+    
+    #STRINGSCOLLECTION<'SEARCH.PLACEHOLDER'> := "Search for resource by idenifier, name or description..."
+    #STRINGSCOLLECTION<'ALLTABITEM.CAPTION'> := "All"
+    #STRINGSCOLLECTION<'VIEWSTABITEM.CAPTION'> := "Views"
+    #STRINGSCOLLECTION<'DIALOGSTABITEM.CAPTION'> := "Dialog"
+    #STRINGSCOLLECTION<'MENUSTABITEM.CAPTION'> := "Menus"
+    #STRINGSCOLLECTION<'PANELSTABITEM.CAPTION'> := "Panels"
+    #STRINGSCOLLECTION<'CODESTABITEM.CAPTION'> := "Codes"
+    #STRINGSCOLLECTION<'APPTABITEM.CAPTION'> := "Portal"
+    #STRINGSCOLLECTION<'EVENTSTABITEM.CAPTION'> := "Events"
+    
+    #STRINGSCOLLECTION<'RESOURCELISTACTIONLABEL.CAPTION.LOAD'> := "Loading resources..."
+    #STRINGSCOLLECTION<'RESOURCELISTACTIONLABEL.CAPTION.LIMIT'> := "Refine search to view more resources"
+    #STRINGSCOLLECTION<'RESOURCELISTACTIONLABEL.CAPTION.EMPTY'> := "No resources found"
+    #STRINGSCOLLECTION<'RESOURCELISTACTIONLABEL.CAPTION.MORE'> := "Load more"
+    
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.VIEW'> := "View"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.DIALOG'> := "Dialog"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.PANEL'> := "Panel"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.CODES'> := "Codes"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.EVENTS'> := "Events"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.APPLICATION'> := "Portal"
+    #STRINGSCOLLECTION<'RESOURCEITEM.TYPE.MENU'> := "Menu"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here affect the text strings used in the portal, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

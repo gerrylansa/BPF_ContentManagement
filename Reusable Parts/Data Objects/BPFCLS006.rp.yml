@@ -1,0 +1,169 @@
+﻿Reusable Part:
+  Name:               BPFFileSystemObjectDataItem
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "File System Data Class"
+
+  - JPN:
+      Description:        "File System Data Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Field List Mapping
+    Group_By Name(#ListFields) Fields(#BPFFileServiceFullName #BPFFileServiceFilePrefix #BPFFileServiceFileSuffix #BPFFileServiceFileDate #BPFFileServiceFileTime #BPFFileServiceFileSize #BPFFileServiceFileDirectory)
+    
+    * Global References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(FullName) Get(GetFileFullname)
+    Define_Pty Name(Prefix) Get(GetFilePrefix)
+    Define_Pty Name(Suffix) Get(*AUTO #BPFFileServiceFileSuffix)
+    Define_Pty Name(DateTime) Get(GetFileDateTime)
+    Define_Pty Name(SizeKB) Get(GetFileSizeInKiloBytes)
+    Define_Pty Name(IsFolder) Get(GetIsFolder)
+    
+    Define_Pty Name(Contents) Get(*AUTO #Contents)
+    
+    * Events
+    Define_Evt Name(OnLoadContentsCompleted)
+    Define_Evt Name(OnLoadContentsFailed)
+    
+    * Objects
+    
+    * Variables
+    Define_Com Class(#PRIM_WEB.ClobReader) Name(#Reader)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Contents)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetFileDateTime)
+    Define_Map For(*OUTPUT) Class(#PRIM_DAT) Name(#Property)
+    
+    #Property := (#BPFFileServiceFileDate + #BPFFileServiceFileTime).AsDateTime( CCYYMMDDHHMMSS )
+    
+    Endroutine
+    
+    Ptyroutine Name(GetFileSizeInKiloBytes)
+    Define_Map For(*OUTPUT) Class(#PRIM_NMBR) Name(#Property)
+    
+    #Property := (#BPFFileServiceFileSize / 1024).Round( HalfUp )
+    
+    Endroutine
+    
+    Ptyroutine Name(GetIsFolder)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    #Property := #BPFFileServiceFileDirectory.AsBoolean( N Y )
+    
+    Endroutine
+    
+    Ptyroutine Name(GetFileFullname)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#BPFFileServiceFullName.IsNull)
+    
+    #BPFFileServiceFullName := 'x_err.log'
+    
+    Endif
+    
+    #Property := #BPFFileServiceFullName
+    
+    Endroutine
+    
+    Ptyroutine Name(GetFilePrefix)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#BPFFileServiceFilePrefix.IsNull)
+    
+    #BPFFileServiceFilePrefix := 'Runtime Log'
+    
+    Endif
+    
+    #Property := #BPFFileServiceFilePrefix
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#Reader.Completed) Data(#Data)
+    
+    #Contents := #Data
+    
+    * Signal
+    Signal Event(OnLoadContentsCompleted)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(LoadContents)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RequestPath) Mandatory(*NULL)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLoggingDataServer.GetFileContents) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Logfullname(#COM_SELF.FullName) Forpath(#RequestPath) Filecontents(#BPFGenericCLOB) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    * Convert
+    #Reader.Read( #BPFGenericCLOB )
+    
+    Else
+    
+    Signal Event(OnLoadContentsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadContentsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(Download)
+    
+    #Browser.Download( #BPFGenericCLOB #BPFFileServiceFullName )
+    
+    Endroutine
+    
+    Mthroutine Name(DefaultConstructor) Options(*CONSTRUCTOR)
+    Endroutine
+    
+    Mthroutine Name(Create) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#BPFFileServiceFullName) Name(#NewFileName)
+    
+    * Set Some Value to defaulys
+    #BPFFileServiceFileSize := 0
+    #BPFFileServiceFileDate := *SQLNULL
+    #BPFFileServiceFileDirectory := N
+    
+    * Dervie Prefix & Suffix
+    If (#NewFileName.IsNull.IsFalse)
+    
+    #BPFFileServiceFilePrefix := #NewFileName.Substring( 1 (#NewFileName.LastPositionOf( '.' ) - 1) )
+    #BPFFileServiceFileSuffix := #NewFileName.Substring( (#NewFileName.LastPositionOf( '.' ) + 1) )
+    
+    Endif
+    
+    * Set File
+    #BPFFileServiceFullName := #NewFileName
+    
+    Endroutine
+    
+    End_Com

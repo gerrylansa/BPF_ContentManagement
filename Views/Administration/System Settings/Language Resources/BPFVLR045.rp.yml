@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFAdminTransferSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin of Transfer Settings View Strings"
+
+  - JPN:
+      Description:        "Admin of Transfer Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Transfer Settings"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Export or import the settings used by the portal"
+    
+    #STRINGSCOLLECTION<'IMPORTCARD.HEADING'> := "Import"
+    #STRINGSCOLLECTION<'IMPORTCARD.TEXT'> := "Upload portal settings from an export file."
+    #STRINGSCOLLECTION<'IMPORTCARD.ACTION'> := "Import settings"
+    
+    #STRINGSCOLLECTION<'EXPORTCARD.HEADING'> := "Export"
+    #STRINGSCOLLECTION<'EXPORTCARD.TEXT'> := "Download the portal settings to an export file."
+    #STRINGSCOLLECTION<'EXPORTCARD.ACTION'> := "Export settings"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "These settings can affect the portals operation. So be sure you understand the impact of the change."
+    
+    Endroutine
+    
+    End_Com

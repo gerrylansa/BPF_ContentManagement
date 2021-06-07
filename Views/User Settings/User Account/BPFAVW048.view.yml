@@ -1,0 +1,381 @@
+﻿Web View:
+  Name:               BPFUserAccountProfileView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Account Profile  View"
+
+  - JPN:
+      Description:        "Portal User Account Profile  View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(1128) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout)
+    
+    * Note for this view : This view's control captions are generic to ensure they are not the same as the incoming text for the current language. If a control has the same text as the incoming text, it can cause the view to appear to "jump".
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFUserAccountProfileStrings) Name(#Strings)
+    
+    * Panel Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main Panel Layouts
+    
+    * Desktop
+    Define_Com Class(#PRIM_TBLO) Name(#MainDesktopLayout) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(44) Minwidth(140) Maxwidth(420)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn4) Displayposition(3) Parent(#MainDesktopLayout) Width(44) Minwidth(140) Maxwidth(420)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn5) Displayposition(4) Parent(#MainDesktopLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(220) Units(Content) Minheight(220)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow2) Displayposition(2) Parent(#MainDesktopLayout) Height(406) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow3) Displayposition(3) Parent(#MainDesktopLayout) Height(358) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow4) Displayposition(4) Parent(#MainDesktopLayout) Units(Pixels) Height(120)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem1) Alignment(TopLeft) Column(#MainDesktopLayoutColumn2) Manage(#PanelNavigationIcon) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem2) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#Avatar) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentWidthAndHeight) Columnspan(2) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem3) Column(#MainDesktopLayoutColumn2) Manage(#PanelTitle) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Columnspan(2) Flow(Down) Alignment(TopCenter) Margintop(17) Marginleft(24) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem4) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#PanelExplanation) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow1) Sizing(ContentHeightFitToWidth) Columnspan(2) Marginleft(24) Marginright(24) Flow(Down) Margintop(29)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem5) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#AccountCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow2) Sizing(FitToWidth) Margintop(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem6) Alignment(TopCenter) Column(#MainDesktopLayoutColumn2) Manage(#ProfileCard) Parent(#MainDesktopLayout) Row(#MainDesktopLayoutRow3) Sizing(FitToWidth) Margintop(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainDesktopLayoutItem7) Column(#MainDesktopLayoutColumn2) Manage(#FooterText) Parent(#MainDesktopLayout) Sizing(ContentHeightFitToWidth) Columnspan(2) Alignment(TopCenter) Row(#MainDesktopLayoutRow4) Marginleft(24) Marginright(24) Margintop(24)
+    
+    * Account Card Layout
+    
+    Define_Com Class(#PRIM_TBLO) Name(#AccountCardLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardLayoutColumnLeft) Displayposition(1) Parent(#AccountCardLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardLayoutColumn2) Displayposition(2) Parent(#AccountCardLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardLayoutColumnRight) Displayposition(3) Parent(#AccountCardLayout) Minwidth(24)
+    
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountCardLayoutLayoutRow1) Displayposition(1) Parent(#AccountCardLayout) Height(308) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountCardLayoutLayoutRow2) Displayposition(2) Parent(#AccountCardLayout) Units(Pixels) Height(16)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountCardLayoutLayoutRow3) Displayposition(3) Parent(#AccountCardLayout) Height(56) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardLayoutItem1) Alignment(TopLeft) Column(#AccountCardLayoutColumn2) Manage(#AccountCardHeading) Parent(#AccountCardLayout) Row(#AccountCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardLayoutItem2) Alignment(TopLeft) Column(#AccountCardLayoutColumn2) Manage(#AccountCardText) Parent(#AccountCardLayout) Row(#AccountCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(4) Marginbottom(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardLayoutItem3) Alignment(TopLeft) Column(#AccountCardLayoutColumnLeft) Manage(#AccountCardAction) Parent(#AccountCardLayout) Row(#AccountCardLayoutLayoutRow3) Columnspan(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardLayoutItem4) Alignment(TopLeft) Column(#AccountCardLayoutColumn2) Manage(#AccountCardList) Parent(#AccountCardLayout) Row(#AccountCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(16)
+    
+    * List
+    Define_Com Class(#PRIM_TBLO) Name(#AccountCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardDesktopLayoutListColumn1) Displayposition(1) Parent(#AccountCardDesktopLayoutList) Units(Pixels) Width(180)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardDesktopLayoutListColumn2) Displayposition(2) Parent(#AccountCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountCardDesktopLayoutListRow1) Displayposition(1) Parent(#AccountCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardDesktopLayoutListItem1) Alignment(CenterLeft) Column(#AccountCardDesktopLayoutListColumn1) Manage(#AccountCardBackgroundLabel) Parent(#AccountCardDesktopLayoutList) Row(#AccountCardDesktopLayoutListRow1) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardDesktopLayoutListItem2) Alignment(CenterLeft) Column(#AccountCardDesktopLayoutListColumn1) Manage(#AccountCardListLabel) Parent(#AccountCardDesktopLayoutList) Row(#AccountCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardDesktopLayoutListItem3) Alignment(CenterLeft) Column(#AccountCardDesktopLayoutListColumn2) Manage(#AccountCardListValue) Parent(#AccountCardDesktopLayoutList) Row(#AccountCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#AccountCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountCardMobileLayoutListColumn1) Displayposition(1) Parent(#AccountCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountCardMobileLayoutListRow1) Displayposition(1) Parent(#AccountCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardMobileLayoutListItem1) Alignment(TopLeft) Column(#AccountCardMobileLayoutListColumn1) Manage(#AccountCardBackgroundLabel) Parent(#AccountCardMobileLayoutList) Row(#AccountCardMobileLayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardMobileLayoutListItem2) Alignment(CenterLeft) Column(#AccountCardMobileLayoutListColumn1) Manage(#AccountCardListLabel) Parent(#AccountCardMobileLayoutList) Row(#AccountCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountCardMobileSettingsListItem3) Alignment(CenterLeft) Column(#AccountCardMobileLayoutListColumn1) Manage(#AccountCardListValue) Parent(#AccountCardMobileLayoutList) Row(#AccountCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    
+    
+    * Profile Card Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ProfileCardLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardLayoutColumnLeft) Displayposition(1) Parent(#ProfileCardLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardLayoutColumn2) Displayposition(2) Parent(#ProfileCardLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardLayoutColumnRight) Displayposition(3) Parent(#ProfileCardLayout) Minwidth(24)
+    
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProfileCardLayoutLayoutRow1) Displayposition(1) Parent(#ProfileCardLayout) Height(308) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProfileCardLayoutLayoutRow2) Displayposition(2) Parent(#ProfileCardLayout) Units(Pixels) Height(12)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProfileCardLayoutLayoutRow3) Displayposition(3) Parent(#ProfileCardLayout) Units(Pixels) Height(12)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardLayoutItem1) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#ProfileCardHeading) Parent(#ProfileCardLayout) Row(#ProfileCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardLayoutItem2) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#ProfileCardText) Parent(#ProfileCardLayout) Row(#ProfileCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(4) Marginbottom(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardLayoutItem4) Alignment(TopLeft) Column(#ProfileCardLayoutColumn2) Manage(#ProfileCardList) Parent(#ProfileCardLayout) Row(#ProfileCardLayoutLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Marginbottom(16)
+    
+    * List
+    Define_Com Class(#PRIM_TBLO) Name(#ProfileCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardDesktopLayoutListColumn1) Displayposition(1) Parent(#ProfileCardDesktopLayoutList) Units(Pixels) Width(180)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardDesktopLayoutListColumn2) Displayposition(2) Parent(#ProfileCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProfileCardDesktopLayoutListRow1) Displayposition(1) Parent(#ProfileCardDesktopLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardDesktopLayoutListItem1) Alignment(CenterLeft) Column(#ProfileCardDesktopLayoutListColumn1) Manage(#ProfileCardBackgroundLabel) Parent(#ProfileCardDesktopLayoutList) Row(#ProfileCardDesktopLayoutListRow1) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardDesktopLayoutListItem2) Alignment(CenterLeft) Column(#ProfileCardDesktopLayoutListColumn1) Manage(#ProfileCardListLabel) Parent(#ProfileCardDesktopLayoutList) Row(#ProfileCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardDesktopLayoutListItem3) Alignment(CenterLeft) Column(#ProfileCardDesktopLayoutListColumn2) Manage(#ProfileCardListValue) Parent(#ProfileCardDesktopLayoutList) Row(#ProfileCardDesktopLayoutListRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#ProfileCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProfileCardMobileLayoutListColumn1) Displayposition(1) Parent(#ProfileCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProfileCardMobileLayoutListRow1) Displayposition(1) Parent(#ProfileCardMobileLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardMobileLayoutListItem1) Alignment(TopLeft) Column(#ProfileCardMobileLayoutListColumn1) Manage(#ProfileCardBackgroundLabel) Parent(#ProfileCardMobileLayoutList) Row(#ProfileCardMobileLayoutListRow1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardMobileLayoutListItem2) Alignment(CenterLeft) Column(#ProfileCardMobileLayoutListColumn1) Manage(#ProfileCardListLabel) Parent(#ProfileCardMobileLayoutList) Row(#ProfileCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProfileCardMobileSettingsListItem3) Alignment(CenterLeft) Column(#ProfileCardMobileLayoutListColumn1) Manage(#ProfileCardListValue) Parent(#ProfileCardMobileLayoutList) Row(#ProfileCardMobileLayoutListRow1) Sizing(ContentWidthAndHeight) Flow(CenterVertical)
+    
+    * Controls
+    
+    Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(430) Parent(#COM_OWNER) Tabposition(5) Top(24) Style(#NavigationLinkStyle)
+    
+    Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(2) Height(100) Icon('assignment_ind') Left(800) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('MediumTitle+Rounded') Top(24) Width(100) Iconheight(80) Iconpadding(10)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(47) Wordwrap(True) Caption('Panel Title')
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Heading2+ForegroundTheme') Top(217) Height(27) Width(792) Wordwrap(True) Captionalignment(Center) Caption('Panel explanation text')
+    
+    * Cards
+    
+    * Account
+    Define_Com Class(#PRIM_PANL) Name(#AccountCard) Displayposition(5) Left(430) Tabposition(7) Tabstop(False) Top(268) Width(840) Height(382) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#AccountCardLayout) Parent(#COM_OWNER)
+    Define_Com Class(#PRIM_MD.Label) Name(#AccountCardHeading) Displayposition(1) Left(24) Parent(#AccountCard) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(790) Height(27) Wordwrap(True) Iconalignment(CenterRight) Style(#NavigationLinkStyle) Iconcolor(Theme500) Icon('edit') Caption('Card Heading')
+    Define_Com Class(#PRIM_MD.Label) Name(#AccountCardText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(24) Parent(#AccountCard) Tabposition(2) Top(55) Width(790) Wordwrap(True) Caption('This is the cards text')
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#AccountCardAction) Displayposition(4) Left(0) Parent(#AccountCard) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Top(324) Height(56) Captionmarginleft(24) Captionalignment(CenterLeft) Icon('keyboard_arrow_right') Iconalignment(CenterRight) Style(#NavigationLinkStyle) Width(838) Iconmarginright(24) Caption('Card action')
+    
+    * Profile
+    Define_Com Class(#PRIM_PANL) Name(#ProfileCard) Displayposition(6) Left(430) Tabposition(6) Tabstop(False) Top(674) Width(840) Height(334) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ProfileCardLayout) Parent(#COM_OWNER)
+    Define_Com Class(#PRIM_MD.Label) Name(#ProfileCardHeading) Displayposition(1) Left(24) Parent(#ProfileCard) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(790) Height(27) Wordwrap(True) Iconalignment(CenterRight) Style(#NavigationLinkStyle) Iconcolor(Theme500) Icon('edit') Caption('Card Heading')
+    Define_Com Class(#PRIM_MD.Label) Name(#ProfileCardText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(24) Parent(#ProfileCard) Tabposition(2) Top(55) Width(790) Wordwrap(True) Caption('This is the cards text')
+    
+    
+    * Account List
+    Define_Com Class(#PRIM_MD.List) Name(#AccountCardList) Displayposition(3) Layoutmanager(#AccountCardDesktopLayoutList) Left(24) Parent(#AccountCard) Rowheight(56) Tabposition(3) Top(80) Height(228) Width(790)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#AccountCardBackgroundLabel) Displayposition(4) Dragstyle(None) Left(0) Parent(#AccountCardList) Tabposition(1) Themedrawstyle('card') Height(56) Top(0) Width(790) Style(#NotaCard)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#AccountCardListLabel) Caption('LABEL') Displayposition(1) Dragstyle(None) Left(0) Parent(#AccountCardList) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Height(19) Top(19) Width(156)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#AccountCardListValue) Caption('Settings Value') Displayposition(2) Dragstyle(None) Left(180) Parent(#AccountCardList) Tabposition(4) Height(26) Top(15) Width(610) Themedrawstyle('Heading3') Captionmarginbottom(3) Captionmargintop(3)
+    
+    * Profile List
+    Define_Com Class(#PRIM_MD.List) Name(#ProfileCardList) Displayposition(3) Layoutmanager(#ProfileCardDesktopLayoutList) Left(24) Parent(#ProfileCard) Rowheight(56) Tabposition(3) Top(80) Height(228) Width(790)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ProfileCardBackgroundLabel) Displayposition(4) Dragstyle(None) Left(0) Parent(#ProfileCardList) Tabposition(1) Themedrawstyle('card') Height(56) Top(0) Width(790) Style(#NotaCard)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ProfileCardListLabel) Caption('LABEL') Displayposition(1) Dragstyle(None) Left(0) Parent(#ProfileCardList) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Height(19) Top(19) Width(156)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ProfileCardListValue) Caption('Settings Value') Displayposition(2) Dragstyle(None) Left(180) Parent(#ProfileCardList) Tabposition(4) Height(26) Top(15) Width(610) Themedrawstyle('Heading3') Captionmarginbottom(3) Captionmargintop(3)
+    
+    * Footer
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterText) Captionalignment(TopCenter) Displayposition(7) Height(45) Parent(#COM_OWNER) Tabposition(4) Top(1032) Width(792) Wordwrap(True) Paddingbottom(24) Left(454) Caption('This is the footer text')
+    
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    Define_Com Class(#BPFUserProfileClass) Name(#Profile) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to current user
+    #CurrentUser <= #Session.CurrentUser
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * Set Statis Strings
+    #COM_SELF.SetStrings
+    * #PanelTitle.Caption := ('&1''s Account Info').Substitute( #Session.CurrentUser.FirstName )
+    
+    * Setup for device
+    #COM_SELF.HandleDeviceChanged
+    #COM_SELF.HandleAccountCardSetup
+    
+    * Get Profile Data
+    #CurrentUser.GetUserProfile
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    * Setup for device
+    #COM_SELF.HandleDeviceChanged
+    
+    If (#Profile *IsNot *Null)
+    
+    #COM_SELF.HandleAccountCardSetup
+    #COM_SELF.HandleProfileCardSetup
+    
+    Endif
+    
+    Endroutine
+    
+    * Panel Navigation
+    Evtroutine Handling(#PanelNavigationIcon.Click)
+    
+    * Back to Settings
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#AccountCardHeading.Click)
+    
+    * To Edit View
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To( 'USERACCOUNTEDITVIEW' )
+    
+    Endroutine
+    
+    Evtroutine Handling(#ProfileCardHeading.Click)
+    
+    * To Edit View
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To( 'USERPROFILEEDITVIEW' )
+    
+    Endroutine
+    
+    Evtroutine Handling(#AccountCardAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To Eventname(VERIFYUSERSECURITY) Value(USERSECURITYREMOVEACCOUNT)
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#CurrentUser.OnGetProfileCompleted)
+    
+    * Get a direct reference for events
+    #Profile <= #CurrentUser.Profile
+    
+    * Build Account & Profile
+    #COM_SELF.HandleProfileCardSetup
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnGetProfileFailed)
+    
+    * Show error
+    #BPFPortal.ShowToaster( #Strings.Text<MESSAGE.PROFILEDATAFAILED> 7500 )
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetStrings) Access(*PRIVATE)
+    
+    #FooterText.Caption := #Strings.Text<FOOTERTEXT.CAPTION>
+    
+    #AccountCardAction.Caption := #Strings.Text<ACCOUNTCARDACTION.CAPTION>
+    
+    #PanelTitle.Caption := #Strings.Text<PANELTITLE.CAPTION>
+    #PanelExplanation.Caption := #Strings.Text<PANELEXPLANATION.CAPTION>
+    
+    #AccountCardHeading.Caption := #Strings.Text<ACCOUNTCARDHEADING.CAPTION>
+    #AccountCardText.Caption := #Strings.Text<ACCOUNTCARDTEXT.CAPTION>
+    
+    #ProfileCardHeading.Caption := #Strings.Text<PROFILECARDHEADING.CAPTION>
+    #ProfileCardText.Caption := #Strings.Text<PROFILECARDTEXT.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged)
+    
+    * Set Layout Manager
+    * Build based on Device
+    If (#SYS_WEB.Device = Mobile)
+    
+    #AccountCardList.LayoutManager <= #AccountCardMobileLayoutList
+    #ProfileCardList.LayoutManager <= #ProfileCardMobileLayoutList
+    
+    Else
+    
+    #AccountCardList.LayoutManager <= #AccountCardDesktopLayoutList
+    #ProfileCardList.LayoutManager <= #ProfileCardDesktopLayoutList
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleAccountCardSetup) Access(*PRIVATE)
+    
+    * Prime the account card
+    If (#AccountCardList.Items.IsEmpty.IsFalse)
+    Clr_List Named(#AccountCardList)
+    Endif
+    
+    * Add Email
+    #COM_SELF.AddAccountCardItem( #Strings.Text<ACCOUNTCARDEMAILFIELD.LABEL> #Session.CurrentUser.EmailAdress )
+    #COM_SELF.AddAccountCardItem( #Strings.Text<ACCOUNTCARDNAMEFIELD.LABEL> #Session.CurrentUser.FullName )
+    
+    Endroutine
+    
+    Mthroutine Name(AddAccountCardItem) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Label)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    * Insert Item
+    Add_Entry To_List(#AccountCardList)
+    
+    * Format Item
+    #AccountCardListLabel.CurrentItem.Caption := #Label
+    #AccountCardListValue.CurrentItem.Caption := #Value
+    
+    Endroutine
+    
+    Mthroutine Name(HandleProfileCardSetup) Access(*PRIVATE)
+    
+    * Do not action display if the current user is null
+    If (#CurrentUser *Is *NULL)
+    
+    Return
+    
+    Endif
+    
+    * Prime the account card
+    If (#ProfileCardList.Items.IsEmpty.IsFalse)
+    Clr_List Named(#ProfileCardList)
+    Endif
+    
+    * Add Email
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDCOMPANYFIELD.LABEL> #Profile.ProfileCompany )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDJOBFIELD.LABEL> #Profile.JobTitle )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDADDRESSFIELD.LABEL> #Profile.AddressLine1 )
+    #COM_SELF.AddProfileCardItem( *NULL #Profile.AddressLine2 )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDSUBURBFIELD.LABEL> #Profile.Suburb )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDPOSTCODEFIELD.LABEL> #Profile.PostalCode )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDSTATEFIELD.LABEL> #Profile.State )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDCOUNTRYFIELD.LABEL> #Profile.CountryDescription )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDBITHDAYFIELD.LABEL> #Profile.BirthDate.AsDisplayString( DDsMMsCCYY ) )
+    #COM_SELF.AddProfileCardItem( #Strings.Text<PROFILECARDPHONEFIELD.LABEL> #Profile.PhoneNumber )
+    
+    Endroutine
+    
+    Mthroutine Name(AddProfileCardItem) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Label)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    * If blank, then dont worry about showing
+    If (#Value.IsNull)
+    Return
+    Endif
+    
+    * Insert Item
+    If (#Label.IsNull.IsFalse)
+    
+    * Insert Item
+    Add_Entry To_List(#ProfileCardList)
+    
+    * Format Item
+    #ProfileCardListLabel.CurrentItem.Caption := #Label
+    #ProfileCardListValue.CurrentItem.Caption := #Value
+    
+    Else
+    
+    * Update Current Item
+    #ProfileCardListValue.CurrentItem.Caption += (10).AsUnicodeString + #Value
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

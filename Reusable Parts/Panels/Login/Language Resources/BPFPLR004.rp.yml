@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFLoginUserPasswordPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Login User Password Panel Strings"
+
+  - JPN:
+      Description:        "Login User Password Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "Enter your password for %%ACCOUNT%%"
+    #STRINGSCOLLECTION<'USERPASSWORDEDIT.CAPTION'> := "Password"
+    
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "Forget Password?"
+    #STRINGSCOLLECTION<'NEXTBUTTON.CAPTION'> := "Next"
+    
+    #STRINGSCOLLECTION<'USERPASSWORDEDIT.INVALID'> := "You forgot your password"
+    
+    #STRINGSCOLLECTION<'MESSAGE.LOGINFAILED'> := "Wrong username or passsword. Try again or try forget password."
+    #STRINGSCOLLECTION<'MESSAGE.LOGINACTIVE'> := "Hmm, you are already logged in. Please logout first."
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,1428 @@
+﻿ServerModule:
+  Name:               BPFLanguageSupportDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Language Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#ErrCode) Reffld(#STD_NUM)
+    Define Field(#AlphaValue) Type(*CHAR) Length(512)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    Define Field(#ResourcesCount) Reffld(#Listcount)
+    Define Field(#StringCount) Reffld(#Listcount)
+    Define Field(#MoreResults) Type(*BOOLEAN)
+    Define Field(#SearchValue) Reffld(#BPFCodeDescription)
+    Define Field(#TypeSearchValue) Reffld(#BPFCodeGroup)
+    
+    * Data List for Resources
+    Define Field(#FileFullName) Reffld(#BPFFileServiceFullName)
+    Define Field(#FilePrefix) Reffld(#BPFFileServiceFilePrefix)
+    Define Field(#FileSuffix) Reffld(#BPFFileServiceFileSuffix)
+    Define Field(#FileFileDate) Reffld(#BPFFileServiceFileDate)
+    Define Field(#FileFileTime) Reffld(#BPFFileServiceFileTime)
+    Define Field(#FileFileSize) Reffld(#BPFFileServiceFileSize)
+    Define Field(#FileDirFlag) Reffld(#BPFFileServiceFileDirectory)
+    Define Field(#FileCount) Reffld(#Listcount)
+    
+    Def_List Name(#Contents) Fields(#FileFullName #FilePrefix #FileSuffix #FileFileDate #FileFileTime #FileFileSize #FileDirFlag) Counter(#Filecount) Type(*WORKING) Entrys(*MAX)
+    
+    
+    * Data Lists
+    * Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#ResourceList) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeAlphaValue #BPFFileServiceFileSize) Counter(#Resourcescount) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#LanguageCodes) Fields(#BPFCodeName #BPFCodeNumericValue #BPFCodeAlphaValue #BPFGenericBoolean) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#ResourceStrings) Fields(#BPFGenericNVarChar256 #BPFGenericUnicodeString01 #BPFGenericUnicodeString02) Counter(#StringCount) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#LocaleSettings) Fields(#BPFGenericNVarChar256 #BPFGenericUnicodeString01 #std_num #BPFGenericBoolean) Counter(#StringCount) Type(*WORKING) Entrys(*MAX)
+    
+    * String Collection
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#StringsCollection)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    Srvroutine Name(GetIsActive) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return
+    Field_Map For(*OUTPUT) Field(#BooleanValue) Parameter_Name(Active)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetIsActive' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    #BooleanValue := (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) <> PROD)
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Language Options
+    Srvroutine Name(GetLanguageOptions) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#LISTENTRY) Parameter_Name(DefaultIndex)
+    List_Map For(*OUTPUT) List(#LanguageCodes) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetLanguageOptions' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Get all options
+    Select Fields(#LanguageCodes) From_File(BPFSystemCodes) With_Key('LANGUAGE')
+    
+    If (#BPFCodeName = 'DEFAULT')
+    
+    #AlphaValue := #BPFCodeAlphaValue.AsNativeString
+    
+    Else
+    
+    * Check if in use
+    #BPFUserPreferenceEmailLanguage := #BPFCodeName
+    Check_For In_File(BPFPortalUserPreferencesByEmailLang) With_Key(#BPFUserPreferenceEmailLanguage)
+    #BPFGenericBoolean := (#IO£STS = EQ)
+    
+    Add_Entry To_List(#LanguageCodes)
+    
+    Endif
+    
+    Endselect
+    
+    * Locate Default and mark
+    Loc_Entry In_List(#LanguageCodes) Where(#BPFCodeName = #AlphaValue) Ret_Number(#ListEntry)
+    #BPFCodeNumericValue := 1
+    Upd_Entry In_List(#LanguageCodes)
+    
+    * Return sorted
+    Sort_List Named(#LanguageCodes) By_Fields(#BPFCodeAlphaValue)
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(CreateLanguage) Session(*REQUIRED)
+    
+    * Inbound values
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(ISOCode)
+    Field_Map For(*INPUT) Field(#BPFCodeAlphaValue) Parameter_Name(Descritpion)
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(BaseIsoCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'CreateLanguage' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Check if resources are active
+    If (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) = PROD)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : Language resouces are not active as portal is in production mode : Language not created.') )
+    Return
+    
+    Endif
+    
+    * Folder creation
+    
+    * Create web contents folder for language
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy ' + #AlphaValue + ' to ' + #BPFCodeName + ' in ' + (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ))) )
+    If (#COM_SELF.CopyLanguageDirectory( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' )) #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy ended in error. Language not created.') )
+    Return
+    
+    Endif
+    
+    * Create strings folder for language
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy ' + #AlphaValue + ' to ' + #BPFCodeName + ' in ' + (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings')) )
+    If (#COM_SELF.CopyLanguageDirectory( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings') #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy ended in error. Language not created.') )
+    Return
+    
+    Endif
+    
+    * Create templates folder for language
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy ' + #AlphaValue + ' to ' + #BPFCodeName + ' in ' + (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ))) )
+    If (#COM_SELF.CopyLanguageDirectory( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' )) #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy ended in error. Language not created.') )
+    Return
+    
+    Endif
+    
+    * LI content folder for language
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy ' + #AlphaValue + ' to ' + #BPFCodeName + ' in ' + (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).LeftMost( #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).PositionOf( (*PATHDELIM + '&1') ) ))) )
+    If (#COM_SELF.CopyLanguageDirectory( (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).LeftMost( #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).PositionOf( (*PATHDELIM + '&1') ) )) #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy ended in error. Language not created.') )
+    Return
+    
+    Endif
+    
+    * Copy locale file if needed for portal and lansa
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy locale file for runtime from ' + #AlphaValue + ' to ' + #BPFCodeName) )
+    If (#COM_SELF.CopyLocaleFile( #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy ended in error. Language not created.') )
+    Return
+    
+    Endif
+    
+    * Add new language to codes table
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to insert new language into system codes') )
+    
+    #BPFCodeGroup := 'LANGUAGE'
+    #BPFCodeSequence := 1
+    #BPFCodeNumericValue #BPFCodeDescription := *null
+    
+    Insert Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeDescription) To_File(BPFSystemCodes) Io_Error(*NEXT) Val_Error(*NEXT)
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : insert to database failed. Language not created.') )
+    Return
+    
+    Endif
+    
+    * Update language in codes JSON
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to update language code json file') )
+    If (#COM_SELF.UpdateLanguageCodeJSON.IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : update of language code failed. Language not complete.') )
+    Return
+    
+    Endif
+    
+    * Scan codes for language settings, to add new language
+    * output new language codes JSON file
+    #Utils.Log( ('LanguageSupportDataServer : CreateLanguage : Attempt to copy language codes') )
+    If (#COM_SELF.CopyLanguageCodes( #AlphaValue #BPFCodeName ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : CreateLanguage : copy of language codes. Language not complete.') )
+    Return
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(DeleteLanguage) Session(*REQUIRED)
+    
+    * Inbound values
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ISOCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DeleteLanguage' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Check if resources are active
+    If (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) = PROD)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : Language resouces are not active as portal is in production mode : Language not removed.') )
+    Return
+    
+    Endif
+    
+    * Folder creation
+    
+    * Create web contents folder for language
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete ' + #AlphaValue + ' in ' + (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ))) )
+    If (#COM_SELF.DeleteLanguageDirectory( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' )) #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete ended in error. Language not fully removed.') )
+    Return
+    
+    Endif
+    
+    * Create strings folder for language
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete ' + #AlphaValue + ' in ' + (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings')) )
+    If (#COM_SELF.DeleteLanguageDirectory( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings') #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete ended in error. Language not fully removed.') )
+    Return
+    
+    Endif
+    
+    * Create templates folder for language
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete ' + #AlphaValue + ' in ' + (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ))) )
+    If (#COM_SELF.DeleteLanguageDirectory( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' )) #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete ended in error. Language not fully removed.') )
+    Return
+    
+    Endif
+    
+    * LI content folder for language
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete ' + #AlphaValue + ' in ' + (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).LeftMost( #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).PositionOf( (*PATHDELIM + '&1') ) ))) )
+    If (#COM_SELF.DeleteLanguageDirectory( (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).LeftMost( #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).PositionOf( (*PATHDELIM + '&1') ) )) #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete ended in error. Language not fully removed.') )
+    Return
+    
+    Endif
+    
+    * Copy locale file if needed for portal and lansa
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete locale file for portal for ' + #AlphaValue) )
+    If (#COM_SELF.DeleteLocaleFile( #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete ended in error. Language not fully removed.') )
+    Return
+    
+    Endif
+    
+    * Get Highest Code Sequence
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete language from system codes') )
+    * Delete From_File(BPFSystemCodes) Where(#AlphaValue = #BPFCodeAlphaValue) With_Key('LANGUAGE' 'OPTION')
+    
+    * Select Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence) From_File(BPFSystemCodes) Where(#AlphaValue = #BPFCodeAlphaValue) With_Key('LANGUAGE' 'OPTION')
+    * Leave
+    * Endselect
+    #BPFCodeName := #AlphaValue
+    Delete From_File(BPFSystemCodes) With_Key('LANGUAGE' #BPFCodeName)
+    
+    * output new language codes JSON file
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to update language code json file') )
+    If (#COM_SELF.UpdateLanguageCodeJSON.IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : update of language code failed.') )
+    Return
+    
+    Endif
+    
+    * Scan codes for language settings, to add new language
+    * output new language codes JSON file
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguage : Attempt to delete system language codes') )
+    If (#COM_SELF.RemoveLanguageCodes( #AlphaValue ).IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : DeleteLanguage : delete of language codes failed.') )
+    Return
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(UpdateLanguage) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFCodeName) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#BPFCodeAlphaValue) Parameter_Name(NewDescription)
+    Field_Map For(*INPUT) Field(#BPFGenericBoolean) Parameter_Name(SetAsDefault)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'UpdateLanguage' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume failure
+    #BPFStatus := ER
+    
+    * Check if resources are active
+    If (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) = PROD)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguage : Language resouces are not active as portal is in production mode : Language not updated.') )
+    Return
+    
+    Endif
+    
+    
+    Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key('LANGUAGE' #BPFCodeName) Io_Error(*NEXT) Val_Error(*NEXT)
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguage : failed to update language description.') )
+    Return
+    
+    Endif
+    
+    If (#BPFGenericBoolean)
+    
+    * Before resetting, swap lanuagesupport.js
+    #COM_SELF.SwapLanguageDefault( #Utils.GetAlphaValue( 'LANGUAGE' 'DEFAULT' ) #BPFCodeName )
+    
+    #BPFCodeAlphaValue := #BPFCodeName
+    Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key('LANGUAGE' 'DEFAULT') Io_Error(*NEXT) Val_Error(*NEXT)
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguage : failed to update default language.') )
+    Return
+    
+    Endif
+    
+    Endif
+    
+    * Update language codes JSON file
+    #Utils.Log( ('LanguageSupportDataServer : UpdateLanguage : Attempt to update language code json file') )
+    If (#COM_SELF.UpdateLanguageCodeJSON.IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguage : update of language code failed.') )
+    Return
+    
+    Endif
+    
+    * We are fine
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(DownloadLocaleFile) Session(*REQUIRED)
+    
+    * Outbound
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ForIsoCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return File
+    Field_Map For(*OUTPUT) Field(#BPFGenericCLOB) Parameter_Name(LocaleFile)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DownloadLocaleFile' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('LanguageSupportDataServer : DownloadLocaleFile : Setting download path to ' + (#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #AlphaValue + '.json')) )
+    
+    * Set download path
+    #BPFGenericCLOB := (#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #AlphaValue + '.json').AsNativeString
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(UploadLocaleFile) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#BPFGenericBLOB) Parameter_Name(LocaleFile)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Create Data Output
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'UploadLocaleFile' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Check if resources are active
+    If (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) = PROD)
+    
+    #Utils.log( ('LanguageSupportDataServer : UploadLocaleFile : Language resouces are not active as portal is in production mode : Locale file not uploaded.') )
+    Return
+    
+    Endif
+    
+    #Utils.log( ('LanguageSupportDataServer : UploadLocaleFile : Setting save path to ' + (#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #AlphaValue + '.json')) )
+    
+    * Save Template
+    If (#BPFGenericBlob.FileName.IsNull.IsFalse)
+    
+    #Data.FromFile Path(#BPFGenericBlob)
+    #Data.AsFile Path((#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #AlphaValue + '.json').AsNativeString) Errorinfo(#DataStatus)
+    
+    * Check Status
+    If (#DataStatus.Ok)
+    
+    #Utils.log( ('LanguageSupportDataServer : UploadLocaleFile : Save of locale file : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : UploadLocaleFile : failed with error ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Get Resources
+    Srvroutine Name(GetResourcesByName) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#SearchValue) Parameter_Name(SearchValue)
+    Field_Map For(*INPUT) Field(#TypeSearchValue) Parameter_Name(TypeValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ResourceList) Parameter_Name(Data)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#WebFolder)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetResourcesByName' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Load the web folder contents
+    #WebFolder := *PART_DIR + 'web' + *PATHDELIM + 'vl'
+    #Utils.log( ('LanguageSupportDataServer : GetLanguageResources : Reading from ' + #WebFolder) )
+    
+    Use Builtin(OV_FILE_SERVICE) With_Args('GET_DIR' #WebFolder 'JS') To_Get(#Retcode #ErrCode #Contents)
+    #Utils.log( ('LanguageSupportDataServer : GetLanguageResources : Possible matches ' + #Filecount.asstring) )
+    
+    * Search for a Language resource
+    * Selectlist Named(#Contents) Where((#FilePrefix.UpperCase.LeftMost( 3 ) = BPF) *And (#FilePrefix.UpperCase.Contains( 'LR' )))
+    Selectlist Named(#Contents) Where(#FilePrefix.UpperCase.PositionOf( 'LR' ) >= 4)
+    
+    * Dont process country codes or base server class
+    Continue If((#FilePrefix.UpperCase = BPFSLR002) *Or (#FilePrefix.UpperCase = BPFSLR000))
+    
+    * Add Language resource for processing
+    #BPFCodeGroup := #FilePrefix.UpperCase
+    If (#COM_SELF.GetResourceInfo( (#WebFolder + *PATHDELIM + #FileFullName) #FileFileSize #BPFCodeName #BPFCodeAlphaValue #BPFFileServiceFileSize ))
+    
+    * If we have a search vaue
+    If (#SearchValue.IsNull.IsFalse)
+    
+    * Lets check is this can be added.
+    If ((#BPFCodeGroup.LowerCase.Contains( #SearchValue.LowerCase )) *OrIf (#BPFCodeName.LowerCase.Contains( #SearchValue.LowerCase )) *OrIf (#BPFCodeAlphaValue.LowerCase.Contains( #SearchValue.LowerCase )))
+    Else
+    
+    Continue
+    
+    Endif
+    
+    Endif
+    
+    If (#TypeSearchValue.IsNull.IsFalse)
+    
+    Continue If(#FilePrefix.UpperCase.Contains( #TypeSearchValue.UpperCase.AsNativeString ).IsFalse)
+    
+    Endif
+    
+    * #BPFFileServiceFileSize := #FileFileSize
+    Add_Entry To_List(#ResourceList)
+    
+    If (#ResourcesCount = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : GetLanguageResources : Failed to get info for ' + #FileFullName) )
+    
+    Endif
+    
+    Endselect
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Get Resources
+    Srvroutine Name(GetResourceByID) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#SearchValue) Parameter_Name(Identifier)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ResourceList) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#WebFolder)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetResourceByID' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Add Language resource for processing
+    #BPFCodeGroup := #SearchValue.UpperCase
+    If (#COM_SELF.GetResourceInfo( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #SearchValue + '.js') #FileFileSize #BPFCodeName #BPFCodeAlphaValue #BPFFileServiceFileSize ))
+    
+    Add_Entry To_List(#ResourceList)
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : GetLanguageResources : Failed to get info for ' + #FileFullName) )
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    
+    * Resource Strings
+    Srvroutine Name(GetResourceStrings) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#FilePrefix) Parameter_Name(Resource)
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#BPFFileServiceFileSize) Parameter_Name(ResourceSize)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ResourceStrings) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Values
+    Define_Com Class(#PRIM_ALPH) Name(#WebFolder)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetResourceStrings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Attempting load for resource ' + #FilePrefix + ' for language ' + #AlphaValue) )
+    
+    * Get Resource Strings Keys & Set Initial Default
+    If (#COM_SELF.GetResourceKeysAndStrings( (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #FilePrefix + '.js') #BPFFileServiceFileSize ))
+    
+    * Select Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) Where(#BPFCodeNumericValue = 1) With_Key('LANGUAGE' 'OPTION')
+    * Endselect
+    
+    * What is the default language
+    #BPFCodeAlphaValue := #Utils.GetAlphaValue( 'LANGUAGE' 'DEFAULT' )
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : System default language is ' + #AlphaValue) )
+    
+    * Alright now we have to load the default string set from the JSON
+    If (#COM_SELF.GetJSONStrings( #FilePrefix #BPFCodeAlphaValue ))
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : System default string load completed') )
+    
+    * Let see what we have and if we have a key in both, replace the object default with the JSON default
+    Selectlist Named(#ResourceStrings)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : check for key ' + #BPFGenericNVarChar256 + '  in JSON  for ' + #BPFCodeAlphaValue) )
+    
+    * If we do have a match, so replace with default
+    If (#StringsCollection<#BPFGenericNVarChar256>.IsNull.IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : check for key ' + #BPFGenericNVarChar256 + '  in JSON  for ' + #BPFCodeAlphaValue + ' was found so replacing') )
+    
+    #BPFGenericUnicodeString01 := #StringsCollection<#BPFGenericNVarChar256>
+    Upd_Entry In_List(#ResourceStrings)
+    
+    Endif
+    
+    Endselect
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : System default string check completed') )
+    
+    If (#COM_SELF.GetJSONStrings( #FilePrefix #AlphaValue ))
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Translationt language is ' + #AlphaValue) )
+    
+    * Let see what we have and if we have a key in both, replace the object default with the JSON default
+    Selectlist Named(#ResourceStrings)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : check for key ' + #BPFGenericNVarChar256 + '  in JSON  for ' + #AlphaValue) )
+    
+    * If we do have a match, so replace with default
+    If (#StringsCollection<#BPFGenericNVarChar256>.IsNull.IsFalse)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : check for key ' + #BPFGenericNVarChar256 + '  in JSON  for ' + #AlphaValue + ' was found so replacing') )
+    
+    #BPFGenericUnicodeString02 := #StringsCollection<#BPFGenericNVarChar256>
+    Upd_Entry In_List(#ResourceStrings)
+    
+    Endif
+    
+    Endselect
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Translation string check completed') )
+    
+    Else
+    
+    * Error, so return
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Failed to get info from translating JSON for ' + #FilePrefix + ' so reource defaults will used') )
+    
+    Endif
+    
+    Else
+    
+    * Error, so return
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Failed to get info from default JSON for ' + #FilePrefix + ' so reource defaults will used') )
+    * Return
+    
+    Endif
+    
+    Else
+    
+    * Error, so return
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Failed to get info from compiled JS') )
+    Return
+    
+    Endif
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceStrings : Load completed') )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    
+    Srvroutine Name(SaveResourceStrings) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#FilePrefix) Parameter_Name(Resource)
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(ForIsoCode)
+    
+    List_Map For(*INPUT) List(#ResourceStrings) Parameter_Name(Data)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(NewVersionNumber)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local components
+    
+    * Saved due to the need to reproduce an issue
+    * Define_Com Class(#PRIM_IOC.StreamWriter) Name(#JSONStream)
+    * Define_Com Class(#PRIM_JSON.Writer) Name(#JSONWriter) Textwriter(#JSONStream)
+    * Define_Com Class(#PRIM_IOC.FileStream) Name(#JSONFile)
+    
+    * Used as this works for DBCS chars
+    Define_Com Class(#XPRIM_File) Name(#OutputFile)
+    Define_Com Class(#XPRIM_JsonWriter) Name(#JSONWriter)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveResourceStrings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Check if resources are active
+    If (#Utils.GetAlphaValue( 'SYSTEM' 'ROLE' ) = PROD)
+    
+    #Utils.log( ('LanguageSupportDataServer : SaveResourceStrings : Language resouces are not active as portal is in production mode : Resource strings not updated.') )
+    Return
+    
+    Endif
+    
+    
+    * Saved due to the need to reproduce an issue
+    * #JSONStream.Stream <= #JSONFile
+    * #JSONFile.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #AlphaValue + *PATHDELIM + #FilePrefix.lowercase + '.json')
+    * #JSONFile.FileAccess := Write
+    * #JSONFile.FileMode := CreateNew
+    
+    * Used as this works for DBCS chars
+    #OutputFile.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #AlphaValue + *PATHDELIM + #FilePrefix.LowerCase + '.json').AsNativeString
+    #JSONWriter.SetOutputToFile( #OutputFile )
+    
+    * Add Root & Array
+    #JSONWriter.BeginObject
+    #JSONWriter.BeginArray( "ls" )
+    
+    Selectlist Named(#ResourceStrings)
+    
+    #Utils.log( ('Adding - ' + #BPFGenericNVarChar256) )
+    
+    * JSON Processing
+    #JSONWriter.BeginObject
+    
+    #JSONWriter.WriteString( #BPFGenericNVarChar256 "op" )
+    #JSONWriter.WriteString( #BPFGenericUnicodeString02 "s" )
+    
+    #JSONWriter.EndObject
+    
+    Endselect
+    
+    * End Array & Root Object
+    #JSONWriter.EndArray
+    #JSONWriter.EndObject
+    
+    * Update version number, if we get a value all is well.
+    #AlphaValue := #COM_SELF.UpdateLanguageVersion.AsString
+    
+    If (#AlphaValue.IsNull.IsFalse)
+    #BPFStatus := OK
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(GetResourceInfo)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Path)
+    Define_Map For(*INPUT) Class(#BPFFileServiceFileSize) Name(#Filesize)
+    
+    Define_Map For(*OUTPUT) Class(#Prim_DC.UnicodeString) Name(#ObjectName)
+    Define_Map For(*OUTPUT) Class(#Prim_DC.UnicodeString) Name(#Description)
+    Define_Map For(*OUTPUT) Class(#PRIM_NMBR) Name(#Size)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Stream
+    Define_Com Class(#PRIM_IOC.FileStream) Name(#FileStream)
+    Define_Com Class(#PRIM_IOC.StreamReader) Name(#StreamReader)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Source)
+    Define_Com Class(#XPRIM_File) Name(#File)
+    
+    * Targets
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#NameTarget)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#DescTarget)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#AncsTarget)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#StringEndTarget) Value('"')
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : Starting') )
+    
+    If (#Filesize = 0)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : filesize not passed, so checking') )
+    
+    #File.Path := #Path.AsNativeString
+    #Filesize := #File.Size
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : filesize set to ' + #Filesize.AsString) )
+    
+    Endif
+    
+    * Set Path
+    #FileStream.Path := #Path
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : Path set') )
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : File size is ' + #Filesize.asstring) )
+    
+    * Set Strem
+    #StreamReader.Stream <= #FileStream
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : File reader set') )
+    
+    * Load into processing variable
+    #StreamReader.TryReadString String(#Source) Count(#Filesize)
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : source is ' + #source) )
+    
+    * First Check if compiled for debug
+    If (#Source.Contains( 'STRINGSCOLLECTION.get("' ))
+    
+    #NameTarget := 'nm:'
+    #DescTarget := 'de:'
+    #AncsTarget := 'an:"BPFLNG000"'
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : file was NOT compiled for debug') )
+    
+    Else
+    
+    #NameTarget := 'nm: '
+    #DescTarget := 'de: '
+    #AncsTarget := 'an: "BPFLNG000"'
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : file WAS compiled for debug') )
+    
+    Endif
+    
+    * Is this a language resource, must have the Ancestor
+    If ((#Source.Contains( #AncsTarget ).IsFalse))
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : The resource does not the language resource ancestor, so skipping') )
+    
+    #Result := False
+    Return
+    
+    Endif
+    
+    * Clear text before read point
+    #Source := #Source.DeleteSubstring( 1 (#Source.PositionOf( #NameTarget ) + (#NameTarget.CurChars)) )
+    
+    * Get name
+    #ObjectName := #Source.Substring( 1 (#Source.PositionOf( #StringEndTarget ) - 1) )
+    #Utils.Log( ('Key found was ' + #ObjectName) )
+    
+    * Clear text before read point
+    #Source := #Source.DeleteSubstring( 1 (#Source.PositionOf( #DescTarget ) + (#DescTarget.CurChars)) )
+    
+    * Get Description
+    #Description := #Source.Substring( 1 (#Source.PositionOf( #StringEndTarget ) - 1) )
+    #Utils.Log( ('Key found was ' + #Description) )
+    
+    * Set Size
+    #Size := #Filesize
+    
+    * Set Result
+    #Result := ((#ObjectName.IsNull.IsFalse) *And (#Description.IsNull.IsFalse))
+    #Utils.log( ('LanguageSupportDataServer : GetResourceInfo : finished result was  ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(GetResourceKeysAndStrings)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Path)
+    Define_Map For(*INPUT) Class(#BPFFileServiceFileSize) Name(#FileSize)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Stream
+    Define_Com Class(#PRIM_IOC.FileStream) Name(#FileStream)
+    Define_Com Class(#PRIM_IOC.StreamReader) Name(#StreamReader)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Source)
+    
+    * Targets
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#KeyTarget)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#ValueTarget)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#StringEndTarget) Value('"')
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Starting') )
+    
+    * Set Path
+    #FileStream.Path := #Path
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Path set') )
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : File size is ' + #Filesize.asstring) )
+    
+    #StreamReader.Stream <= #FileStream
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : File reader set') )
+    
+    #StreamReader.TryReadString String(#Source) Count(#FileSize)
+    
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : source is ' + #source) )
+    
+    * First Check if compiled for debug
+    If (#Source.Contains( 'STRINGSCOLLECTION.get("' ))
+    
+    #KeyTarget := 'STRINGSCOLLECTION.get("'
+    #ValueTarget := '.set('
+    
+    #Utils.Log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Source code is compiled without debug') )
+    
+    
+    Else
+    
+    #KeyTarget := 'STRINGSCOLLECTION.get( "'
+    #ValueTarget := '.set( '
+    
+    #Utils.Log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Source code is compiled for debug') )
+    
+    Endif
+    
+    * Set the upper processing limit
+    #LISTCOUNT := #Source.OccurrencesOf( #KeyTarget )
+    #Utils.log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Number of strings found  ' + #LISTCOUNT.Asstring) )
+    
+    * Process File
+    Begin_Loop Using(#ListEntry) To(#LISTCOUNT)
+    
+    * Clear text before read point for key
+    #Source := #Source.DeleteSubstring( 1 (#Source.PositionOf( #KeyTarget ) + (#KeyTarget.CurChars - 1)) )
+    
+    * Resource key is found first
+    #BPFGenericNVarChar256 := #Source.Substring( 1 (#Source.PositionOf( #StringEndTarget ) - 1) )
+    #Utils.Log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Key found was ' + #BPFGenericNVarChar256) )
+    
+    * Clear text before read point for value
+    #Source := #Source.DeleteSubstring( 1 (#Source.PositionOf( #ValueTarget ) + (#ValueTarget.CurChars)) )
+    
+    * Resource value is found last
+    #BPFGenericUnicodeString01 := #Source.Substring( 1 (#Source.PositionOf( #StringEndTarget ) - 1) )
+    #Utils.Log( ('LanguageSupportDataServer : GetResourceKeysAndStrings : Value found was ' + #BPFGenericUnicodeString01) )
+    
+    * Add Item
+    Add_Entry To_List(#ResourceStrings)
+    
+    End_Loop
+    
+    #Result := (#StringCount > 0)
+    
+    Endroutine
+    
+    Mthroutine Name(GetJSONStrings) Options(*FINAL) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Object)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Isocode)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result) Mandatory(False)
+    
+    * JSON File
+    Define_Com Class(#XPRIM_File) Name(#File)
+    
+    * JSON Document & Elements
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    Define_Com Class(#Prim_JSON.Array) Name(#StringsArray) Reference(*DYNAMIC)
+    
+    #Utils.Log( ('Attempting to loading resource  ' + #Object) )
+    #Utils.Log( ('For language code ' + #Isocode) )
+    
+    * Set the path
+    #File.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #Isocode + *PATHDELIM + #Object + '.json').AsNativeString
+    
+    If (#File.Exists)
+    
+    #Utils.Log( ('Found resource file ' + #File.Path) )
+    
+    * Load JSON Document
+    #JSONDocument.LoadFromString( #File.ReadAllText )
+    
+    #StringsArray <= #JSONDocument.RootNode<"ls">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Strings loaded, found ' + #StringsArray.ItemCount.asstring) )
+    
+    * Clear out the collection
+    #StringsCollection.RemoveAll
+    
+    * Overide Defaults
+    For Each(#String) In(#StringsArray)
+    
+    #StringsCollection<#String<'op'>.value.asstring> := #String<'s'>.value.asstring
+    #Utils.Log( ('Loading default ' + #String<'op'>.value.asstring + ' string ' + #String<'s'>.value.asstring) )
+    
+    Endfor
+    
+    * All Loaded
+    #Result := true
+    
+    Else
+    
+    #Utils.Log( ('Failed load language resource ' + #File.Path) )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateLanguageVersion)
+    Define_Map For(*RESULT) Class(#STD_NUML) Name(#Result)
+    
+    * Local Values
+    Define_Com Class(#XPRIM_File) Name(#SupportFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#Source)
+    
+    * Set Server Epoch
+    #Result := (#Utils.GetDateTimeInEpoch * 1000)
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : Version will be ' + #Result.AsString) )
+    
+    * Set Path & Read in Text
+    #SupportFile.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'langsupport.js').AsNativeString
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js path ' + #SupportFile.Path) )
+    
+    #Source := #SupportFile.ReadAllText( #DataStatus )
+    If (#DataStatus.OK)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js before update ' + #Source) )
+    
+    * Find version position and update it
+    #Source := #Source.ReplaceSubstring( (#Source.PositionOf( 'ion: ' ) + 5) 13 #Result.AsString )
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js after update ' + #Source) )
+    
+    * Output changes
+    #SupportFile.WriteAllText Text(#Source) Append(False) Errorinfo(#DataStatus)
+    If (#DataStatus.OK)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsuport.js update successful') )
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsuport.js update FAILED. Error was ' + #DataStatus.ErrorCode + ' - ' + #DataStatus.ErrorMessage) )
+    #Result := *null
+    
+    Endif
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : unable to load langsuport.js. Error was ' + #DataStatus.ErrorCode + ' - ' + #DataStatus.ErrorMessage) )
+    #Result := *null
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SwapLanguageDefault)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#From)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#To)
+    
+    * Local Values
+    Define_Com Class(#XPRIM_File) Name(#SupportFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#Source)
+    
+    * Set Path & Read in Text
+    #SupportFile.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'langsupport.js').AsNativeString
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js path ' + #SupportFile.Path) )
+    
+    #Source := #SupportFile.ReadAllText( #DataStatus )
+    If (#DataStatus.OK)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js before update ' + #Source) )
+    
+    * Find version position and update it
+    #Source := #Source.ReplaceAll( #From #To )
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsupport.js after update ' + #Source) )
+    
+    * Output changes
+    #SupportFile.WriteAllText Text(#Source) Append(False) Errorinfo(#DataStatus)
+    If (#DataStatus.OK)
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsuport.js update successful') )
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : langsuport.js update FAILED. Error was ' + #DataStatus.ErrorCode + ' - ' + #DataStatus.ErrorMessage) )
+    
+    Endif
+    
+    Else
+    
+    #Utils.log( ('LanguageSupportDataServer : UpdateLanguageVersion : unable to load langsuport.js. Error was ' + #DataStatus.ErrorCode + ' - ' + #DataStatus.ErrorMessage) )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(CopyLanguageDirectory)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Path)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#From)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#To)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume failure
+    #Result := False
+    
+    * Check that source path exists
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Source folder ' + (#PATH + *PATHDELIM + #FROM) + ' does not exist') )
+    Return
+    
+    Endif
+    
+    * Check that target path exists
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = OK)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Target folder ' + (#PATH + *PATHDELIM + #To) + ' does exist') )
+    Return
+    
+    Endif
+    
+    * Now we have a source and not a target, so lets get copying
+    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Unable to ' + (#PATH + *PATHDELIM + #FROM) + ' to ' + (#PATH + *PATHDELIM + #To)) )
+    Return
+    
+    Endif
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(DeleteLanguageDirectory)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Path)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#For)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume failure
+    #Result := False
+    
+    * Check that path exists
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FOR).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Source folder ' + (#PATH + *PATHDELIM + #FOR) + ' does not exist') )
+    Return
+    
+    Endif
+    
+    * Now we have a source and not a target, so lets get copying
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_DIR_TREE' (#PATH + *PATHDELIM + #FOR).AsNativeString 'FORCE') To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Unable to remove ' + (#PATH + *PATHDELIM + #FOR)) )
+    Return
+    
+    Endif
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(CopyLocaleFile)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#From)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#To)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Variables
+    
+    * Stream
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#LocalePath)
+    
+    * Assume failure
+    #Result := False
+    
+    #LocalePath := #Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale'
+    #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Locale foler path set to ' + #LocalePath) )
+    
+    * Next lets check we have a source
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Source file ' + (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json') + ' does not exist') )
+    Return
+    
+    Endif
+    
+    
+    * and now no target
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #to + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = OK)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Target file ' + (#LocalePath + *PATHDELIM + 'locale-' + #to + '.json') + ' does exist') )
+    #Result := True
+    
+    Return
+    
+    Endif
+    
+    * Now we can copy file
+    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString (#LocalePath + *PATHDELIM + 'locale-' + #To + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Unable to copy locale file') )
+    Return
+    
+    Endif
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(DeleteLocaleFile)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#For)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Variables
+    
+    * Stream
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#LocalePath)
+    
+    * Assume failure
+    #Result := False
+    
+    #LocalePath := #Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale'
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLocaleFile : Locale foler path set to ' + #LocalePath) )
+    
+    * Next lets check we have a file
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLocaleFile : Source file ' + (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json') + ' does not exist') )
+    Return
+    
+    Endif
+    
+    * Now we can copy file
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString 'FORCE') To_Get(#IO£STS)
+    If (#IO£STS = ER)
+    
+    #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Unable to remove locale file') )
+    Return
+    
+    Endif
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateLanguageCodeJSON)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local components
+    Define_Com Class(#BPFCodeName) Name(#sCodeName)
+    
+    * Saved due to the need to reproduce an issue
+    * Define_Com Class(#PRIM_IOC.StreamWriter) Name(#JSONStream)
+    * Define_Com Class(#PRIM_JSON.Writer) Name(#JSONWriter) Textwriter(#JSONStream)
+    * Define_Com Class(#PRIM_IOC.FileStream) Name(#JSONFile)
+    
+    * Used as this works for DBCS chars
+    Define_Com Class(#XPRIM_File) Name(#OutputFile)
+    Define_Com Class(#XPRIM_JsonWriter) Name(#JSONWriter)
+    
+    * Assume failure
+    #Result := False
+    
+    * Save Global variable
+    #sCodeName := #BPFCodeName
+    
+    #OutputFile.Path := (*PART_DIR + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'bpflng001.json').AsNativeString
+    #JSONWriter.SetOutputToFile( #OutputFile )
+    
+    * Add Root & Array
+    #JSONWriter.BeginObject
+    #JSONWriter.BeginArray( "ls" )
+    
+    Select Fields(#BPFCodeName #BPFCodeAlphaValue) From_File(BPFSystemCodes) Where(#BPFCodeName <> 'DEFAULT') With_Key('LANGUAGE')
+    
+    * JSON Processing
+    #JSONWriter.BeginObject
+    
+    #JSONWriter.WriteString( #BPFCodeName "op" )
+    #JSONWriter.WriteString( #BPFCodeAlphaValue "s" )
+    
+    #JSONWriter.EndObject
+    
+    Endselect
+    
+    * End Array & Root Object
+    #JSONWriter.EndArray
+    #JSONWriter.EndObject
+    
+    * Restore Global values
+    #BPFCodeName := #sCodeName
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(CopyLanguageCodes)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#From)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#To)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume failure
+    #Result := False
+    
+    Select Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue) From_File(BPFSystemCodes)
+    
+    * Get source value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #From #BPFCodeAlphaValue )
+    If (#BPFCodeAlphaValue <> ER)
+    
+    * We have a JSON string, as we have a value
+    #Utils.SetAlpaValueForLanguage( #To #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    
+    Endif
+    
+    Endselect
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    
+    Mthroutine Name(RemoveLanguageCodes)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#For)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume failure
+    #Result := False
+    
+    Select Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue) From_File(BPFSystemCodes)
+    
+    * Get source value
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #For #BPFCodeAlphaValue )
+    If (#BPFCodeAlphaValue <> ER)
+    
+    * We have a JSON string, as we have a value
+    #Utils.RemoveAlpaValueForLanguage( #For #BPFCodeGroup #BPFCodeName #BPFCodeSequence )
+    
+    Endif
+    
+    Endselect
+    
+    * Return OK
+    #Result := True
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,38 @@
+﻿Field:
+  Name:               BPFContentItemNumericDetail
+  Type:               Packed
+  Length:             15
+  Decimals:           0
+  Default Value:      "*ZEROS"
+  Edit Mask:          J
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - RB
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Numeric Detail"
+      Label:              "Item Numeric"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Numeric Detail"
+
+  - JPN:
+      Description:        "Content Item Numeric Detail"
+      Label:              "Content Item Nu"
+      Heading1:           "Content"
+      Heading2:           "Item"
+      Heading3:           "Numeric"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Marginleft(183) Width(525)
+    
+    End_Com
+    
+    End_Com

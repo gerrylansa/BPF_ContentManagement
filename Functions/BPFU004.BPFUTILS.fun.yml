@@ -1,0 +1,73 @@
+﻿Function:
+  Enabled For RDMLX:  Yes
+
+  Source: |
+    Function Options(*DIRECT)
+    * =======================================================
+    * Copyright .....: (C) LANSA, 1989
+    * Process .......: BPFUTILS
+    * Function ......: BPFU004
+    * Created by ....:
+    * Created on ....: 20/04/06 at 14:30:46
+    * Description ...: Server Service Shortcut Processor
+    * =======================================================
+    
+    * Note the function is not used but is kept as an example so controlling windows services
+    
+    * Assembly Reference
+    * Define_Com Class(#BPFSystemServiceProcessPlugin.System.ServiceProcess.ServiceController) Name(#SC) Reference(*DYNAMIC)
+    
+    * Working Fields
+    Define Field(#ServiceandRequest) Reffld(#STD_TEXT)
+    Define_Com Class(#PRIM_ALPH) Name(#Service)
+    Define_Com Class(#PRIM_ALPH) Name(#Request)
+    Define_Com Class(#PRIM_NMBR) Name(#Position)
+    
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    
+    * =======================================================
+    * Program Mainline : BPFU004
+    * =======================================================
+    
+    * Get Servicename and request string
+    Use Builtin(GET_SESSION_VALUE) With_Args('UDEF') To_Get(#ServiceandRequest #Retcode)
+    
+    * Get Position of Delimiter
+    #Position := #ServiceandRequest.PositionOf( ':' )
+    
+    * Set service name and request
+    #Service := #ServiceandRequest.Substring( 1 (#Position - 1) )
+    #Request := #ServiceandRequest.Substring( (#Position + 1) )
+    
+    * Get a reference to the service
+    * #SC <= *New #DotNetSystemServiceProcess.System.ServiceProcess.ServiceController.ServiceController#1( #Service )
+    
+    * Now execute request
+    Case Of_Field(#Request.UpperCase)
+    
+    When Value_Is(= STOP)
+    
+    * Stop the service
+    * #SC.Stop
+    
+    When Value_Is(= START)
+    
+    * Start the service
+    * #SC.Start
+    
+    When Value_Is(= RESTART)
+    
+    * Restart
+    
+    * End if running first
+    * If (#SC.Status.UpperCase = RUNNING)
+    
+    * #SC.Stop
+    * #SC.WaitForStatus( Stopped )
+    
+    * Endif
+    
+    * Now Start
+    * #SC.Start
+    
+    Endcase

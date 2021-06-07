@@ -1,0 +1,44 @@
+﻿Reusable Part:
+  Name:               BPFUserSecuritySetQuestionViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Security Set Q&A View Strings"
+
+  - JPN:
+      Description:        "User Security Set Q&A View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Change Account Security"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "To secure your %%APP%% account select a security question and provide a matching answer. We will ask you this question if we need to confirm you crenditials"
+    
+    #STRINGSCOLLECTION<'SECURITYDETAILSPANELHEADING.CAPTION'> := "Account Security"
+    #STRINGSCOLLECTION<'SECURITYQUESTIONSELECTION.CAPTION'> := "Select a question"
+    #STRINGSCOLLECTION<'CONFIRMANSWER.CAPTION'> := "Your Answer"
+    #STRINGSCOLLECTION<'SECURITYDETAILSACTION.CAPTION'> := "CHANGE"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETSECURITYCOMPLETED'> := "Account security updated"
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSETSECURITYFAILED'> := "FAILED to update account security."
+    
+    #STRINGSCOLLECTION<'SECURITYQUESTIONSELECTION.BLANK'> := "Please choose a question."
+    #STRINGSCOLLECTION<'CONFIRMANSWER.BLANK'> := "Please enter you answer."
+    #STRINGSCOLLECTION<'SECURITYQUESTIONSELECTION.NOENTRIES'> := "Error. No security questions found so your account cannot be created"
+    
+    Endroutine
+    
+    End_Com

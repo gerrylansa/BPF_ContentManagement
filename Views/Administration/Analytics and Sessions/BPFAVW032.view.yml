@@ -1,0 +1,180 @@
+﻿Web View:
+  Name:               BPFAnalyticsSettingsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Analytics Settings View"
+
+  - JPN:
+      Description:        "Portal Analytics Settings View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Componenttag('BPFAPP006')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFAnalyticsSettingsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFAnalyticsSessionsDataClient) Name(#TrackingSettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ControlPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    
+    * Panel Control Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ControlLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#ControlLayout) Units(Content) Height(199)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row2) Displayposition(2) Parent(#ControlLayout) Units(Pixels) Height(62)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ControlColumn1) Displayposition(1) Parent(#ControlLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ControlColumn2) Displayposition(2) Parent(#ControlLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ControlColumn3) Displayposition(3) Parent(#ControlLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem1) Alignment(CenterRight) Column(#ControlColumn2) Manage(#PanelAction) Parent(#ControlLayout) Row(#Layout1Row2) Sizing(None)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem3) Alignment(TopLeft) Column(#ControlColumn2) Manage(#EnableAnalytics) Parent(#ControlLayout) Row(#Layout1Row1) Sizing(FitToWidth) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem4) Alignment(TopLeft) Column(#ControlColumn2) Manage(#ControlPanelHeading) Parent(#ControlLayout) Row(#Layout1Row1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem5) Alignment(TopLeft) Column(#ControlColumn2) Manage(#AnalyticsTrackingCodeEdit) Parent(#ControlLayout) Row(#Layout1Row1) Sizing(FitToWidth) Flow(Down) Margintop(16)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Caption('Configure Analytics') Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(38) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Enable the tracking of end user behaviour and usage trends of the portal via Google Analytics. Once enabled enter the tracking code for property you created in Google Analytics for this portal instance. Ensure you do not reuse a tracking code to avoid issues with the data that has already been collected.')
+    Define_Com Class(#PRIM_PANL) Name(#ControlPanel) Displayposition(3) Height(263) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(141) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ControlLayout)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PanelAction) Caption('Save') Displayposition(4) Left(734) Parent(#ControlPanel) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(212) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Switch) Name(#EnableAnalytics) Caption('Enabled') Checked(True) Displayposition(2) Iconalignment(CenterRight) Iconcolor(Theme500) Left(44) Parent(#ControlPanel) Tabposition(1) Top(64) Width(790) Height(44) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#ControlPanelHeading) Displayposition(1) Left(44) Parent(#ControlPanel) Tabposition(4) Themedrawstyle('Heading3') Top(24) Width(790) Caption('Analytics Settings') Height(24) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Edit) Name(#AnalyticsTrackingCodeEdit) Caption('Tracking Code') Displayposition(3) Left(44) Parent(#ControlPanel) Tabposition(2) Top(124) Width(790) Helpertext('e.g. UA-123456789-1')
+    
+    * References
+    
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #TrackingSettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFAnalyticsSessionsDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    #TrackingSettings.GetAnalyticsSettings
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Action
+    Evtroutine Handling(#PanelAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #TrackingSettings.SaveAnalyticsSettings
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#EnableAnalytics.Changed)
+    
+    #TrackingSettings.AnalyticsEnabled := #EnableAnalytics.Checked
+    #AnalyticsTrackingCodeEdit.Enabled := #TrackingSettings.AnalyticsEnabled
+    
+    Endroutine
+    
+    Evtroutine Handling(#AnalyticsTrackingCodeEdit.Changed)
+    
+    #TrackingSettings.AnalyticsID := #AnalyticsTrackingCodeEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#TrackingSettings.OnGetAnalyticsSettingsCompleted)
+    
+    #COM_SELF.BuildOptions
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#TrackingSettings.OnGetAnalyticsSettingsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<TRACKINGSETTINGS.ONGETANALYTICSSETTINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#TrackingSettings.OnSaveAnalyticsSettingsCompleted)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<TRACKINGSETTINGS.ONSAVEANALYTICSSETTINGSCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#TrackingSettings.OnSaveAnalyticsSettingsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<TRACKINGSETTINGS.ONSAVEANALYTICSSETTINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #CONTROLPANELHEADING.CAPTION := #STRINGS.Text<CONTROLPANELHEADING.CAPTION>
+    #ENABLEANALYTICS.CAPTION := #STRINGS.Text<ENABLEANALYTICS.CAPTION>
+    #ANALYTICSTRACKINGCODEEDIT.CAPTION := #STRINGS.Text<ANALYTICSTRACKINGCODEEDIT.CAPTION>
+    #ANALYTICSTRACKINGCODEEDIT.HELPERTEXT := #STRINGS.Text<ANALYTICSTRACKINGCODEEDIT.HELPERTEXT>
+    #PANELACTION.CAPTION := #STRINGS.Text<PANELACTION.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildOptions) Access(*PRIVATE)
+    
+    * Set Values
+    #EnableAnalytics.Checked := #TrackingSettings.AnalyticsEnabled
+    #AnalyticsTrackingCodeEdit := #TrackingSettings.AnalyticsID
+    
+    * Enable or Disable Entry
+    #AnalyticsTrackingCodeEdit.Enabled := #TrackingSettings.AnalyticsEnabled
+    
+    Endroutine
+    
+    End_Com

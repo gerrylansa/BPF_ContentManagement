@@ -1,0 +1,91 @@
+﻿Web Dialog:
+  Name:               BPFItemViewerDownloadDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Item Viewer Download Dialog"
+
+  - JPN:
+      Description:        "Item Viewer Download Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Width(312) Height(148) Layoutmanager(#Layout1) Style(#RoundedeStyle) Themedrawstyle('text(0,0,0,0.87)')
+    
+    * Strings
+    Define_Com Class(#BPFItemViewerDownloadDialogStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedeStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Dialog Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1) Marginbottom(24) Marginleft(24) Marginright(24) Margintop(24) Sizing(ContentHeight)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1) Height(26) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row2) Displayposition(2) Parent(#Layout1) Minheight(72) Height(40) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopCenter) Column(#Layout1Column1) Manage(#DialogTitle) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthFitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Column(#Layout1Column1) Manage(#DialogConfirm) Parent(#Layout1) Row(#Layout1Row2) Sizing(ContentWidthAndHeight) Flow(Left) Margintop(4)
+    
+    * Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('No preview avaiable') Displayposition(1) Left(69) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading2') Top(24) Width(173) Height(26)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DialogConfirm) Caption('Download') Displayposition(2) Left(90) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('MediumTitle') Top(70) Width(131) Icon('file_download') Paddingbottom(8) Height(40) Paddingtop(8) Paddingleft(16) Paddingright(16) Iconmarginright(8) Style(#NavigationLinkStyle)
+    
+    * References
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    Define_Evt Name(OnActionConfirmed)
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    
+    Endroutine
+    
+    * Actions
+    
+    Evtroutine Handling(#DialogConfirm.Click)
+    
+    Signal Event(OnActionConfirmed)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(OpenDialog)
+    
+    * Open the dialog
+    #COM_SELF.Show
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #DIALOGTITLE.CAPTION := #STRINGS.Text<'DIALOGTITLE.CAPTION'>
+    #DIALOGCONFIRM.CAPTION := #STRINGS.Text<'DIALOGCONFIRM.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    
+    Else
+    
+    #COM_SELF.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

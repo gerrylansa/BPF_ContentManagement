@@ -1,0 +1,18 @@
+﻿Field:
+  Name:               X_UPID
+  Type:               Signed
+  Length:             7
+  Decimals:           0
+  Default Value:      "*ZERO"
+  Edit Mask:          3
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - RB
+
+  Multilingual Details:
+  - ENG:
+      Description:        "@@UPID"
+      Label:              "@@UPID"
+      Heading1:           "@@UPID"

@@ -1,0 +1,148 @@
+﻿Reusable Part:
+  Name:               BPFCountryStateSelectionControl
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Drop down selection of country state"
+
+  - JPN:
+      Description:        "Drop down selection of country state"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Left(0) Tabposition(1) Top(0) Layoutmanager(#Layout) Width(220) Height(75) Visible(False)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopCenter) Column(#LayoutColumn1) Manage(#DropDown) Parent(#Layout) Row(#LayoutRow1)
+    
+    Define_Evt Name(Changed)
+    
+    Define_Pty Name(Control) Get(*REFERENCE #DropDown)
+    Define_Com Class(#PRIM_MD.Dropdown) Name(#DropDown) Caption('State') Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(1) Top(0) Width(220) Promptonly(False)
+    
+    Define_Com Class(#PRIM_TIMR) Name(#SignalDelay) Startup(Manual) Interval(100)
+    
+    * Events
+    
+    Evtroutine Handling(#DropDown.Changed)
+    
+    #SignalDelay.Stop
+    
+    #DropDown.OpenDropDown
+    
+    #SignalDelay.Start
+    
+    Endroutine
+    
+    Evtroutine Handling(#SignalDelay.Tick)
+    
+    #SignalDelay.Stop
+    Signal Event(Changed)
+    
+    Endroutine
+    
+    Mthroutine Name(Load)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForCountry)
+    
+    * Unload
+    #DropDown.Items.RemoveAll
+    
+    * Set Visiblity
+    #COM_SELF.Visible := ((#ForCountry.UpperCase = AUSTRALIA) *Or (#ForCountry.UpperCase = 'UNITED STATES'))
+    
+    * If visible load as needed
+    If (#COM_SELF.Visible)
+    
+    Case Of_Field(#ForCountry.UpperCase)
+    
+    When Value_Is(= 'UNITED STATES')
+    
+    #COM_SELF.HandleUSA
+    
+    When Value_Is(= AUSTRALIA)
+    
+    #COM_SELF.HandleAustralia
+    
+    Endcase
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleAustralia)
+    
+    * Add all countries
+    #DropDown.Items.Add( 'New South Wales' )
+    #DropDown.Items.Add( 'Victoria' )
+    #DropDown.Items.Add( 'Queensland' )
+    #DropDown.Items.Add( 'South Australia' )
+    #DropDown.Items.Add( 'West Australia' )
+    #DropDown.Items.Add( 'Tasmania' )
+    #DropDown.Items.Add( 'Northern Territory' )
+    #DropDown.Items.Add( 'Australian Captial Territory' )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleUSA)
+    
+    * Add all countries
+    #DropDown.Items.Add( 'Alabama' )
+    #DropDown.Items.Add( 'Alaska' )
+    #DropDown.Items.Add( 'Arizona' )
+    #DropDown.Items.Add( 'Arkansas' )
+    #DropDown.Items.Add( 'California' )
+    #DropDown.Items.Add( 'Colorado' )
+    #DropDown.Items.Add( 'Connecticut' )
+    #DropDown.Items.Add( 'Delaware' )
+    #DropDown.Items.Add( 'District of Columbia' )
+    #DropDown.Items.Add( 'Florida' )
+    #DropDown.Items.Add( 'Georgia' )
+    #DropDown.Items.Add( 'Hawaii' )
+    #DropDown.Items.Add( 'Idaho' )
+    #DropDown.Items.Add( 'Illinois' )
+    #DropDown.Items.Add( 'Indiana' )
+    #DropDown.Items.Add( 'Iowa' )
+    #DropDown.Items.Add( 'Kansas' )
+    #DropDown.Items.Add( 'Kentucky' )
+    #DropDown.Items.Add( 'Louisiana' )
+    #DropDown.Items.Add( 'Maine' )
+    #DropDown.Items.Add( 'Maryland' )
+    #DropDown.Items.Add( 'Massachusetts' )
+    #DropDown.Items.Add( 'Michigan' )
+    #DropDown.Items.Add( 'Minnesota' )
+    #DropDown.Items.Add( 'Mississippi' )
+    #DropDown.Items.Add( 'Missouri' )
+    #DropDown.Items.Add( 'Montana' )
+    #DropDown.Items.Add( 'Nebraska' )
+    #DropDown.Items.Add( 'Nevada' )
+    #DropDown.Items.Add( 'New Hampshire' )
+    #DropDown.Items.Add( 'New Jersey' )
+    #DropDown.Items.Add( 'New Mexico' )
+    #DropDown.Items.Add( 'New York' )
+    #DropDown.Items.Add( 'North Carolina' )
+    #DropDown.Items.Add( 'North Dakota' )
+    #DropDown.Items.Add( 'Ohio' )
+    #DropDown.Items.Add( 'Oklahoma' )
+    #DropDown.Items.Add( 'Oregon' )
+    #DropDown.Items.Add( 'Pennsylvania' )
+    #DropDown.Items.Add( 'Rhode Island' )
+    #DropDown.Items.Add( 'South Carolina' )
+    #DropDown.Items.Add( 'South Dakota' )
+    #DropDown.Items.Add( 'Tennessee' )
+    #DropDown.Items.Add( 'Texas' )
+    #DropDown.Items.Add( 'Utah' )
+    #DropDown.Items.Add( 'Vermont' )
+    #DropDown.Items.Add( 'Virginia' )
+    #DropDown.Items.Add( 'Washington' )
+    #DropDown.Items.Add( 'West Virginia' )
+    #DropDown.Items.Add( 'Wisconsin' )
+    #DropDown.Items.Add( 'Wyoming' )
+    
+    Endroutine
+    
+    End_Com

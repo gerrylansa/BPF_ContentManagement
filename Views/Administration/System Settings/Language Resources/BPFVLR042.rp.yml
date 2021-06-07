@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsExportViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System Settings Export View Strings"
+
+  - JPN:
+      Description:        "System Settings Export View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Export Portal Settings"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Export the current portal settings so they used to populate another portal instance or as a back up."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Export"
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONCREATEEXPORTCOMPLETED'> := "Settings exported"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONCREATEEXPORTFAILED'> := "Failed to export settings"
+    
+    Endroutine
+    
+    End_Com

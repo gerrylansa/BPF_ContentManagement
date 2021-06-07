@@ -1,0 +1,539 @@
+﻿Reusable Part:
+  Name:               BPFUserAccountAdminItem
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Account Admin Item"
+
+  - JPN:
+      Description:        "Portal User Account Admin Item"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by For Field Mapping
+    Group_By Name(#ListFields) Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserAccountStatus #BPFUserHasAdminRights)
+    
+    * References to Application Objects
+    
+    * Definitions
+    
+    * Properties
+    
+    * Fields
+    Define_Pty Name(Identifier) Get(*AUTO #BPFUserAccountInternalKey)
+    Define_Pty Name(EmailAdress) Get(*AUTO #BPFUserEmail) Set(*AUTO #BPFUserEmail)
+    Define_Pty Name(FirstName) Get(*AUTO #BPFUserFirstName) Set(*AUTO #BPFUserFirstName)
+    Define_Pty Name(LastName) Get(*AUTO #BPFUserLastName) Set(*AUTO #BPFUserLastName)
+    Define_Pty Name(Enabled) Get(*AUTO #BPFUserAccountEnabled) Set(*AUTO #BPFUserAccountEnabled)
+    Define_Pty Name(Status) Get(*AUTO #BPFUserAccountStatus) Set(*AUTO #BPFUserAccountStatus)
+    Define_Pty Name(IsAdmin) Get(*AUTO #BPFUserHasAdminRights) Set(*AUTO #BPFUserHasAdminRights)
+    Define_Pty Name(ShareName) Get(*AUTO #BPFContentShareName)
+    
+    * Derived Values
+    Define_Pty Name(FullName) Get(GetFullName)
+    
+    * Status
+    
+    Define_Pty Name(StatusColour) Get(GetStatusColour)
+    Define_Com Class(#PRIM_ALPH) Name(#StatusColour)
+    
+    Define_Pty Name(StatusTitleColour) Get(GetStatusTitleColour)
+    Define_Com Class(#PRIM_ALPH) Name(#StatusTitleColour)
+    
+    Define_Pty Name(IconName) Get(GetIconName)
+    Define_Com Class(#PRIM_ALPH) Name(#IconName)
+    
+    
+    * Events
+    
+    * Create
+    
+    Define_Evt Name(OnGetLastSessionCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData) Pass(*BY_REFERENCE)
+    
+    Define_Evt Name(OnGetLastSessionFailed)
+    
+    Define_Evt Name(OnGetSessionEventsCompleted)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#BPFGenericDateTime) Name(#NextReadDate)
+    
+    Define_Evt Name(OnGetSessionEventsFailed)
+    
+    Define_Evt Name(OnSetAdminRoleCompleted)
+    Define_Evt Name(OnSetAdminRoleFailed)
+    
+    Define_Evt Name(OnSetDisabledCompleted)
+    Define_Evt Name(OnSetDisabledFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnSetEnabledCompleted)
+    Define_Evt Name(OnSetEnabledFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnResetSecurityCompleted)
+    Define_Evt Name(OnResetSecurityFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnResendPasswordRequestCompleted)
+    Define_Evt Name(OnResendPasswordRequestFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnResendConfirmAccountCompleted)
+    Define_Evt Name(OnResendConfirmAccountFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnResendResetSecurityCompleted)
+    Define_Evt Name(OnResendResetSecurityFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    Define_Evt Name(OnSetContentShareCompleted)
+    Define_Evt Name(OnSetContentShareFailed)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Reason)
+    
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetFullname)
+    Define_Map For(*OUTPUT) Class(#Prim_DC.UnicodeString) Name(#Property)
+    
+    #Property := #BPFUserFirstName + ' ' + #BPFUserLastName
+    
+    Endroutine
+    
+    Ptyroutine Name(GetStatusColour)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#StatusColour.IsNull)
+    
+    Case Of_Field(#BPFUserAccountStatus.UpperCase)
+    
+    When Value_Is(= ACTIVE)
+    
+    #StatusColour := 'ForegroundTheme500'
+    
+    When Value_Is(= DISABLED)
+    
+    #StatusColour := 'Text(211,47,47,1)'
+    
+    When Value_Is(= NEW)
+    
+    #StatusColour := 'Text(56,142,60,1)'
+    
+    When Value_Is(= PENDING)
+    
+    #StatusColour := 'Text(255,160,0,1)'
+    
+    When Value_Is(= RESET)
+    
+    #StatusColour := 'Text(192,202,51,1)'
+    
+    When Value_Is(= ACTIVE)
+    
+    #StatusColour := 'ForegroundSecondary'
+    
+    Endcase
+    
+    Endif
+    
+    #Property := #StatusColour
+    
+    Endroutine
+    
+    Ptyroutine Name(GetStatusTitleColour)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#StatusTitleColour.IsNull)
+    
+    Case Of_Field(#BPFUserAccountStatus.UpperCase)
+    
+    When Value_Is(= ACTIVE)
+    
+    #StatusTitleColour := 'Rounded+MediumTitle'
+    
+    When Value_Is(= DISABLED)
+    
+    #StatusTitleColour := 'Rounded+Back(211,47,47,1)+Text(255,255,255)'
+    
+    When Value_Is(= NEW)
+    
+    #StatusTitleColour := 'Rounded+Back(56,142,60,1)+Text(255,255,255)'
+    
+    When Value_Is(= PENDING)
+    
+    #StatusTitleColour := 'Rounded+Back(255,160,0,1)+Text(255,255,255)'
+    
+    When Value_Is(= RESET)
+    
+    #StatusTitleColour := 'Rounded+Back(192,202,51,1)+Text(255,255,255)'
+    
+    When Value_Is(= ACTIVE)
+    
+    #StatusTitleColour := 'Rounded+Back(117,117,117,1)+Text(255,255,255)'
+    
+    Endcase
+    
+    Endif
+    
+    #Property := #StatusTitleColour
+    
+    Endroutine
+    
+    Ptyroutine Name(GetIconName)
+    Define_Map For(*OUTPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    If (#IconName.IsNull)
+    
+    If (#BPFUserHasAdminRights)
+    
+    #IconName := 'supervisor_account'
+    
+    Else
+    
+    #IconName := 'account_circle'
+    
+    Endif
+    
+    Endif
+    
+    #Property := #IconName
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(GetLastSession)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetUserLastSession) Name(#Request)
+    
+    Define_Com Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Sharename(#BPFContentShareName) Sessionevents(#SessionData) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetLastSessionCompleted) Sessiondata(#SessionData)
+    
+    Else
+    
+    Signal Event(OnGetLastSessionFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetLastSessionFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(GetSessionEvents)
+    Define_Map For(*INPUT) Class(#BPFGenericDateTime) Name(#StartDate) Mandatory(*SQLNULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ForLabel) Mandatory(*NULL)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.GetUserSessionEvents) Name(#Request)
+    
+    * Local collect to hold data until we output the items
+    Define_Com Class(#PRIM_LCOL<#BPFSessionEventOutputItem>) Name(#SessionData)
+    Define_Com Class(#BPFGenericDateTime) Name(#NextReadDate)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Startingdate(#StartDate) Forlabel(#ForLabel) Usersessionevents(#SessionData) Nextdatetime(#NextReadDate) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnGetSessionEventsCompleted) Sessiondata(#SessionData) Nextreaddate(#NextReadDate)
+    
+    Else
+    
+    Signal Event(OnGetSessionEventsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnGetSessionEventsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Set Admin Rights
+    Mthroutine Name(SetAdminRole)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.SetAccountAdminRole) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Tovalue((*Not #BPFUserHasAdminRights)) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFUserHasAdminRights := (*Not #BPFUserHasAdminRights)
+    #IconName := *null
+    
+    Signal Event(OnSetAdminRoleCompleted)
+    
+    Else
+    
+    Signal Event(OnSetAdminRoleFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetAdminRoleFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Accont Actions
+    
+    * Set Dsiabled
+    Mthroutine Name(SetDisabled)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.SetAccountDisabled) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Newstatus(#BPFUserAccountStatus) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #StatusTitleColour #StatusColour := *null
+    Signal Event(OnSetDisabledCompleted)
+    
+    Else
+    
+    Signal Event(OnSetDisabledFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetDisabledFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetEnabled)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.SetAccountEnabled) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Newstatus(#BPFUserAccountStatus) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #StatusTitleColour #StatusColour := *null
+    Signal Event(OnSetEnabledCompleted)
+    
+    Else
+    
+    Signal Event(OnSetEnabledFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetEnabledFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ResendPasswordRequest)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.ResendPasswordReset) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnResendPasswordRequestCompleted)
+    
+    Else
+    
+    Signal Event(OnResendPasswordRequestFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnResendPasswordRequestFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ResendConfirmAccount)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.ResendConfirmAccount) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnResendConfirmAccountCompleted)
+    
+    Else
+    
+    Signal Event(OnResendConfirmAccountFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnResendConfirmAccountFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ResendResetSecurity)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.ResendSecurityReset) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnResendResetSecurityCompleted)
+    
+    Else
+    
+    Signal Event(OnResendResetSecurityFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnResendResetSecurityFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(ResetSecurity)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.ResetSecurity) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Newstatus(#BPFUserAccountStatus) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #StatusTitleColour #StatusColour := *null
+    Signal Event(OnResetSecurityCompleted)
+    
+    Else
+    
+    Signal Event(OnResetSecurityFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnResetSecurityFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SetContentShare)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ToShare)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFUserAccountAdminDataServer.SetUserShare) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Foruser(#BPFUserAccountInternalKey) Toshare(#ToShare) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    #BPFContentShareName := #ToShare
+    
+    Signal Event(OnSetContentShareCompleted)
+    
+    Else
+    
+    Signal Event(OnSetContentShareFailed) Reason(#Status)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSetContentShareFailed) Reason(ER)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

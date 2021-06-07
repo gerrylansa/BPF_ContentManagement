@@ -1,0 +1,192 @@
+﻿Reusable Part:
+  Name:               BPFNavigationEventItem
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Navigation Event Item Class"
+
+  - JPN:
+      Description:        "Navigation Event Item Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Definitons
+    
+    * List Fields Mapping
+    Group_By Name(#ListFields) Fields(#BPFNavigationEventGroupName #BPFNavigationEventName #BPFIsSecuredNavigationEvent #BPFIsRootNavigationEvent #BPFNavigationRelatedViewID #BPFNavigationRelatedMenuID #BPFNavigationEventIsForEmailToken)
+    
+    * Properties
+    Define_Pty Name(EventGroup) Get(*AUTO #BPFNavigationEventGroupName)
+    
+    Define_Pty Name(EventName) Get(*AUTO #BPFNavigationEventName)
+    
+    Define_Pty Name(IsSecured) Get(*AUTO #BPFIsSecuredNavigationEvent)
+    
+    Define_Pty Name(IsRoot) Get(*AUTO #BPFIsRootNavigationEvent)
+    
+    Define_Pty Name(RelatedView) Get(GetRelatedView)
+    Define_Pty Name(RelatedViewID) Get(*AUTO #BPFNavigationRelatedViewID)
+    
+    Define_Pty Name(RelatedMenu) Get(GetRelatedMenu)
+    Define_Pty Name(RelatedMenuID) Get(*AUTO #BPFNavigationRelatedMenuID)
+    
+    Define_Pty Name(PersistView) Get(*AUTO #PersistView) Set(SetViewPersistance)
+    Define_Com Class(#PRIM_BOLN) Name(#PersistView)
+    
+    Define_Pty Name(IsTokenEvent) Get(*AUTO #BPFNavigationEventIsForEmailToken)
+    
+    * Global
+    Define_Com Class(#PRIM_VIEW) Name(#RelatedView) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_VIEW) Name(#RelatedMenu) Reference(*DYNAMIC)
+    
+    Define_Com Class(#PRIM_TIMR) Name(#CleanupView) Startup(Manual) Interval(1)
+    Define_Com Class(#PRIM_TIMR) Name(#CleanupMenu) Startup(Manual) Interval(1)
+    
+    * Rotines
+    
+    * Properties
+    Ptyroutine Name(GetRelatedView)
+    Define_Map For(*OUTPUT) Class(#PRIM_VIEW) Name(#Property) Pass(*BY_REFERENCE)
+    
+    * Has a view been set
+    If (#BPFNavigationRelatedViewID <> *BLANK)
+    
+    * Has the related view been populated
+    If (#RelatedView *Is *NULL)
+    
+    * Create the view and trigger the download
+    Set_Ref Com(#RelatedView) To(*CREATE_FROM #BPFNavigationRelatedViewID)
+    
+    Endif
+    
+    Endif
+    
+    #Property <= #RelatedView
+    
+    Endroutine
+    
+    Ptyroutine Name(GetRelatedMenu)
+    Define_Map For(*OUTPUT) Class(#PRIM_VIEW) Name(#Property) Pass(*BY_REFERENCE)
+    
+    * Has a view been set
+    If (#BPFNavigationRelatedMenuID <> *BLANK)
+    
+    * Has the related view been populated
+    If (#RelatedMenu *Is *NULL)
+    
+    * Create the menu view and trigger the download
+    Set_Ref Com(#RelatedMenu) To(*CREATE_FROM #BPFNavigationRelatedMenuID)
+    
+    Endif
+    
+    Endif
+    
+    #Property <= #RelatedMenu
+    
+    Endroutine
+    
+    Ptyroutine Name(SetViewPersistance)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    * Set the value
+    #PersistView := #Property
+    
+    * If we are keeping them alive, make sure the view is dead if not in use
+    If (#PersistView.IsFalse)
+    
+    * Check for object
+    If (#RelatedView *IsNot *Null)
+    
+    * If we have, kill it.
+    #CleanupView.Start
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Events
+    Evtroutine Handling(#RelatedView.Closed)
+    
+    * If no longer we can try to kill of view for this item
+    If (#RelatedView.Visible)
+    
+    * If the view is to persist, dont kill it.
+    If (#PersistView.IsFalse)
+    #CleanupView.Start
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#RelatedMenu.Closed)
+    
+    * If no longer required we can try to kill of menu view for this item
+    If (#RelatedMenu.Visible)
+    
+    * If the view is to persist, dont kill it.
+    #CleanupMenu.Start
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CleanupView.Tick)
+    
+    #CleanupView.Stop
+    
+    #RelatedView.Parent <= *NULL
+    #RelatedView <= *NULL
+    
+    Endroutine
+    
+    Evtroutine Handling(#CleanupMenu.Tick)
+    
+    #CleanupMenu.Stop
+    
+    #RelatedMenu.Parent <= *NULL
+    #RelatedMenu <= *NULL
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(Create) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#BPFNavigationEventGroupName) Name(#EventGroup)
+    Define_Map For(*INPUT) Class(#BPFNavigationEventName) Name(#EventName)
+    Define_Map For(*INPUT) Class(#BPFIsSecuredNavigationEvent) Name(#IsSecured) Mandatory(False)
+    Define_Map For(*INPUT) Class(#BPFIsSecuredNavigationEvent) Name(#IsRoot) Mandatory(False)
+    Define_Map For(*INPUT) Class(#BPFNavigationRelatedViewID) Name(#RelatedViewID) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#BPFNavigationEventIsForEmailToken) Name(#IsTokenEvent) Mandatory(False)
+    Define_Map For(*INPUT) Class(#BPFNavigationRelatedMenuID) Name(#RelatedMenuID) Mandatory(*NULL)
+    
+    
+    * Map Values
+    #BPFNavigationEventGroupName := #EventGroup
+    #BPFNavigationEventName := #EventName
+    #BPFIsSecuredNavigationEvent := #IsSecured
+    #BPFIsRootNavigationEvent := #IsRoot
+    #BPFNavigationRelatedViewID := #RelatedViewID
+    #BPFNavigationEventIsForEmailToken := #IsTokenEvent
+    #BPFNavigationRelatedMenuID := #RelatedMenuID
+    
+    Endroutine
+    
+    Mthroutine Name(CleanupRelatedView)
+    
+    #RelatedView <= *NULL
+    
+    Endroutine
+    
+    Mthroutine Name(CleanupRelatedMenu)
+    
+    #RelatedMenu <= *NULL
+    
+    Endroutine
+    
+    End_Com

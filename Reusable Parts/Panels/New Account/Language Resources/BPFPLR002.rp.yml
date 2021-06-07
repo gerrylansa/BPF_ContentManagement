@@ -1,0 +1,43 @@
+﻿Reusable Part:
+  Name:               BPFNewAccountSecurityPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "New Account Security Panel Strings"
+
+  - JPN:
+      Description:        "New Account Security Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Secure your %%APP%% account"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "by setting a security question and answer"
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. It's your portal protecting your account"
+    
+    #STRINGSCOLLECTION<'SECURITYQUESTIONSELECTION.CAPTION'> := "Select a question"
+    #STRINGSCOLLECTION<'SECURITYQUESTIONSELECTION.HELPERTEXT.EMPTY'> := "Error. No security questions found so your account cannot be created"
+    
+    #STRINGSCOLLECTION<'SECURITYANSWEREDIT.CAPTION'> := "Answer"
+    #STRINGSCOLLECTION<'SECURITYANSWEREDIT.HELPERTEXT'> := "be sure to take note of your answer"
+    #STRINGSCOLLECTION<'SECURITYANSWEREDIT.HELPERTEXT.FAILED'> := "Error. Account was not created on the server."
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Next"
+    
+    Endroutine
+    
+    End_Com

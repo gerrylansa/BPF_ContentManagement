@@ -1,0 +1,75 @@
+﻿Reusable Part:
+  Name:               BPFContentShareItemDetailsClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Item Details Class"
+
+  - JPN:
+      Description:        "Content Share Item Details Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Application References
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(TypeDescription) Get(*AUTO #TypeDescription)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#TypeDescription)
+    
+    Define_Pty Name(TypeIcon) Get(*AUTO #TypeIcon)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#TypeIcon)
+    
+    Define_Pty Name(TypeColour) Get(GetColour)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#TypeLightColour)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#TypeDarkColour)
+    
+    Define_Pty Name(RelatedViewer) Get(*AUTO #RelatedViewer)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#RelatedViewer)
+    
+    Define_Pty Name(DownloadInOldBrowsers) Get(*AUTO #DownloadInOldBrowsers)
+    Define_Com Class(#PRIM_BOLN) Name(#DownloadInOldBrowsers)
+    
+    * Routines
+    Ptyroutine Name(GetColour)
+    Define_Map For(*OUTPUT) Class(#PRIM_DC.UnicodeString) Name(#Property)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    
+    If (#Key.UpperCase = LIGHT)
+    
+    #Property := #TypeLightColour
+    
+    Else
+    
+    #Property := #TypeDarkColour
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Constructors
+    Mthroutine Name(Create) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Description)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Icon)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#LightColour)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#DarktColour)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ViewerID)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#DownloadForOldBrowsers) Mandatory(False)
+    
+    #TypeDescription := #Description
+    #Typeicon := #Icon
+    #TypeLightColour := #LightColour
+    #TypeDarkColour := #DarktColour
+    #RelatedViewer := #ViewerID
+    #DownloadInOldBrowsers := #DownloadForOldBrowsers
+    
+    Endroutine
+    
+    End_Com

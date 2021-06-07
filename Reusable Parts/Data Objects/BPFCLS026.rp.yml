@@ -1,0 +1,54 @@
+﻿Reusable Part:
+  Name:               BPFContentItemDetailsCollection
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item Details Collection"
+
+  - JPN:
+      Description:        "Content Item Details Collection"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Define_Pty Name(Type) Get(*REFERENCE #Types)
+    Define_Com Class(#PRIM_KCOL<#BPFContentShareItemDetailsClass #BPFGenericNVarChar256>) Name(#Types)
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.HandleCreate
+    
+    Endroutine
+    
+    Mthroutine Name(HandleCreate) Access(*PRIVATE)
+    
+    * You need a default entry to ensure that if any Types are not specified for a file type a value is present to be used
+    #Types<DEFAULT> <= (*New #BPFContentShareItemDetailsClass.Create( 'File' 'insert_drive_file' 'text(0,0,0,0.54)' 'text(255,255,255,0.54)' 'BPFPNL037' ))
+    
+    * Folders
+    #Types<FOLDER> <= (*New #BPFContentShareItemDetailsClass.Create( 'Folder', 'folder', 'text(0,0,0,0.54)' 'text(255,255,255,0.54)' *Null ))
+    
+    * Okay wild est time, you can add associated Types for a file type.
+    * The Types in order are, Description, icon, light coour, dark colour and te ID of teh related preview panel used by BPFVIEWER
+    #Types<PDF> <= (*New #BPFContentShareItemDetailsClass.Create( 'PDF Document' 'fa-file-pdf-o' 'text(183,28,28,1)' 'text(183,28,28,1)' 'BPFPNL035' TRUE ))
+    #Types<TXT> <= (*New #BPFContentShareItemDetailsClass.Create( 'Text Document' 'fa-file-text' 'text(33,150,243,1)' 'text(33,150,243,1)' 'BPFPNL035' ))
+    #Types<MP4> <= (*New #BPFContentShareItemDetailsClass.Create( 'MP4 Video' 'movie' 'text(33,150,243,1)' 'text(33,150,243,1)' 'BPFPNL035' TRUE ))
+    
+    #Types<PNG> <= (*New #BPFContentShareItemDetailsClass.Create( 'PNG Image' 'image' 'text(183,28,28,1)' 'text(183,28,28,1)' 'BPFPNL038' ))
+    #Types<JPG> <= (*New #BPFContentShareItemDetailsClass.Create( 'JPEG Image' 'image' 'text(183,28,28,1)' 'text(183,28,28,1)' 'BPFPNL038' ))
+    #Types<JPEG> <= (*New #BPFContentShareItemDetailsClass.Create( 'JPEG Image' 'image' 'text(183,28,28,1)' 'text(183,28,28,1)' 'BPFPNL038' ))
+    #Types<BMP> <= (*New #BPFContentShareItemDetailsClass.Create( 'Bitmap Image' 'image' 'text(183,28,28,1)' 'text(183,28,28,1)' 'BPFPNL038' ))
+    
+    #Types<YTV> <= (*New #BPFContentShareItemDetailsClass.Create( 'Youtube video' 'fa-youtube-play' 'text(244,67,54,1)' 'text(244,67,54,1)' 'BPFPNL036' ))
+    #Types<PPT> <= (*New #BPFContentShareItemDetailsClass.Create( 'Powerpoint', 'fa-file-powerpoint-o', 'text(255,87,34,1)' 'text(255,87,34,1)' *Null ))
+    #Types<DOC> <= (*New #BPFContentShareItemDetailsClass.Create( 'Word Document', 'fa-file-word-o', 'text(33,150,243,1)' 'text(33,150,243,1)' *Null ))
+    #Types<DOCX> <= (*New #BPFContentShareItemDetailsClass.Create( 'Word Document', 'fa-file-word-o', 'text(33,150,243,1)' 'text(33,150,243,1)' *Null ))
+    #Types<XLS> <= (*New #BPFContentShareItemDetailsClass.Create( 'Excel Worksheet', 'fa-file-excel-o', 'text(76,175,80,1)' 'text(76,175,80,1)' *Null ))
+    #Types<XLSX> <= (*New #BPFContentShareItemDetailsClass.Create( 'Excel Worksheet', 'fa-file-excel-o', 'text(76,175,80,1)' 'text(76,175,80,1)' *Null ))
+    
+    Endroutine
+    
+    End_Com

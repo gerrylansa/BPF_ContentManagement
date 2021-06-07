@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFPasswordResetActiveFailurePanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password Reset Active Failure Strings"
+
+  - JPN:
+      Description:        "Password Reset Active Failure Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Sorry... something is a miss here"
+    
+    #STRINGSCOLLECTION<'SECONDARINSTRUCTION.CAPTION'> := "You currently have a active session"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "The link you have used cannot be used while you have another session active in this browser. Sign out of any other sessions and then try clicking the link again. If you still get this error, then let us know at accounts@myPortal.com.au. Otherwise, I think you might be up to no good here. In which case, please stop."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "All done"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Done"
+    
+    Endroutine
+    
+    End_Com

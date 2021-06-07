@@ -1,0 +1,295 @@
+﻿Reusable Part:
+  Name:               BPFUserSettingsMenu
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Users Settings Menu"
+
+  - JPN:
+      Description:        "Portal Users Settings Menu"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Height(1080) Tabposition(1) Layoutmanager(#PanelLayout) Visible(False) Width(280)
+    
+    * Definitions
+    
+    * Global Objects
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFUserSettingsMenuStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Panel Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#PanelLayout) Sizing(ContentWidth)
+    
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn1) Displayposition(1) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow1) Displayposition(1) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem1) Alignment(TopLeft) Column(#PanelLayoutColumn1) Manage(#Appdrawer) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem2) Manage(#MenuHeading) Parent(#PanelLayout) Row(#PanelLayoutRow1) Sizing(None) Column(#PanelLayoutColumn1) Alignment(TopLeft) Flow(Down)
+    
+    * App Drawer Layout
+    Define_Com Class(#PRIM_TBLO) Name(#AppdrawerLayout)
+    
+    * Columns and Rows
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AppdrawerLayoutColumn1) Displayposition(1) Parent(#AppdrawerLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AppdrawerLayoutRow1) Displayposition(1) Parent(#AppdrawerLayout) Units(Content) Height(99)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AppdrawerLayoutRow2) Displayposition(2) Parent(#AppdrawerLayout) Units(Content) Height(31) Minheight(80)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AppdrawerLayoutRow4) Displayposition(3) Parent(#AppdrawerLayout)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppdrawerLayoutItem1) Column(#AppdrawerLayoutColumn1) Manage(#AppDrawerMenu) Parent(#AppdrawerLayout) Row(#AppdrawerLayoutRow4) Margintop(8) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppdrawerLayoutItem4) Manage(#AppDrawerSlideHeading) Parent(#AppdrawerLayout) Row(#AppdrawerLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#AppdrawerLayoutColumn1) Alignment(TopLeft)
+    
+    * Styles
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppdrawerLayoutItem2) Manage(#MenuHeading) Parent(#AppdrawerLayout) Row(#AppdrawerLayoutRow2) Sizing(ContentHeightFitToWidth) Column(#AppdrawerLayoutColumn1) Alignment(CenterLeft) Marginleft(16) Marginright(16)
+    
+    * App Drawer Menu Layout
+    Define_Com Class(#PRIM_TBLO) Name(#AppDrawerMenuLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AppDrawerMenuLayoutRow1) Displayposition(1) Parent(#AppDrawerMenuLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AppDrawerMenuLayoutColumn1) Displayposition(1) Parent(#AppDrawerMenuLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppDrawerMenuLayoutItem1) Alignment(BottomCenter) Column(#AppDrawerMenuLayoutColumn1) Manage(#AboutLink) Parent(#AppDrawerMenuLayout) Row(#AppDrawerMenuLayoutRow1) Sizing(ContentWidthAndHeight) Flow(CenterHorizontal)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppDrawerMenuLayoutItem2) Alignment(BottomCenter) Column(#AppDrawerMenuLayoutColumn1) Manage(#TermsLink) Parent(#AppDrawerMenuLayout) Row(#AppDrawerMenuLayoutRow1) Sizing(ContentWidthAndHeight) Flow(CenterHorizontal)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppDrawerMenuLayoutItem3) Alignment(BottomCenter) Column(#AppDrawerMenuLayoutColumn1) Manage(#LinkSpacer) Parent(#AppDrawerMenuLayout) Row(#AppDrawerMenuLayoutRow1) Sizing(None) Flow(CenterHorizontal) Marginleft(4) Marginright(4)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    
+    * App Drawer
+    Define_Com Class(#PRIM_MD.AppDrawer) Name(#Appdrawer) Displayposition(1) Layoutmanager(#AppdrawerLayout) Parent(#COM_OWNER) Tabposition(1) Width(280) Height(1080) Themedrawstyle('ForegroundSecondary+Heading3')
+    
+    * App Drawer Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#AppDrawerSlideHeading) Caption('myPortal') Displayposition(3) Left(0) Parent(#Appdrawer) Tabposition(3) Themedrawstyle('MediumTitle+Heading2') Width(280) Height(99) Captionmarginleft(16) Captionmarginbottom(8) Captionmargintop(0) Captionmarginright(16) Icon('cloud') Iconalignment(AboveCaption) Iconmarginleft(16) Iconheight(60) Iconmargintop(8) Top(0) Visible(False)
+    
+    * Menu Heading
+    Define_Com Class(#PRIM_MD.Label) Name(#MenuHeading) Displayposition(1) Left(16) Parent(#Appdrawer) Tabposition(1) Themedrawstyle('Heading1') Top(124) Width(248) Icon('settings') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Setting') Style(#NavigationLinkStyle)
+    
+    * Menu and items
+    Define_Com Class(#PRIM_MD.Menu) Name(#AppDrawerMenu) Displayposition(2) Height(893) Parent(#Appdrawer) Tabposition(2) Width(279) Top(187) Style(#FontWeight500Style) Layoutmanager(#AppDrawerMenuLayout) Left(1)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#AccountMenuItem) Caption('Account & Profile') Displayposition(1) Height(50) Icon('assignment_ind') Left(0) Parent(#AppDrawerMenu) Tabposition(1) Top(0) Width(279) Themedrawstyle('TopDivider') Componenttag('useraccountprofileview') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#SecurityMenuItem) Caption('Security & Credentials') Displayposition(3) Height(50) Icon('lock') Left(0) Parent(#AppDrawerMenu) Tabposition(3) Top(50) Width(279) Componenttag('usersecuritysettings') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ActivityMenuItem) Caption('Activity') Displayposition(5) Height(50) Icon('schedule') Left(0) Parent(#AppDrawerMenu) Tabposition(7) Top(100) Width(279) Componenttag('useractivitysettings') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#PreferencesMenuItem) Caption('Preferences') Displayposition(7) Height(50) Icon('check_box') Left(0) Parent(#AppDrawerMenu) Tabposition(5) Top(150) Width(279) Componenttag('userpreferencesview') Style(#NavigationLinkStyle)
+    
+    * Footer Controls
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#AboutLink) Caption('About') Displayposition(2) Left(81) Parent(#AppDrawerMenu) Tabposition(4) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(48) Captionmargintop(0) Style(#NavigationLinkStyle) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8) Captionalignment(CenterRight)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#TermsLink) Caption('Terms') Displayposition(6) Left(147) Parent(#AppDrawerMenu) Tabposition(2) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(50) Captionmargintop(0) Style(#NavigationLinkStyle) Captionalignment(CenterLeft) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8)
+    Define_Com Class(#PRIM_MD.Label) Name(#LinkSpacer) Displayposition(4) Left(133) Parent(#AppDrawerMenu) Tabposition(6) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(8) Captionmarginleft(0) Captionmarginright(0) Width(10) Captionmargintop(8) Captionalignment(Center) Caption('-')
+    
+    Define_Pty Name(MenuItems) Get(*REFERENCE #NavigationButtons)
+    Define_Com Class(#PRIM_KCOL<#PRIM_MD.MenuItem #BPFNavigationEventName>) Name(#NavigationButtons) Style(Collection)
+    
+    * Extrenal Control References
+    Define_Com Class(#Prim_MD.AppBar) Name(#TheAppBar) Reference(*DYNAMIC)
+    
+    * Reference for events
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #AppDrawerSlideHeading.Icon := #BPFPortal.AppIcon
+    #AppDrawerSlideHeading.Caption := #BPFPortal.AppName
+    
+    * Handle coming alive
+    #COM_SELF.Initialise
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #Com_self.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Appbar
+    Evtroutine Handling(#TheAppBar.IconClick)
+    
+    #Appdrawer.ToggleDrawer
+    
+    Endroutine
+    
+    Evtroutine Handling(#AboutLink.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To Eventname(PORTALABOUT)
+    
+    Endroutine
+    
+    Evtroutine Handling(#TermsLink.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Navigate.To Eventname(PORTALTERMSOFSERVICE)
+    
+    Endroutine
+    
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Group(#GroupName) Name(#Event)
+    
+    If ((#SYS_WEB.Device <> Desktop) *AndIf (#Appdrawer.IsShowing))
+    
+    #Appdrawer.CloseDrawer
+    
+    Endif
+    
+    #COM_SELF.HandleNavigationEvent( #GroupName #Event )
+    
+    Endroutine
+    
+    Evtroutine Handling(#MenuHeading.Click)
+    
+    #Navigate.BackToTarget( 'home' 'settings' False true )
+    
+    Endroutine
+    
+    * Controls
+    
+    Evtroutine Handling(#NavigationButtons<>.Click) Com_Sender(#Sender) Handled(#Handled)
+    
+    * Stop default Action
+    #Handled := True
+    
+    * Okay, the home button is the root navigation item so if you click this then we
+    * are always going back to the root. The other items for the navigation at the top
+    * level which is all we have at the moment are 1 step up from the root. Thus what we
+    * want to do is always go back to the root, then step forward 1.
+    
+    * This is true no matter where we are in the app.
+    
+    * So, did we click the home or something else?
+    If (#Sender.ComponentTag = 'home')
+    
+    * We did, so let go back to root
+    #Navigate.BackToTarget( ROOT )
+    
+    Else
+    
+    * We did not, so lets get the navigation manager to navigate back to the root and then
+    * take 1 step forward
+    #Navigate.BackToTarget( 'settings' #Sender.ComponentTag False true )
+    
+    Endif
+    
+    Endroutine
+    
+    * Set up of Object
+    Mthroutine Name(Initialise)
+    
+    * Extrenal References
+    #TheAppBar <= #BPFPortal.AppBar.AppBar
+    
+    * Collect Menu Items
+    #COM_SELF.CollectAppDrawerMenuItems
+    
+    * Set Strings
+    #MENUHEADING.CAPTION := #Strings.Text<MENUHEADING.CAPTION>
+    #ABOUTLINK.CAPTION := #STRINGS.Text<ABOUTLINK.CAPTION>
+    #TERMSLINK.CAPTION := #STRINGS.Text<TERMSLINK.CAPTION>
+    
+    * Set Inital Display
+    #Com_self.HandleDeviceChanged
+    
+    Endroutine
+    
+    Mthroutine Name(HandleNavigationEvent) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Eventgroup)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Event)
+    
+    * If we have event from the view group then we need to take action
+    If (#Eventgroup = VIEWS)
+    
+    * If we have a matching menu item, then attach current view
+    If (#NavigationButtons<#Navigate.CurrentEvent.EventName> *IsNot *null)
+    
+    * #NavigationButtons<#Navigate.CurrentEvent.EventName>.View <= #Navigate.CurrentEvent.RelatedView
+    
+    #NavigationButtons<>.View <= *NULL
+    #NavigationButtons<#Navigate.CurrentEvent.EventName>.View <= #COM_OWNER
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(CollectAppDrawerMenuItems)
+    
+    * Foe the App Drawer menu collect the items
+    For Each(#Item) In(#AppDrawerMenu.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.MENUItem)
+    
+    * Set initial selected menu item
+    If (#Item.ComponentTag = #Navigate.CurrentEvent.EventName)
+    
+    * #Item.View <= #Navigate.CurrentEvent.RelatedView
+    #Item.View <= #COM_OWNER
+    
+    Endif
+    
+    #Item.Caption := #Strings.Text<(#Item.Name.UpperCase + '.CAPTION')>
+    #NavigationButtons<#Item.ComponentTag> <= #Item
+    
+    Endfor
+    
+    Endroutine
+    
+    * Handle Responsive Layout Changes
+    Mthroutine Name(HandleDeviceChanged)
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.SetForMobile
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.SetForTablet
+    
+    When Value_Is(= Desktop)
+    
+    #COM_SELF.SetForDesktop
+    
+    Endcase
+    
+    Endroutine
+    
+    * Mobile Layout
+    Mthroutine Name(SetForMobile)
+    
+    * Set App Drawer
+    #Appdrawer.DrawerStyle := SlideInLeft
+    #com_self.Width := #SYS_WEB.WebPage.Width * 0.80
+    #AppDrawerSlideHeading.Visible := True
+    
+    Endroutine
+    
+    * Tablet Layout
+    Mthroutine Name(SetForTablet)
+    
+    * Set App Drawer
+    #Appdrawer.DrawerStyle := SlideInLeft
+    #com_self.Width := 300
+    #AppdrawerSlideHeading.Visible := True
+    
+    Endroutine
+    
+    * Desktop Layout
+    Mthroutine Name(SetForDesktop)
+    
+    * Set App Drawer
+    #Appdrawer.DrawerStyle := Permanent
+    #com_self.Width := 280
+    #AppDrawerSlideHeading.Visible := False
+    
+    Endroutine
+    
+    End_Com

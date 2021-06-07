@@ -1,0 +1,1108 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsImporter
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Handler To Import System Settings"
+
+  - JPN:
+      Description:        "Handler To Import System Settings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    Define_Com Class(#PRIM_ALPH) Name(#Filename)
+    Define Field(#logText) Type(*CHAR) Length(15000) Input_Atr(LC)
+    Def_List Name(#logBody) Fields(#BPFLogFileContentLine) Type(*WORKING) Entrys(*MAX)
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Events
+    Define_Evt Name(OnLogOutput)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#LogEntry)
+    
+    * JSON Data Writer
+    Define_Com Class(#XPRIM_RandomAccessJsonReader) Name(#Import)
+    Define_Com Class(#PRIM_ALPH) Name(#TaskUser)
+    Define_Com Class(#PRIM_ALPH) Name(#TaskUserPassword)
+    
+    * Logging File
+    Define_Com Class(#XPRIM_File) Name(#LoggingFile)
+    
+    * Schema
+    Define_Com Class(#PRIM_ALPH) Name(#Schema)
+    
+    * Group Bys
+    Group_By Name(#Settings) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription)
+    Group_By Name(#AdminUsers) Fields(#BPFUserAccountInternalKey #BPFUserEmail #BPFUserPassword #BPFUserFirstName #BPFUserLastName #BPFUserAccountEnabled #BPFUserHasAdminRights #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserEventToken #BPFUserPrimaryValue #BPFUserSecondaryValue)
+    Group_By Name(#AdminPrefs) Fields(#BPFUserPreferenceBackground #BPFUserPreferenceTheme #BPFUserPreferenceEmailLanguage)
+    Group_By Name(#AdminProfile) Fields(#BPFProfileCompanyName #BPFProfileJobTitle #BPFProfileAddressLine1 #BPFProfileAddressLine2 #BPFProfileSuburbName #BPFProfilePostalCode #BPFProfileStateName #BPFProfileCountry #BPFProfileBirthDate #BPFProfilePhoneNumber)
+    
+    * Lists
+    Def_List Name(#EmailTemplates) Fields(#BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#PDFContents) Fields(#BPFCodeAlphaValue) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    * Methods
+    Mthroutine Name(Populate)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#BPFGenericBlob) Name(#ExportData)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#DatabaseSchema) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#BackgroundUser) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#BackgroundUserPassword) Mandatory(*NULL)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Error Status
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting Import' )
+    
+    * Assume Failure, well look who coded this
+    #Result := False
+    
+    * Prepare for the import
+    If (#COM_SELF.PrepareSystem.IsFalse)
+    #COM_SELF.log( 'System prepared failed, import did not complete' )
+    Return
+    Endif
+    
+    * Set output to the result
+    #Import.SetSourceFile( #DataStatus #ExportData )
+    #COM_SELF.Log( ('Import source set as ' + #ExportData.FileName) )
+    
+    * Set the initial system data
+    
+    * Set Database Schema
+    #Schema := #DatabaseSchema
+    If (#Schema.IsNull)
+    #Schema := *PARTDTALIB
+    Endif
+    #COM_SELF.Log( ('Schema set as ' + #Schema) )
+    
+    * Import System Settings
+    If (#COM_SELF.ImportSettingsData.IsFalse)
+    #COM_SELF.log( 'Settings import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import Admins
+    If (#COM_SELF.ImportAdminUsers.IsFalse)
+    #COM_SELF.log( 'Admin users import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Create Portal Folders
+    If (#COM_SELF.CreatePortalFolders.IsFalse)
+    #COM_SELF.log( 'Portal folder creation failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import email templates
+    If (#COM_SELF.ImportEmails.IsFalse)
+    #COM_SELF.log( 'Email templates import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import PDF files
+    If (#COM_SELF.ImportPDFFiles.IsFalse)
+    #COM_SELF.log( '{PDF files import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import Web Content
+    If (#COM_SELF.ImportWebContent.IsFalse)
+    #COM_SELF.log( '{Web content import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import Language Support
+    If (#COM_SELF.ImportLanguageSupport.IsFalse)
+    #COM_SELF.log( '{Language support import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import Language Strings
+    If (#COM_SELF.ImportLanguageScript.IsFalse)
+    #COM_SELF.log( '{Language strings import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Import Plugins
+    If (#COM_SELF.ImportPlugins.IsFalse)
+    #COM_SELF.log( 'Plugin import failed, import did not complete' )
+    Return
+    Endif
+    
+    * Set up HTTP headers
+    If (#COM_SELF.SetHTTPHeaders.IsFalse)
+    
+    #COM_SELF.log( 'Add for HTTP Headers Failed, portal will not execute' )
+    Return
+    
+    Endif
+    
+    * Update portal page
+    If (#COM_SELF.UpdatePortalPage.IsFalse)
+    
+    #COM_SELF.log( 'Update of portal page failed, portal will not execute' )
+    Return
+    
+    Endif
+    
+    * Set User for tasks
+    #TaskUser := #BackgroundUser
+    #TaskUserPassword := #BackgroundUserPassword
+    
+    If (#COM_SELF.CreateStartProcessesTask.IsFalse)
+    
+    #COM_SELF.log( 'Creation of Start Process Task Failed, portal will execute but session data will not be removed' )
+    Return
+    
+    Endif
+    
+    #COM_SELF.log( 'Finished Import' )
+    
+    * Send Result
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(PrepareSystem) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    #COM_SELF.log( 'Starting system prepare' )
+    
+    * Prepare the system for import of settings
+    * Essentially, just delete all the settings
+    Delete From_File(BPFSystemCodes) Where(#BPFCodeGroup <> *BLANK)
+    #COM_SELF.log( ('System codes removed with status of ' + #IO$STS) )
+    
+    If (#IO$STS = ER)
+    Return
+    Endif
+    
+    * Now remove all deleted users
+    Delete From_File(BPFPortalDeletedAccounts) Where(#BPFUserAccountInternalKey <> *BLANK)
+    #COM_SELF.log( ('Deleted users all cleared with status of ' + #IO$STS) )
+    
+    * Now all the admin users ONLY
+    Delete From_File(BPFPortalUserAccounts) Where((#BPFUserAccountInternalKey <> *BLANK) *And (#BPFUserHasAdminRights = True))
+    #COM_SELF.log( ('Admin users removed with status of ' + #IO$STS) )
+    
+    If (#IO$STS = ER)
+    Return
+    Endif
+    
+    #COM_SELF.log( 'Finished system prepare' )
+    
+    * Return true is status is okay
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(ImportSettingsData) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    #COM_SELF.log( 'Starting settings import' )
+    
+    * Read the settings in
+    For Each(#settting) In(#Import.ReadArrayWithPath( 's' ))
+    
+    * Prime the values from the JSON
+    #BPFCodeGroup := #settting.AsObject.GetString( 'cg' )
+    #BPFCodeName := #settting.AsObject.GetString( 'cn' )
+    #BPFCodeSequence := #settting.AsObject.GetNumber( 'cs' )
+    #BPFCodeAlphaValue := #settting.AsObject.GetString( 'av' )
+    
+    * Adjust SQL command schema name
+    If (#BPFCodeGroup = 'SQL')
+    #BPFCodeAlphaValue := #BPFCodeAlphaValue.Replace( 'BPFDTA.' (#Schema + '.') )
+    Endif
+    
+    #BPFCodeNumericValue := #settting.AsObject.GetNumber( 'nv' )
+    #BPFCodeDescription := #settting.AsObject.GetString( 'cd' )
+    #COM_SELF.log( ('Attempting to add system setting ' + #BPFCodeGroup + ' / ' + #BPFCodeName) )
+    
+    * Insert into the file
+    Insert Fields(#Settings) To_File(BPFSystemCodes)
+    #COM_SELF.log( ('System setting ' + #BPFCodeGroup + ' / ' + #BPFCodeName + ' added with status of ' + #IO$STS) )
+    
+    * Leave if error encountered
+    Leave If(#IO$STS <> OK)
+    
+    Endfor
+    
+    #COM_SELF.log( 'Finished settings import' )
+    
+    * Return true is status is okay
+    #Result := (#IO$STS = OK)
+    
+    Endroutine
+    
+    Mthroutine Name(ImportAdminUsers) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    #COM_SELF.log( ('Starting admin users import - ' + #Import.ElementWithNameIsArray( 'sa' )) )
+    
+    * Read in the Admin Users
+    For Each(#account) In(#Import.ReadArrayWithPath( 'sa' ))
+    
+    * Prime the values from the JSON
+    #BPFUserAccountInternalKey := #account.AsObject.GetString( 'ui' )
+    #BPFUserEmail := #account.AsObject.GetString( 'ue' )
+    #BPFUserPassword := #account.AsObject.GetString( 'up' )
+    #BPFUserFirstName := #account.AsObject.GetString( 'fn' )
+    #BPFUserLastName := #account.AsObject.GetString( 'ln' )
+    
+    #COM_SELF.log( ('Importing admin user account ' + #BPFUserFirstName + ' ' + #BPFUserLastName) )
+    
+    #BPFUserAccountEnabled := #account.AsObject.GetBoolean( 'ae' )
+    #BPFUserHasAdminRights := #account.AsObject.GetBoolean( 'ua' )
+    #BPFUserInvalidAttempts := #account.AsObject.GetNumber( 'ia' )
+    #BPFUserSecurityQuestion := #account.AsObject.GetString( 'si' )
+    #BPFUserSecurityValue := #account.AsObject.GetString( 'sv' )
+    #BPFUserEventToken := #account.AsObject.GetString( 'et' ).AsNativeString
+    #BPFUserPrimaryValue := #account.AsObject.GetString( 'ps' )
+    #BPFUserSecondaryValue := #account.AsObject.GetString( 'ss' )
+    
+    * Insert into the file
+    Insert Fields(#AdminUsers) To_File(BPFPortalUserAccounts)
+    #COM_SELF.log( ('Import of user account completed with status of ' + #IO$STS) )
+    
+    * Leave if error encountered
+    If (#IO$STS <> OK)
+    #COM_SELF.log( ('Import of admnin user account failed') )
+    Return
+    Endif
+    
+    #COM_SELF.log( ('Importing admin user preferences for ' + #BPFUserFirstName + ' ' + #BPFUserLastName) )
+    
+    * Update preferences, if present
+    #AdminPrefs := *null
+    
+    #BPFUserPreferenceBackground := #account.AsObject.GetString( 'pb' )
+    If (#BPFUserPreferenceBackground.IsNull)
+    #BPFUserPreferenceBackground := *SQLNULL
+    Endif
+    
+    #BPFUserPreferenceTheme := #account.AsObject.GetString( 'pt' )
+    If (#BPFUserPreferenceTheme.IsNull)
+    #BPFUserPreferenceTheme := *SQLNULL
+    Endif
+    
+    #BPFUserPreferenceEmailLanguage := #account.AsObject.GetString( 'pe' )
+    If (#BPFUserPreferenceEmailLanguage.IsNull)
+    #BPFUserPreferenceEmailLanguage := *SQLNULL
+    Endif
+    
+    Update Fields(#AdminPrefs) In_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey)
+    #COM_SELF.log( ('Import of admnin user preferences completed with status of ' + #IO$STS) )
+    
+    If (#IO$STS <> OK)
+    #COM_SELF.log( ('Import of admnin user preference failed') )
+    Return
+    Endif
+    
+    #COM_SELF.log( ('Importing admin user profile for ' + #BPFUserFirstName + ' ' + #BPFUserLastName) )
+    
+    #BPFProfileCompanyName := #account.AsObject.GetString( 'pcn' )
+    If (#BPFProfileCompanyName.IsNull)
+    #BPFProfileCompanyName := *SQLNULL
+    Endif
+    
+    #BPFProfileJobTitle := #account.AsObject.GetString( 'pjt' )
+    If (#BPFProfileJobTitle.IsNull)
+    #BPFProfileJobTitle := *SQLNULL
+    Endif
+    
+    #BPFProfileAddressLine1 := #account.AsObject.GetString( 'pa1' )
+    If (#BPFProfileAddressLine1.IsNull)
+    #BPFProfileAddressLine1 := *SQLNULL
+    Endif
+    
+    #BPFProfileAddressLine2 := #account.AsObject.GetString( 'pa2' )
+    If (#BPFProfileAddressLine2.IsNull)
+    #BPFProfileAddressLine2 := *SQLNULL
+    Endif
+    
+    #BPFProfileSuburbName := #account.AsObject.GetString( 'pa3' )
+    If (#BPFProfileSuburbName.IsNull)
+    #BPFProfileSuburbName := *SQLNULL
+    Endif
+    
+    #BPFProfilePostalCode := #account.AsObject.GetString( 'ppc' )
+    If (#BPFProfilePostalCode.IsNull)
+    #BPFProfilePostalCode := *SQLNULL
+    Endif
+    
+    #BPFProfileStateName := #account.AsObject.GetString( 'psn' )
+    If (#BPFProfileStateName.IsNull)
+    #BPFProfileStateName := *SQLNULL
+    Endif
+    
+    #BPFProfileCountry := #account.AsObject.GetString( 'pac' )
+    If (#BPFProfileCountry.IsNull)
+    #BPFProfileCountry := *SQLNULL
+    Endif
+    
+    #BPFProfileBirthDate := #account.AsObject.GetString( 'pbd' ).AsDate( CCYYMMDD )
+    If (#BPFProfileBirthDate.IsNull)
+    #BPFProfileBirthDate := *SQLNULL
+    Endif
+    
+    #BPFProfilePhoneNumber := #account.AsObject.GetString( 'ppn' )
+    If (#BPFProfilePhoneNumber.IsNull)
+    #BPFProfilePhoneNumber := *SQLNULL
+    Endif
+    
+    Update Fields(#AdminProfile) In_File(BPFPortalUserProfile) With_Key(#BPFUserAccountInternalKey)
+    #COM_SELF.log( ('Import of admnin user profile completed with status of ' + #IO$STS) )
+    
+    If (#IO$STS <> OK)
+    #COM_SELF.log( ('Import of admnin user profile failed') )
+    Return
+    Endif
+    
+    Endfor
+    
+    
+    #COM_SELF.log( ('Finished admin users import') )
+    
+    * Return true is status is okay
+    #Result := (#IO$STS = OK)
+    
+    Endroutine
+    
+    Mthroutine Name(CreatePortalFolders) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Local Variables
+    Define_Com Class(#XPRIM_Directory) Name(#CheckDir)
+    
+    * Starting the process of creation, ensure you timeout after 6 days.
+    #COM_SELF.log( ('Starting creation of portal folders') )
+    
+    * Setup the portal folders in the Partition Directory
+    
+    * Set Portal root
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set Output folder
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_OUTPUT' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Now we need the PDF output folder
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_OUTPUT' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_OUTPUT' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set Plugins
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PLUGINS' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set Templates
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set the language folder and its child folers in templates
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    * Set Language folder
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFCodeName).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set the email folder
+    #CheckDir := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ) + *PATHDELIM + #BPFCodeName + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    Endselect
+    
+    * Setup the portal folders in the integrator directory
+    
+    * Set the base directory
+    #CheckDir := (*ROOT_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).LeftMost( #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).PositionOf( (*PATHDELIM + '&1') ) )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set the language folder and its child folders in LI portal folder
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    * Now we need the PDF contents folder
+    #CheckDir := (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).Substitute( #BPFCodeName ))).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Now we need the PDF resources folder
+    #CheckDir := (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_RESOURCES' ).Substitute( #BPFCodeName ))).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    Endselect
+    
+    * Set up the VL web folders
+    
+    * Set the base contents folder
+    #CheckDir := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' )).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set the language folders for the contents folders
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    #CheckDir := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + #BPFCodeName).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    Endselect
+    
+    * Set strings parent
+    #CheckDir := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings').AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    * Set the language folders for teh strings folders
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    #CheckDir := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + 'strings' + *PATHDELIM + #BPFCodeName).AsNativeString
+    #CheckDir.EnsureDirectoryExists
+    #COM_SELF.log( ('Creating folder ' + #CheckDir) )
+    
+    Endselect
+    
+    * All done
+    #COM_SELF.log( ('Finished creation of portal folders') )
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(ImportEmails) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of email templates' )
+    
+    * We need to read through all languages
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    For Each(#Template) In(#Import.ReadArrayWithPath( 'et' ))
+    
+    Continue If(#Template.AsObject.GetString( 'l' ) <> #BPFCodeName)
+    
+    #COM_SELF.log( ('Importing email template ' + #Template.AsObject.GetString( 'fn' ) + ' for language ' + #BPFCodeName) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#Template.AsObject.GetString( 'bd' ))
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing email template ' + #Template.AsObject.GetString( 'fn' ).AsNativeString + ' failed to convert from base64 ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    * Save
+    #Data.AsFile Path(*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ).AsNativeString + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_TEMPLATES' ).AsNativeString + *PATHDELIM + #BPFCodeName.AsNativeString + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_EMAIL_TEMPLATES' ).AsNativeString + *PATHDELIM + (#Template.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing email template ' + #Template.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    Leave If(#DataStatus.OK.IsFalse)
+    
+    Endselect
+    
+    #COM_SELF.log( 'Finished import of email templates' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    Mthroutine Name(ImportPDFFiles) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of PDF files' )
+    
+    * We need to read through all languages
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    For Each(#PDFFile) In(#Import.ReadArrayWithPath( 'pr' ))
+    
+    Continue If(#PDFFile.AsObject.GetString( 'l' ) <> #BPFCodeName)
+    
+    #COM_SELF.log( ('Importing PDF file ' + #PDFFile.AsObject.GetString( 'fn' ).AsNativeString + ' for language ' + #BPFCodeName) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#PDFFile.AsObject.GetString( 'df' ))
+    
+    * If we have an xml extension, then its contents otherwise it a resource
+    If (#PDFFile.AsObject.GetString( 'fn' ).AsNativeString.lowercase.Contains( '.xml' ))
+    
+    * Contents Save
+    #Data.AsFile Path(*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).Substitute( #BPFCodeName )).AsNativeString + *PATHDELIM + (#PDFFile.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    Else
+    
+    * Resources Save
+    #Data.AsFile Path(*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_RESOURCES' ).Substitute( #BPFCodeName )).AsNativeString + *PATHDELIM + (#PDFFile.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    Endif
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing PDF file ' + #PDFFile.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    Leave If(#DataStatus.OK.IsFalse)
+    
+    Endselect
+    
+    #COM_SELF.log( 'Finished import of PDF files' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    Mthroutine Name(ImportWebContent)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of web content' )
+    
+    * We need to read through all languages
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    For Each(#WebContent) In(#Import.ReadArrayWithPath( 'wc' ))
+    
+    Continue If(#WebContent.AsObject.GetString( 'l' ) <> #BPFCodeName)
+    
+    #COM_SELF.log( ('Importing web resource ' + #WebContent.AsObject.GetString( 'fn' ).AsNativeString + ' for language ' + #BPFCodeName) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#WebContent.AsObject.GetString( 'df' ))
+    
+    * Resources Save
+    #Data.AsFile Path(*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ).AsNativeString + *PATHDELIM + #BPFCodeName.AsNativeString + *PATHDELIM + (#WebContent.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing web content ' + #WebContent.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    Leave If(#DataStatus.OK.IsFalse)
+    
+    Endselect
+    
+    #COM_SELF.log( 'Finished import of web content' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    Mthroutine Name(ImportLanguageSupport) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of language support' )
+    
+    For Each(#Support) In(#Import.ReadArrayWithPath( 'sf' ))
+    
+    #COM_SELF.log( ('Importing language support ' + #Support.AsObject.GetString( 'fn' ).AsNativeString) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#Support.AsObject.GetString( 'df' ))
+    
+    * Resources Save
+    #Data.AsFile Path(*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ).AsNativeString + *PATHDELIM + (#Support.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing language support ' + #Support.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    #COM_SELF.log( 'Finished import of language support' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    Mthroutine Name(ImportLanguageScript)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of language strings' )
+    
+    * We need to read through all languages
+    Select Fields(#BPFCodeName) From_File(BPFSystemCodes) Where(#BPFCodeName <> DEFAULT) With_Key('LANGUAGE')
+    
+    For Each(#Strings) In(#Import.ReadArrayWithPath( 'ls' ))
+    
+    Continue If(#Strings.AsObject.GetString( 'l' ) <> #BPFCodeName)
+    
+    #COM_SELF.log( ('Importing language strings ' + #Strings.AsObject.GetString( 'fn' ).AsNativeString + ' for language ' + #BPFCodeName) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#Strings.AsObject.GetString( 'df' ))
+    
+    * Resources Save
+    #Data.AsFile Path(*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ).AsNativeString + *PATHDELIM + 'strings' + *PATHDELIM + #BPFCodeName.AsNativeString + *PATHDELIM + (#Strings.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing language strings ' + #Strings.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    Leave If(#DataStatus.OK.IsFalse)
+    
+    Endselect
+    
+    #COM_SELF.log( 'Finished import of language strings' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    Mthroutine Name(ImportPlugins) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    
+    #COM_SELF.log( 'Starting import of plugins' )
+    
+    For Each(#Plugin) In(#Import.ReadArrayWithPath( 'pg' ))
+    
+    #COM_SELF.log( ('Importing plugin ' + #Plugin.AsObject.GetString( 'fn' ).AsNativeString) )
+    
+    * Set data from base 64
+    #Data.FromBase64String Errorinfo(#DataStatus) String(#Plugin.AsObject.GetString( 'df' ))
+    
+    * Resources Save
+    #Data.AsFile Path(*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ).AsNativeString + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PLUGINS' ).AsNativeString + *PATHDELIM + (#Plugin.AsObject.GetString( 'fn' ).AsNativeString)) Errorinfo(#DataStatus)
+    
+    If (#DataStatus.OK.IsFalse)
+    
+    #COM_SELF.log( ('Importing plugin ' + #Plugin.AsObject.GetString( 'fn' ).AsNativeString + ' failed to create file ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    #COM_SELF.log( 'Finished import of plugins' )
+    #Result := #DataStatus.OK
+    
+    Endroutine
+    
+    * Set HTTP Headers for BPF.
+    Mthroutine Name(SetHTTPHeaders)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_File) Name(#WebPluginConfigFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#ReadStatus)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#WriteStatus)
+    
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#WebPluginConfig)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#NewHeadersConfig)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#OldHeadersConfig)
+    
+    #COM_SELF.Log( ('Starting to configure HTTP headers') )
+    
+    * Assume failure
+    #Result := False
+    
+    * Set Path to WebPluginConfigFile
+    #WebPluginConfigFile := *ROOT_DIR + '\WebServer\IISPlugin\webplugin.conf'
+    #COM_SELF.log( ('Web config path set as - ' + #WebPluginConfigFile) )
+    
+    * Check the file exists
+    If (#WebPluginConfigFile.Exists)
+    
+    #COM_SELF.log( ('Web config file was found') )
+    
+    * We have a fiel so read in the contents
+    #WebPluginConfig := #WebPluginConfigFile.ReadAllText( #ReadStatus )
+    #COM_SELF.log( ('HTTP Headers read completed with a status of ' + #ReadStatus.OK + ' ' + #ReadStatus.ErrorCode.AsNativeString + ' ' + #ReadStatus.ErrorMessage.AsNativeString) )
+    
+    * Did we read the data okay
+    If (#ReadStatus.OK)
+    
+    * Lets start by clearing out any old format headers
+    
+    * Set up Old Fornat
+    #OldHeadersConfig += "_SYSTEM1_HTTP1=*ALL;HTTP_TRANSACTION_ID;NOTOKEN;W$TRANSID(A0100)" + (10).AsUnicodeString
+    #OldHeadersConfig += "_SYSTEM1_HTTP2=*ALL;HTTP_USER_AGENT;not provided. Please configure HTTP header variables;W$USRAGT(L2560)" + (0).AsUnicodeString
+    
+    * Remove
+    #WebPluginConfig := #WebPluginConfig.Remove( #OldHeadersConfig )
+    
+    * Now lets check for each new format header, if we find it dont add it
+    If (#WebPluginConfig.Contains( 'WRQSCKE(L8960)' ).IsFalse)
+    
+    #NewHeadersConfig += '_SYSTEM1_HTTP1=*ALL;HTTP_COOKIE;Missing cookie value;WRQSCKE(L8960)' + (10).AsUnicodeString
+    #COM_SELF.log( ('Adding HTTP_COOKIE') )
+    
+    Endif
+    
+    If (#WebPluginConfig.Contains( 'WRQSTID(A2560)' ).IsFalse)
+    
+    #NewHeadersConfig += '_SYSTEM1_HTTP2=*ALL;HTTP_REQUEST_ID;No request ID sent;WRQSTID(A2560)' + (10).AsUnicodeString
+    #COM_SELF.log( ('Adding HTTP_REQUEST_ID') )
+    
+    Endif
+    
+    If (#WebPluginConfig.Contains( 'WRQSTTS(A2560)' ).IsFalse)
+    
+    #NewHeadersConfig += '_SYSTEM1_HTTP3=*ALL;HTTP_REQUEST_TS;0000000000000;WRQSTTS(A2560)' + (10).AsUnicodeString
+    #COM_SELF.log( ('Adding HTTP_REQUEST_TS') )
+    
+    Endif
+    
+    If (#WebPluginConfig.Contains( 'WTRANSID(A0100)' ).IsFalse)
+    
+    #NewHeadersConfig += '_SYSTEM1_HTTP4=*ALL;HTTP_TRANSACTION_ID;NOTOKEN;WTRANSID(A0100)' + (10).AsUnicodeString
+    #COM_SELF.log( ('Adding HTTP_TRANSACTION_ID') )
+    
+    Endif
+    
+    If (#WebPluginConfig.Contains( 'WUSRAGT(A2560)' ).IsFalse)
+    
+    #NewHeadersConfig += '_SYSTEM1_HTTP5=*ALL;HTTP_USER_AGENT;not provided. Please configure HTTP header variables;WUSRAGT(A2560)' + (10).AsUnicodeString
+    #COM_SELF.log( ('Adding HTTP_USER_AGENT') )
+    
+    Endif
+    
+    * If we do have anything in the heading string, then nothing to do
+    If (#NewHeadersConfig.IsNull)
+    
+    #COM_SELF.log( ('HTTP header have already been configured') )
+    
+    #Result := True
+    Return
+    
+    Else
+    
+    * It wasnt blank, so we will add a carriage return to the front first
+    #NewHeadersConfig := #NewHeadersConfig.InsertString( (10).AsUnicodeString 1 )
+    
+    * Now update the file data
+    #WebPluginConfig += #NewHeadersConfig
+    
+    * Now write out Data
+    #WebPluginConfigFile.WriteAllText Text(#WebPluginConfig) Append(False) Errorinfo(#WriteStatus)
+    
+    * Check for write
+    If (#WriteStatus.OK)
+    
+    #COM_SELF.log( ('Attempting to reset IIS') )
+    
+    * okay so try and reset iis.
+    Use Builtin(SYSTEM_COMMAND) With_Args('B' 'powershell -command "Start-Process -FilePath iisreset -Verb RunAs -WindowStyle Hidden"') To_Get(#std_num)
+    
+    #COM_SELF.log( ('HTTP headers updated') )
+    
+    Else
+    
+    #COM_SELF.log( 'Write of HTTP Headers Failed' )
+    Return
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( 'Read of HTTP Headers Failed' )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( ('Web plugin file read failed') )
+    Return
+    
+    Endif
+    
+    #COM_SELF.Log( ('Finished configuring HTTP headers') )
+    
+    * Success !!
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(CreateStartProcessesTask)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_File) Name(#TaskSettingsInputFile)
+    Define_Com Class(#XPRIM_File) Name(#TaskSettingsOutputFile)
+    
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#TaskSettings)
+    
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#ReadStatus)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#WriteStatus)
+    
+    
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#RunPath)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#Partition)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#DevLanguage)
+    Define_Com Class(#STD_TEXT) Name(#DBII)
+    Define_Com Class(#BPFCodeAlphaValue) Name(#StartProcess)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#ProcessCommand)
+    
+    * Assume failure
+    #Result := False
+    
+    * Look for the TaskSettings to modify for current server & LANSA install
+    
+    * Set Path to Template XML file
+    #TaskSettingsInputFile := (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PLUGINS' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'PLUGIN' 2 )).AsNativeString
+    
+    If (#TaskSettingsInputFile.Exists)
+    
+    * Check File size
+    #COM_SELF.log( ('XML Task settings file size is ' + #TaskSettingsInputFile.Size.AsString) )
+    
+    * We have a fiel so read in the contents
+    #TaskSettings := #TaskSettingsInputFile.ReadAllText( #ReadStatus )
+    #COM_SELF.log( ('XML Task settings read success - ' + #ReadStatus.OK + ' / ' + #ReadStatus.ErrorCode.AsNativeString + ' / ' + #ReadStatus.ErrorMessage.AsNativeString) )
+    
+    * Did we read the data okay
+    If (#ReadStatus.OK)
+    
+    * %RUNPATH% will be similar to "C:\Program Files (x86)\Visual LANSA\Internal\X_WIN95\X_LANSA\execute\x_run.exe"
+    #RunPath := *SYS_DIR_EXECUTE + "x_run.exe"
+    #COM_SELF.log( ('Run path value set as - ' + #RunPath.AsNativeString) )
+    
+    * %PART% will be similar to BPF
+    #Partition := *PARTITION
+    #COM_SELF.log( ('Partition value set as - ' + #Partition.AsNativeString) )
+    
+    * %LANG% will be similar to ENG
+    #DevLanguage := *LANGUAGE
+    #COM_SELF.log( ('Language value set as - ' + #DevLanguage.AsNativeString) )
+    
+    * %DBII% will be similar to Internal
+    Use Builtin(GET_SESSION_VALUE) With_Args('DBII') To_Get(#DBII #IO$STS)
+    #COM_SELF.log( ('DBII value set as - ' + #DBII) )
+    
+    * Modify XML as required
+    #TaskSettings := #TaskSettings.Replace( '%RUNPATH%' #RunPath )
+    #TaskSettings := #TaskSettings.Replace( '%PART%' #Partition )
+    #TaskSettings := #TaskSettings.Replace( '%LANG%' #DevLanguage )
+    #TaskSettings := #TaskSettings.Replace( '%DBII%' #DBII )
+    
+    Else
+    
+    #COM_SELF.log( ('Read of task setting file FAILED') )
+    Return
+    
+    Endif
+    
+    * Now write out Data
+    #TaskSettingsOutputFile := ((*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PLUGINS' ) + *PATHDELIM + #Utils.GetAlphaValue( 'SYSTEM' 'PLUGIN' 2 )).replace( '.xml' '_installed.xml' ).AsNativeString)
+    
+    #TaskSettingsOutputFile.WriteAllText Text(#TaskSettings) Append(False) Errorinfo(#WriteStatus)
+    
+    * Check for write
+    If (#WriteStatus.OK)
+    
+    * Final string should be similar to - powershell -command "Start-Process -filepath 'cmd.exe' -ArgumentList '/C schtasks /Create /ru pcxuser /rp pcxuser /tn StartPortalBackgroundProcesses /xml C:\Progra~2\Visual~1\Internal\X_WIN95\X_LANSA\x_BPF\portal\plugins\StartPortalProcesses_installed.xml /F' -WindowStyle Maximized -Verb RunAs"
+    
+    #StartProcess := 'powershell -command "Start-Process -filepath %FILEPATH% -ArgumentList %ARGS% -WindowStyle Hidden -Verb RunAs"'
+    #ProcessCommand := "'/C schtasks /Create /ru " + #TaskUser + " /rp " + #TaskUserPassword + " /tn StartPortalBackgroundProcesses_" + (*ROOT_DIR).RightMost( ((*ROOT_DIR).CurChars - ((*ROOT_DIR).LastPositionOf( *PATHDELIM ))) ) + "  /xml " + #TaskSettingsOutputFile + " /F'"
+    
+    #StartProcess := #StartProcess.ReplaceAll( '%FILEPATH%' "'cmd.exe'" ).ReplaceAll( '%ARGS%' #ProcessCommand.AsNativeString )
+    #COM_SELF.log( ('Generated power shell script was - ' + #StartProcess) )
+    
+    Use Builtin(SYSTEM_COMMAND) With_Args('B' #StartProcess.AsNativeString) To_Get(#std_num)
+    #COM_SELF.log( ('Creation of Task Schedule powershell script was - ' + #std_num.asstring) )
+    
+    #StartProcess := 'powershell -command "Start-Process -filepath %FILEPATH% -ArgumentList %ARGS% -WindowStyle Hidden -Verb RunAs"'
+    #ProcessCommand := "'/C schtasks /Run /tn StartPortalBackgroundProcesses'"
+    
+    #StartProcess := #StartProcess.ReplaceAll( '%FILEPATH%' "'cmd.exe'" ).ReplaceAll( '%ARGS%' #ProcessCommand.AsNativeString )
+    #COM_SELF.log( ('Generated power shell script was - ' + #StartProcess) )
+    
+    Use Builtin(SYSTEM_COMMAND) With_Args('B' #StartProcess.AsNativeString) To_Get(#std_num)
+    #COM_SELF.log( ('Creation of Task Schedule powershell script was - ' + #std_num.asstring) )
+    
+    Else
+    
+    #COM_SELF.log( 'Write of XML Settings Failed' )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( 'XML Settings does not exist' )
+    Return
+    
+    Endif
+    
+    * Success !!
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(UpdatePortalPage) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    Define_Com Class(#XPRIM_File) Name(#PortalsHTMLFile)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#FileStatus)
+    Define_Com Class(#Prim_DC.UnicodeString) Name(#HTML)
+    
+    Define_Com Class(#PRIM_NMBR) Name(#Position)
+    Define_Com Class(#PRIM_NMBR) Name(#Length)
+    
+    * Assume failure
+    #Result := False
+    
+    #COM_SELF.log( 'Starting Update of Portal Page' )
+    
+    * Set Path to File
+    #PortalsHTMLFile.Path := *PART_DIR + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + 'bpfportal.html'
+    #COM_SELF.log( ('Portal Page path set as ' + #PortalsHTMLFile.Path) )
+    
+    * Check file Exists
+    If (#PortalsHTMLFile.Exists)
+    
+    #COM_SELF.log( 'Portal Page found' )
+    
+    * Read in the file contents
+    #HTML := #PortalsHTMLFile.ReadAllText( #FileStatus )
+    
+    If (#FileStatus.OK)
+    
+    #COM_SELF.log( 'Portal page HTML loaded' )
+    
+    * Check change needs to be made, just in case the user changes the file manually while
+    * monitoring is running
+    If (#HTML.Contains( 'PORTALIZE.language' ).IsFalse)
+    
+    * All okay, so strat chaning
+    #COM_SELF.log( 'Portal page HTML missing language support' )
+    
+    * We read, so lets get Position and length
+    #Position := #HTML.PositionOf( '":"' ) + 2
+    #Length := #HTML.PositionOf( ":" (#Position + 1) ) - (#Position + 6)
+    
+    #HTML := #HTML.ReplaceSubstring( #Position #Length 'PORTALIZE.language' )
+    #COM_SELF.log( 'Portal page HTML updated to add language support' )
+    
+    * Lets Update the HTML File
+    #PortalsHTMLFile.WriteAllText Text(#HTML) Append(False) Errorinfo(#FileStatus)
+    If (#FileStatus.OK.IsFalse)
+    
+    #COM_SELF.log( 'Portal page failed to update' )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( 'Portal page already updated' )
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( 'Portal page failed to be loaded from file' )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #COM_SELF.log( 'Portal page not found' )
+    Return
+    
+    Endif
+    
+    * Success !!
+    #Result := True
+    
+    Endroutine
+    
+    Mthroutine Name(Log)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Text)
+    
+    * Local Variables
+    Define_Com Class(#XPRIM_Directory) Name(#CheckDir)
+    
+    * Output to the logging file
+    
+    * Check Filename, if blank we need to set a file name
+    If (#Filename = *blank)
+    
+    * Ensure folder(s) are present
+    #CheckDir := *PART_DIR
+    #CheckDir.EnsureDirectoryExists
+    
+    * Set Path
+    #Filename := #CheckDir + *PATHDELIM + "portal_import_log_" + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + ".txt"
+    
+    * Set File Properies if using PRIM_IOC. At EPC150010 PRIM_IOC has a encoidng issue preventing the creation
+    * of files with special characters.
+    
+    * #LoggingText.Stream <= #LoggingFile
+    * #LoggingFile.Path := #Filename
+    * #LoggingFile.FileAccess := Write
+    * #LoggingFile.FileMode := Create
+    
+    #LoggingFile.Path := #Filename
+    
+    Endif
+    
+    * #LoggingText.WriteLine( (#STD_DTIMX.Now.AsDisplayString( Localized_SQL ) + ' - ' + #Text.CurChars.AsString + ' - ' + #Text) )
+    #LoggingFile.WriteAllText Text((#STD_DTIMX.Now.AsDisplayString( Localized_SQL ) + ' - ' + #Text.CurChars.AsString + ' - ' + #Text + ((10).AsUnicodeString))) Append(True)
+    
+    * Now signal to any parent
+    Signal Event(OnLogOutput) Logentry(#Text)
+    
+    Endroutine
+    
+    End_Com

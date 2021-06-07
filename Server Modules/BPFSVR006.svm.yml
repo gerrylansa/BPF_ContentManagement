@@ -1,0 +1,680 @@
+﻿ServerModule:
+  Name:               BPFSecurityDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal System Security Data Server"
+
+  - JPN:
+      Description:        "Portal System Security Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#AlphaValue) Type(*CHAR) Length(512)
+    Define Field(#NumericValue1) Reffld(#BPFCodeNumericValue)
+    Define Field(#NumericValue2) Reffld(#BPFCodeNumericValue)
+    Define Field(#NumericValue3) Reffld(#BPFCodeNumericValue)
+    Define Field(#NumericValue4) Reffld(#BPFCodeNumericValue)
+    Define Field(#NumericValue5) Reffld(#BPFCodeNumericValue)
+    
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    
+    * Save fields for update checking
+    Define Field(#sCodeGroup) Reffld(#BPFCodeGroup)
+    Define Field(#sCodeName) Reffld(#BPFCodeName)
+    Define Field(#sCodeSequence) Reffld(#BPFCodeSequence)
+    Define Field(#sCodeAlphaValue) Reffld(#BPFCodeAlphaValue)
+    Define Field(#sCodeNumericValue) Reffld(#BPFCodeNumericValue)
+    Define Field(#sCodeDescription) Reffld(#BPFCodeDescription)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    
+    Def_List Name(#CurrentBannedIPs) Fields(#BPFRecordedIPAddress #BPFGenericShortNumeric01 #BPFGenericShortNumeric02 #BPFIPAddressAttemptRecorded) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * Server Data Calls
+    
+    * Valid Request Checking
+    Srvroutine Name(GetRequstChkValidSts) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFCodeNumericValue) Parameter_Name(Enabled)
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(CleanupProcessStatus)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local
+    Define_Com Class(#PRIM_NMBR) Name(#Started)
+    Define_Com Class(#PRIM_NMBR) Name(#Ended)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetRequstChkValidSts' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Get enabled
+    #BPFCodeNumericValue := #Utils.GetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' )
+    
+    * Get status
+    #Started := #Utils.GetNumericValue( 'SYSTEM' 'STARTED_SESSION_MONITOR' 1 )
+    #Ended := #Utils.GetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' 1 )
+    
+    If (#Started < 1)
+    
+    #AlphaValue := 'Stopped'
+    
+    Else
+    
+    If (#Ended > 0)
+    
+    #AlphaValue := 'Ending'
+    
+    Else
+    
+    #AlphaValue := 'Running'
+    
+    Endif
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetRequestValidOn) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#BooleanValue) Parameter_Name(Enable)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetRequestValidOn' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    If (#BooleanValue)
+    
+    * Enable value and start cleanup process
+    #Utils.SetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' 1 1 )
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU002)
+    
+    Else
+    
+    * Disable feature and cleanup logging and process
+    #Utils.SetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' 1 0 )
+    #Utils.SetNumericValue( 'LOGGING_PROCESSES' 'SESSION_DATA_CLEANUP' 1 0 )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' 1 1 )
+    
+    Endif
+    
+    * Set Status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetRequestCleanTask) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(To)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetRequestCleanTask' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    #Utils.log( ('Security Data Server : Setting request cleanup service to : ' + #AlphaValue) )
+    
+    * What was asked
+    Case Of_Field(#AlphaValue)
+    
+    When Value_Is(= START)
+    
+    #Utils.log( ('Security Data Server : Attempting to start request cleanup service') )
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU002)
+    #Utils.log( ('Security Data Server : Attempting to start request cleanup service : DONE') )
+    
+    When Value_Is(= STOP)
+    
+    #Utils.log( ('Security Data Server : Attempting to stop request cleanup service') )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_SESSION_MONITOR' 1 1 )
+    #Utils.log( ('Security Data Server : Attempting to stop request cleanup service : DONE') )
+    
+    When Value_Is(= RESTART)
+    
+    #Utils.log( ('Security Data Server : Attempting to restart request cleanup service') )
+    #Utils.log( ('Security Data Server : Attempting to restart request cleanup service : DONE') )
+    
+    Endcase
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * IP Banning
+    * Valid Request Checking
+    Srvroutine Name(GetIPBanStatus) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#NumericValue1) Parameter_Name(Enabled)
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(ClearProcessStatus)
+    Field_Map For(*OUTPUT) Field(#NumericValue2) Parameter_Name(Limit)
+    Field_Map For(*OUTPUT) Field(#NumericValue3) Parameter_Name(Duration)
+    Field_Map For(*OUTPUT) Field(#NumericValue4) Parameter_Name(CheckInterval)
+    Field_Map For(*OUTPUT) Field(#NumericValue5) Parameter_Name(ChangesPending)
+    Field_Map For(*OUTPUT) Field(#std_num) Parameter_Name(IPsbanned)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local
+    Define_Com Class(#PRIM_ALPH) Name(#QueryString)
+    Define_Com Class(#PRIM_NMBR) Name(#Started)
+    Define_Com Class(#PRIM_NMBR) Name(#Ended)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetIPBanStatus' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Get enabled
+    #NumericValue1 := #Utils.GetNumericValue( 'SECURITY' 'IP_ADDRESS_BANNING' )
+    #NumericValue2 := #Utils.GetNumericValue( 'SECURITY' 'IP_ADDRESS_ATTEMPT_LIMIT' )
+    #NumericValue3 := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_BAN_DURATION' )
+    #NumericValue4 := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_SLEEP_TIME' )
+    #NumericValue5 := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_CHANGES_PENDING' )
+    
+    * Get status
+    #Started := #Utils.GetNumericValue( 'SYSTEM' 'STARTED_CLEAR_IPS' 1 )
+    #Ended := #Utils.GetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' 1 )
+    
+    If (#Started < 1)
+    
+    #AlphaValue := 'Stopped'
+    
+    Else
+    
+    If (#Ended > 0)
+    
+    #AlphaValue := 'Ending'
+    
+    Else
+    
+    #AlphaValue := 'Running'
+    
+    Endif
+    
+    Endif
+    
+    * Get Count of IP Banned
+    * #QueryString := "SELECT COUNT(*) AS STD_NUM FROM " + *PARTDTALIB + ".BPFBannedIPAddresses WHERE BPFRecordedIPAddressIsBanned = 1"
+    #BPFGenericNVarChar2048 := #Utils.GetAlphaValueForLanguage( *OSAPI SQL IPBANCOUNT )
+    
+    Select_Sql Fields(#std_num) Using(#BPFGenericNVarChar2048)
+    Endselect
+    
+    * Return Status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    
+    Srvroutine Name(SetIPMonitorValues) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#BooleanValue) Parameter_Name(Enable)
+    Field_Map For(*INPUT) Field(#NumericValue2) Parameter_Name(Limit)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetIPMonitorValues' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Save the attempt limit value
+    #Utils.SetNumericValue( 'SECURITY' 'IP_ADDRESS_ATTEMPT_LIMIT' 1 #NumericValue2 )
+    
+    If (#BooleanValue)
+    
+    * Enable value and start cleanup process
+    #Utils.SetNumericValue( 'SECURITY' 'IP_ADDRESS_BANNING' 1 1 )
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU003)
+    
+    Else
+    
+    * Disable feature and cleanup logging and process
+    #Utils.SetNumericValue( 'SECURITY' 'IP_ADDRESS_BANNING' 1 0 )
+    #Utils.SetNumericValue( 'LOGGING_PROCESSES' 'CLEAR_BANNED_IPS' 1 0 )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' 1 1 )
+    
+    Endif
+    
+    * Set Status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetIPClearCheckTime) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#NumericValue1) Parameter_Name(Interval)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Changes Pending
+    Field_Map For(*OUTPUT) Field(#NumericValue5) Parameter_Name(ChangesPending)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetIPClearCheckTime' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Save the attempt limit value
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_SLEEP_TIME' 1 #NumericValue1 )
+    
+    #NumericValue5 := 1
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_CHANGES_PENDING' 1 #NumericValue5 )
+    
+    * Set Status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetIPClearBannedTime) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#NumericValue1) Parameter_Name(Interval)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Changes Pending
+    Field_Map For(*OUTPUT) Field(#NumericValue5) Parameter_Name(ChangesPending)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetIPClearBannedTime' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Save the attempt limit value
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_BAN_DURATION' 1 #NumericValue1 )
+    
+    #NumericValue5 := 1
+    #Utils.SetNumericValue( 'SYSTEM' 'CLEAR_IPS_CHANGES_PENDING' 1 #NumericValue5 )
+    
+    * Set Status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetIPClearTask) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(To)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetIPClearTask' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    #Utils.log( ('Security Data Server : Setting IP address clear process to : ' + #AlphaValue) )
+    
+    * What was asked
+    Case Of_Field(#AlphaValue)
+    
+    When Value_Is(= START)
+    
+    #Utils.log( ('Security Data Server : Attempting to start IP address clear process') )
+    #Utils.StartBackgroundProcess Processname(BPFUTILS) Functionname(BPFU003)
+    #Utils.log( ('Security Data Server : Attempting to start IP address clear process : DONE') )
+    
+    When Value_Is(= STOP)
+    
+    #Utils.log( ('Security Data Server : Attempting to stop IP address clear process') )
+    #Utils.SetNumericValue( 'SYSTEM' 'END_CLEAR_IPS' 1 1 )
+    #Utils.log( ('Security Data Server : Attempting to stop IP address clear process : DONE') )
+    
+    When Value_Is(= RESTART)
+    
+    #Utils.log( ('Security Data Server : Attempting to restart IP address clear process') )
+    #Utils.log( ('Security Data Server : Attempting to restart IP address clear process : DONE') )
+    
+    Endcase
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetCurrentBannedIPs) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Data
+    List_Map For(*OUTPUT) List(#CurrentBannedIPs) Parameter_Name(BannedIPAddresses)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Variable
+    Define_Com Class(#PRIM_NMBR) Name(#CurrentEpoch)
+    Define_Com Class(#PRIM_NMBR) Name(#EntryEpoch)
+    Define_Com Class(#PRIM_NMBR) Name(#Difference)
+    Define_Com Class(#PRIM_NMBR) Name(#Duration)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetCurrentBannedIPs' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Get Current Epoch
+    #CurrentEpoch := #Utils.GetDateTimeInEpoch
+    
+    * Get Current Duration
+    #Duration := #Utils.GetNumericValue( 'SYSTEM' 'CLEAR_IPS_BAN_DURATION' )
+    
+    * Read for Bans by Newest Dates
+    Select Fields(#BPFRecordedIPAddress #BPFIPAddressAttemptRecorded) From_File(BPFBannedIPAddressesNewestFirst) Where(#BPFRecordedIPAddressIsBanned = True)
+    
+    * Get the entry epoch value and find the difference
+    #EntryEpoch := #Utils.GetDateTimeInEpoch( #BPFIPAddressAttemptRecorded )
+    #Difference := #CurrentEpoch - #EntryEpoch
+    #Difference := #Duration - #Difference
+    
+    * Do we have a positive difference
+    If (#Difference >= 0)
+    
+    * Get the hours
+    #BPFGenericShortNumeric01 := (#Difference / 3600).Round( Down 0 )
+    
+    * Get Minutes
+    #BPFGenericShortNumeric02 := (((#Difference / 3600) - #BPFGenericShortNumeric01) * 60).Round( HalfDown 0 )
+    
+    If (#BPFGenericShortNumeric02 >= 60)
+    
+    #BPFGenericShortNumeric01 := #BPFGenericShortNumeric01 + 1
+    #BPFGenericShortNumeric02 := 0
+    
+    Endif
+    
+    Else
+    
+    * Set both values to 0
+    #BPFGenericShortNumeric01 #BPFGenericShortNumeric02 := 0
+    
+    Endif
+    
+    * Add the entry
+    Add_Entry To_List(#CurrentBannedIPs)
+    
+    Endselect
+    
+    #Utils.log( ('Security Data Server : Setting IP address clear process to : ' + #AlphaValue) )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(ClearIPAddressBan) Session(*REQUIRED)
+    
+    * Victim
+    Field_Map For(*INPUT) Field(#BPFRecordedIPAddress) Parameter_Name(Victim)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ClearIPAddressBan' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    If (#BPFRecordedIPAddress.IsNull)
+    
+    Delete From_File(BPFBannedIPAddresses) Where(#BPFRecordedIPAddress <> *BLANK)
+    
+    Else
+    
+    * The Address might have been removed automatically or by another user, so check first and if not found
+    * Treat like a success delete. Otherwise we have it so we can remove it.
+    
+    Check_For In_File(BPFBannedIPAddresses) With_Key(#BPFRecordedIPAddress)
+    
+    If_Status Is(*EQUALKEY)
+    
+    Delete From_File(BPFBannedIPAddresses) With_Key(#BPFRecordedIPAddress)
+    
+    Else
+    
+    #IO$STS := OK
+    
+    Endif
+    
+    Endif
+    
+    #BPFStatus := #IO$STS
+    
+    Endroutine
+    
+    * Login Attempts
+    Srvroutine Name(GetAllowedAttempts) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFCodeNumericValue) Parameter_Name(ControlSetting)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    #Utils.log( ('Security Data Server : GetAllowedAttempts : Session Active : ' + #sSessionAuthenicated.AsString) )
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAllowedAttempts' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #BPFStatus := ER
+    
+    * Get value
+    #BPFCodeNumericValue := #Utils.GetNumericValue( SECURITY LOGIN_ATTEMPT_LIMIT )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Security Questions
+    Srvroutine Name(GetActiveQuestions) Session(*REQUIRED)
+    
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(SecuritySettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    #Utils.log( ('Security Data Server : GetActiveQuestions : Session Active : ' + #sSessionAuthenicated.AsString) )
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetActiveQuestions' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Security Data Server : Getting control settings') )
+    
+    * We need to active questions, and not those that have been archived
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) With_Key(SECURITY DEFAULT_QUESTIONS)
+    
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Sort in display sequence
+    Sort_List Named(#CodesGroup) By_Fields(#BPFCodeNumericValue)
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('Security Data Server : Getting control settings : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('Security Data Server : Getting control settings : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetActiveQuestions) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(SecuritySettings)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_NMBR) Name(#HighestSequence)
+    Define_Com Class(#PRIM_NMBR) Name(#Index) Value(1)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetActiveQuestions' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Okay the logic below might not make sense at first glance, as we just changed some text.
+    * Security questions cannot be removed or changed for any reason as they may be in use. What
+    * the end user choose must be preversed at all costs. So below is based on doing just that, via
+    * Sequence being the key for question and will never ever ever change, Numeric being the display
+    * position and Description being active (1) or archived (0).
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('Security Data Server : Saving security settings') )
+    
+    * Preprocess the returned data set, add changed question back at the end with a 0 sequence
+    Selectlist Named(#CodesGroup)
+    
+    If (#Utils.SetAlpaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue ) <> OK)
+    #Utils.log( ('Security Data Server : Save of security questions : failed with error ' + #IO$STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
+    Return
+    Endif
+    
+    Endselect
+    
+    #Utils.log( ('Security Data Server : Pre processing of question changes completed') )
+    
+    * Process updates (#BPDCodeDescrption is 0) and inserts (#BPFCodeSequence is 0)
+    * Selectlist Named(#CodesGroup) Where((#BPFCodeDescription = '0') *Or (#BPFCodeSequence = 0))
+    *
+    * * Updates
+    * If (#BPFCodeDescription = '0')
+    *
+    * #BPFCodeAlphaValue := #Utils.GetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence )
+    * Update Fields(#CodesGroup) In_File(BPFSystemCodes) With_Key(#BPFCodeGroup #BPFCodeName #BPFCodeSequence)
+    *
+    * Endif
+    *
+    * * Inserts
+    * If (#BPFCodeSequence = 0)
+    *
+    * #BPFCodeSequence := #HighestSequence + #Index
+    * Insert Fields(#CodesGroup) To_File(BPFSystemCodes)
+    *
+    * * Put Index up
+    * #Index := #Index + 1
+    *
+    * Endif
+    *
+    * Endselect
+    
+    #BPFStatus := OK
+    #Utils.log( ('Security Data Server : Saving of questions to database completed : ' + #BPFStatus) )
+    
+    Endroutine
+    
+    End_Com

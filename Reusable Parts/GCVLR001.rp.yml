@@ -1,0 +1,43 @@
+﻿Reusable Part:
+  Name:               GCContactsListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Contacts List View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Manage Contacts"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "To manage a contact, first find and then select the user account"
+    
+    #STRINGSCOLLECTION<'SEARCH.PLACEHOLDER'> := "Search for contact by name or email..."
+    
+    #STRINGSCOLLECTION<'ALLTABITEM.CAPTION'> := "All"
+    #STRINGSCOLLECTION<'FEMALETABITEM.CAPTION'> := "Female"
+    #STRINGSCOLLECTION<'MALETABITEM.CAPTION'> := "Male"
+    #STRINGSCOLLECTION<'UNDISCLOSEDTABITEM.CAPTION'> := "Undisclosed"
+    
+    #STRINGSCOLLECTION<'CONTACTLISTACTIONLABEL.CAPTION.MORE'> := "Load More"
+    #STRINGSCOLLECTION<'CONTACTLISTACTIONLABEL.CAPTION.LOAD'> := "Loading contacts..."
+    #STRINGSCOLLECTION<'CONTACTLISTACTIONLABEL.CAPTION.FULL'> := "Refine search to view more contacts"
+    #STRINGSCOLLECTION<'CONTACTLISTACTIONLABEL.CAPTION.EMPTY'> := "No contacts found"
+    
+    * #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect the security of user accounts, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

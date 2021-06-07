@@ -1,0 +1,46 @@
+&'s Settings Panel
+
+Here you can control all of your info, security and activity to make myPortal work for you
+
+Account & Profile
+
+View and edit all of your personal information entered into myPortal.
+
+Manage your personal information
+
+Security & Credentials
+
+Protect your information by ensuring your password and security information is changed routinely.
+
+Configure you security
+
+myPortal Activity
+
+View, download or clear your activity in myPortal.
+
+View your portal activity
+
+Set Your Preferences
+
+Set up preferences so that myPortal is just how your want it be.
+
+Change your preferences
+
+Only you can change your settings. myPortal is committed to your privacy and security
+
+
+#PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+#PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+#DETAILSCARD.HEADING := #STRINGS.Text<DETAILSCARD.HEADING>
+#DETAILSCARD.TEXT := #STRINGS.Text<DETAILSCARD.TEXT>
+#DETAILSCARD.ACTION := #STRINGS.Text<DETAILSCARD.ACTION>
+#SECURITYCARD.HEADING := #STRINGS.Text<SECURITYCARD.HEADING>
+#SECURITYCARD.TEXT := #STRINGS.Text<SECURITYCARD.TEXT>
+#SECURITYCARD.ACTION := #STRINGS.Text<SECURITYCARD.ACTION>
+#ACTIVITYCARD.HEADING := #STRINGS.Text<ACTIVITYCARD.HEADING>
+#ACTIVITYCARD.TEXT := #STRINGS.Text<ACTIVITYCARD.TEXT>
+#ACTIVITYCARD.ACTION := #STRINGS.Text<ACTIVITYCARD.ACTION>
+#PREFERENCESCARD.HEADING := #STRINGS.Text<PREFERENCESCARD.HEADING>
+#PREFERENCESCARD.TEXT := #STRINGS.Text<PREFERENCESCARD.TEXT>
+#PREFERENCESCARD.ACTION := #STRINGS.Text<PREFERENCESCARD.ACTION>
+#FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>

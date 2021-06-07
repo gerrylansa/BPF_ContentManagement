@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFEmailTemplatesViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Email Templates View Strings"
+
+  - JPN:
+      Description:        "Email Templates View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Customise Emails"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Select an email template and you can preview what it might look like when a user receives it. You can also upload a new template for the email and customise settings such as the from address and subject."
+    
+    #STRINGSCOLLECTION<'TEMPLATESHEADING.CAPTION'> := "Templates"
+    
+    #STRINGSCOLLECTION<'EMAILSETTINGS.ONLOADEMAILTEMPLATESFAILED'> := "Failed to get templates"
+    
+    Endroutine
+    
+    End_Com

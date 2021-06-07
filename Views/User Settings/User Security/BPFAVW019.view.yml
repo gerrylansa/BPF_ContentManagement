@@ -1,0 +1,218 @@
+﻿Web View:
+  Name:               BPFUserSecuritySetPasswordView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Security Set Password"
+
+  - JPN:
+      Description:        "Portal User Security Set Password"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFUserSecuritySetPasswordViewStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(304) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#NewPasswordEntryPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#NewPasswordEntryPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Units(Content) Height(222)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#NewPasswordEntryPanelLayoutRow2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn1) Displayposition(1) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#NewPasswordEntryPanelLayoutColumn2) Displayposition(2) Parent(#NewPasswordEntryPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PasswordEntryPanelLayoutColumn3) Displayposition(3) Parent(#NewPasswordEntryPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem1) Manage(#PasswordEntryPanelHeading) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#NewPasswordEntryPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem2) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#PasswordEntry) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem3) Column(#NewPasswordEntryPanelLayoutColumn1) Manage(#Divider) Parent(#NewPasswordEntryPanelLayout) Sizing(FitToWidth) Row(#NewPasswordEntryPanelLayoutRow2) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem4) Alignment(CenterRight) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#NewPasswordEntryAction) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PasswordEntryPanelLayoutItem5) Alignment(TopLeft) Column(#NewPasswordEntryPanelLayoutColumn2) Manage(#ConfirmPassword) Parent(#NewPasswordEntryPanelLayout) Row(#NewPasswordEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Change Account Password') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Enter and then confirm your new account password for myPortal. Be sure to keep it in a safe place and please do not tell anyone what it is.')
+    
+    * Password Entry Panel & Controls
+    Define_Com Class(#PRIM_PANL) Name(#NewPasswordEntryPanel) Displayposition(3) Height(280) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#NewPasswordEntryPanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#PasswordEntryPanelHeading) Caption('Account Password') Displayposition(1) Left(24) Parent(#NewPasswordEntryPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.Edit) Name(#PasswordEntry) Caption('Enter your password') Displayposition(2) Left(24) Parent(#NewPasswordEntryPanel) Passwordchar('*') Tabposition(2) Top(64) Width(830)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(5) Height(8) Left(0) Parent(#NewPasswordEntryPanel) Tabposition(5) Tabstop(False) Themedrawstyle('TopDivider') Top(222) Width(878)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#NewPasswordEntryAction) Caption('CHANGE') Displayposition(4) Left(754) Parent(#NewPasswordEntryPanel) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(232) Style(#NavigationLinkStyle)
+    
+    * References
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_MD.Edit) Name(#ConfirmPassword) Caption('Confirm your password') Displayposition(3) Left(24) Parent(#NewPasswordEntryPanel) Passwordchar('*') Tabposition(3) Top(147) Width(830)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #CurrentUser <= #Session.CurrentUser
+    
+    #COM_SELF.SetStrings
+    
+    * Check verification
+    If (#CurrentUser.AccountVerified)
+    
+    * Pass Check to get here, so invalidate as the check will need to be done again
+    #CurrentUser.AccountVerified := False
+    
+    Else
+    
+    * Did not pass the check, if we got here someone is hacking the site
+    #SYS_WEB.History.GoBack
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    #Navigate.To Eventname(VERIFYUSERACCOUNT) Value(USERSECURITYCHANGEPASSWORD) Type(REPLACE) Signalreplaceevent(False)
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Session.OnResetUserPasswordCompleted)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<SESSION.ONRESETUSERPASSWORDCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnResetUserPasswordFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<SESSION.ONRESETUSERPASSWORDFAILED> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#NewPasswordEntryAction.Click #PasswordEntry.Enter #ConfirmPassword.Enter)
+    
+    If (#Com_self.IsPasswordValid)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #Session.ResetUserPassword( #PasswordEntry )
+    
+    Endif
+    
+    Endroutine
+    
+    * Field Events
+    Evtroutine Handling(#PasswordEntry.Changed) Com_Sender(#Sender)
+    
+    If (#Sender.HasError)
+    
+    #Sender.ClearError
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #PASSWORDENTRYPANELHEADING.CAPTION := #STRINGS.Text<PASSWORDENTRYPANELHEADING.CAPTION>
+    #PASSWORDENTRY.CAPTION := #STRINGS.Text<PASSWORDENTRY.CAPTION>
+    #CONFIRMPASSWORD.CAPTION := #STRINGS.Text<CONFIRMPASSWORD.CAPTION>
+    #NEWPASSWORDENTRYACTION.CAPTION := #STRINGS.Text<NEWPASSWORDENTRYACTION.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(IsPasswordValid)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume Success
+    #Result := True
+    #PasswordEntry.ClearError
+    #ConfirmPassword.ClearError
+    
+    * Password Entered
+    If (#PasswordEntry.value.IsNull)
+    
+    #PasswordEntry.ShowError( #STRINGS.Text<PASSWORDENTRY.BLANK> )
+    
+    Else
+    
+    If (#PasswordEntry.value.IsValidPassword( Medium ).IsFalse)
+    
+    #PasswordEntry.ShowError( #STRINGS.Text<PASSWORDENTRY.WEAK> )
+    
+    Endif
+    
+    Endif
+    
+    If ((#PasswordEntry.HasError.IsFalse) *AndIf (#ConfirmPassword.Value.IsNull))
+    
+    #ConfirmPassword.ShowError( #STRINGS.Text<CONFIRMPASSWORD.BLANK> )
+    
+    Else
+    
+    If ((#PasswordEntry.Value <> #ConfirmPassword.Value))
+    
+    #ConfirmPassword.ShowError( #STRINGS.Text<CONFIRMPASSWORD.NOMATCH> )
+    
+    Endif
+    
+    Endif
+    
+    #Result := ((#PasswordEntry.HasError.IsFalse) *And (#ConfirmPassword.HasError.IsFalse))
+    
+    Endroutine
+    
+    End_Com

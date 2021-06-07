@@ -1,0 +1,47 @@
+﻿Reusable Part:
+  Name:               BPFSecurityValidRequestSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Security Request Settings View Strings"
+
+  - JPN:
+      Description:        "Security Request Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Configure Request Validation"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Configure if checks are performed to validate if a data request has come from a user running the portal in a browser. When enabled user requests are checked that are valid for a given session and recorded so the same request cannot be made again. A service on the server is used to data is remove once a session has expired."
+    
+    #STRINGSCOLLECTION<'ENABLEDCONTROLPANELHEADING.CAPTION'> := "Request Validation"
+    #STRINGSCOLLECTION<'ENABLEREQUESTVALIDATION.CAPTION'> := "Enabled"
+    
+    #STRINGSCOLLECTION<'CLEANUPCONTROLPANELHEADING.CAPTION'> := "Cleanup Service"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETREQUESTVALIDATIONSTATUSFAILED'> := "FAILED to get status"
+    #STRINGSCOLLECTION<'SERVICE.MESSAGE.SAVE'> := "Setting saved"
+    #STRINGSCOLLECTION<'SERVICE.MESSAGE.RUN'> := "Process is now running"
+    #STRINGSCOLLECTION<'SERVICE.MESSAGE.END'> := "Process is now ending"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONSETREQUESTVALIDATIONENABLEDFAILED'> := "Service request FAILED"
+    
+    #STRINGSCOLLECTION<'CLEANUPSERVICETOGGLE.CAPTION'> := "Process is currently"
+    #STRINGSCOLLECTION<'CLEANUPSERVICETOGGLE.CAPTION.RUNNING'> := "Process is currently running"
+    #STRINGSCOLLECTION<'CLEANUPSERVICETOGGLE.CAPTION.ENDING'> := "Process is currently ending"
+    
+    Endroutine
+    
+    End_Com

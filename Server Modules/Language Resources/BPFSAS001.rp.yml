@@ -1,0 +1,32 @@
+﻿Reusable Part:
+  Name:               BPFServerApplicationStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    All
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Application Strings"
+
+  - JPN:
+      Description:        "Server Side Application Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseServerLanguageResource)
+    
+    * Constructor
+    Mthroutine Name(Load) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    #COM_SELF.SetStrings( BPFALR001 #ForIsoCode )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    * Blank as we need to load the client side strings
+    
+    Endroutine
+    
+    End_Com

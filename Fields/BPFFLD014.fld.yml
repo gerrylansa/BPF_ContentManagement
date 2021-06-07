@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFCodeName
+  Type:               NVarChar
+  Length:             256
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Code Table Name"
+      Label:              "Code Table Name"
+      Heading1:           "Code"
+      Heading2:           "Table"
+      Heading3:           "Name"
+
+  - JPN:
+      Description:        "Code Table Name"
+      Label:              "Code Table Name"
+      Heading1:           "Code"
+      Heading2:           "Table"
+      Heading3:           "Name"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

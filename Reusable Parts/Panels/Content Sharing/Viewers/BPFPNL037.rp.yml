@@ -1,0 +1,72 @@
+﻿Reusable Part:
+  Name:               BPFItemViewerForDownloads
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Item Viewer for Download Files"
+
+  - JPN:
+      Description:        "Item Viewer for Office Files"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(270) Left(0) Tabposition(1) Top(0) Width(500) Layoutmanager(#ViewerLayout)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ViewerLayoutRow1) Displayposition(1) Parent(#ViewerLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ViewerLayoutColumn1) Displayposition(1) Parent(#ViewerLayout)
+    
+    * References
+    Define_Com Class(#BPFContentShareItemClass) Name(#ContentShareItem) Reference(*DYNAMIC)
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#ContentLibraryItem) Reference(*DYNAMIC)
+    
+    * Routines
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #ContentShareItem <= #BPFViewer.ContentShareItem
+    #ContentLibraryItem <= #BPFViewer.ContentLibraryItem
+    
+    If (#ContentShareItem *IsNot *Null)
+    #ContentShareItem.GetObject
+    Endif
+    
+    If (#ContentLibraryItem *IsNot *Null)
+    #ContentLibraryItem.GetObject
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentShareItem.OnGetObjectCompleted #ContentLibraryItem.OnGetObjectCompleted)
+    
+    #COM_SELF.ShowDialog
+    
+    Endroutine
+    
+    Mthroutine Name(ShowDialog)
+    
+    Define_Com Class(#BPFItemViewerDownloadDialog) Name(#Dialog)
+    
+    #Dialog.OpenDialog
+    
+    Evtroutine Handling(#Dialog.OnActionConfirmed)
+    
+    If (#ContentShareItem *IsNot *Null)
+    
+    #BPFViewer.Browser.Download( #ContentShareItem.Object #ContentShareItem.ItemName )
+    
+    Endif
+    
+    If (#ContentLibraryItem *IsNot *Null)
+    
+    #BPFViewer.Browser.Download( #ContentLibraryItem.Object #ContentLibraryItem.ItemName )
+    
+    Endif
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

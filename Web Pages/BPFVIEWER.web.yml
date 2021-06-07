@@ -1,0 +1,206 @@
+﻿Web Page:
+  Name:               BPFShareItemViewer
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Content Share Item Viewer"
+
+  - JPN:
+      Description:        "Portal Content Share Item Viewer"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_WEB) Theme(#SYS_THEME<MaterialDesignBlue>) Layoutmanager(#LayoutMain)
+    
+    * App References
+    Define_Com Class(#BPFGoogleAnalyticsAPI) Name(#GA)
+    
+    Define_Pty Name(Browser) Get(*REFERENCE #Browser)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    Define_Com Class(#BPFActionMessages) Name(#Message)
+    
+    * Strings
+    Define_Com Class(#BPFShareItemViewerStrings) Name(#Strings)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#LayoutMain)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutMainColumn1) Displayposition(1) Parent(#LayoutMain)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutMainRow1) Displayposition(1) Parent(#LayoutMain)
+    
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ViewerLayoutItem) Alignment(TopLeft) Column(#LayoutMainColumn1) Parent(#LayoutMain) Row(#LayoutMainRow1)
+    
+    * Viewer
+    Define_Com Class(#PRIM_PANL) Name(#ViewContainer) Reference(*DYNAMIC)
+    
+    * References
+    Define_Pty Name(ContentShareItem) Get(*REFERENCE #ContentShareItem)
+    Define_Com Class(#BPFContentShareItemClass) Name(#ContentShareItem) Reference(*DYNAMIC)
+    
+    Define_Pty Name(ContentLibraryItem) Get(*REFERENCE #ContentLibraryItem)
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#ContentLibraryItem) Reference(*DYNAMIC)
+    
+    
+    * Events
+    Define_Evt Name(OnCloseDialogs)
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Ensure message channel is kept
+    #Message.KeepChannelAlive := True
+    
+    * Get the rigth reference
+    
+    * Load for a share reference
+    If (#SYS_WEB.URLParameters<Share> *IsNot *Null)
+    
+    #ContentShareItem <= *New #BPFContentShareItemClass
+    #ContentShareItem.Load( #SYS_WEB.URLParameters<share>.value )
+    
+    Endif
+    
+    * Load for a content Item reference
+    If (#SYS_WEB.URLParameters<Content> *IsNot *Null)
+    
+    #ContentLibraryItem <= *New #BPFContentLibraryItemClass
+    #ContentLibraryItem.Load( #SYS_WEB.URLParameters<Content>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    * Messages
+    Evtroutine Handling(#Message.OnActionRecieved) Actionvalue(#Action)
+    
+    * Clear any messages or viewer dialogs
+    #SYS_APPLN.CloseAllDialogs
+    
+    Case Of_Field(#Action)
+    
+    When Value_Is(= LOGIN)
+    
+    * On login, get the requested data
+    #ContentShareItem.Load( #SYS_WEB.URLParameters<share>.value )
+    
+    When Value_Is(= LOGOUT)
+    
+    * On logout clear current vuewer and show sign in message only
+    If (#ViewContainer *IsNot *Null)
+    #ViewerLayoutItem.Manage #ViewContainer.Parent #ViewContainer <= *Null
+    Endif
+    
+    #COM_SELF.HandleSessionError
+    
+    Endcase
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentShareItem.OnGetLoadItemCompleted)
+    
+    * Parent Viewer
+    If (#ContentShareItem.ContentIdentifier.IsNull)
+    
+    #COM_SELF.HandleNotAllowed( MISSING )
+    
+    Else
+    
+    #COM_SELF.HandleParentViewer( #ContentShareItem.RelatedViewer )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentLibraryItem.OnLoadItemCompleted)
+    
+    * Parent Viewer
+    If (#ContentLibraryItem.Identifier.IsNull)
+    
+    #COM_SELF.HandleNotAllowed( MISSING )
+    
+    Else
+    
+    #COM_SELF.HandleParentViewer( #ContentLibraryItem.RelatedViewer )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentShareItem.OnGetLoadItemFailed #ContentLibraryItem.OnLoadItemFailed) Reason(#Reason)
+    
+    Case Of_Field(#Reason)
+    
+    When Value_Is(= SESSION)
+    
+    * if a session error encountered they need to sign and might not have a portal window open.
+    #COM_SELF.HandleSessionError( True )
+    
+    When Value_Is(= NOTALLOWED)
+    
+    #COM_SELF.HandleNotAllowed( NOTALLOWED )
+    
+    When Value_Is(= MISSING)
+    
+    #COM_SELF.HandleNotAllowed( MISSING )
+    
+    Endcase
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleParentViewer)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ViewerID)
+    
+    * Create Vuewer Instance
+    Set_Ref Com(#ViewContainer) To(*CREATE_FROM #ViewerID)
+    
+    * Manage
+    #ViewerLayoutItem.Manage <= #ViewContainer
+    
+    * Parent
+    #ViewContainer.Parent <= #COM_OWNER
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSessionError)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ShowLogin) Mandatory(False)
+    
+    Define_Com Class(#BPFItemViewerMessageDialog) Name(#Dialog)
+    
+    * Open dialog
+    #Dialog.OpenDialog( #STRINGS.Text<'DIALOGTITLE.CAPTION.SESSIONERROR'> #STRINGS.Text<'DIALOGMESSAGE.CAPTION.SESSIONERROR'> )
+    
+    * Open a new portal window
+    If (#ShowLogin)
+    #SYS_WEB.Navigate Url('bpfportal.html') Target(New)
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleNotAllowed)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#TYPE)
+    
+    Define_Com Class(#BPFItemViewerMessageDialog) Name(#Dialog)
+    
+    * Open dialog
+    #Dialog.OpenDialog( #STRINGS.Text<('DIALOGTITLE.CAPTION.' + #TYPE)> #STRINGS.Text<('DIALOGMESSAGE.CAPTION.' + #TYPE)> )
+    
+    Endroutine
+    
+    End_Com
+
+  Offline Support:    No
+  Allow Zoom:         Yes
+
+  Scripts:
+  - content/langsupport.js
+  - https://www.googletagmanager.com/gtag/js
+
+  Loading Screen:
+    Image:              Spinner
+
+    Multilingual Text:
+    - ENG:
+        Text:               "Loading..."
+    - JPN:
+        Text:               "Loading..."
+
+  Security Policy:    None

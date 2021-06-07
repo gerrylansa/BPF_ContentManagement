@@ -1,0 +1,1 @@
+{"ls":[{"op":"PANELHEADING.CAPTION","s":"ポータル設定のエクスポート"},{"op":"INSTRUCTIONTEXT.CAPTION","s":"現在のポータル設定をエクスポートして、別のポータル インスタンスへの入力またはバックアップとして使用できるようにします"},{"op":"SETTINGSHEADING.CAPTION","s":"エクスポート"},{"op":"PORTALSETTINGS.ONCREATEEXPORTCOMPLETED","s":"設定がエクスポートされました"},{"op":"PORTALSETTINGS.ONCREATEEXPORTFAILED","s":"設定をエクスポートできませんでした"}]}

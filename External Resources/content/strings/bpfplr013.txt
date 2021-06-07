@@ -1,0 +1,43 @@
+Sorry... something is a miss here
+
+The details for the request are not valid
+
+The link you have used to try and reset your account is not a valid one. If you clicked the link in your reset password email and got this error, then let us know at accounts@myportal.com.au. Otherwise, I think you might be up to no good here. In which case, please stop.
+
+All done
+
+We cannot check your details
+
+We have tried to check your security credentials, but we are encountering an issue. You request might have expired, so please try going through the forget password again. Otherwise if you still have an issue, let us now at accounts@myportal.com.au.
+
+Stay Calm. There is an issue with this request
+
+Your new password could not be saved
+
+We have tried to save your new password, but we encountered an issue. You password reset request might have expired, so please try going through the forget password again. Otherwise if you still have an issue, let us now at accounts@myportal.com.au.
+
+Stay Calm. There was an issue saving your password.
+
+All done
+
+
+
+Define_Com Class(#BPFPasswordResetFailedPanelStrings) Name(#Strings)
+
+#COM_SELF.SetStrings
+
+Mthroutine Name(SetStrings)
+
+#MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+#SECONDARYINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION>
+#PANELTEXT.CAPTION := #STRINGS.Text<PANELTEXT.CAPTION>
+#DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+#SECONDARYINSTRUCTION.CAPTION.SECURITY := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION.SECURITY>
+#PANELTEXT.CAPTION.SECURITY := #STRINGS.Text<PANELTEXT.CAPTION.SECURITY>
+#DIALOGLOGO.CAPTION.SECURITY := #STRINGS.Text<DIALOGLOGO.CAPTION.SECURITY>
+#SECONDARYINSTRUCTION.CAPTION.PASSWORD := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION.PASSWORD>
+#PANELTEXT.CAPTION.PASSWORD := #STRINGS.Text<PANELTEXT.CAPTION.PASSWORD>
+#DIALOGLOGO.CAPTION.PASSWORD := #STRINGS.Text<DIALOGLOGO.CAPTION.PASSWORD>
+#DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>
+
+Endroutine

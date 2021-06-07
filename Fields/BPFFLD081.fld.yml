@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFGenericNVarChar256
+  Type:               NVarChar
+  Length:             256
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Generic 256 NVarchar"
+      Label:              "Generic 256 NVa"
+      Heading1:           "Generic"
+      Heading2:           "256"
+      Heading3:           "NVarchar"
+
+  - JPN:
+      Description:        "Generic 256 NVarchar"
+      Label:              "Generic 256 NVa"
+      Heading1:           "Generic"
+      Heading2:           "256"
+      Heading3:           "NVarchar"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

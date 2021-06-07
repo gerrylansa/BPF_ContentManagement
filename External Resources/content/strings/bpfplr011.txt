@@ -1,0 +1,31 @@
+Recover your %%APP%% account password
+
+Confirm the email address of your account
+
+Once you confirm your email address we will send you a message with the steps to follow to recover your password. If you have any issues just lets use now at accounts@myPortal.com.au
+
+%%APP%%. Email help is on it way, hold tight
+
+Your email
+
+If this isnt right just change it
+
+Back
+
+Confirm
+
+Error. This address is not valid
+
+Error. Your account cannot be verified.
+
+
+#MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+#SECONDARINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARINSTRUCTION.CAPTION>
+#BODYTEXT.CAPTION := #STRINGS.Text<BODYTEXT.CAPTION>
+#DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+#CONFIRMEMAILEDIT.CAPTION := #STRINGS.Text<CONFIRMEMAILEDIT.CAPTION>
+#CONFIRMEMAILEDIT.HELPERTEXT := #STRINGS.Text<CONFIRMEMAILEDIT.HELPERTEXT>
+#DETAILSPANELACTIONBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELACTIONBUTTON.CAPTION>
+#DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>
+#CONFIRMEMAILEDIT.CHANGED.INVALID := #STRINGS.Text<CONFIRMEMAILEDIT.Changed.INVALID>
+#SESSION.ONPASSWORDRESETREQUESTFAILED := #STRINGS.Text<SESSION.ONPASSWORDRESETREQUESTFAILED>

@@ -1,0 +1,19 @@
+﻿.NET Component:
+  Name:               BPFSystemServiceProcessPlugin
+
+  Multilingual Details:
+  - ENG:
+      Description:        ".Net Pluging to Windows Services"
+
+  - JPN:
+      Description:        ".Net Pluging to Windows Services"
+
+  Source: |
+    * **************************************************
+    *                                                  *
+    *  COMPONENT:  STD_DNP                             *
+    *                                                  *
+    * **************************************************
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT) Componentassembly('C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.ServiceProcess.dll')
+    End_Com

@@ -1,0 +1,27 @@
+﻿Reusable Part:
+  Name:               BPFLogFileContentLineItem
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal File Content Line Data Class"
+
+  - JPN:
+      Description:        "Portal File Content Line Data Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Mapping of list fields
+    Group_By Name(#ListFields) Fields(#BPFLogFileContentLine)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(Line) Get(*AUTO #BPFLogFileContentLine)
+    
+    * Rotuines
+    
+    End_Com

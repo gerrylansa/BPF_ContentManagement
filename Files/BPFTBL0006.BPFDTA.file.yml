@@ -1,0 +1,92 @@
+﻿File:
+  Name:                           BPFPortalUserProfile
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0006
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Profiles"
+
+  - JPN:
+      Description:        "Portal User Profiles"
+
+  Real Fields:
+  - BPFFLD009:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD048:
+      Type:               NVarChar
+      Length:             100
+      Decimals:           0
+
+  - BPFFLD049:
+      Type:               NVarChar
+      Length:             100
+      Decimals:           0
+
+  - BPFFLD050:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD056:
+      Type:               NVarChar
+      Length:             200
+      Decimals:           0
+
+  - BPFFLD051:
+      Type:               NVarChar
+      Length:             100
+      Decimals:           0
+
+  - BPFFLD052:
+      Type:               NVarChar
+      Length:             15
+      Decimals:           0
+
+  - BPFFLD057:
+      Type:               NVarChar
+      Length:             100
+      Decimals:           0
+
+  - BPFFLD053:
+      Type:               NVarChar
+      Length:             100
+      Decimals:           0
+
+  - BPFFLD054:
+      Type:               Date
+      Length:             10
+      Decimals:           0
+
+  - BPFFLD055:
+      Type:               NVarChar
+      Length:             30
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD009

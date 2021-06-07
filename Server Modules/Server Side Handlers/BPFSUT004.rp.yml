@@ -1,0 +1,144 @@
+﻿Reusable Part:
+  Name:               BPFWindowsServicesUtilities
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Utilities Handler for Windows Service"
+
+  - JPN:
+      Description:        "Utilities Handler for Windows Service"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * NOTE : This utility is unused but kept as it shows how to access windows services
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Variable to hold a reference to the SCM handlers
+    * Define_Com Class(#BPFSystemServiceProcessPlugin.System.ServiceProcess.ServiceController) Name(#SC) Reference(*DYNAMIC)
+    
+    * Working Variables
+    * Define_Com Class(#PRIM_ALPH) Name(#ServiceCommand)
+    Define Field(#ServiceandRequest) Reffld(#STD_TEXT)
+    
+    Define Field(#StatusCode) Reffld(#std_num)
+    
+    * Methods
+    Mthroutine Name(GetServiceStatus)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_ALPH) Name(#Result)
+    
+    #Utils.log( ('Windows Service Handler : Have request to get service status for ' + #Name) )
+    
+    * Set service context
+    #COM_SELF.SetServiceControllerContent( #Name )
+    
+    * #Result := #SC.Status
+    #Utils.log( ('Windows Service Handler : Service status for ' + #Name + ' is ' + #result) )
+    
+    Endroutine
+    
+    Mthroutine Name(StartService)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    
+    #Utils.log( ('Windows Service Handler : Have request to start service ' + #Name) )
+    
+    * Set Command Path
+    * #COM_SELF.ExecuteOSCommand( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\start' + #Name + '.lnk') )
+    
+    #COM_SELF.ExecuteOSCommand( 'START' #Name )
+    
+    Endroutine
+    
+    Mthroutine Name(StopService)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    
+    #Utils.log( ('Windows Service Handler : Have request to stop service ' + #Name) )
+    
+    #ServiceandRequest := #Name.UpperCase + ':STOP'
+    
+    * Set Command Path
+    * #COM_SELF.ExecuteOSCommand( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\stop' + #Name + '.bat') )
+    * Submit Process(BPFUTILS) Function(BPFU004) Exchange(#ServiceandRequest)
+    
+    * #COM_SELF.ExecuteOSCommand( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\stop' + #Name + '.bat') )
+    
+    #COM_SELF.ExecuteOSCommand( 'STOP' #Name )
+    
+    Endroutine
+    
+    Mthroutine Name(ReStartService)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Name)
+    
+    #Utils.log( ('Windows Service Handler : Have request to restart service ' + #Name) )
+    
+    * Set Command Path
+    * #COM_SELF.ExecuteOSCommand( (*PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\restart' + #Name + '.lnk') )
+    #COM_SELF.ExecuteOSCommand( 'RESTART' #Name )
+    
+    Endroutine
+    
+    * Private Methods
+    Mthroutine Name(SetServiceControllerContent) Access(*PRIVATE)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ServiceName)
+    
+    #Utils.log( ('Windows Service Handler : Attempting to set controller context to ' + #ServiceName) )
+    
+    * Set current SC context
+    * #SC <= *New #BPFSystemServiceProcessPlugin.System.ServiceProcess.ServiceController.ServiceController#1( #ServiceName )
+    
+    #Utils.log( ('Windows Service Handler : Attempt to set controller context to ' + #ServiceName + ' successful') )
+    
+    Endroutine
+    
+    Mthroutine Name(ExecuteOSCommand) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Task)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ServiceName)
+    
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#OSCommandString)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Template)
+    
+    * powershell -command "Start-Process -FilePath 'C:\Program Files (x86)\Visual LANSA\Internal\X_WIN95\X_LANSA\x_BPF\portal\services\nssm.exe' -ArgumentList 'stop portalsessiondatacleanup' -Verb RunAs -WindowStyle Hidden"
+    
+    * powershell -command "Start-Process ' ConvertTo-SecureString "pcxuser" -AsPlainText –Force
+    
+    * #Template := 'powershell -command "$username = %user%; $password = %password%; $cred = New-Object System.Management.Automation.PSCredential $username, $password; Start-Process -Credential $cred -FilePath %OSCmd% -Verb RunAs -WindowStyle Hidden" > "' + *PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\output_' + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + '.txt"'
+    
+    * #Template := 'powershell -command "Start-Process -FilePath %OSCmd% -Verb RunAs -WindowStyle Hidden"> "' + *PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\output_' + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + '.txt"'
+    
+    * #Template := 'powershell ' + *PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\output_' + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + '.txt"'
+    
+    #Template := 'powershell -command "Start-Process -FilePath %path% -ArgumentList %args% -Verb RunAs -WindowStyle Hidden" > "' + *PART_DIR + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PORTAL' ) + '\services\output_' + #STD_DTIMX.Now.AsDisplayString( CCYYDDMMHHMMSS ) + '.txt"'
+    
+    #OSCommandString := "'" + #task + ' ' + #ServiceName + "'"
+    #OSCommandString := #Template.ReplaceAll( '%path%' "'C:\Program Files (x86)\Visual LANSA\Internal\X_WIN95\X_LANSA\x_BPF\portal\services\nssm.exe'" ).ReplaceAll( '%args%' #OSCommandString )
+    
+    * #OSCommandString := 'powershell -command "Start-Process ' + #OSCommandString + ' -Verb runas"'
+    
+    #Utils.log( ('Windows Service Handler : Attempting to run command ' + #OSCommandString) )
+    
+    Use Builtin(SYSTEM_COMMAND) With_Args('S' #OSCommandString.AsNativeString) To_Get(#StatusCode)
+    #Utils.log( ('Windows Service Handler : Attempting to run command ended with ' + #StatusCode.asstring) )
+    
+    Endroutine
+    
+    End_Com

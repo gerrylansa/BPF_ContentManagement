@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFUserAccountStatus
+  Type:               NVarChar
+  Length:             10
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Account Status (Derived)"
+      Label:              "User Account St"
+      Heading1:           "User"
+      Heading2:           "Account"
+      Heading3:           "Status"
+
+  - JPN:
+      Description:        "User Account Status (Derived)"
+      Label:              "User Account St"
+      Heading1:           "User"
+      Heading2:           "Account"
+      Heading3:           "Status"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Marginleft(188) Width(376)
+    
+    End_Com
+    
+    End_Com

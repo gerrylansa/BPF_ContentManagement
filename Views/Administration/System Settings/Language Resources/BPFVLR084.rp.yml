@@ -1,0 +1,42 @@
+﻿Reusable Part:
+  Name:               BPFSystemAPIKeysEditViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System API Keys Edit View Strings"
+
+  - JPN:
+      Description:        "System API Keys Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit API Keys"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Edit the current API Keys used by the portal when connecting to data services such as the YouTube Data API"
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Edit Keys"
+    
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.YOUTUBEDATA'> := "YouTube Data API"
+    
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONGETAPIKEYSFAILED'> := "Failed to get settings"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETAPIKEYSCOMPLETED'> := "API Keys updated"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONSETAPIKEYSFAILED'> := "FAILED to update API Keys"
+    
+    Endroutine
+    
+    End_Com

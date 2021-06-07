@@ -1,0 +1,235 @@
+﻿Web View:
+  Name:               BPFIntegrationLogControlView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Integration Log Control"
+
+  - JPN:
+      Description:        "Portal Integration Log Control"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP003')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFIntegrationLogControlViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60) Width(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(434) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#EnabledPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ClearLogsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EnabledPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EnabledPanelLayoutRow1) Displayposition(1) Parent(#EnabledPanelLayout) Units(Content) Height(232)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EnabledPanelLayoutRow2) Displayposition(2) Parent(#EnabledPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledPanelLayoutColumn1) Displayposition(1) Parent(#EnabledPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledPanelLayoutColumn2) Displayposition(2) Parent(#EnabledPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledPanelLayoutColumn3) Displayposition(3) Parent(#EnabledPanelLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem6) Manage(#EnabledPanelHeading) Parent(#EnabledPanelLayout) Row(#EnabledPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#EnabledPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem3) Manage(#EnabledOption1) Parent(#EnabledPanelLayout) Row(#EnabledPanelLayoutRow1) Sizing(FitToWidth) Column(#EnabledPanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem4) Manage(#EnabledOption2) Parent(#EnabledPanelLayout) Row(#EnabledPanelLayoutRow1) Sizing(FitToWidth) Column(#EnabledPanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ControlLayoutItem5) Manage(#EnabledOption3) Parent(#EnabledPanelLayout) Row(#EnabledPanelLayoutRow1) Sizing(FitToWidth) Column(#EnabledPanelLayoutColumn2) Alignment(TopLeft) Flow(Down)
+    
+    
+    * Clear Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ClearPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ClearPanelLayoutRow1) Displayposition(1) Parent(#ClearPanelLayout) Units(Content) Height(64)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ClearPanelLayoutRow2) Displayposition(2) Parent(#ClearPanelLayout) Units(Pixels) Height(62)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ClearPanelLayoutColumn1) Displayposition(1) Parent(#ClearPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ClearPanelLayoutColumn2) Displayposition(2) Parent(#ClearPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ClearPanelLayoutColumn3) Displayposition(3) Parent(#ClearPanelLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ClearPanelLayoutItem1) Manage(#ClearLogsPanelHeading) Parent(#ClearPanelLayout) Row(#ClearPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ClearPanelLayoutColumn2) Alignment(TopLeft) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ClearPanelLayoutItem2) Alignment(CenterRight) Column(#ClearPanelLayoutColumn2) Manage(#ClearLogsAction) Parent(#ClearPanelLayout) Row(#ClearPanelLayoutRow2) Sizing(None)
+    
+    * Main Controls
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Integration Logging Control') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(38) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('You are able to choose if the integration logging is off, on or only happens when an error is encountered. Its is recommend logging is left off unless required. You are also able to clear all integration logs if needed.')
+    Define_Com Class(#PRIM_PANL) Name(#EnabledPanel) Displayposition(3) Height(258) Left(410) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(141) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#EnabledPanelLayout)
+    Define_Com Class(#PRIM_PANL) Name(#ClearLogsPanel) Displayposition(4) Height(128) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(423) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ClearPanelLayout)
+    
+    * Enabled Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#EnabledPanelHeading) Caption('Enable Logs') Displayposition(1) Left(44) Parent(#EnabledPanel) Tabposition(4) Themedrawstyle('Heading3') Top(24) Width(790) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#EnabledOption1) Caption('Off') Displayposition(2) Iconcolor(Theme500) Left(44) Parent(#EnabledPanel) Tabposition(2) Top(64) Width(790) Height(56) Groupindex(1) Componenttag('*NO') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#EnabledOption2) Caption('On') Displayposition(3) Iconcolor(Theme500) Left(44) Parent(#EnabledPanel) Tabposition(3) Top(120) Width(790) Height(56) Groupindex(1) Componenttag('*YES') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RadioButton) Name(#EnabledOption3) Caption('Only on error') Checked(True) Displayposition(4) Iconcolor(Theme500) Left(44) Parent(#EnabledPanel) Tabposition(1) Top(176) Width(790) Height(56) Groupindex(1) Componenttag('*ERROR') Style(#NavigationLinkStyle)
+    
+    * Clear Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ClearLogsPanelHeading) Caption('Clear Logs') Displayposition(1) Left(44) Parent(#ClearLogsPanel) Tabposition(1) Themedrawstyle('Heading3') Width(790) Height(40) Top(24) Paddingbottom(16)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ClearLogsAction) Caption('Clear all logs') Displayposition(2) Left(684) Parent(#ClearLogsPanel) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary') Top(73) Height(44) Width(150) Iconalignment(AfterCaption) Style(#NavigationLinkStyle)
+    
+    *
+    Define_Com Class(#Prim_LCOL<#Prim_MD.RadioButton>) Name(#EnabledOptions)
+    
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #LoggingData <= (#Data.GetDataClient( #COM_SELF ) *As #BPFPortalLoggingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Set Waiting
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    * Get Enabled
+    #COM_SELF.CollectRadioButtons
+    
+    * Get current logging settings
+    #LoggingData.GetIntegrationLoggingControlSetting
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#LoggingData.GetIntegrationLoggingControlSettingCompleted) Value(#Value)
+    
+    #COM_SELF.SetControls( #Value )
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.GetIntegrationLoggingControlSettingFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( 'Failed to get settings' 7500 )
+    
+    #EnabledPanel.Enabled := False
+    
+    Endroutine
+    
+    * Radio Buttons
+    Evtroutine Handling(#EnabledOptions<>.Changed) Com_Sender(#Sender)
+    
+    * Send value of sender
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #LoggingData.SetIntegrationLoggingControlSetting( #Sender.ComponentTag )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnSetIntegrationLoggingControlSettingCompleted)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<LOGGINGDATA.ONSETINTEGRATIONLOGGINGCONTROLSETTINGCOMPLETED> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnSetIntegrationLoggingControlSettingFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<LOGGINGDATA.ONSETINTEGRATIONLOGGINGCONTROLSETTINGFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnIntegrationLogsRemoveCompleted)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<LOGGINGDATA.ONINTEGRATIONLOGSREMOVECOMPLETED> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnIntegrationLogsRemoveFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<LOGGINGDATA.ONINTEGRATIONLOGSREMOVEFAILED> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#ClearLogsAction.Click)
+    
+    * Attempt to clear log
+    #LoggingData.RemoveLILogs
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #ENABLEDPANELHEADING.CAPTION := #STRINGS.Text<ENABLEDPANELHEADING.CAPTION>
+    #ENABLEDOPTION1.CAPTION := #STRINGS.Text<ENABLEDOPTION1.CAPTION>
+    #ENABLEDOPTION2.CAPTION := #STRINGS.Text<ENABLEDOPTION2.CAPTION>
+    #ENABLEDOPTION3.CAPTION := #STRINGS.Text<ENABLEDOPTION3.CAPTION>
+    #CLEARLOGSPANELHEADING.CAPTION := #STRINGS.Text<CLEARLOGSPANELHEADING.CAPTION>
+    #CLEARLOGSACTION.CAPTION := #STRINGS.Text<CLEARLOGSACTION.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(SetControls) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value)
+    
+    For Each(#Option) In(#EnabledOptions)
+    
+    Continue If(#Option.ComponentTag <> #Value)
+    
+    #Option.Checked := True
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(CollectRadioButtons)
+    
+    For Each(#Item) In(#EnabledPanel.ComponentControls) Operation(*INSTANCE_OF #Prim_MD.RadioButton)
+    
+    #EnabledOptions.Insert( #Item )
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

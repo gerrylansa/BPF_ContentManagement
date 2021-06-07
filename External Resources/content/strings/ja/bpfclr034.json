@@ -1,0 +1,1 @@
+{"ls":[{"op":"ITEMACTIONNEWITEM.HINT","s":"コンテンツアイテムを追加"},{"op":"ITEMACTIONADDFOLDER.HINT","s":"フォルダーを追加"},{"op":"ITEMACTIONCOPY.HINT","s":"コピー"},{"op":"ITEMACTIONMOVE.HINT","s":"移動"},{"op":"ITEMACTIONRENAME.HINT","s":"名前を変更"},{"op":"ITEMACTIONREMOVE.HINT","s":"削除する"},{"op":"ITEMACTIONINFO.HINT","s":"情報"}]}

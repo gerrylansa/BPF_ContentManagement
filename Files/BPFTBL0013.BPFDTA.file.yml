@@ -1,0 +1,149 @@
+﻿File:
+  Name:                           BPFContentShareDefinitions
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0013
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Definitions"
+
+  - JPN:
+      Description:        "Content Share Definitions"
+
+  Real Fields:
+  - BPFFLD104:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD106:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD107:
+      Type:               NVarChar
+      Length:             256
+      Decimals:           0
+
+  - BPFFLD108:
+      Type:               Boolean
+      Length:             1
+      Decimals:           0
+
+  - BPFFLD109:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD110:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD111:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD112:
+      Type:               Date Time
+      Length:             26
+      Decimals:           0
+
+  - BPFFLD113:
+      Type:               NVarChar
+      Length:             32
+      Decimals:           0
+
+  - BPFFLD114:
+      Type:               Date Time
+      Length:             26
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD104
+  - BPFFLD106
+
+  Logical Views:
+  - BPFContentShareItemsByParent:
+      Identifier:         BPFIDX0013
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0013
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Content Share Items By Parent"
+
+      - JPN:
+          Description:        "New Index"
+
+      Keys:
+      - BPFFLD109:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  - BPFContentShareItemsByItemID:
+      Identifier:         BPFIDX0014
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0014
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "New Index"
+
+      - JPN:
+          Description:        "New Index"
+
+      Keys:
+      - BPFFLD106:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned
+
+  - BPFContentShareItemsByContentID:
+      Identifier:         BPFIDX0016
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0016
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Content Share Item by Content ID"
+
+      - JPN:
+          Description:        "Content Share Item by Content ID"
+
+      Keys:
+      - BPFFLD110:
+          Key Order:          Ascending
+          Numeric Ordering:   Unsigned

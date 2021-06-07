@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFProfileAddressLine2
+  Type:               NVarChar
+  Length:             200
+  Decimals:           0
+  Default Value:      "*NULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Profile Address Line 2"
+      Label:              "User Profile Ad"
+      Heading1:           "User"
+      Heading2:           "Profile"
+      Heading3:           "Address"
+
+  - JPN:
+      Description:        "User Profile Address Line 2"
+      Label:              "User Profile Ad"
+      Heading1:           "User"
+      Heading2:           "Profile"
+      Heading3:           "Address"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

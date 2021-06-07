@@ -1,0 +1,165 @@
+﻿Reusable Part:
+  Name:               BPFLoginUserAccountPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Login User Account Panel"
+
+  - JPN:
+      Description:        "Portal Login User Account Panel"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Height(275) Tabposition(1) Width(352) Layoutmanager(#Layout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFLoginUserAccountPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    * User Email Panel Layout Columns & Rows
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(64) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#Layout) Height(48) Units(Pixels)
+    
+    * User Email Panel Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#PanelText) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#UserEmailEdit) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Manage(#PanelAction) Parent(#Layout) Row(#LayoutRow2) Sizing(ContentWidthAndHeight) Column(#LayoutColumn1) Alignment(CenterLeft)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Manage(#NextButton) Parent(#Layout) Row(#LayoutRow2) Sizing(ContentWidthAndHeight) Column(#LayoutColumn1) Alignment(CenterRight)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem5) Parent(#Layout) Row(#LayoutRow3) Column(#LayoutColumn1) Alignment(TopLeft) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem6) Manage(#UserLanguage) Parent(#Layout) Row(#LayoutRow3) Sizing(None) Column(#LayoutColumn1) Alignment(CenterLeft)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelText) Caption('with your myPortal Account') Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading3') Top(0) Width(352) Height(24) Captionalignment(Center)
+    Define_Com Class(#PRIM_MD.Edit) Name(#UserEmailEdit) Caption('Email address') Displayposition(2) Left(0) Parent(#COM_OWNER) Tabposition(3) Top(44) Width(352)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PanelAction) Caption('Create Account') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundMediumPrimary') Top(179) Height(33) Captionmarginbottom(8) Captionmarginleft(8) Captionmarginright(8) Captionmargintop(8) Width(112) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#NextButton) Caption('Next') Displayposition(4) Left(271) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('MediumTitle') Top(177) Height(37) Width(81) Captionmarginbottom(10) Captionmargintop(10) Captionmarginleft(26) Captionmarginright(26) Style(#NavigationLinkStyle)
+    
+    Define_Com Class(#BPFLanguageSelectionControl) Name(#UserLanguage) Parent(#COM_OWNER) Displayposition(5) Top(227)
+    
+    * Parent
+    Define_Com Class(#BPFLoginDialog) Name(#Dialog) Reference(*DYNAMIC)
+    
+    * Properties
+    Define_Pty Name(Value) Get(*REFERENCE #UserEmailEdit)
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #Dialog <= #BPFPortal.LoginDialog
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetLanguageOptions
+    
+    #UserEmailEdit := #Session.RequestedAccount
+    
+    Endroutine
+    
+    * Action Buttons
+    Evtroutine Handling(#PanelAction.Click)
+    
+    * Signal to Create Account
+    #Navigate.To Eventname(CREATEUSERACCOUNT)
+    
+    Endroutine
+    
+    * Next Buttons
+    Evtroutine Handling(#NextButton.Click #UserEmailEdit.Enter)
+    
+    #Com_self.HandleNext
+    
+    Endroutine
+    
+    * Field Events
+    Evtroutine Handling(#UserEmailEdit.Changed) Com_Sender(#Sender)
+    
+    If (#Sender.HasError)
+    
+    #Sender.ClearError
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserLanguage.Changed)
+    
+    * Okay, we need to have actually select event which requires a value be passed
+    If (#UserLanguage.Control.value.IsNull.IsFalse)
+    
+    * Set Wait
+    #Dialog.SetWaitingState( 'ON' )
+    
+    * Set the override in localStorage
+    #Browser.UserLanguage := #UserLanguage.Control
+    #Session.Message.SendAction( BROWSERRELOAD )
+    
+    #Navigate.Reload
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Handle Next Event
+    Mthroutine Name(HandleNext)
+    
+    If (#UserEmailEdit.Value.IsValidEmail)
+    
+    #Session.RequestedAccount := #UserEmailEdit.Value.lowercase
+    #Navigate.To Eventname(ENTERACCOUNTPASSWORD)
+    
+    Else
+    
+    #COM_SELF.DisplayFieldErrors( #UserEmailEdit #STRINGS.Text<USEREMAILEDIT.INVALID> )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetLanguageOptions)
+    
+    If (#Browser.UserLanguage.IsNull.IsFalse)
+    
+    #UserLanguage.Control := #Browser.UserLanguage
+    
+    Endif
+    
+    Endroutine
+    
+    
+    * Private
+    Mthroutine Name(DisplayFieldErrors) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#Prim_MD.Edit) Name(#EditField) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Message)
+    
+    #EditField.ShowError( #Message )
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings) Access(*PRIVATE)
+    
+    #PANELTEXT.CAPTION := #STRINGS.Text<PANELTEXT.CAPTION>
+    #USEREMAILEDIT.CAPTION := #STRINGS.Text<USEREMAILEDIT.CAPTION>
+    #PANELACTION.CAPTION := #STRINGS.Text<PANELACTION.CAPTION>
+    #NEXTBUTTON.CAPTION := #STRINGS.Text<NEXTBUTTON.CAPTION>
+    
+    Endroutine
+    
+    End_Com

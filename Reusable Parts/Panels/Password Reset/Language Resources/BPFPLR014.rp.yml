@@ -1,0 +1,43 @@
+﻿Reusable Part:
+  Name:               BPFPasswordResetSecurityCheckPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password Reset Security Check Strings"
+
+  - JPN:
+      Description:        "Password Reset Security Check Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Verify your %%APP%% security credentials"
+    #STRINGSCOLLECTION<'SECONDARINSTRUCTION.CAPTION'> := "Please answer your %%APP%% security question"
+    
+    #STRINGSCOLLECTION<'BODYTEXT.CAPTION'> := "Just getting your security question, not long now..."
+    
+    #STRINGSCOLLECTION<'SECURITYCHECKANSWEREDIT.CAPTION'> := "Your answer"
+    
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. We trust you, but it does not hurt to check"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Next"
+    
+    #STRINGSCOLLECTION<'SESSION.ONCHECKSECURITYDETAILSFAILED'> := "Error. Your answer is correct."
+    
+    Endroutine
+    
+    End_Com

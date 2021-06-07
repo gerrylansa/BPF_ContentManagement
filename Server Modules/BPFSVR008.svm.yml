@@ -1,0 +1,707 @@
+﻿ServerModule:
+  Name:               BPFSystemSetingsDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal System Settings Data Server"
+
+  - JPN:
+      Description:        "Portal System Settings Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RetCode) Type(*CHAR) Length(2)
+    Define Field(#AlphaValue) Type(*NVARCHAR) Length(512)
+    Define Field(#AlphaName) Reffld(#BPFCodeName)
+    Define Field(#BooleanValue) Type(*BOOLEAN)
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSessionAuthenicated #sIsoCode)
+    
+    * Data Lists
+    Def_List Name(#CodesGroup) Fields(#BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue #BPFCodeNumericValue #BPFCodeDescription #BPFGenericBlob) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#EventLabels) Fields(#BPFCodeAlphaValue #BPFGenericNVarChar2048 #BPFCodeDescription) Type(*WORKING) Entrys(*MAX)
+    
+    * Routines
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * System Role
+    Srvroutine Name(GetRoleAndSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#AlphaValue) Parameter_Name(Role)
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(RoleSettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetRoleAndSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * First Get the Role
+    #AlphaValue := #Utils.GetAlphaValue( 'SYSTEM' 'ROLE' )
+    
+    * Now Populate the Role Settings if we are NOT in production
+    If (#BPFCodeAlphaValue <> PROD)
+    
+    * Get All Values
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where((#BPFCodeName = 'OVERRIDE_EMAIL') *Or (#BPFCodeName = 'ALLOWED_DOMAIN')) With_Key('SYSTEM_') Generic(*YES)
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    Endif
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SetRoleAndSettings) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#AlphaValue) Parameter_Name(Role)
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(RoleSettings)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetRoleAndSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update the Role
+    #BPFStatus := #Utils.SetAlphaValue( 'SYSTEM' 'ROLE' 1 #AlphaValue )
+    
+    * Update Roles Settings
+    Selectlist Named(#CodesGroup) Where(#BPFCodeGroup.UpperCase.Contains( #AlphaValue.AsNativeString.UpperCase ))
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    Leave If(#BPFStatus <> OK)
+    
+    Endselect
+    
+    Endroutine
+    
+    * Web Paths
+    Srvroutine Name(GetWebPaths) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(WebPaths)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetWebPaths' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) With_Key('SYSTEM' 'URL_') Generic(*YES)
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting web paths : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetWebPaths) Session(*REQUIRED)
+    
+    * Inbound
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(WebPaths)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetWebPaths' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update Roles Settings
+    Selectlist Named(#CodesGroup)
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    Leave If(#BPFStatus <> OK)
+    
+    Endselect
+    
+    Endroutine
+    
+    Srvroutine Name(GetJSMSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(JSMSettings)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetJSMSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where((#BPFCodeName = 'JSMSERVER ') *Or (#BPFCodeName = 'TRACE_FOLDER')) With_Key('JSMSETTINGS')
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting web paths : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetJSMSettings) Session(*REQUIRED)
+    
+    * Inbound
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(JSMSettings)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetJSMSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update Roles Settings
+    Selectlist Named(#CodesGroup)
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    Leave If(#BPFStatus <> OK)
+    
+    Endselect
+    
+    Endroutine
+    
+    * API Keys
+    Srvroutine Name(GetAPIKeys) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(Keys)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetAPIKeys' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) With_Key('APIKEYS')
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting API keys : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting API keys : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetAPIKeys) Session(*REQUIRED)
+    
+    * Inbound
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(Keys)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetAPIKeys' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update Roles Settings
+    Selectlist Named(#CodesGroup)
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    Leave If(#BPFStatus <> OK)
+    
+    Endselect
+    
+    Endroutine
+    
+    * Web Paths
+    Srvroutine Name(GetFolderNames) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(FolderNames)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetFolderNames' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) With_Key('SYSTEM' 'FOLDER_') Generic(*YES)
+    
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Sort Return
+    Sort_List Named(#CodesGroup) By_Fields(#BPFCodeSequence)
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting folder names : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting folder names : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SetFolderNames) Session(*REQUIRED)
+    
+    * Inbound
+    List_Map For(*INPUT) List(#CodesGroup) Parameter_Name(FolderNames)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SetFolderNames' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update Roles Settings
+    Selectlist Named(#CodesGroup)
+    
+    #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    Leave If(#BPFStatus <> OK)
+    
+    Endselect
+    
+    Endroutine
+    
+    * Resources
+    Srvroutine Name(GetResources) Session(*REQUIRED)
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(Resources)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetResources' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) Where((#BPFCodeName.UpperCase.Contains( '_CONTENT_' )) *Or (#BPFCodeName.UpperCase.Contains( '_RESOURCE_' ))) With_Key('SYSTEM')
+    
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Sort Return
+    Sort_List Named(#CodesGroup) By_Fields(#BPFCodeSequence)
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting resources : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetResource) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    Field_Map For(*INPUT) Field(#AlphaName) Parameter_Name(ResourceName)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#CodesGroup) Parameter_Name(Resource)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetResource' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#CodesGroup) From_File(BPFSystemCodes) With_Key('SYSTEM' #AlphaName)
+    
+    #BPFCodeAlphaValue := #Utils.GetLanguageValueFromString( #BPFGenericNVarChar256 #BPFCodeAlphaValue )
+    Add_Entry To_List(#CodesGroup)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting resources : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(SaveResource) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFGenericNVarChar256) Parameter_Name(ForIsoCode)
+    Group_Map For(*INPUT) Group(#CodesGroup) Parameter_Name(ResourceData)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Create Data Output
+    Define_Com Class(#XPRIM_Binary) Name(#Data)
+    Define_Com Class(#XPRIM_ErrorInfo) Name(#DataStatus)
+    Define_Com Class(#PRIM_ALPH) Name(#FilePath)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveResource' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Update the Alpha Value
+    * #BPFStatus := #Utils.SetAlphaValue( #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue )
+    
+    * If update works, then save the return file
+    If (#Utils.SetAlpaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue ) = OK)
+    
+    * We need to determine the save location
+    If (#BPFCodeName.UpperCase.LeftMost( 4 ) = 'PDF_')
+    
+    * Since if for a PDF, we need to determine content or resource file
+    If (#BPFCodeAlphaValue.LowerCase.contains( '.xml' ))
+    
+    * Its the content file
+    #FilePath := (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_CONTENT' ).Substitute( #BPFGenericNVarChar256 )) + *PATHDELIM + #BPFCodeAlphaValue).AsNativeString
+    
+    Else
+    
+    * Its a resource file
+    #FilePath := (*ROOT_DIR + (#Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_PDF_RESOURCES' ).Substitute( #BPFGenericNVarChar256 )) + *PATHDELIM + #BPFCodeAlphaValue).AsNativeString
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    * Its web content
+    #FilePath := (*PART_DIR + 'web\vl\' + #Utils.GetAlphaValue( 'SYSTEM' 'FOLDER_WEB_CONTENT' ) + *PATHDELIM + #BPFCodeAlphaValue).AsNativeString
+    
+    Endif
+    
+    * Check we have file
+    If (#BPFGenericBlob.FileName.IsNull.IsFalse)
+    
+    * We do, so save
+    #Data.FromFile Path(#BPFGenericBlob)
+    #Data.AsFile Path(#FilePath) Errorinfo(#DataStatus)
+    
+    * Check Status
+    If (#DataStatus.Ok)
+    
+    #Utils.log( ('System Settings Data Server : Save of resource : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Save of resource : failed with error ' + #DataStatus.ErrorCode.AsNativeString + '/' + #DataStatus.ErrorMessage.AsNativeString) )
+    #BPFStatus := ER
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(ExportSettings) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFGenericCLOB) Parameter_Name(ExportData)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local References
+    Define_Com Class(#BPFSystemSettingsExporter) Name(#Export)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ExportSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('System Settings Data Server : Starting a system export') )
+    
+    * Read in the email body
+    
+    #BPFGenericCLOB := #Export.Generate
+    
+    * Final read status
+    If (#BPFGenericBlob.IsNull)
+    
+    #Utils.log( ('System Settings Data Server : Finished system export in error') )
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Finished system export successfully') )
+    #BPFStatus := OK
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(ImportSettings) Session(*REQUIRED)
+    
+    * Outbound
+    Field_Map For(*INPUT) Field(#BPFGenericBLOB) Parameter_Name(ImportData)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local References
+    Define_Com Class(#BPFSystemSettingsImporter) Name(#Import)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'ImportSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.log( ('System Settings Data Server : Starting a system export') )
+    
+    * Final read status
+    If (#Import.Populate( #BPFGenericBlob ))
+    
+    #Utils.log( ('System Settings Data Server : Finished system import successfully') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Finished system import in error') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetEventLabels) Session(*REQUIRED)
+    
+    * Inbound
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#EventLabels) Parameter_Name(Labels)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(status)
+    
+    * Local Objects
+    Define_Com Class(#BPFSessionEventDescriptionStrings) Name(#Strings) Reference(*DYNAMIC)
+    
+    #Secure.CheckIsValidRequest( 'GetEventLabels' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Load the code strings, as we need the specific description
+    #Strings <= *New #BPFSessionEventDescriptionStrings.Load( #sIsoCode )
+    
+    * Populate the Role Settings if we are NOT in production
+    Select Fields(#BPFCodeAlphaValue #BPFCodeDescription) From_File(BPFSystemCodes) Where(#BPFCodeDescription <> *blank) With_Key('EVENTS')
+    
+    * Set Language Specific String
+    #BPFGenericNVarChar2048 := #Strings.Text<('LABEL.' + #BPFCodeAlphaValue.UpperCase).AsNativeString>
+    
+    Add_Entry To_List(#EventLabels)
+    
+    Endselect
+    
+    * Final read status
+    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    
+    #Utils.log( ('System Settings Data Server : Getting event labels : successful') )
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.log( ('System Settings Data Server : Getting event labels: failed with error ' + #IO$STS) )
+    #BPFStatus := #IO$STS
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

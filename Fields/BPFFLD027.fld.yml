@@ -1,0 +1,38 @@
+﻿Field:
+  Name:               BPFSessionEnded
+  Type:               DateTime
+  Length:             26
+  Decimals:           0
+  Default Value:      "*SQLNULL"
+  Enabled For RDMLX:  Yes
+  System Field:       No
+
+  Input Attributes:
+  - ASQN
+  - ISO
+  - SUTC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Session Ended Date & Time"
+      Label:              "Session Ended D"
+      Heading1:           "Session"
+      Heading2:           "Ended"
+      Heading3:           "Date"
+
+  - JPN:
+      Description:        "Session Ended Date & Time"
+      Label:              "Session Ended D"
+      Heading1:           "Session"
+      Heading2:           "Ended"
+      Heading3:           "Date"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVDT) Name(#VisualDateTime) Defaultvisual(True) Componentversion(1) Height(21) Width(581)
+    
+    End_Com
+    
+    End_Com

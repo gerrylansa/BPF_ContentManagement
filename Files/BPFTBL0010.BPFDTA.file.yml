@@ -1,0 +1,78 @@
+﻿File:
+  Name:                           BPFBannedIPAddresses
+  File Type:                      LANSA File
+  Library:                        BPFDTA
+  Record Format Name:             BPFTBL0010
+  Module Library:                 Same Library As File
+  File Uses SQL on IBM i:         No
+  Enabled For RDMLX:              Yes
+  Enabled For Long Names:         Yes
+  Share Data Path:                No
+  Secure From File Overrides:     Yes
+  Strip Debug On Compile:         Yes
+  Suppress IOM0034 Message:       No
+  Ignore Decimal Data Error:      No
+  Create I/O Module:              Yes
+  Create Batch Control:           No
+  IBM i High Speed Table:         No
+  Auto RRN Generation:            Yes
+  Create RRNO Column:             Yes
+  Auto RRNO Is Fixed:             Yes
+  Convert Special Characters:     No
+  Enable Commitment Control:      No
+  Auto Commit:                    No
+  Parameters:                     SIZE( 10000 2000 3) LVLCHK(*YES)
+  Read-only Access:               No
+  Enable Database Triggers:       No
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Banned IP Addresses"
+
+  - JPN:
+      Description:        "Banned IP Addresses"
+
+  Real Fields:
+  - BPFFLD071:
+      Type:               Alphanumeric
+      Length:             45
+      Decimals:           0
+
+  - BPFFLD072:
+      Type:               Decimal
+      Length:             7
+      Decimals:           0
+
+  - BPFFLD073:
+      Type:               Boolean
+      Length:             1
+      Decimals:           0
+
+  - BPFFLD074:
+      Type:               Date Time
+      Length:             26
+      Decimals:           0
+
+  Primary Keys:
+  - BPFFLD071
+
+  Logical Views:
+  - BPFBannedIPAddressesNewestFirst:
+      Identifier:         BPFIDX0011
+      Unique Key:         No
+      Access Path:        Immediate
+      Record Format:      BPFIDX0011
+      Dynamic Select:     No
+      Parameters:         LVLCHK(*YES)
+
+      Multilingual Details:
+      - ENG:
+          Description:        "Banned IP Addresses Newest First"
+
+      - JPN:
+          Description:        "Banned IP Addresses Newest First"
+
+      Keys:
+      - BPFFLD074:
+          Key Order:          Descending
+          Numeric Ordering:   Unsigned

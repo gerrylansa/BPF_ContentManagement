@@ -1,0 +1,388 @@
+﻿Web View:
+  Name:               BPFPortalLogControlView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Log Control"
+
+  - JPN:
+      Description:        "Portal Log Control"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP003')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFPortalLogControlViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFPortalLoggingDataClient) Name(#LoggingData) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    Define_Com Class(#Prim_vs.Style) Name(#NotaCard) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(93) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(1176) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#EverythingPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#EmailLogsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#DataCallsLogsPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ProcessesPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EverythingPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EverythingPanelLayoutRow1) Displayposition(1) Parent(#EverythingPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EverythingPanelLayoutRow2) Displayposition(2) Parent(#EverythingPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EverythingPanelLayoutColumn1) Displayposition(1) Parent(#EverythingPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EverythingPanelLayoutColumn2) Displayposition(2) Parent(#EverythingPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EverythingPanelLayoutColumn3) Displayposition(3) Parent(#EverythingPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EverythingPanelLayoutItem1) Manage(#EverythingPanelHeading) Parent(#EverythingPanelLayout) Row(#EverythingPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#EverythingPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EverythingPanelLayoutItem2) Alignment(TopLeft) Column(#EverythingPanelLayoutColumn2) Manage(#EverythingList) Parent(#EverythingPanelLayout) Row(#EverythingPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EverythingLayoutListColumn1) Displayposition(1) Parent(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EverythingLayoutListRow1) Displayposition(1) Parent(#EverythingLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EverythingLayoutListItem1) Alignment(TopCenter) Column(#EverythingLayoutListColumn1) Manage(#EverthingListSwitch) Parent(#EverythingLayoutList) Row(#EverythingLayoutListRow1)
+    
+    * Everything Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ProcessesPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProcessesPanelLayoutRow1) Displayposition(1) Parent(#ProcessesPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProcessesPanelLayoutRow2) Displayposition(2) Parent(#ProcessesPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProcessesPanelLayoutColumn1) Displayposition(1) Parent(#ProcessesPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProcessesPanelLayoutColumn2) Displayposition(2) Parent(#ProcessesPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProcessesPanelLayoutColumn3) Displayposition(3) Parent(#ProcessesPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProcessesPanelLayoutItem1) Manage(#ProcessesPanelHeading) Parent(#ProcessesPanelLayout) Row(#ProcessesPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ProcessesPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProcessesPanelLayoutItem2) Alignment(TopLeft) Column(#ProcessesPanelLayoutColumn2) Manage(#ProcessesList) Parent(#ProcessesPanelLayout) Row(#ProcessesPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ProcessesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ProcessesLayoutListColumn1) Displayposition(1) Parent(#ProcessesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ProcessesLayoutListRow1) Displayposition(1) Parent(#ProcessesLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ProcessesLayoutListItem1) Alignment(TopCenter) Column(#ProcessesLayoutListColumn1) Manage(#ProcessesListSwitch) Parent(#ProcessesLayoutList) Row(#ProcessesLayoutListRow1)
+    
+    * EmailLogs Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EmailLogsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EmailLogsPanelLayoutRow1) Displayposition(1) Parent(#EmailLogsPanelLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EmailLogsPanelLayoutRow2) Displayposition(2) Parent(#EmailLogsPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailLogsPanelLayoutColumn1) Displayposition(1) Parent(#EmailLogsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailLogsPanelLayoutColumn2) Displayposition(2) Parent(#EmailLogsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailLogsPanelLayoutColumn3) Displayposition(3) Parent(#EmailLogsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EmailLogsPanelLayoutItem1) Manage(#EmailLogsPanelHeading) Parent(#EmailLogsPanelLayout) Row(#EmailLogsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#EmailLogsPanelLayoutColumn2) Alignment(TopLeft) Margintop(24) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EmailLogsPanelLayoutItem2) Alignment(TopLeft) Column(#EmailLogsPanelLayoutColumn2) Manage(#EmailLogsList) Parent(#EmailLogsPanelLayout) Row(#EmailLogsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EmailLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EmailLogsLayoutListColumn1) Displayposition(1) Parent(#EmailLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EmailLogsLayoutListRow1) Displayposition(1) Parent(#EmailLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EmailLogsLayoutListItem1) Alignment(TopCenter) Column(#EmailLogsLayoutListColumn1) Manage(#EmailLogsListSwitch) Parent(#EmailLogsLayoutList) Row(#EmailLogsLayoutListRow1)
+    
+    * DataCallsLogs Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#DataCallsLogsLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DataCallsLogsPanelLayoutRow1) Displayposition(1) Parent(#DataCallsLogsLayout) Units(Content) Height(244)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DataCallsLogsPanelLayoutRow2) Displayposition(2) Parent(#DataCallsLogsLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DataCallsLogsPanelLayoutColumn1) Displayposition(1) Parent(#DataCallsLogsLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DataCallsLogsPanelLayoutColumn2) Displayposition(2) Parent(#DataCallsLogsLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DataCallsLogsPanelLayoutColumn3) Displayposition(3) Parent(#DataCallsLogsLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DataCallsLogsLayoutItem1) Manage(#DataCallsLOgsPanelHeading) Parent(#DataCallsLogsLayout) Row(#DataCallsLogsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Alignment(TopLeft) Margintop(24) Flow(Down) Column(#DataCallsLogsPanelLayoutColumn2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DataCallsLogsPanelLayoutItem1) Alignment(TopLeft) Column(#DataCallsLogsPanelLayoutColumn2) Manage(#DataCallsLogsList) Parent(#DataCallsLogsLayout) Row(#DataCallsLogsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * List Layout
+    Define_Com Class(#PRIM_TBLO) Name(#DataCallsLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DataCallsLogsLayoutListColumn1) Displayposition(1) Parent(#DataCallsLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DataCallsLogsLayoutListRow1) Displayposition(1) Parent(#DataCallsLogsLayoutList)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DataCallsLayoutListItem1) Alignment(TopCenter) Column(#DataCallsLogsLayoutListColumn1) Manage(#DataCallsLogsListSwitch) Parent(#DataCallsLogsLayoutList) Row(#DataCallsLogsLayoutListRow1)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(341) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Manage Portal Logging') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(38) Left(341) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('You are able to choose if the portal enables logging for all modules, or just the module you need should you need to track down any problems. It is recommend logging is left off unless required, so only enabled what you need for shortest time possible.')
+    
+    * Panels
+    
+    * All Logs
+    Define_Com Class(#PRIM_PANL) Name(#EverythingPanel) Displayposition(3) Height(270) Left(401) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(141) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#EverythingPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#EverythingPanelHeading) Caption('System Wide') Displayposition(1) Left(24) Parent(#EverythingPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.List) Name(#EverythingList) Displayposition(2) Layoutmanager(#EverythingLayoutList) Left(24) Parent(#EverythingPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListSwitch) Name(#EverthingListSwitch) Caption('On sample text') Displayposition(1) Height(44) Left(0) Parent(#EverythingList) Tabposition(1) Top(0) Width(830) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    * Process
+    Define_Com Class(#PRIM_PANL) Name(#ProcessesPanel) Displayposition(4) Height(270) Left(401) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(435) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ProcessesPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ProcessesPanelHeading) Displayposition(1) Left(24) Parent(#ProcessesPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24) Caption('Cleanup Processes')
+    Define_Com Class(#PRIM_MD.List) Name(#ProcessesList) Displayposition(2) Layoutmanager(#ProcessesLayoutList) Left(24) Parent(#ProcessesPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListSwitch) Name(#ProcessesListSwitch) Caption('On sample text') Displayposition(1) Height(44) Left(0) Parent(#ProcessesList) Tabposition(1) Top(0) Width(830) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    
+    
+    * Just Emails
+    Define_Com Class(#PRIM_PANL) Name(#EmailLogsPanel) Displayposition(5) Height(270) Left(401) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(729) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#EmailLogsPanelLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#EmailLogsPanelHeading) Caption('Email Sending') Displayposition(1) Left(24) Parent(#EmailLogsPanel) Tabposition(1) Themedrawstyle('Heading3') Width(830) Height(24) Top(24)
+    Define_Com Class(#PRIM_MD.List) Name(#EmailLogsList) Displayposition(2) Layoutmanager(#EmailLogsLayoutList) Left(24) Parent(#EmailLogsPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListSwitch) Name(#EmailLogsListSwitch) Caption('On sample text') Displayposition(1) Height(44) Left(0) Parent(#EmailLogsList) Tabposition(1) Top(0) Width(830) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    
+    * Data Calls
+    Define_Com Class(#PRIM_PANL) Name(#DataCallsLogsPanel) Displayposition(6) Height(270) Left(401) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(1023) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#DataCallsLogsLayout)
+    
+    * Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#DataCallsLOgsPanelHeading) Caption('Data Calls') Displayposition(1) Left(24) Parent(#DataCallsLogsPanel) Tabposition(1) Themedrawstyle('Heading3') Width(830) Height(24) Top(24)
+    Define_Com Class(#PRIM_MD.List) Name(#DataCallsLogsList) Displayposition(2) Layoutmanager(#DataCallsLogsLayoutList) Left(24) Parent(#DataCallsLogsPanel) Rowheight(44) Tabposition(2) Top(64) Height(180) Width(830) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.ListSwitch) Name(#DataCallsLogsListSwitch) Caption('On sample text') Displayposition(1) Height(44) Left(0) Parent(#DataCallsLogsList) Tabposition(1) Top(0) Width(830) Iconalignment(CenterRight) Iconcolor(Theme500) Themedrawstyle('card') Style(#NotaCard)
+    
+    * So we can hear events
+    Define_Com Class(#BPFBooleanCodeGroupClass) Name(#CurrentSetting) Reference(*DYNAMIC)
+    
+    * References
+    
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get Reference to logging data client
+    #LoggingData <= (#Data.GetDataClient( #COM_SELF ) *As #BPFPortalLoggingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get portal logging settings
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SetStrings
+    
+    #LoggingData.GetPortalLoggingControlSettings
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#EverthingListSwitch.Changed)
+    
+    * Set display of lesser panels
+    #COM_SELF.SetDisplayNonSystemPanels( (*Not #EverthingListSwitch.CurrentItem.Checked) )
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SaveSetting( (#EverythingList.CurrentItem) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#ProcessesListSwitch.Changed)
+    
+    *
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SaveSetting( (#ProcessesList.CurrentItem) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#EmailLogsListSwitch.Changed)
+    
+    *
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SaveSetting( (#EmailLogsList.CurrentItem) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#DataCallsLogsListSwitch.Changed)
+    
+    *
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #COM_SELF.SaveSetting( (#DataCallsLogsList.CurrentItem) )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#LoggingData.OnGetPortalLoggingControlSettingsCompleted)
+    
+    #COM_SELF.BuildSwitchControlsForPanel
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#LoggingData.OnGetPortalLoggingControlSettingsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<LOGGINGDATA.ONGETPORTALLOGGINGCONTROLSETTINGSFAILED> 7500 )
+    
+    Endroutine
+    
+    
+    Evtroutine Handling(#CurrentSetting.OnSaveCompleted)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTSETTING.ONSAVECOMPLETED> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentSetting.OnSaveFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTSETTING.ONSAVEFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #EVERYTHINGPANELHEADING.CAPTION := #STRINGS.Text<EVERYTHINGPANELHEADING.CAPTION>
+    #PROCESSESPANELHEADING.CAPTION := #STRINGS.Text<PROCESSESPANELHEADING.CAPTION>
+    #EMAILLOGSPANELHEADING.CAPTION := #STRINGS.Text<EMAILLOGSPANELHEADING.CAPTION>
+    #DATACALLSLOGSPANELHEADING.CAPTION := #STRINGS.Text<DATACALLSLOGSPANELHEADING.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildSwitchControlsForPanel) Access(*PRIVATE)
+    
+    * Start wuth loading system logging
+    For Each(#Item) In(#LoggingData.PortalSettings<'LOGGING_SYSTEM'>)
+    
+    * Current List Item
+    Add_Entry To_List(#EverythingList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #EverythingList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #EverthingListSwitch.CurrentItem.Caption := #STRINGS.Text<('EVERYTHINGLISTSWITCH.CAPTION.' + #Item.Text.UpperCase)>
+    #EverthingListSwitch.CurrentItem.Checked := #Item.Value
+    
+    * Set display of lesser panels
+    #COM_SELF.SetDisplayNonSystemPanels( (*Not #Item.Value) )
+    
+    Endfor
+    
+    * Layout Proceesses Switches
+    For Each(#Item) In(#LoggingData.PortalSettings<'LOGGING_PROCESSES'>)
+    
+    * Current List Item
+    Add_Entry To_List(#ProcessesList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #ProcessesList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #ProcessesListSwitch.CurrentItem.Caption := #STRINGS.Text<('PROCESSESLISTSWITCH.CAPTION.' + #Item.Text.UpperCase)>
+    #ProcessesListSwitch.CurrentItem.Checked := #Item.Value
+    
+    Endfor
+    
+    * Layout Email Switches
+    For Each(#Item) In(#LoggingData.PortalSettings<'LOGGING_EMAIL'>)
+    
+    * Current List Item
+    Add_Entry To_List(#EmailLogsList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #EmailLogsList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #EmailLogsListSwitch.CurrentItem.Caption := #STRINGS.Text<('EMAILLOGSLISTSWITCH.CAPTION.' + #Item.Text.UpperCase)>
+    #EmailLogsListSwitch.CurrentItem.Checked := #Item.Value
+    
+    Endfor
+    
+    
+    For Each(#Item) In(#LoggingData.PortalSettings<'LOGGING_SERVERMODULES'>)
+    
+    * Current List Item
+    Add_Entry To_List(#DataCallsLogsList)
+    
+    * Set Item Properies
+    
+    * Associcate setting data object
+    #DataCallsLogsList.CurrentItem.RelatedReference <= #Item
+    
+    * Set Caption and switch state
+    #DataCallsLogsListSwitch.CurrentItem.Caption := #STRINGS.Text<('DATACALLSLOGSLISTSWITCH.CAPTION.' + #Item.Text.UpperCase)>
+    #DataCallsLogsListSwitch.CurrentItem.Checked := #Item.Value
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(SaveSetting)
+    Define_Map For(*INPUT) Class(#Prim_md.ListItem) Name(#ListItemForSetting) Pass(*BY_REFERENCE)
+    
+    * Get Current Setting
+    #CurrentSetting <= (#ListItemForSetting.RelatedReference *As #BPFBooleanCodeGroupClass)
+    #CurrentSetting.Value := *Not #CurrentSetting.Value
+    #CurrentSetting.Save
+    
+    Endroutine
+    
+    Mthroutine Name(SetDisplayNonSystemPanels) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Enabled)
+    
+    #ProcessesPanel.Enabled #EmailLogsPanel.Enabled #DataCallsLogsPanel.Enabled := #Enabled
+    
+    * Archived code - intent was to shade the selection area when not enabled but current effect
+    * Looks wrong and hard to read in dark mode. So supressed for now.
+    
+    * If (#EmailLogsPanel.Enabled)
+    *
+    * #EmailLogsPanel.ThemeDrawStyle #DataCallsLogsPanel.ThemeDrawStyle := 'Card'
+    *
+    * Else
+    *
+    * #EmailLogsPanel.ThemeDrawStyle #DataCallsLogsPanel.ThemeDrawStyle := 'Card+Back(240,240,240,1)'
+    *
+    * Endif
+    
+    Endroutine
+    
+    End_Com

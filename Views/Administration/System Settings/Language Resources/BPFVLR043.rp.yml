@@ -1,0 +1,39 @@
+﻿Reusable Part:
+  Name:               BPFSystemSettingsImportViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System Settings Import View Strings"
+
+  - JPN:
+      Description:        "System Settings Import View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Import Portal Settings"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Import system settings to replace the current portal settings used by this portal."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Import"
+    
+    #STRINGSCOLLECTION<'WARNINGTEXT.CAPTION'> := "Warning : You are about to import settings into the portal. All current settings, file locations, administraion users, email and PDF templates will be replaced. This may cause the functions of the portal to stop working if they are not correct for this portal. It is recommended that you export the current portal settings first in case issues are encountered."
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONIMPORTSETTINGSCOMPLETED'> := "Settings imported"
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONIMPORTSETTINGSFAILED'> := "Failed to import settings"
+    
+    Endroutine
+    
+    End_Com

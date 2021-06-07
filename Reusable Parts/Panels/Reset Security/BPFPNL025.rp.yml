@@ -1,0 +1,258 @@
+﻿Reusable Part:
+  Name:               BPFResetSecurityPasswordPanel
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Reset Security Password Panel"
+
+  - JPN:
+      Description:        "Portal Reset Security Password Panel"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_View) Displayposition(1) Height(426) Tabposition(1) Width(666) Layoutmanager(#Layout)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFResetSecurityPasswordPanelStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#Prim_vs.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Panel Layouts
+    
+    * Base Layout
+    Define_Com Class(#PRIM_TBLO) Name(#Layout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(3) Parent(#Layout) Units(Content) Width(252)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(2) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(48) Units(Pixels)
+    
+    * Detail Panel Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#DialogLogo) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#MainInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Alignment(TopLeft) Column(#LayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Marginbottom(24) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem6) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#NewPasswordEdit) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem9) Alignment(CenterLeft) Column(#LayoutColumn1) Manage(#DetailsPanelActionButton) Parent(#Layout) Row(#LayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem10) Alignment(CenterRight) Column(#LayoutColumn3) Manage(#DetailsPanelNextButton) Parent(#Layout) Row(#LayoutRow2) Sizing(None)
+    
+    * Mobile Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem4) Manage(#BodyText) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Column(#LayoutColumn1) Alignment(TopLeft) Flow(Down) Columnspan(2) Marginbottom(8)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#MobileLayout)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#MobileLayoutColumn1) Displayposition(1) Parent(#MobileLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MobileLayoutRow1) Displayposition(1) Parent(#MobileLayout)
+    
+    * Details Panel Mobile Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem1) Manage(#MainInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#MobileLayoutColumn1) Alignment(TopLeft) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem2) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#SecondaryInstruction) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem3) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#BodyText) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem5) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#NewPasswordEdit) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(FitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem8) Alignment(BottomLeft) Column(#MobileLayoutColumn1) Manage(#DetailsPanelActionButton) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(None) Marginbottom(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem9) Alignment(BottomRight) Column(#MobileLayoutColumn1) Manage(#DetailsPanelNextButton) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(None) Marginbottom(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem5) Alignment(TopLeft) Column(#LayoutColumn1) Manage(#ConfirmPasswordEdit) Parent(#Layout) Row(#LayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MobileLayoutItem4) Alignment(TopLeft) Column(#MobileLayoutColumn1) Flow(Down) Manage(#ConfirmPasswordEdit) Parent(#MobileLayout) Row(#MobileLayoutRow1) Sizing(None)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogLogo) Caption('myPortal. Just be sure to keep this information somewhere safe.') Displayposition(2) Left(414) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('Heading3+ForegroundTheme') Top(0) Height(378) Width(252) Captionalignment(Center) Wordwrap(True) Iconalignment(AboveCaption) Icon('loop') Iconheight(118) Iconthemedrawstyle('ForegroundMediumPrimary') Captionmarginleft(14) Captionmarginright(14)
+    Define_Com Class(#PRIM_MD.Label) Name(#MainInstruction) Displayposition(1) Left(0) Parent(#COM_OWNER) Tabposition(6) Themedrawstyle('Heading2') Top(0) Height(27) Wordwrap(True) Width(414) Caption('Enter your new myPortal password')
+    Define_Com Class(#PRIM_MD.Label) Name(#SecondaryInstruction) Caption('Enter your new password and then confirm it entry') Displayposition(3) Left(0) Parent(#COM_OWNER) Tabposition(8) Height(21) Wordwrap(True) Width(414) Top(27)
+    Define_Com Class(#PRIM_MD.Label) Name(#BodyText) Displayposition(4) Left(0) Parent(#COM_OWNER) Tabposition(7) Top(72) Height(10) Wordwrap(True) Width(414)
+    Define_Com Class(#PRIM_MD.Edit) Name(#NewPasswordEdit) Displayposition(5) Left(0) Parent(#COM_OWNER) Tabposition(1) Top(98) Width(414) Componenttag('This will be your username') Caption('New Password') Passwordchar('*')
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DetailsPanelActionButton) Displayposition(6) Left(0) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(384) Caption('Back') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DetailsPanelNextButton) Caption('Confirm') Displayposition(7) Left(334) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('MediumTitle') Top(384) Width(80) Style(#NavigationLinkStyle)
+    
+    * Parent
+    Define_Com Class(#BPFResetAccountSecurityDialog) Name(#Dialog) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_MD.Edit) Name(#ConfirmPasswordEdit) Displayposition(8) Left(0) Parent(#COM_OWNER) Tabposition(2) Top(181) Width(414) Componenttag('This will be your username') Caption('Confirm') Passwordchar('*')
+    
+    * Reference to Data Object
+    
+    * Non Visual Objects
+    
+    * Rotuines
+    
+    * Events
+    
+    * Creation
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get reference to parent
+    #Dialog <= #BPFPortal.SecurityResetDialog
+    #COM_SELF.SetStrings
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Session
+    Evtroutine Handling(#Session.OnResetUserPasswordCompleted)
+    
+    #Dialog.SetWaitingState( OFF )
+    #Navigate.To( 'resetaccountsecuritycompleted' )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnResetUserPasswordFailed)
+    
+    #Dialog.SetWaitingState( OFF )
+    #Navigate.To( 'resetaccountsecurityfailed' ADD true 'password' )
+    
+    Endroutine
+    
+    * Edit Fields
+    
+    * Actions
+    Evtroutine Handling(#DetailsPanelActionButton.Click)
+    
+    * Set Address Values
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#DetailsPanelNextButton.Click #NewPasswordEdit.Enter #ConfirmPasswordEdit.Enter)
+    
+    If (#Com_self.IsPasswordValid)
+    
+    #Dialog.SetWaitingState( ON )
+    #Session.ResetUserPassword( #NewPasswordEdit True )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+    #SECONDARYINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARYINSTRUCTION.CAPTION>
+    #NEWPASSWORDEDIT.CAPTION := #STRINGS.Text<NEWPASSWORDEDIT.CAPTION>
+    #CONFIRMPASSWORDEDIT.CAPTION := #STRINGS.Text<CONFIRMPASSWORDEDIT.CAPTION>
+    #DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+    #DETAILSPANELACTIONBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELACTIONBUTTON.CAPTION>
+    #DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(IsPasswordValid)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume Success
+    #Result := True
+    #NewPasswordEdit.ClearError
+    #ConfirmPasswordEdit.ClearError
+    
+    * Password Entered
+    If (#NewPasswordEdit.value.IsNull)
+    
+    #NewPasswordEdit.ShowError( #STRINGS.Text<NEWPASSWORDEDIT.HELPERTEXT.BLANK> )
+    
+    Else
+    
+    If (#NewPasswordEdit.value.IsValidPassword( Medium ).IsFalse)
+    
+    #NewPasswordEdit.ShowError( #STRINGS.Text<NEWPASSWORDEDIT.HELPERTEXT.WEAK> )
+    
+    Endif
+    
+    Endif
+    
+    If ((#NewPasswordEdit.HasError.IsFalse) *AndIf (#ConfirmPasswordEdit.Value.IsNull))
+    
+    #ConfirmPasswordEdit.ShowError( #STRINGS.Text<CONFIRMPASSWORDEDIT.HELPERTEXT.BLANK> )
+    
+    Else
+    
+    If ((#NewPasswordEdit.Value <> #ConfirmPasswordEdit.Value))
+    
+    #ConfirmPasswordEdit.ShowError( #STRINGS.Text<CONFIRMPASSWORDEDIT.HELPERTEXT.NOMATCH> )
+    
+    Endif
+    
+    Endif
+    
+    #Result := ((#NewPasswordEdit.HasError.IsFalse) *And (#ConfirmPasswordEdit.HasError.IsFalse))
+    
+    Endroutine
+    
+    * Responsive Design
+    
+    Mthroutine Name(HandleDeviceChanged) Access(*PRIVATE)
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.SetForMobile
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.SetForTablet
+    
+    Otherwise
+    
+    #COM_SELF.SetForDesktop
+    
+    Endcase
+    
+    Endroutine
+    
+    Mthroutine Name(SetForMobile) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #MobileLayout)
+    
+    #COM_SELF.LayoutManager <= #MobileLayout
+    
+    Endif
+    Endroutine
+    
+    Mthroutine Name(SetForTablet) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := False
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetForDesktop) Access(*PRIVATE)
+    
+    * Set Logo Visibility
+    #DialogLogo.Visible := True
+    
+    * Set Layout Manager and Min Content Panel Height
+    If (#COM_SELF.LayoutManager *IsNotEqualTo #Layout)
+    
+    #COM_SELF.LayoutManager <= #Layout
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

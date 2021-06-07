@@ -1,0 +1,43 @@
+﻿Reusable Part:
+  Name:               BPFUserActivityDownloadStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Activity Download Strings"
+
+  - JPN:
+      Description:        "User Activity Download Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Download Activity Data"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Select the range of time you wish to clear you activity history data. Be aware that the data will be permantely removed, so you will not longer be able to view and download your site activity."
+    
+    #STRINGSCOLLECTION<'TIMERANGEDROPDOWN.CAPTION'> := "Time Range"
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "Download"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSESSIONDOWNLOADCOMPLETED'> := "Session data download completed."
+    #STRINGSCOLLECTION<'CURRENTUSER.ONSESSIONDOWNLOADFAILED'> := "Session data download failed."
+    
+    #STRINGSCOLLECTION<'TIMERANGEDROPDOWN.1'> := "Last Day"
+    #STRINGSCOLLECTION<'TIMERANGEDROPDOWN.7'> := "Last Week"
+    #STRINGSCOLLECTION<'TIMERANGEDROPDOWN.30'> := "Last Month"
+    #STRINGSCOLLECTION<'TIMERANGEDROPDOWN.99'> := "All Time"
+    
+    Endroutine
+    
+    End_Com

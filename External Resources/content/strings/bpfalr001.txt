@@ -1,0 +1,7 @@
+myPortal
+
+cloud
+
+
+#APP.NAME := #STRINGS.Text<APP.NAME>
+#APP.ICON := #STRINGS.Text<APP.ICON>

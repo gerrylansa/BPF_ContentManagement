@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               BPFNavigationRelatedMenuID
+  Type:               Alpha
+  Length:             9
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Related Menu Identifier For Nav Event"
+      Label:              "Related Menu Id"
+      Heading1:           "Related"
+      Heading2:           "Menu"
+      Heading3:           "Identifier"
+
+  - JPN:
+      Description:        "Related Menu Identifier For Nav Event"
+      Label:              "Related Menu Id"
+      Heading1:           "Related"
+      Heading2:           "Menu"
+      Heading3:           "Identifier"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Marginleft(230) Width(408)
+    
+    End_Com
+    
+    End_Com

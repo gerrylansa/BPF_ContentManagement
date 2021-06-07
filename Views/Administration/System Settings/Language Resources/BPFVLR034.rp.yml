@@ -1,0 +1,62 @@
+﻿Reusable Part:
+  Name:               BPFAdminSystemSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin of System Settings View Strings"
+
+  - JPN:
+      Description:        "Admin of System Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "System Settings"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Configure the portal wide settings and functions"
+    
+    #STRINGSCOLLECTION<'PORTALROLECARD.HEADING'> := "System Role"
+    #STRINGSCOLLECTION<'PORTALROLECARD.TEXT'> := "Set this portal''s role and related settings."
+    #STRINGSCOLLECTION<'PORTALROLECARD.ACTION'> := "Set portal role"
+    
+    #STRINGSCOLLECTION<'WEBPATHSCARD.HEADING'> := "Web Paths"
+    #STRINGSCOLLECTION<'WEBPATHSCARD.TEXT'> := "Set the web address paths used by portal emails."
+    #STRINGSCOLLECTION<'WEBPATHSCARD.ACTION'> := "Configure web paths"
+    
+    #STRINGSCOLLECTION<'INTEGRATIONCARD.HEADING'> := "Integration Server"
+    #STRINGSCOLLECTION<'INTEGRATIONCARD.TEXT'> := "Configure integration server address and trace location."
+    #STRINGSCOLLECTION<'INTEGRATIONCARD.ACTION'> := "Configure integration"
+    
+    #STRINGSCOLLECTION<'APIKEYSCARD.HEADING'> := "API Keys"
+    #STRINGSCOLLECTION<'APIKEYSCARD.TEXT'> := "Update the API Keys used by the portal."
+    #STRINGSCOLLECTION<'APIKEYSCARD.ACTION'> := "Update API Keys"
+    
+    #STRINGSCOLLECTION<'FOLDERNAMESCARD.HEADING'> := "Folder Names"
+    #STRINGSCOLLECTION<'FOLDERNAMESCARD.TEXT'> := "Customise the folders names used by the portal.'"
+    #STRINGSCOLLECTION<'FOLDERNAMESCARD.ACTION'> := "Customise folder names"
+    
+    #STRINGSCOLLECTION<'RESOURCESCARD.HEADING'> := "Resources"
+    #STRINGSCOLLECTION<'RESOURCESCARD.TEXT'> := "Manage external resource files used by the portal."
+    #STRINGSCOLLECTION<'RESOURCESCARD.ACTION'> := "Manage resources"
+    
+    #STRINGSCOLLECTION<'IMPORTEXPORTCARD.HEADING'> := "Transfer Settings"
+    #STRINGSCOLLECTION<'IMPORTEXPORTCARD.TEXT'> := "Export or import the settings of this portal instance."
+    #STRINGSCOLLECTION<'IMPORTEXPORTCARD.ACTION'> := "Transfer settings"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "These settings can affect the portal operation. So be sure you understand the impact of the change."
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFContentShareCreateViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Create Share View"
+
+  - JPN:
+      Description:        "Portal Create Share View"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Create Share"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enter a name for the content share you wish to create. Once created you will be taken to your new share so you can start adding items"
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "New Share"
+    
+    #STRINGSCOLLECTION<'CONTENTSHARENAMEEDIT.CAPTION'> := "Name"
+    #STRINGSCOLLECTION<'CONTENTSHARENAMEEDIT.ERROR.MISSING'> := "The share needs a name"
+    
+    #STRINGSCOLLECTION<'CREATEACTION.CAPTION'> := "CREATE"
+    
+    #STRINGSCOLLECTION<'SHARING.ONCREATESHAREFAILED'> := "Error creating new share"
+    
+    Endroutine
+    
+    End_Com

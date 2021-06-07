@@ -1,0 +1,298 @@
+﻿Web View:
+  Name:               BPFSecurityValidRequestSettingsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Security Request Settings View"
+
+  - JPN:
+      Description:        "Portal Security Request Settings View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Componenttag('BPFAPP005') Visible(False)
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFSecurityValidRequestSettingsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFSecurityDataClient) Name(#SecuritySettings) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(110) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#EnabledControlPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#CleanupControlPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    
+    * Enabled Panel Control Layout
+    Define_Com Class(#PRIM_TBLO) Name(#EnabledControlPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EnabledControlPanelLayout1Row1) Displayposition(1) Parent(#EnabledControlPanelLayout) Units(Content) Height(108)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#EnabledControlPanelLayout1Row2) Displayposition(2) Parent(#EnabledControlPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledControlPanelColumn1) Displayposition(1) Parent(#EnabledControlPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledControlPanelColumn2) Displayposition(2) Parent(#EnabledControlPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#EnabledControlPanelColumn3) Displayposition(3) Parent(#EnabledControlPanelLayout) Minwidth(44)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EnabledControlPanelLayoutItem1) Alignment(TopLeft) Column(#EnabledControlPanelColumn2) Manage(#EnableRequestValidation) Parent(#EnabledControlPanelLayout) Row(#EnabledControlPanelLayout1Row1) Sizing(FitToWidth) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#EnabledControlPanelLayoutItem2) Alignment(TopLeft) Column(#EnabledControlPanelColumn2) Manage(#EnabledControlPanelHeading) Parent(#EnabledControlPanelLayout) Row(#EnabledControlPanelLayout1Row1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Control Layout
+    Define_Com Class(#PRIM_TBLO) Name(#CleanupControlPanelLayout) Sizing(ContentHeight)
+    
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CleanupControlPanelLayoutColumn1) Displayposition(1) Parent(#CleanupControlPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CleanupControlPanelLayoutColumn2) Displayposition(2) Parent(#CleanupControlPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#CleanupControlPanelLayoutColumn3) Displayposition(3) Parent(#CleanupControlPanelLayout) Minwidth(44)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CleanupControlPanelLayoutRow1) Displayposition(1) Parent(#CleanupControlPanelLayout) Height(108) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#CleanupControlPanelLayoutRow2) Displayposition(2) Parent(#CleanupControlPanelLayout) Height(24) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CleanupControlPanelLayoutItem1) Manage(#CleanupControlPanelHeading) Parent(#CleanupControlPanelLayout) Row(#CleanupControlPanelLayoutRow1) Sizing(ContentWidthAndHeight) Column(#CleanupControlPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#CleanupControlPanelLayoutItem2) Alignment(TopLeft) Column(#CleanupControlPanelLayoutColumn2) Manage(#CleanupServiceToggle) Parent(#CleanupControlPanelLayout) Row(#CleanupControlPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(16)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Style(#NavigationLinkStyle) Caption('Configure Request Validation')
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(55) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Configure if checks are performed to validate if a data request has come from a user running the portal in a browser. When enabled user requests are checked that are valid for a given session and recorded so the same request cannot be made again. A service on the server is used to data is remove once a session has expired.')
+    
+    Define_Com Class(#PRIM_PANL) Name(#EnabledControlPanel) Displayposition(3) Height(134) Left(410) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(158) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#EnabledControlPanelLayout)
+    Define_Com Class(#PRIM_MD.Switch) Name(#EnableRequestValidation) Caption('Enabled') Checked(True) Displayposition(2) Iconalignment(CenterRight) Iconcolor(Theme500) Left(44) Parent(#EnabledControlPanel) Tabposition(1) Top(64) Width(790) Height(44) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#EnabledControlPanelHeading) Displayposition(1) Left(44) Parent(#EnabledControlPanel) Tabposition(2) Themedrawstyle('Heading3') Top(24) Width(790) Caption('Request Validation') Height(24) Wordwrap(True)
+    
+    Define_Com Class(#PRIM_PANL) Name(#CleanupControlPanel) Displayposition(4) Height(134) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(316) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#CleanupControlPanelLayout) Visible(False)
+    Define_Com Class(#PRIM_MD.Label) Name(#CleanupControlPanelHeading) Displayposition(1) Left(44) Parent(#CleanupControlPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(119) Caption('Cleanup Service') Height(24) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#CleanupServiceToggle) Displayposition(2) Left(44) Parent(#CleanupControlPanel) Tabposition(2) Top(64) Width(790) Height(44) Iconalignment(CenterRight) Icon('stop') Iconcolor(Theme200) Iconheight(36) Style(#NavigationLinkStyle) Wordwrap(True)
+    
+    * Ending check delay
+    Define_Com Class(#PRIM_TIMR) Name(#EndingDelay) Startup(Manual) Interval(5000)
+    
+    * References
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #SecuritySettings <= (#Data.GetDataClient( #COM_SELF ) *As #BPFSecurityDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #COM_SELF.SetStrings
+    
+    #SecuritySettings.GetRequestValidationStatus
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Controls
+    Evtroutine Handling(#CleanupServiceToggle.MouseEnter)
+    
+    #CleanupServiceToggle.IconColor := Theme500
+    
+    Endroutine
+    
+    Evtroutine Handling(#CleanupServiceToggle.MouseLeave)
+    
+    #CleanupServiceToggle.IconColor := Theme200
+    
+    Endroutine
+    
+    Evtroutine Handling(#CleanupServiceToggle.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    Case Of_Field(#CleanupServiceToggle.Icon.UpperCase)
+    
+    When Value_Is(= STOP)
+    
+    #SecuritySettings.SetRequestCleanupTask( STOP )
+    
+    When Value_Is(= PLAY_ARROW)
+    
+    #SecuritySettings.SetRequestCleanupTask( START )
+    
+    Otherwise
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endcase
+    
+    Endroutine
+    
+    Evtroutine Handling(#EndingDelay.Tick)
+    
+    #EndingDelay.Stop
+    #SecuritySettings.GetRequestValidationStatus
+    
+    Endroutine
+    
+    Evtroutine Handling(#EnableRequestValidation.Changed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #SecuritySettings.SetRequestValidationEnabled( #EnableRequestValidation.Checked )
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#SecuritySettings.OnGetRequestValidationStatusCompleted)
+    
+    #COM_SELF.BuildOptions
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnGetRequestValidationStatusFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<SECURITYSETTINGS.ONGETREQUESTVALIDATIONSTATUSFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnSetRequestCleanupTaskCompleted)
+    
+    #COM_SELF.BuildOptions
+    
+    If (#SecuritySettings.RequestValidationCleanupProcessStatus.UpperCase = RUNNING)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<SERVICE.MESSAGE.RUN> )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<SERVICE.MESSAGE.END> )
+    
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnSetRequestCleanupTaskFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<SECURITYSETTINGS.ONSETREQUESTVALIDATIONENABLEDFAILED> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnSetRequestValidationEnabledCompleted)
+    
+    #COM_SELF.BuildOptions
+    
+    If (#SecuritySettings.RequestValidationCleanupProcessStatus.UpperCase = RUNNING)
+    
+    #BPFPortal.ShowToaster( (#STRINGS.Text<SERVICE.MESSAGE.SAVE> + '. ' + #STRINGS.Text<SERVICE.MESSAGE.RUN>) )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( (#STRINGS.Text<SERVICE.MESSAGE.SAVE> + '. ' + #STRINGS.Text<SERVICE.MESSAGE.END>) )
+    
+    Endif
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#SecuritySettings.OnSetRequestValidationEnabledFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<SECURITYSETTINGS.ONSETREQUESTVALIDATIONENABLEDFAILED> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    *
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #ENABLEDCONTROLPANELHEADING.CAPTION := #STRINGS.Text<ENABLEDCONTROLPANELHEADING.CAPTION>
+    #ENABLEREQUESTVALIDATION.CAPTION := #STRINGS.Text<ENABLEREQUESTVALIDATION.CAPTION>
+    #CLEANUPCONTROLPANELHEADING.CAPTION := #STRINGS.Text<CLEANUPCONTROLPANELHEADING.CAPTION>
+    #CLEANUPSERVICETOGGLE.CAPTION := #STRINGS.Text<CLEANUPSERVICETOGGLE.CAPTION>
+    
+    Endroutine
+    
+    Mthroutine Name(BuildOptions) Access(*PRIVATE)
+    
+    * Assume we arent ending
+    #EnabledControlPanel.Enabled := True
+    
+    * Set Values
+    #EnableRequestValidation.Checked := #SecuritySettings.RequestValidationEnabled
+    
+    * Set Other Contriol Panels if feature enabled
+    If (#SecuritySettings.RequestValidationEnabled)
+    
+    * Assume we arent ending
+    #CleanupControlPanel.Enabled := True
+    
+    Case Of_Field(#SecuritySettings.RequestValidationCleanupProcessStatus.UpperCase)
+    
+    When Value_Is(= RUNNING)
+    
+    #CleanupServiceToggle.Icon := 'stop'
+    
+    When Value_Is(= STOPPED)
+    
+    #CleanupServiceToggle.Icon := 'play_arrow'
+    
+    When Value_Is(= ENDING)
+    
+    #CleanupServiceToggle.Icon := 'hourglass_full'
+    
+    Endcase
+    
+    #CleanupServiceToggle.Caption := #STRINGS.Text<(CLEANUPSERVICETOGGLE.CAPTION + '.' + #SecuritySettings.RequestValidationCleanupProcessStatus.Uppercase)>
+    
+    Endif
+    
+    If (#SecuritySettings.RequestValidationCleanupProcessStatus.UpperCase = ENDING)
+    
+    #EnabledControlPanel.Enabled := False
+    
+    If (#CleanupControlPanel.Visible)
+    #CleanupControlPanel.Enabled := False
+    Endif
+    
+    #EndingDelay.Start
+    
+    Endif
+    
+    #EnableRequestValidation.Visible #CleanupControlPanel.Visible := #SecuritySettings.RequestValidationEnabled
+    
+    Endroutine
+    
+    End_Com

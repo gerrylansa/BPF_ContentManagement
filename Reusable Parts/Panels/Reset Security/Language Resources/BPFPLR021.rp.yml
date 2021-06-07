@@ -1,0 +1,35 @@
+﻿Reusable Part:
+  Name:               BPFResetSecurityCheckingPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Reset Secuirty Checking Panel Strings"
+
+  - JPN:
+      Description:        "Reset Secuirty Checking Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Checking... well be done in moment"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Just checking with our systems now"
+    
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "It pays to be careful, so we are just checking our systems to ensure all is well before we process this account request. We know you busy, so we will process this as fast as we can."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "We know you busy, wont be long now"
+    
+    Endroutine
+    
+    End_Com

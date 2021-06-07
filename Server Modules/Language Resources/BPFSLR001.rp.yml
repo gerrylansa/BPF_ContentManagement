@@ -1,0 +1,217 @@
+﻿Reusable Part:
+  Name:               BPFServerLocaleResource
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Locale Language Resource"
+
+  - JPN:
+      Description:        "Server Side Locale Language Resource"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Application References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Poperties
+    Define_Pty Name(DaysShort) Get(*REFERENCE #dayShort)
+    Define_Pty Name(DaysLong) Get(*REFERENCE #dayLong)
+    Define_Pty Name(MonthsShort) Get(*REFERENCE #monthShort)
+    Define_Pty Name(MonthsLong) Get(*REFERENCE #MonthLong)
+    
+    Define_Pty Name(String) Get(GetString)
+    
+    * JSON Document & Elements
+    Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
+    
+    * Collections
+    
+    * Days
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#dayShort)
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#dayLong)
+    
+    * Months
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#monthShort)
+    Define_Com Class(#PRIM_KCOL<#PRIM_DC.UnicodeString #BPFGenericNVarChar256>) Name(#MonthLong)
+    
+    * Properties
+    Ptyroutine Name(GetString)
+    Define_Map For(*OUTPUT) Class(#Prim_dc.UnicodeString) Name(#Property)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key)
+    
+    #Property := #JSONDocument.RootNode<#Key>.AsString
+    
+    Endroutine
+    
+    * Methods
+    
+    * Load CONSTRUCTOR
+    Mthroutine Name(Load) Options(*CONSTRUCTOR)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Isocode)
+    
+    * Load the locale file fo rthe requested language
+    #COM_SELF.GetLocalData( #Isocode )
+    
+    Endroutine
+    
+    * Private
+    Mthroutine Name(GetLocalData) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Isocode)
+    
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result) Mandatory(False)
+    
+    * File & Stream for JSON
+    Define_Com Class(#XPRIM_Binary) Name(#File)
+    Define_Com Class(#XPRIM_Binary) Name(#Stream)
+    
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : Attempting to loading locale for ' + #Isocode) )
+    
+    * Set the path
+    #File.FromFile Path((#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #Isocode + '.json').AsNativeString)
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : File path set to ' + (#Utils.GetRuntimePath + *PATHDELIM + 'x_lansa' + *PATHDELIM + 'web' + *PATHDELIM + 'vl' + *PATHDELIM + #Utils.WebRuntimeVersion + *PATHDELIM + 'locale' + *PATHDELIM + 'locale-' + #Isocode + '.json').AsNativeString) )
+    
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : UTF-8 with BOM detection - ' + (#File.AsHexString.Contains( 'efbbbf' ))) )
+    
+    #Stream.FromHexString String(#File.AsHexString.Remove( 'efbbbf' ))
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : Stream read of file result - ' + #Stream.AsStringUsingUTF8) )
+    
+    #JSONDocument.LoadFromString( #Stream.AsStringUsingUTF8 )
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : JSON document loaded from file') )
+    
+    * Check for known element
+    If (#JSONDocument.RootNode<"dayShort"> *IsNot *Null)
+    
+    * Load Collections
+    #COM_SELF.LoadDays
+    #COM_SELF.LoadMonths
+    
+    * All Loaded
+    #Result := true
+    
+    Else
+    
+    #Utils.Log( ('Server Side Locale Reader : GetLocalData : JSON document loaded from file, but required element not found') )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(LoadDays)
+    
+    Define_Com Class(#PRIM_JSON.Array) Name(#Short) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_JSON.Array) Name(#Long) Reference(*DYNAMIC)
+    
+    #Utils.Log( ('Loading Days') )
+    
+    * Load Arrays
+    #Short <= #JSONDocument.RootNode<"dayShort">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Short Days Loaded') )
+    
+    #Long <= #JSONDocument.RootNode<"dayLong">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Long Days Loaded') )
+    
+    * Monday
+    #dayShort<'MON'> := #Short.ItemAt<1>.AsString
+    #dayLong<'MONDAY'> := #Long.ItemAt<1>.AsString
+    
+    * Tuesday
+    #dayShort<'TUE'> := #Short.ItemAt<2>.AsString
+    #dayLong<'TUESDAY'> := #Long.ItemAt<2>.AsString
+    
+    * Wednesday
+    #dayShort<'WED'> := #Short.ItemAt<3>.AsString
+    #dayLong<'WEDNESDAY'> := #Long.ItemAt<3>.AsString
+    
+    * Thursday
+    #dayShort<'THU'> := #Short.ItemAt<4>.AsString
+    #dayLong<'THURSDAY'> := #Long.ItemAt<4>.AsString
+    
+    #Utils.Log( ('Loaded ' + #dayShort<'THU'> + ' ' + #dayLong<'THURSDAY'>) )
+    
+    * Friday
+    #dayShort<'FRI'> := #Short.ItemAt<5>.AsString
+    #dayLong<'FRIDAY'> := #Long.ItemAt<5>.AsString
+    
+    * Saturday
+    #dayShort<'SAT'> := #Short.ItemAt<6>.AsString
+    #dayLong<'SATURDAY'> := #Long.ItemAt<6>.AsString
+    
+    * Sunday
+    #dayShort<'SUN'> := #Short.ItemAt<7>.AsString
+    #dayLong<'SUNDAY'> := #Long.ItemAt<7>.AsString
+    
+    #Utils.Log( ('Loading Days Completed') )
+    
+    Endroutine
+    
+    Mthroutine Name(LoadMonths)
+    
+    Define_Com Class(#PRIM_JSON.Array) Name(#Short) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_JSON.Array) Name(#Long) Reference(*DYNAMIC)
+    
+    #Utils.Log( ('Loading Months') )
+    
+    * Load Arrays
+    #Short <= #JSONDocument.RootNode<"monthShort">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Short Months Loaded') )
+    
+    #Long <= #JSONDocument.RootNode<"monthLong">.value *As #PRIM_JSON.Array
+    #Utils.Log( ('Long Months Loaded') )
+    
+    * January
+    #MonthShort<'JAN'> := #Short.ItemAt<1>.AsString
+    #MonthLong<'JANUARY'> := #Long.ItemAt<1>.AsString
+    
+    * February
+    #MonthShort<'FEB'> := #Short.ItemAt<2>.AsString
+    #MonthLong<'FEBRUARY'> := #Long.ItemAt<2>.AsString
+    
+    * March
+    #MonthShort<'MAR'> := #Short.ItemAt<3>.AsString
+    #MonthLong<'MARCH'> := #Long.ItemAt<3>.AsString
+    
+    * April
+    #MonthShort<'APR'> := #Short.ItemAt<4>.AsString
+    #MonthLong<'APRIL'> := #Long.ItemAt<4>.AsString
+    
+    * May
+    #MonthShort<'MAY'> := #Short.ItemAt<5>.AsString
+    #MonthLong<'MAY'> := #Long.ItemAt<5>.AsString
+    
+    * June
+    #MonthShort<'JUN'> := #Short.ItemAt<6>.AsString
+    #MonthLong<'JUNE'> := #Long.ItemAt<6>.AsString
+    
+    * July
+    #MonthShort<'JUL'> := #Short.ItemAt<7>.AsString
+    #MonthLong<'JULY'> := #Long.ItemAt<7>.AsString
+    
+    * August
+    #MonthShort<'AUG'> := #Short.ItemAt<8>.AsString
+    #MonthLong<'AUGUST'> := #Long.ItemAt<8>.AsString
+    
+    * September
+    #MonthShort<'SEP'> := #Short.ItemAt<9>.AsString
+    #MonthLong<'SEPTEMBER'> := #Long.ItemAt<9>.AsString
+    
+    * October
+    #MonthShort<'OCT'> := #Short.ItemAt<10>.AsString
+    #MonthLong<'OCTOBER'> := #Long.ItemAt<10>.AsString
+    
+    * November
+    #MonthShort<'NOV'> := #Short.ItemAt<11>.AsString
+    #MonthLong<'NOVEMBER'> := #Long.ItemAt<11>.AsString
+    
+    * December
+    #MonthShort<'DEC'> := #Short.ItemAt<12>.AsString
+    #MonthLong<'DECEMBER'> := #Long.ItemAt<12>.AsString
+    
+    #Utils.Log( ('Loading Months Completed') )
+    
+    Endroutine
+    
+    End_Com

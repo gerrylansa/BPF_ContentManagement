@@ -1,0 +1,284 @@
+﻿Reusable Part:
+  Name:               BPFLanguageOptionItemClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Option Item Class"
+
+  - JPN:
+      Description:        "Language Option Item Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Global References
+    Define_Com Class(#BPFBrowserEvents) Name(#Browser) Scope(*APPLICATION)
+    
+    * Field Mapping
+    Group_By Name(#ListFields) Fields(#BPFCodeName #BPFCodeNumericValue #BPFCodeAlphaValue #BPFGenericBoolean)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(IsoCode) Get(*AUTO #BPFCodeName) Set(*AUTO #BPFCodeName)
+    Define_Pty Name(IsDefault) Get(GetIsDefault)
+    Define_Pty Name(Description) Get(*AUTO #BPFCodeAlphaValue) Set(*AUTO #BPFCodeAlphaValue)
+    Define_Pty Name(InUse) Get(*Auto #BPFGenericBoolean)
+    Define_Pty Name(ImportFile) Set(*AUTO #BPFGenericBlob)
+    
+    * Define_Pty Name(LocaleSettings) Get(*REFERENCE #LocaleSettings)
+    
+    * Events
+    Define_Evt Name(OnCreateOnServerCompleted)
+    Define_Evt Name(OnCreateOnServerFailed)
+    
+    Define_Evt Name(OnRemoveFromServerCompleted)
+    Define_Evt Name(OnRemoveFromServerFailed)
+    
+    Define_Evt Name(OnUpdateOnServerCompleted)
+    Define_Evt Name(OnUpdateOnServerFailed)
+    
+    Define_Evt Name(OnDownloadLocaleSettingsCompleted)
+    Define_Evt Name(OnDownloadLocaleSettingsFailed)
+    
+    Define_Evt Name(OnUploadLocaleSettingsCompleted)
+    Define_Evt Name(OnUploadLocaleSettingsFailed)
+    
+    * Define_Com Class(#PRIM_LCOL<#BPFLanguageLocaleSettingItemClass>) Name(#LocaleSettings)
+    
+    * Routines
+    Ptyroutine Name(GetIsDefault)
+    Define_Map For(*OUTPUT) Class(#PRIM_BOLN) Name(#Property)
+    
+    #Property := (#BPFCodeNumericValue = 1)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(CreateOnServer)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#FromIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.CreateLanguage) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Baseisocode(#FromIsoCode) Isocode(#BPFCodeName) Descritpion(#BPFCodeAlphaValue) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnCreateOnServerCompleted)
+    
+    Else
+    
+    Signal Event(OnCreateOnServerFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnCreateOnServerFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(RemoveFromServer)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.DeleteLanguage) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Isocode(#BPFCodeName) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnRemoveFromServerCompleted)
+    
+    Else
+    
+    Signal Event(OnRemoveFromServerFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnRemoveFromServerFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateOnServer)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#SetAsDefault)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.UpdateLanguage) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#BPFCodeName) Newdescription(#BPFCodeAlphaValue) Setasdefault(#SetAsDefault) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnUpdateOnServerCompleted)
+    
+    Else
+    
+    Signal Event(OnUpdateOnServerFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnUpdateOnServerFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(DownloadLocaleFile)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.DownloadLocaleFile) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#BPFCodeName) Localefile(#BPFGenericCLOB) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnDownloadLocaleSettingsCompleted)
+    
+    * Trigger download
+    #Browser.Download( #BPFGenericClob ('locale-' + #BPFCODENAME + '.json') )
+    
+    Else
+    
+    Signal Event(OnDownloadLocaleSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnDownloadLocaleSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(UploadLocaleFile)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFLanguageSupportDataServer.UploadLocaleFile) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#BPFCodeName) Localefile(#BPFGenericBlob) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnUploadLocaleSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnUploadLocaleSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnUploadLocaleSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Mthroutine Name(GetLocaleSettings)
+    *
+    * * Define Request to Server Routine
+    * Define_Com Class(#BPFLanguageSupportDataServer.GetLocaleSettings) Name(#Request)
+    *
+    * * Make Request
+    * #Request.ExecuteAsync Forisocode(#BPFCodeName) Localesettings(#LocaleSettings) Status(#Status)
+    *
+    * Evtroutine Handling(#Request.Completed)
+    *
+    * If (#Status = OK)
+    *
+    * Signal Event(OnGetLocaleSettingsCompleted)
+    *
+    * Else
+    *
+    * Signal Event(OnGetLocaleSettingsFailed)
+    *
+    * Endif
+    *
+    * Endroutine
+    *
+    * Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    *
+    * #Handled := True
+    * Signal Event(OnGetLocaleSettingsFailed)
+    *
+    * Endroutine
+    *
+    * Endroutine
+    *
+    * Mthroutine Name(SetLocaleSettings)
+    *
+    * * Define Request to Server Routine
+    * Define_Com Class(#BPFLanguageSupportDataServer.SetLocaleSettings) Name(#Request)
+    *
+    * * Make Request
+    * #Request.ExecuteAsync Forisocode(#BPFCodeName) Localesettings(#LocaleSettings) Status(#Status)
+    *
+    * Evtroutine Handling(#Request.Completed)
+    *
+    * If (#Status = OK)
+    *
+    * Signal Event(OnSetLocaleSettingsCompleted)
+    *
+    * Else
+    *
+    * Signal Event(OnSetLocaleSettingsFailed)
+    *
+    * Endif
+    *
+    * Endroutine
+    *
+    * Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    *
+    * #Handled := True
+    * Signal Event(OnSetLocaleSettingsFailed)
+    *
+    * Endroutine
+    *
+    * Endroutine
+    
+    End_Com
+    

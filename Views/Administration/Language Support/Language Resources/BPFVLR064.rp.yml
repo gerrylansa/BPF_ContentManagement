@@ -1,0 +1,48 @@
+﻿Reusable Part:
+  Name:               BPFAdminLanguageViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin Language View Strings"
+
+  - JPN:
+      Description:        "Admin Language View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Language Support"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Configure portal languages and provide translations for langauge resources"
+    
+    #STRINGSCOLLECTION<'LANGUAGESCARD.HEADING'> := "Languages"
+    #STRINGSCOLLECTION<'LANGUAGESCARD.TEXT'> := "Add and remove the langauges that the portal can be displayed in."
+    #STRINGSCOLLECTION<'LANGUAGESCARD.ACTION'> := "Configure languages"
+    
+    #STRINGSCOLLECTION<'EDITMODECARD.HEADING'> := "Edit Mode"
+    #STRINGSCOLLECTION<'EDITMODECARD.TEXT'> := "Show an edit button for each screen enabling direct access to the text for each language"
+    #STRINGSCOLLECTION<'EDITMODECARD.ACTION.ON'> := "Edit mode on"
+    #STRINGSCOLLECTION<'EDITMODECARD.ACTION.OFF'> := "Edit mode off"
+    #STRINGSCOLLECTION<'EDITMODECARD.ACTION.DISABLED'> := "Edit mode disabled"
+    
+    #STRINGSCOLLECTION<'RESOURCESCARD.HEADING'> := "Language Resources"
+    #STRINGSCOLLECTION<'RESOURCESCARD.TEXT'> := "Provide the text to be displayed as strings for the languages supported by the portal."
+    #STRINGSCOLLECTION<'RESOURCESCARD.ACTION'> := "Edit resources"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect how the portal is displayed, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

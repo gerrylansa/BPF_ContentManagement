@@ -1,0 +1,1 @@
+{"ls":[{"op":"PANELHEADING.CAPTION","s":"プレビュー"},{"op":"INSTRUCTIONTEXT.CAPTION","s":"これは、電子メールテンプレートがエンドユーザーにどのように表示されるかを示すプレビューです。メール クライアントにより HTML 電子メールの表示方法は異なります。編集アイコンをクリックすると、このメールをカスタマイズできます。"},{"op":"EMAILSETTINGS.ONLOADEMAILTEMPLATEFAILED","s":"テンプレートを読み込めませんでした"},{"op":"CURRENTTEMPLATE.ONLOADFAILED","s":"テンプレートを読み込めませんでした"}]}

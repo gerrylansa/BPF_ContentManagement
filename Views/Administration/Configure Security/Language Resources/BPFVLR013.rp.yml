@@ -1,0 +1,50 @@
+﻿Reusable Part:
+  Name:               BPFAdminConfigureSecurityViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin of Security Config View Strings"
+
+  - JPN:
+      Description:        "Admin of Security Config View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Configure security"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "Configure the security settings used in the portal"
+    
+    #STRINGSCOLLECTION<'VALIDREQUESTCHECKINGCARD.HEADING'> := "Validate Data Requests"
+    #STRINGSCOLLECTION<'VALIDREQUESTCHECKINGCARD.TEXT'> := "Control if extra security checks are performed for each request for data."
+    #STRINGSCOLLECTION<'VALIDREQUESTCHECKINGCARD.ACTION'> := "Configure validaton checks"
+    
+    #STRINGSCOLLECTION<'IPMONITORINGCARD.HEADING'> := "IP Address Monitoring"
+    #STRINGSCOLLECTION<'IPMONITORINGCARD.TEXT'> := "Setup the monitoring of IP addresses to check if access should be banned."
+    #STRINGSCOLLECTION<'IPMONITORINGCARD.ACTION'> := "Control IP Monitoring"
+    
+    #STRINGSCOLLECTION<'DEFAULTQUESTIONSCARD.HEADING'> := "Validation Questions"
+    #STRINGSCOLLECTION<'DEFAULTQUESTIONSCARD.TEXT'> := "Specify the questions a user can choose from to validate who they are."
+    #STRINGSCOLLECTION<'DEFAULTQUESTIONSCARD.ACTION'> := "Security Questions"
+    
+    #STRINGSCOLLECTION<'LOGINATTEMPTSCARD.HEADING'> := "Login Attempts"
+    #STRINGSCOLLECTION<'LOGINATTEMPTSCARD.TEXT'> := "Specify the number of login attempts allowed for users."
+    #STRINGSCOLLECTION<'LOGINATTEMPTSCARD.ACTION'> := "Set Login attempts"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect the security of user accounts, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

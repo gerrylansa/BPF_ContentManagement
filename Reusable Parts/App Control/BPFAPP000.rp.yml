@@ -1,0 +1,132 @@
+﻿Reusable Part:
+  Name:               BPFDataClientManager
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Data Client Manager"
+
+  - JPN:
+      Description:        "Portal Data Client Manager"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Properties
+    
+    * Objects
+    
+    * Collection to store data clients when alive
+    Define_Com Class(#PRIM_KCOL<#PRIM_OBJT #STD_NAME>) Name(#DataClients) Style(Collection)
+    
+    * Collection of collections to manage registered views
+    Define_Com Class(#PRIM_LCOL<#PRIM_VIEW>) Name(#RegisteredViewsOfClients)
+    
+    * The choosen few who must be treated differently, for they were
+    * born to the state of persisted transdence.
+    Define_Com Class(#PRIM_LCOL<#PRIM_VIEW>) Name(#ViewsToKeep)
+    
+    * Routines
+    
+    * Properties
+    
+    * Events
+    
+    * Self
+    
+    * Registered Views
+    Evtroutine Handling(#RegisteredViewsOfClients<>.Closed) Com_Sender(#Sender)
+    
+    * Local Variables
+    Define_Com Class(#PRIM_BOLN) Name(#IsEmpty) Value(True)
+    
+    * Check if the view is being kept alive for this close event
+    If (#ViewsToKeep.Contains( #Sender ))
+    
+    #ViewsToKeep.Remove( #Sender )
+    Return
+    
+    Endif
+    
+    * The view hasn't ask to keep its registeration, so remove it
+    #RegisteredViewsOfClients.Remove( #Sender )
+    
+    * Check if this is the last registered for the data client
+    For Each(#View) In(#RegisteredViewsOfClients)
+    
+    * Continue if views are not registered for the current client
+    Continue If(#View.ComponentTag.UpperCase <> #Sender.ComponentTag.UpperCase)
+    
+    * It matched so its needed
+    #IsEmpty := False
+    
+    Leave
+    
+    Endfor
+    
+    * If nothing is now registered for the data client
+    If (#IsEmpty)
+    
+    #DataClients.Remove( #Sender.ComponentTag.UpperCase )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    * Get the Data Client requried by a view
+    Mthroutine Name(GetDataClient)
+    
+    * Inbound View
+    Define_Map For(*INPUT) Class(#PRIM_VIEW) Name(#ForView) Pass(*BY_REFERENCE)
+    
+    * Result of Data Client
+    Define_Map For(*RESULT) Class(#PRIM_OBJT) Name(#Result) Pass(*BY_REFERENCE)
+    
+    * Check if the view is already registered
+    If (#RegisteredViewsOfClients.Contains( #ForView ).IsFalse)
+    
+    #RegisteredViewsOfClients.Insert( #ForView )
+    
+    Endif
+    
+    * Now check if the data clients exists
+    If (#DataClients<#ForView.ComponentTag.UpperCase> *Is *Null)
+    
+    * The data client doesnt exist, so create it.
+    Set_Ref Com(#DataClients<#ForView.ComponentTag.UpperCase>) To(*CREATE_FROM #ForView.ComponentTag.UpperCase)
+    
+    Endif
+    
+    * Now we know we have a Data Client so return it. Do not forget you will need to cast it in the view
+    #Result <= #DataClients<#ForView.ComponentTag.UpperCase>
+    
+    Endroutine
+    
+    * Prevent the view from becoming unregistered from the next closed event ONLY.
+    Mthroutine Name(KeepDataClient)
+    Define_Map For(*INPUT) Class(#PRIM_VIEW) Name(#Key) Pass(*BY_REFERENCE)
+    
+    If (#ViewsToKeep.Contains( #Key ).IsFalse)
+    
+    #ViewsToKeep.Insert( #Key )
+    
+    Endif
+    
+    Endroutine
+    
+    * Remove all Registerations and Data Clients
+    Mthroutine Name(ClearAllDataClients)
+    
+    * Remove All
+    #RegisteredViewsOfClients.RemoveAll
+    #DataClients.RemoveAll
+    
+    Endroutine
+    
+    End_Com

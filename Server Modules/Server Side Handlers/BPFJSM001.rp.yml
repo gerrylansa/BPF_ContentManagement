@@ -1,0 +1,277 @@
+﻿Reusable Part:
+  Name:               BPFEmailSendingJSMHanlder
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "SMTP Email Sending Hanlder - JSM"
+
+  - JPN:
+      Description:        "SMTP Email Sending Hanlder - JSM"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Working Fields
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#MailServerAddress)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#MailServerPort)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#MailServerUser)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#MailServerPassword)
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#MailServerSecure)
+    
+    * Working Lists
+    Def_List Name(#EmailBody) Fields(#bpfjsmstring) Type(*WORKING) Entrys(*MAX)
+    
+    * Events
+    
+    * Creation & Initisation
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Set JSM Server
+    #bpfjsmserver := #Utils.GetAlphaValue( JSMSETTINGS JSMSERVER ).AsNativeString
+    
+    * Set SMTP Server Settings
+    #MailServerAddress := #Utils.GetAlphaValue( SMTP_SETTINGS MAIL_SERVER_ADDRESS ).AsNativeString
+    
+    #MailServerPort := #Utils.GetAlphaValue( SMTP_SETTINGS MAIL_SERVER_PORT ).AsNativeString
+    
+    #MailServerUser := #Utils.GetAlphaValue( SMTP_SETTINGS MAIL_SERVER_USER ).AsNativeString
+    
+    #MailServerPassword := #Utils.GetAlphaValue( SMTP_SETTINGS MAIL_SERVER_PASSWORD ).AsNativeString
+    
+    #MailServerSecure := #Utils.GetAlphaValue( SMTP_SETTINGS MAIL_SERVER_SECURE ).AsNativeString
+    
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(Open) Help('Open JSM Server connection and load SMTPService')
+    Define_Map For(*INPUT) Class(#bpfjsmtrace) Name(#Trace) Mandatory('*ERROR') Help('Enable tracing from the client program - *NO, *YES, *ERROR')
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#TraceName) Mandatory(*NULL) Help('Name for the resulting trace folder from the client program if required.')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    * Start JSM server
+    Use Builtin(jsmx_open) With_Args(#bpfjsmserver) To_Get(#bpfjsmStatus #bpfjsmMessage #bpfjsmhandle)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM Open failed for value "' + #bpfjsmserver + '"') )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM Open successful for value "' + #bpfjsmserver + '"') )
+    
+    Endif
+    
+    
+    * Set Trace Name to service if not provided
+    If (#TraceName.IsNull)
+    
+    #TraceName := 'SMTPService'
+    
+    Endif
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM tracing set to ' + #Trace) )
+    #Utils.log( (#COM_SELF.Name + ' JSM tracing folder name set to ' + #TraceName) )
+    
+    * Load the SMTPMailService
+    #bpfjsmcmd := 'service_load service(smtpmailservice) trace(' + #Trace + ') trace_name(' + #TraceName + ')'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd) To_Get(#bpfjsmStatus #bpfjsmMessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM SMTP load failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM SMTP load successful') )
+    
+    Endif
+    
+    
+    * Set The SMTP Settings
+    
+    * Server Address
+    #Result := #COM_SELF.Set( 'SERVER' #MailServerAddress )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for mail server address ' + #MailServerAddress) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for mail server address ' + #MailServerAddress) )
+    
+    Endif
+    
+    * Server Port
+    #Result := #COM_SELF.Set( 'PORT' #MailServerPort )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for mail server port ' + #MailServerPort) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for mail server port ' + #MailServerPort) )
+    
+    Endif
+    
+    * User
+    #Result := #COM_SELF.Set( 'USER' #MailServerUser )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for mail server user ' + #MailServerUser) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for mail server user ' + #MailServerUser) )
+    
+    Endif
+    
+    * Password
+    #Result := #COM_SELF.Set( 'PASSWORD' #MailServerPassword )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for mail server password ' + #MailServerPassword) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for mail server password ' + #MailServerPassword) )
+    
+    Endif
+    
+    * Secured
+    #Result := #COM_SELF.Set( 'SECURE' #MailServerSecure )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for setting secure to ' + #MailServerSecure) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for setting secure to ' + #MailServerSecure) )
+    
+    Endif
+    
+    * Secured
+    #Result := #COM_SELF.Set( 'CHARSET' 'UTF-8' )
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set failed for setting secure to ' + #MailServerSecure) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM set success for setting secure to ' + #MailServerSecure) )
+    
+    Endif
+    
+    
+    Endroutine
+    
+    Mthroutine Name(Set) Help('Override the values defined in the SMTPMailService.properties file')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Keyword) Help('Keyword to be overridden')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Value) Help('Value associated with the keyword provided')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    #Utils.log( (#COM_SELF.Name + ' : attempting to set ' + #keyword + ' to ' + #Value) )
+    
+    * set the property to be overridden
+    #bpfjsmcmd := 'set ' + #Keyword + '(' + #Value + ')'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd) To_Get(#bpfjsmStatus #bpfjsmmessage)
+    
+    #Result := (#bpfjsmstatus = "OK")
+    
+    Endroutine
+    
+    Mthroutine Name(AddAttachment) Help('Include a single file attachments on the email being formatted')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Attachment) Help('A single file to be attached to the email, including file path and name.')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    #Utils.log( (#COM_SELF.Name + ' : attempting to add attachment ' + #Attachment) )
+    
+    * add a file as an attachment
+    #bpfjsmcmd := 'add Attachment (' + #Attachment + ')'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd) To_Get(#bpfjsmStatus #bpfjsmmessage)
+    
+    #Result := (#bpfjsmstatus = "OK")
+    
+    Endroutine
+    
+    Mthroutine Name(Send) Help('Send the email - uses #EmailBody Working List')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Content) Mandatory('*HTML') Help('Most commonly used email content-types are text/plain (*PLAIN) and text/html (*HTML). Alternative content-types can also be assigned using the appropriate type and subtype description - *PLAIN, *HTML, <value>')
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#prim_dc.UnicodeString>) Name(#EmailList) Pass(*BY_REFERENCE)
+    * Define_Map For(*INPUT) Class(#prim_dc.UnicodeString) Name(#EmailBodySource) Pass(*BY_REFERENCE)
+    
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    Clr_List Named(#EmailBody)
+    
+    For Each(#Entry) In(#EmailList)
+    
+    #bpfjsmstring := #Entry.Value
+    Add_Entry To_List(#EmailBody)
+    
+    Endfor
+    
+    #bpfjsmcmd := 'SEND CONTENT(' + #Content + ') ENCODING(UTF-8)'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd) To_Get(#bpfjsmstatus #bpfjsmmessage #EmailBody)
+    
+    #Result := (#bpfjsmstatus = "OK")
+    
+    Endroutine
+    
+    Mthroutine Name(Reset) Help('Clears the message text, subject, recipient and attachment lists')
+    Define_Map For(*OUTPUT) Class(#bpfjsmstatus) Name(#Status) Help('Return Status from last JSMX_* built in function executed')
+    Define_Map For(*OUTPUT) Class(#bpfjsmmessage) Name(#Message) Help('Message associated with return status')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle 'reset') To_Get(#Status #Message)
+    
+    #Result := (#bpfjsmstatus = "OK")
+    
+    Endroutine
+    
+    Mthroutine Name(Close) Help('Unload ZipService and close JSM Server connection')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle 'service_unload') To_Get(#bpfjsmstatus #bpfjsmmessage)
+    
+    If (#bpfjsmstatus <> OK)
+    
+    #Utils.log( (#COM_SELF.Name + ' JSM unload of SMTPService failed') )
+    Return
+    
+    Endif
+    
+    * Close the thread
+    Use Builtin(jsmx_close) With_Args(#bpfjsmhandle) To_Get(#bpfjsmstatus #bpfjsmmessage)
+    
+    #Result := (#bpfjsmstatus = "OK")
+    #bpfjsmhandle := *null
+    
+    Endroutine
+    
+    End_Com

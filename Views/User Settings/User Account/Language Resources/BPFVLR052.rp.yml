@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFUserAccountDeleteViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Account Delete View Strings"
+
+  - JPN:
+      Description:        "User Account Delete View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Remove Your Account"
+    
+    #STRINGSCOLLECTION<'REMOVEACCOUNTPANELHEADING.CAPTION'> := "Confirmation"
+    #STRINGSCOLLECTION<'REMOVEACCOUNTPANELTEXT.CAPTION'> := "You are about to remove your account. This will remove your account and all the information we have stored about you while you have had this account. This action cannot be undone and once completed you will be logged off %%APP%% automatically. While we hope you do not remove your account we understand and hope we will see you again. If you do want to come back all you need to do is to create a new account."
+    #STRINGSCOLLECTION<'REMOVEACCOUNTACTION.CAPTION'> := "REMOVE"
+    
+    #STRINGSCOLLECTION<'CURRENTUSER.ONREMOVEACCOUNTFAILED'> := "FAILED to remove account."
+    
+    Endroutine
+    
+    End_Com

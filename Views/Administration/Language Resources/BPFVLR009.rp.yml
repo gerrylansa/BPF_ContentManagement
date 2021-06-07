@@ -1,0 +1,66 @@
+﻿Reusable Part:
+  Name:               BPFAdministrationViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Administration View Strings"
+
+  - JPN:
+      Description:        "Administration View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Portal Administration Panel"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "As a administrator you can change settings, view logs and control user accounts"
+    
+    #STRINGSCOLLECTION<'USERACCOUNTCARD.HEADING'> := "User Accounts"
+    #STRINGSCOLLECTION<'USERACCOUNTCARD.TEXT'> := "Manage the user accounts for the portal. View, reset or control user access to the portal."
+    #STRINGSCOLLECTION<'USERACCOUNTCARD.ACTION'> := "Manage user accounts"
+    
+    #STRINGSCOLLECTION<'EMAILSETTINGSCARD.HEADING'> := "Email Settings"
+    #STRINGSCOLLECTION<'EMAILSETTINGSCARD.TEXT'> := "Upload email templates and manage the SMTP server settings for the portal."
+    #STRINGSCOLLECTION<'EMAILSETTINGSCARD.ACTION'> := "Configure email settings"
+    
+    #STRINGSCOLLECTION<'CONTENTSHARINGCARD.HEADING'> := "Content Sharing"
+    #STRINGSCOLLECTION<'CONTENTSHARINGCARD.TEXT'> := "Manage the content that can be shared and configure how it will viewed by users"
+    #STRINGSCOLLECTION<'CONTENTSHARINGCARD.ACTION'> := "Manage content and sharing"
+    
+    #STRINGSCOLLECTION<'SECURITYCARD.HEADING'> := "Configure Security"
+    #STRINGSCOLLECTION<'SECURITYCARD.TEXT'> := "Set up the security question used to validate account creation."
+    #STRINGSCOLLECTION<'SECURITYCARD.ACTION'> := "Change security questions"
+    
+    #STRINGSCOLLECTION<'LANGUAGECARD.HEADING'> := "Language Support"
+    #STRINGSCOLLECTION<'LANGUAGECARD.TEXT'> := "Administer the langauges the portal can be displayed in."
+    #STRINGSCOLLECTION<'LANGUAGECARD.ACTION'> := "Administer Languages"
+    
+    #STRINGSCOLLECTION<'LOGGINGCARD.HEADING'> := "Portal Logs"
+    #STRINGSCOLLECTION<'LOGGINGCARD.TEXT'> := "Control and view diagnostic and runtime logging of the portal."
+    #STRINGSCOLLECTION<'LOGGINGCARD.ACTION'> := "Control portal logging"
+    
+    #STRINGSCOLLECTION<'USERTRACKINGCARD.HEADING'> := "Analytics & Session Tracking"
+    #STRINGSCOLLECTION<'USERTRACKINGCARD.TEXT'> := "Configure Google Anaytics and the tracking of session events in the portal."
+    #STRINGSCOLLECTION<'USERTRACKINGCARD.ACTION'> := "Setup analytics & tracking"
+    
+    #STRINGSCOLLECTION<'PORTALSYSTEMCARD.HEADING'> := "System Settings"
+    #STRINGSCOLLECTION<'PORTALSYSTEMCARD.TEXT'> := "Manage the system wide settings for the portal"
+    #STRINGSCOLLECTION<'PORTALSYSTEMCARD.ACTION'> := "Manage portal settings"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "Only users can change their details. %%APP%% is committed to their privacy and security"
+    
+    Endroutine
+    
+    End_Com

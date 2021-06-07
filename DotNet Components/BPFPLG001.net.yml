@@ -1,0 +1,19 @@
+﻿.NET Component:
+  Name:               BPFDirectoryWatchPlugin
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Plugin to watch for changes in a folder"
+
+  - JPN:
+      Description:        "Plugin to watch for changes in a folder"
+
+  Source: |
+    * **************************************************
+    *                                                  *
+    *  COMPONENT:  STD_DNP                             *
+    *                                                  *
+    * **************************************************
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT) Componentassembly('DirectoryWatcher.dll')
+    End_Com

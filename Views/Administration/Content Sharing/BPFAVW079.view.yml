@@ -1,0 +1,345 @@
+﻿Web View:
+  Name:               BPFContentLibraryItemDetailsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library Item Details View"
+
+  - JPN:
+      Description:        "Content Library Item Details View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(899) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP012') Style(#NavigationLinkStyle)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFContentLibraryItemDetailsViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFContentSharingDataClient) Name(#Sharing) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout) Height(689) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#MainLayout) Height(120) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#DetailsPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ContentPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#FooterSpace) Parent(#MainLayout) Row(#LayoutRow3) Sizing(FitToWidth) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ActivityPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Details Panel Layout
+    
+    Define_Com Class(#PRIM_TBLO) Name(#DetailsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DetailsPanelLayoutRow1) Displayposition(1) Parent(#DetailsPanelLayout) Units(Content) Height(138)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DetailsPanelLayoutRow2) Displayposition(2) Parent(#DetailsPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn1) Displayposition(1) Parent(#DetailsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn2) Displayposition(2) Parent(#DetailsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn3) Displayposition(3) Parent(#DetailsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem1) Manage(#DetailsHeading) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#DetailsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem2) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn2) Manage(#ContentNameLabel) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem3) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn2) Manage(#ContentDescription) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem4) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn2) Manage(#ContentName) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem5) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn1) Manage(#DeleteContentAction) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow2) Columnspan(3)
+    
+    * Content Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ContentPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContentPanelLayoutRow1) Displayposition(1) Parent(#ContentPanelLayout) Units(Content) Height(127)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContentPanelLayoutRow2) Displayposition(2) Parent(#ContentPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn1) Displayposition(1) Parent(#ContentPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn2) Displayposition(2) Parent(#ContentPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn3) Displayposition(3) Parent(#ContentPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem1) Manage(#ContentHeading) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ContentPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem3) Alignment(TopLeft) Column(#ContentPanelLayoutColumn1) Manage(#PreviewContentAction) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow2) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem2) Alignment(TopLeft) Column(#ContentPanelLayoutColumn2) Manage(#ContentTokenFilename) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(16)
+    
+    * Activity Panel
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem4) Alignment(TopLeft) Column(#ContentPanelLayoutColumn2) Flow(Down) Manage(#ContentSize) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Margintop(4)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#ActitivtyPanelLayout) Sizing(ContentHeight)
+    
+    * Row and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActitivtyPanelLayoutColumn1) Displayposition(1) Parent(#ActitivtyPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActitivtyPanelLayoutColumn2) Displayposition(2) Parent(#ActitivtyPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ActitivtyPanelLayoutColumn3) Displayposition(3) Parent(#ActitivtyPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActitivtyPanelLayoutRow1) Displayposition(1) Parent(#ActitivtyPanelLayout) Height(210) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ActitivtyPanelLayoutRow2) Displayposition(2) Parent(#ActitivtyPanelLayout) Units(Pixels) Height(24)
+    
+    * Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Manage(#ActivityHeader) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Margintop(24) Flow(Down)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem1) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Manage(#ContentCreatedLabel) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem2) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Flow(Down) Manage(#ContentCreatedBy) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem3) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Manage(#ContentModifiedLabel) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down) Margintop(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem4) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Flow(Down) Manage(#ContentModifiedBy) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem5) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Flow(Down) Manage(#ContentCreated) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ActitivtyPanelLayoutItem6) Alignment(TopLeft) Column(#ActitivtyPanelLayoutColumn2) Flow(Down) Manage(#ContentModified) Parent(#ActitivtyPanelLayout) Row(#ActitivtyPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(24) Wordwrap(True) Caption('Content Item') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(19) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(72) Width(1000) Wordwrap(True) Caption('Preview or edit the details or content for this content item. You can also delete this content item which will also remove it for all content shares.')
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterSpace) Displayposition(6) Left(410) Parent(#COM_OWNER) Tabposition(6) Top(779) Width(880)
+    
+    * Panels
+    
+    * Details
+    Define_Com Class(#PRIM_PANL) Name(#DetailsPanel) Displayposition(3) Height(189) Left(410) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(115) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#DetailsPanelLayout)
+    
+    * Detail Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#DetailsHeading) Caption('Details') Displayposition(1) Left(24) Parent(#DetailsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(19) Iconalignment(CenterRight) Icon('edit') Style(#NavigationLinkStyle) Iconcolor(Theme500)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentNameLabel) Caption('Name') Displayposition(2) Left(24) Parent(#DetailsPanel) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Top(59) Height(19) Width(40)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentName) Caption('Content Name') Displayposition(4) Left(24) Parent(#DetailsPanel) Tabposition(5) Top(78) Height(21) Width(830) Wordwrap(True) Captionmarginbottom(3) Captionmargintop(3)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentDescription) Captionalignment(TopLeft) Displayposition(5) Height(16) Left(24) Parent(#DetailsPanel) Tabposition(4) Top(115) Width(830) Wordwrap(True) Paddingbottom(16)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DeleteContentAction) Caption('Delete content item') Displayposition(3) Left(0) Parent(#DetailsPanel) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Top(131) Height(56) Width(878) Icon('delete') Iconalignment(CenterRight) Captionalignment(CenterLeft) Captionmarginleft(24) Iconmarginright(24)
+    
+    
+    * Content
+    Define_Com Class(#PRIM_PANL) Name(#ContentPanel) Displayposition(4) Height(180) Left(410) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(328) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ContentPanelLayout)
+    
+    * Content Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentHeading) Caption('Content') Displayposition(1) Left(24) Parent(#ContentPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(19) Iconalignment(CenterRight)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#PreviewContentAction) Caption('Preview content') Displayposition(3) Left(0) Parent(#ContentPanel) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary+TopDivider') Style(#NavigationLinkStyle) Height(56) Width(878) Icon('open_In_new') Iconalignment(CenterRight) Captionalignment(CenterLeft) Captionmarginleft(24) Iconmarginright(24) Top(122)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentTokenFilename) Displayposition(2) Left(24) Parent(#ContentPanel) Tabposition(3) Top(59) Height(24) Width(830) Wordwrap(True) Icon('insert_drive_file') Iconmarginright(8) Caption(' ')
+    
+    
+    * Activity
+    Define_Com Class(#PRIM_PANL) Name(#ActivityPanel) Displayposition(5) Height(223) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(532) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ActitivtyPanelLayout)
+    
+    * Activity Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ActivityHeader) Caption('Activity') Displayposition(1) Left(24) Parent(#ActivityPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Height(19)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentCreatedLabel) Caption('Created') Displayposition(2) Left(24) Parent(#ActivityPanel) Tabposition(3) Themedrawstyle('Subheading+ForegroundSecondary') Top(59) Height(19) Width(52)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentCreatedBy) Caption('Sample User ') Displayposition(3) Left(24) Parent(#ActivityPanel) Tabposition(7) Top(78) Height(21) Width(830) Captionmarginbottom(3) Captionmargintop(3)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentModifiedLabel) Caption('Modified') Displayposition(5) Left(24) Parent(#ActivityPanel) Tabposition(2) Themedrawstyle('Subheading+ForegroundSecondary') Top(136) Height(19) Width(55)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentModifiedBy) Caption('Sample User') Displayposition(6) Left(24) Parent(#ActivityPanel) Tabposition(4) Top(155) Height(21) Width(830) Captionmarginbottom(3) Captionmargintop(3)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentCreated) Caption('21 Apr 2021 at 09:49:12') Displayposition(4) Left(24) Parent(#ActivityPanel) Tabposition(6) Top(99) Height(21) Width(830) Captionmarginbottom(3) Captionmargintop(3)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentModified) Caption('21 Apr 2021 at 09:49:12') Displayposition(7) Left(24) Parent(#ActivityPanel) Tabposition(5) Top(176) Height(21) Width(830) Captionmarginbottom(3) Captionmargintop(3)
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentSize) Caption('0 KB') Displayposition(4) Left(24) Parent(#ContentPanel) Tabposition(4) Themedrawstyle('Subheading+ForegroundSecondary') Top(87) Height(35) Width(830) Captionmarginleft(34) Paddingbottom(16)
+    
+    * Current reference
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#CurrentContent) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Sharing <= (#Data.GetDataClient( #COM_SELF ) *As #BPFContentSharingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #COM_SELF.SetStrings
+    
+    * Get Current Item Reference
+    #CurrentContent <= #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    If (#CurrentContent *IsNot *Null)
+    
+    #CurrentContent.Load( #CurrentContent.Identifier )
+    
+    Else
+    
+    * No Data exists, so ask for some
+    #Sharing.GetLibraryItemByIdentifier( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Actions
+    
+    Evtroutine Handling(#DetailsHeading.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    If (#CurrentContent.ItemType = YTV)
+    
+    #Navigate.To Eventname(CONTENTITEMYOUTUBEEDITVIEW) Value(#CurrentContent.Identifier)
+    
+    Else
+    
+    #Navigate.To Eventname(CONTENTITEMFILEEDITVIEW) Value(#CurrentContent.Identifier)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#DeleteContentAction.Click)
+    
+    #Navigate.To Eventname(CONTENTITEMDELETEVIEW) Value(#CurrentContent.Identifier)
+    
+    Endroutine
+    
+    Evtroutine Handling(#PreviewContentAction.Click)
+    
+    #SYS_WEB.Navigate Url('bpfviewer.html?content=' + #CurrentContent.Identifier) Target(New)
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsCompleted)
+    
+    * Set Reference
+    #CurrentContent <= #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * Populate Data
+    #COM_SELF.LoadDataForPanels
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Your up to here !!!
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#SYS_WEB.SessionStorage<'BPF.SHARES.INFOCONTEXT'> *IsNot *Null)
+    
+    #SYS_WEB.SessionStorage.Remove( 'BPF.SHARES.INFOCONTEXT' )
+    
+    Endif
+    
+    #SYS_WEB.History.GoBack
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETLIBRARYITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentContent.OnLoadItemCompleted)
+    
+    * Populate Data
+    #COM_SELF.LoadDataForPanels
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentContent.OnLoadItemFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    #SYS_WEB.History.GoBack
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTCONTENT.ONLOADITEMFAILED'> 7500 )
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<'PANELHEADING.CAPTION'>
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<'INSTRUCTIONTEXT.CAPTION'>
+    #DETAILSHEADING.CAPTION := #STRINGS.Text<'DETAILSHEADING.CAPTION'>
+    #CONTENTNAMELABEL.CAPTION := #STRINGS.Text<'CONTENTNAMELABEL.CAPTION'>
+    #DELETECONTENTACTION.CAPTION := #STRINGS.Text<'DELETECONTENTACTION.CAPTION'>
+    #CONTENTHEADING.CAPTION := #STRINGS.Text<'CONTENTHEADING.CAPTION'>
+    #PREVIEWCONTENTACTION.CAPTION := #STRINGS.Text<'PREVIEWCONTENTACTION.CAPTION'>
+    #ACTIVITYHEADER.CAPTION := #STRINGS.Text<'ACTIVITYHEADER.CAPTION'>
+    #CONTENTCREATEDLABEL.CAPTION := #STRINGS.Text<'CONTENTCREATEDLABEL.CAPTION'>
+    #CONTENTMODIFIEDLABEL.CAPTION := #STRINGS.Text<'CONTENTMODIFIEDLABEL.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(LoadDataForPanels) Access(*PRIVATE)
+    
+    If (#CurrentContent *Is *NULL)
+    
+    #SYS_WEB.History.GoBack
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'CURRENTCONTENT.ONLOADITEMFAILED'> 7500 )
+    Return
+    
+    Endif
+    
+    * Start with Details
+    #ContentName.Caption := #CurrentContent.ItemName
+    #ContentDescription.Caption := #CurrentContent.ItemDescription
+    
+    * Now the Content
+    
+    #ContentTokenFilename.Icon := #CurrentContent.ItemTypeIcon
+    #ContentTokenFilename.IconThemeDrawStyle := #CurrentContent.ItemTypeColour
+    
+    If (#CurrentContent.ItemType = YTV)
+    
+    #ContentTokenFilename.Caption := 'ID ' + #CurrentContent.ItemToken
+    #ContentSize.Caption := #CurrentContent.ItemDuration
+    
+    Else
+    
+    #ContentTokenFilename.Caption := #CurrentContent.ItemToken
+    
+    If (#CurrentContent.ItemSize<KB> < 1024)
+    
+    #ContentSize.Caption := #CurrentContent.ItemSize<KB>.asstring + ' KB'
+    
+    Else
+    
+    #ContentSize.Caption := #CurrentContent.ItemSize<MB>.asstring + ' MB'
+    
+    Endif
+    
+    Endif
+    
+    * Finally Activity
+    
+    #ContentCreatedBy.Caption := #CurrentContent.ItemCreatedByFullName
+    #ContentCreated.Caption := #CurrentContent.ContentCreated.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentContent.ContentCreated.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + ' ' + #CurrentContent.ContentCreated.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentContent.ContentCreated.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    If (#CurrentContent.ItemModifiedByFullName.IsSqlNull)
+    
+    #ContentModifiedLabel.Visible := False
+    #ContentModifiedBy.Caption #ContentModified.Caption := *Null
+    
+    Else
+    
+    #ContentModifiedLabel.Visible := True
+    #ContentModifiedBy.Caption := #CurrentContent.ItemModifiedByFullName
+    #ContentModified.Caption := #CurrentContent.ContentModified.AsLocalizedDateTime.Date.Day.asstring + ' ' + #CurrentContent.ContentModified.AsLocalizedDateTime.Date.AsDisplayString( MMM ) + ' ' + #CurrentContent.ContentModified.AsLocalizedDateTime.Date.Year.AsString + ' at ' + #CurrentContent.ContentModified.AsLocalizedDateTime.Time.AsDisplayString( HHsMMsSS )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

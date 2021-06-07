@@ -1,0 +1,402 @@
+﻿Web View:
+  Name:               BPFAdminUserAccountActionView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Admin User Account Action"
+
+  - JPN:
+      Description:        "Portal Admin User Account Action"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP008')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFAdminUserAccountActionViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFUserAccountAdminDataClient) Name(#UserAccounts) Reference(*DYNAMIC)
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(58) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(170) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ConfirmationPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#ConfirmationPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ConfirmationPanelLayoutRow1) Displayposition(1) Parent(#ConfirmationPanelLayout) Units(Content) Height(88)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ConfirmationPanelLayoutRow2) Displayposition(2) Parent(#ConfirmationPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ConfirmationPanelLayoutColumn1) Displayposition(1) Parent(#ConfirmationPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ConfirmationPanelLayoutColumn2) Displayposition(2) Parent(#ConfirmationPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ConfirmationPanelLayoutColumn3) Displayposition(3) Parent(#ConfirmationPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ConfirmationPanelLayoutItem1) Manage(#ConfirmationPanelHeading) Parent(#ConfirmationPanelLayout) Row(#ConfirmationPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ConfirmationPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ConfirmationPanelLayoutItem3) Column(#ConfirmationPanelLayoutColumn1) Manage(#Divider) Parent(#ConfirmationPanelLayout) Sizing(FitToWidth) Row(#ConfirmationPanelLayoutRow2) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ConfirmationPanelLayoutItem4) Alignment(CenterRight) Column(#ConfirmationPanelLayoutColumn2) Manage(#ConfirmationAction) Parent(#ConfirmationPanelLayout) Row(#ConfirmationPanelLayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ConfirmationPanelLayoutItem5) Alignment(TopLeft) Column(#ConfirmationPanelLayoutColumn2) Manage(#ConfirmationPanelText) Parent(#ConfirmationPanelLayout) Row(#ConfirmationPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(24) Wordwrap(True) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(10) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(72) Width(1000) Wordwrap(True)
+    
+    * Password Entry Panel & Controls
+    Define_Com Class(#PRIM_PANL) Name(#ConfirmationPanel) Displayposition(3) Height(146) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(106) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ConfirmationPanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#ConfirmationPanelHeading) Caption('Confirm') Displayposition(1) Left(24) Parent(#ConfirmationPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(3) Height(8) Left(0) Parent(#ConfirmationPanel) Tabposition(2) Tabstop(False) Themedrawstyle('TopDivider') Top(88) Width(878)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#ConfirmationAction) Caption('&1') Displayposition(2) Left(754) Parent(#ConfirmationPanel) Tabposition(3) Themedrawstyle('ForegroundMediumPrimary') Top(98) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#ConfirmationPanelText) Displayposition(4) Left(24) Parent(#ConfirmationPanel) Tabposition(4) Top(64) Height(24) Width(830) Wordwrap(True) Paddingbottom(24)
+    
+    * References
+    Define_Com Class(#BPFUserAccountAdminItem) Name(#CurrentAccount) Reference(*DYNAMIC)
+    
+    *
+    Define_Com Class(#PRIM_ALPH) Name(#RequestedAction)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #UserAccounts <= (#Data.GetDataClient( #COM_SELF ) *As #BPFUserAccountAdminDataClient)
+    
+    * Check verification
+    If (#UserAccounts.IsAdministrationVerified)
+    
+    * Pass Check to get here, so invalidate as the check will need to be done again
+    #UserAccounts.IsAdministrationVerified := False
+    
+    Else
+    
+    * Did not pass the check, if we got here someone is hacking the site
+    #SYS_WEB.History.GoBack
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to current user
+    #CurrentAccount <= #UserAccounts.UserAccount<#SYS_WEB.URLParameters<VALUE>.value>
+    #RequestedAction := #SYS_WEB.URLParameters<EVENT>.value.UpperCase
+    
+    If (#CurrentAccount *IsNot *Null)
+    
+    * Set Display
+    #COM_SELF.SetPanelDisplay
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Else
+    
+    #UserAccounts.GetUserAccountsByID( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    If (#CurrentAccount *IsNot *Null)
+    
+    #Navigate.To Eventname(ADMINACCOUNTVERIFICATION) Value((#SYS_WEB.URLParameters<EVENT>.value + '&id=' + #CurrentAccount.Identifier)) Type(REPLACE) Signalreplaceevent(False)
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#ConfirmationAction.Click)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    Case Of_Field(#RequestedAction)
+    
+    When Value_Is(= ADMINUSERSETACCOUNTDISABLED)
+    
+    #CurrentAccount.SetDisabled
+    
+    When Value_Is(= ADMINUSERSETACCOUNTENABLED)
+    
+    #CurrentAccount.SetEnabled
+    
+    When Value_Is(= ADMINUSERSENDPASSWORDRESET)
+    
+    #CurrentAccount.ResendPasswordRequest
+    
+    When Value_Is(= ADMINUSERSENDCONFIRMACCOUNT)
+    
+    #CurrentAccount.ResendConfirmAccount
+    
+    When Value_Is(= ADMINUSERSENDSECURITYRESET)
+    
+    #CurrentAccount.ResendResetSecurity
+    
+    When Value_Is(= ADMINUSERSECURITYRESET)
+    
+    #CurrentAccount.ResetSecurity
+    
+    Endcase
+    
+    Endroutine
+    
+    * Data
+    
+    Evtroutine Handling(#UserAccounts.OnGetUserAccountCompleted)
+    
+    * Get Reference to current user
+    #CurrentAccount <= #UserAccounts.UserAccount<#SYS_WEB.URLParameters<VALUE>.value>
+    
+    * Set Display
+    #COM_SELF.SetPanelDisplay
+    
+    * Correct URL
+    #Navigate.To Eventname(ADMINACCOUNTVERIFICATION) Value((#SYS_WEB.URLParameters<EVENT>.value + '&id=' + #CurrentAccount.Identifier)) Type(REPLACE) Signalreplaceevent(False)
+    
+    * All Done
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#UserAccounts.OnGetUserAccountFailed)
+    
+    * Show error
+    #BPFPortal.ShowToaster( #STRINGS.Text<USERACCOUNTS.ONGETUSERACCOUNTFAILED> 7500 )
+    
+    * Turn off loading
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnSetDisabledCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETDISABLEDCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnSetDisabledFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETADMINROLEFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETADMINROLEFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnSetEnabledCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETENABLEDCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnSetEnabledFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETENABLEDFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONSETENABLEDFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendPasswordRequestCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDPASSWORDREQUESTCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendPasswordRequestFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDPASSWORDREQUESTFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDPASSWORDREQUESTFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendConfirmAccountCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendConfirmAccountFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendResetSecurityCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDRESETSECURITYCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResendResetSecurityFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDRESETSECURITYFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESENDRESETSECURITYFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResetSecurityCompleted)
+    
+    * All Okay so head back to settings screen
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESETSECURITYCOMPLETED> )
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentAccount.OnResetSecurityFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NV)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESETSECURITYFAILED.NV> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<CURRENTACCOUNT.ONRESETSECURITYFAILED> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SetPanelDisplay)
+    
+    #CONFIRMATIONPANELHEADING.CAPTION := #STRINGS.Text<CONFIRMATIONPANELHEADING.CAPTION>
+    
+    * Set Controls
+    Case Of_Field(#RequestedAction)
+    
+    When Value_Is(= ADMINUSERSETACCOUNTDISABLED)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.DISABLED>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.DISABLED>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.DISABLED>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.DISABLED>
+    
+    When Value_Is(= ADMINUSERSETACCOUNTENABLED)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.ENABLED>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.ENABLED>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.ENABLED>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.ENABLED>
+    
+    When Value_Is(= ADMINUSERSENDPASSWORDRESET)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.PASSWORDRESET>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.PASSWORDRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.PASSWORDRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.PASSWORDRESET>
+    
+    When Value_Is(= ADMINUSERSENDCONFIRMACCOUNT)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.CONFIRMACCOUNT>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.CONFIRMACCOUNT>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.CONFIRMACCOUNT>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.CONFIRMACCOUNT>
+    
+    When Value_Is(= ADMINUSERSENDSECURITYRESET)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.SENDSECURITYRESET>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.SENDSECURITYRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.SENDSECURITYRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.SENDSECURITYRESET>
+    
+    When Value_Is(= ADMINUSERSECURITYRESET)
+    
+    #PanelHeading.Caption := #STRINGS.Text<PANELHEADING.CAPTION.SECURITYRESET>
+    #InstructionText.Caption := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION.SECURITYRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationPanelText.Caption := #STRINGS.Text<CONFIRMATIONPANELTEXT.CAPTION.SECURITYRESET>.Replace( '%%EMAIL%%' #CurrentAccount.EmailAdress )
+    #ConfirmationAction.Caption := #STRINGS.Text<CONFIRMATIONACTION.CAPTION.SECURITYRESET>
+    
+    Endcase
+    
+    Endroutine
+    
+    End_Com

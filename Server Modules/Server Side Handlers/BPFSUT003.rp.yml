@@ -1,0 +1,428 @@
+﻿Reusable Part:
+  Name:               BPFServerSecurityUtilities
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Security Calls"
+
+  - JPN:
+      Description:        "Server Side Security Calls"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Properties
+    Define_Pty Name(SessionID) Set(SetSessionID)
+    Define_Com Class(#PRIM_ALPH) Name(#SessionID)
+    
+    * Global Variables
+    Define_Com Class(#PRIM_BOLN) Name(#ValidRequestCheckEnabled)
+    Define_Com Class(#PRIM_BOLN) Name(#IPBanningEnabled)
+    Define_Com Class(#PRIM_NMBR) Name(#IPMaximumAllowAttempts)
+    
+    Define Field(#Retcode) Type(*CHAR) Length(2)
+    
+    * Property Routines
+    Ptyroutine Name(SetSessionID)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Property)
+    
+    #SessionID := ('_SESSIONKEY_' + #Property + '=').UpperCase
+    
+    Endroutine
+    
+    * When we come to life, get control values
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get IP Control Values
+    #IPBanningEnabled := (#Utils.GetNumericValue( 'SECURITY' 'IP_ADDRESS_BANNING' ) = 1)
+    #IPMaximumAllowAttempts := #Utils.GetNumericValue( 'SECURITY' 'IP_ADDRESS_ATTEMPT_LIMIT' )
+    
+    * Get Valid Request Check Control Values
+    #ValidRequestCheckEnabled := (#Utils.GetNumericValue( 'SECURITY' 'VALID_REQUEST_CHECK' ) = 1)
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(SecureString)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Input)
+    Define_Map For(*BOTH) Class(#Prim_DC.UnicodeString) Name(#SaltWith) Mandatory(*NULL)
+    Define_Map For(*RESULT) Class(#Prim_DC.UnicodeString) Name(#Result)
+    
+    * Hash Variables
+    Define_Com Class(#XPRIM_Crypto_Hash) Name(#HashFunction)
+    Define_Com Class(#XPRIM_Binary) Name(#StringBytes)
+    Define_Com Class(#XPRIM_Binary) Name(#HashBytes)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(SecureString) : Encrypting string ') )
+    
+    * Salt the password
+    If (#SaltWith.IsNull)
+    
+    #SaltWith := *GUID
+    
+    Endif
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(SecureString) : Using salt value of ' + #SaltWith.AsNativeString) )
+    
+    #Input := #SaltWith.Substring( 1 16 ) + #Input + #SaltWith.Substring( 17 16 )
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(SecureString) : salted string') )
+    
+    * Convert Password to bytes
+    #StringBytes.FromStringUsingUTF8 String(#Input)
+    
+    * Set Hash and compute
+    #HashFunction.UsePBKDF2 Iteration(1000)
+    #HashFunction.Compute Input(#StringBytes) Result(#HashBytes)
+    
+    * Place back in LTAPSW
+    #Result := #HashBytes.AsHexString
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(SecureString) : Returning encrypted string') )
+    
+    Endroutine
+    
+    Mthroutine Name(CleanString)
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#DirtyString)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#KeyValue)
+    Define_Map For(*RESULT) Class(#Prim_DC.UnicodeString) Name(#Result)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CleanString) : Recieved encrytpted value of ' + #DirtyString.AsNativeString) )
+    #Utils.Log( ('Server Security : Mthroutine Name(CleanString) : Recieved key value of ' + #KeyValue) )
+    
+    * Make sent data clearer
+    #Result := #DirtyString.AsNativeString.Decrypt( #KeyValue )
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CleanString) : Decryption of string successful') )
+    
+    #Result := #Result.DeleteSubstring( #Result.PositionOf( #KeyValue.Substring( 1 5 ) ) 5 )
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CleanString) : Salt removal successful') )
+    
+    * Cleanup data
+    #Result := #Result.DeleteSubstring( #Result.PositionOf( #KeyValue.Substring( 6 ) ) 5 )
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CleanString) : Cleaning string successful') )
+    
+    Endroutine
+    
+    Mthroutine Name(CheckIsValidRequest)
+    
+    * Inbound
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#RoutineName)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SessionCookie)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#CheckValue)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#EpochValue)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Authenicated)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#ClearOnSuccess) Mandatory(True)
+    
+    * Output
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#IPIsBanned) Mandatory(False)
+    
+    *
+    Define_Com Class(#STD_NUML) Name(#RangeSeed)
+    Define_Com Class(#STD_NUML) Name(#LowRange)
+    Define_Com Class(#STD_NUML) Name(#HighRange)
+    Define_Com Class(#PRIM_ALPH) Name(#SessionValue)
+    
+    
+    If (#COM_SELF.IsIPAddressBanned.IsFalse)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : ' + *WEBIPADDR + ' not banned ' + *PARTDTALIB) )
+    
+    * Check is feature is enabled
+    If (#ValidRequestCheckEnabled)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : Checking if request is valid') )
+    
+    * Lets get ready, prepare values
+    #RoutineName := #RoutineName.UpperCase
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : session ID is  ' + #SessionID) )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : rotuine to check   ' + #RoutineName) )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : epoch on request   ' + #EpochValue) )
+    
+    
+    * Get Session value
+    #SessionValue := #SessionCookie.Substring( (#SessionCookie.PositionOf( #SessionID ) + #SessionID.CurChars) #BPFSessionSecureCookie.FieldLength )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : session cookie is  ' + #SessionValue) )
+    
+    If (#COM_SELF.IsSessionIDValid( #SessionValue ))
+    
+    * Cleanup check value
+    #CheckValue := #CheckValue.Decrypt( #EpochValue )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : routine on request ' + #CheckValue) )
+    
+    If (#Authenicated)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : session is authennicated') )
+    
+    * Low & High Allow TimeRange
+    #RangeSeed := #Utils.GetDateTimeInEpoch
+    #LowRange := ((#RangeSeed - 40) * 1000)
+    #HighRange := ((#RangeSeed + 40) * 1000)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : time on server is  ' + #RangeSeed.AsString) )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : earliest allowed   ' + #LowRange.AsString) )
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : latest allowed     ' + #HighRange.AsString) )
+    
+    If ((#EpochValue.AsNumber >= #LowRange) *And (#EpochValue.AsNumber <= #HighRange))
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : request in allowed time range') )
+    
+    * Do the routine names match
+    If (#RoutineName = #CheckValue)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : routine names match so request is valid') )
+    
+    * Matches, so if replayed in session
+    Check_For In_File(BPFSessionServerRoutinesCalls) With_Key(#SessionValue #RoutineName #EpochValue)
+    
+    If_Status Is(*NOTEQUALKEY)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : request is new for session') )
+    
+    * Not used so log eh request as valid
+    #BPFSessionSecureCookie := #SessionValue
+    #BPFSessionServerRoutineCalled := #RoutineName
+    #BPFSessionServerRoutineEpoch := #EpochValue
+    
+    Insert Fields(#BPFSessionSecureCookie #BPFSessionServerRoutineCalled #BPFSessionServerRoutineEpoch) To_File(BPFSessionServerRoutinesCalls)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : insert of request failed') )
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : request for session recorded') )
+    
+    If (#ClearOnSuccess)
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : clearing recorded IP') )
+    #COM_SELF.ClearRecordedIPAddress
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : request IS NOT NEW for session so INVALID') )
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : routine names DO NOT MATCH so request is INVALID') )
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : request is OUTSIDE of allowed time range so INVALID') )
+    
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : session IS NOT authennicated so INVALID') )
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : session key IS NOT generated by LANSA so INVALID') )
+    
+    * If anything is wrong we kill the whole show
+    #IPIsBanned := #COM_SELF.AddAttemptForIPAddress
+    #Utils.ControlledAbort
+    
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Server Security : Mthroutine Name(CheckIsValidRequest) : ' + *WEBIPADDR + ' IS BANNED') )
+    
+    #IPIsBanned := True
+    
+    * End if clear on success, else the routine calling this will be doing extra checks
+    If (#ClearOnSuccess)
+    #Utils.ControlledAbort
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(ClearValidSessionRequests)
+    
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SessionCookie)
+    
+    Define_Com Class(#PRIM_ALPH) Name(#SessionValue)
+    
+    If (#ValidRequestCheckEnabled)
+    
+    #SessionValue := #SessionCookie.Substring( (#SessionCookie.PositionOf( #SessionID ) + #SessionID.CurChars) #BPFSessionSecureCookie.FieldLength )
+    
+    Delete From_File(BPFSessionServerRoutinesCalls) With_Key(#SessionValue)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(AddAttemptForIPAddress)
+    
+    * Output
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#IsBanned)
+    
+    * Local Variables
+    Define_Com Class(#BPFRecordedIPAddress) Name(#IPAddress)
+    
+    If (#IPBanningEnabled)
+    
+    * Setip Checking Fields
+    #IPAddress := *WEBIPADDR
+    
+    #Utils.log( ('Server Security : Mthroutine Name(AddAttemptForIPAddress) : Checking Invalid attempts for IP Address = ' + #IPAddress) )
+    
+    * Attempt Fetch for IP Address
+    Fetch Fields(#BPFAttemptsOnRecordedIPAddress #BPFRecordedIPAddressIsBanned) From_File(BPFBannedIPAddresses) With_Key(#IPAddress)
+    
+    * Okay Check if ban is in place
+    If (#BPFRecordedIPAddressIsBanned.IsFalse)
+    
+    * No then increment attempts
+    #BPFAttemptsOnRecordedIPAddress := #BPFAttemptsOnRecordedIPAddress + 1
+    
+    * Have we reached the limit of attempts
+    If (#BPFAttemptsOnRecordedIPAddress = #IPMaximumAllowAttempts)
+    
+    * Yes then you are banned
+    #BPFRecordedIPAddressIsBanned := True
+    
+    Endif
+    
+    * Set Recorded At
+    #BPFIPAddressAttemptRecorded := #BPFIPAddressAttemptRecorded.Now
+    
+    * Update database values
+    If_Status Is(*NORECORD)
+    
+    * No record, so insert
+    #BPFRecordedIPAddress := #IPAddress
+    Insert Fields(#BPFRecordedIPAddress #BPFAttemptsOnRecordedIPAddress #BPFRecordedIPAddressIsBanned #BPFIPAddressAttemptRecorded) To_File(BPFBannedIPAddresses) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    Else
+    
+    * Update existing
+    Update Fields(#BPFAttemptsOnRecordedIPAddress #BPFRecordedIPAddressIsBanned #BPFIPAddressAttemptRecorded) In_File(BPFBannedIPAddresses) With_Key(#IPAddress) Io_Error(*NEXT) Val_Error(*NEXT)
+    
+    Endif
+    
+    Endif
+    
+    * Set Result
+    #IsBanned := #BPFRecordedIPAddressIsBanned
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(IsIPAddressBanned)
+    
+    * Output
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#IsBanned)
+    
+    * Local Variables
+    Define_Com Class(#BPFRecordedIPAddress) Name(#IPAddress)
+    
+    If (#IPBanningEnabled)
+    
+    * Setip Checking Fields
+    #IPAddress := *WEBIPADDR
+    
+    Fetch Fields(#BPFRecordedIPAddressIsBanned) From_File(BPFBannedIPAddresses) With_Key(#IPAddress)
+    
+    * Set Result
+    #IsBanned := #BPFRecordedIPAddressIsBanned
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(ClearRecordedIPAddress)
+    
+    * Local Variables
+    Define_Com Class(#BPFRecordedIPAddress) Name(#IPAddress)
+    
+    If (#IPBanningEnabled)
+    
+    * Setip Checking Fields
+    #IPAddress := *WEBIPADDR
+    
+    * Get the enabled status, if disabled you cannot remove
+    
+    Fetch Fields(#BPFRecordedIPAddressIsBanned) From_File(BPFBannedIPAddresses) With_Key(#IPAddress)
+    
+    If (#BPFRecordedIPAddressIsBanned.IsFalse)
+    
+    * Remove
+    Delete From_File(BPFBannedIPAddresses) With_Key(#IPAddress)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(IsSessionIDValid)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#SessionKey)
+    Define_Map For(*RESULT) Class(#BPFGenericBoolean) Name(#Result)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#QueryString)
+    
+    * Caution : This logic does a read of an internal LANSA Runtime table. This is not always adviseable as the internal tables of LANSA can change format or schema at anytime.
+    * Thus beware that you will need to change to code in the furture.
+    
+    * Intend : SELECT CASE WHEN EXISTS (SELECT WSSKEY FROM LX_DTA.LX_WSS WHERE WSSKEY = '060929175b304021c6a357a5445962c2aa16e0d') THEN 1 ELSE 0 END AS Result
+    
+    #QueryString := #Utils.GetAlphaValueForLanguage( (*OSAPI).UpperCase SQL SESSIONCHECK ).Substitute( #SessionKey )
+    Select_Sql Fields(#STD_NUM) Using(#QueryString)
+    Endselect
+    
+    #Result := (#STD_NUM = 1)
+    
+    Endroutine
+    
+    End_Com

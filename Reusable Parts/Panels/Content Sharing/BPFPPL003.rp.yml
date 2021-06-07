@@ -1,0 +1,147 @@
+﻿Reusable Part:
+  Name:               BPFShareFolderNavigationOverFlowMenu
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Folder Navigation OverFlow Menu"
+
+  - JPN:
+      Description:        "Share Folder Navigation OverFlow Menu"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PPNL) Left(0) Top(0) Layoutmanager(#PopupLayout) Height(352) Width(220)
+    
+    * Strings
+    Define_Com Class(#BPFShareFolderNavigationOverFlowMenuStrings) Name(#Strings)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Fontweight(Weight500)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#PopupLayout) Sizing(ContentHeight)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PopupLayoutColumn1) Displayposition(1) Parent(#PopupLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PopupLayoutRow1) Displayposition(1) Parent(#PopupLayout) Units(Content) Height(350)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PopupLayoutItem1) Alignment(TopLeft) Column(#PopupLayoutColumn1) Manage(#PopupMenu) Parent(#PopupLayout) Row(#PopupLayoutRow1) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_MD.Menu) Name(#PopupMenu) Displayposition(1) Parent(#COM_OWNER) Tabposition(1) Width(218) Style(#Style1) Themedrawstyle('text(0,0,0,0.87)') Height(350)
+    
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemNewMenuOption) Caption('New Item') Displayposition(1) Height(50) Icon('add') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(1) Top(0) Width(218) Iconmarginleft(24) Iconmarginright(20)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemAddfolderMenuOption) Caption('Add folder') Displayposition(2) Height(50) Icon('create_new_folder') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(2) Top(50) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemCopyMenuOption) Caption('Copy') Displayposition(3) Height(50) Icon('content_copy') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(3) Top(100) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1) Themedrawstyle('TopDivider') Visible(False)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemInfoMenuOption) Caption('Details') Displayposition(7) Height(50) Icon('info_outline') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(4) Top(300) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1) Themedrawstyle('TopDivider')
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemMoveMenuOption) Caption('Move') Displayposition(4) Height(50) Icon('subdirectory_arrow_right') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(7) Top(150) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1) Visible(False)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemRenameMenuOption) Caption('Rename') Displayposition(5) Height(50) Icon('edit') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(6) Top(200) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1) Visible(False)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ItemRemoveMenuOption) Caption('Remove') Displayposition(6) Height(50) Icon('delete') Iconopacity(50) Left(0) Parent(#PopupMenu) Tabposition(5) Top(250) Width(218) Iconmarginleft(24) Iconmarginright(20) Style(#Style1) Visible(False)
+    
+    * Events
+    Define_Evt Name(ItemInfoClicked)
+    Define_Evt Name(ItemRenameClicked)
+    Define_Evt Name(ItemAddFolderClicked)
+    Define_Evt Name(ItemRemoveClicked)
+    Define_Evt Name(ItemMoveClicked)
+    Define_Evt Name(ItemCopyClicked)
+    Define_Evt Name(ItemAddClicked)
+    
+    Evtroutine Handling(#COM_OWNER.Prepare) Left(#left) Top(#top)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    
+    #Top := 40
+    #left := (#SYS_WEB.WebPage.Width - #COM_SELF.Width) - 12
+    
+    Endroutine
+    
+    * Menu
+    Evtroutine Handling(#ItemInfoMenuOption.Click)
+    
+    Signal Event(ItemInfoClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemRenameMenuOption.Click)
+    
+    Signal Event(ItemRenameClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemAddfolderMenuOption.Click)
+    
+    Signal Event(ItemAddFolderClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemRemoveMenuOption.Click)
+    
+    Signal Event(ItemRemoveClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemMoveMenuOption.Click)
+    
+    Signal Event(ItemMoveClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemCopyMenuOption.Click)
+    
+    Signal Event(ItemCopyClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    Evtroutine Handling(#ItemNewMenuOption.Click)
+    
+    Signal Event(ItemAddClicked)
+    #COM_SELF.ClosePopup
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(Open)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#SelectionCount)
+    
+    * Set Button display
+    #ItemCopyMenuOption.Visible := (#SelectionCount >= 1)
+    #ItemMoveMenuOption.Visible := (#SelectionCount >= 1)
+    #ItemRenameMenuOption.Visible := (#SelectionCount = 1)
+    #ItemRemoveMenuOption.Visible := (#SelectionCount >= 1)
+    
+    *
+    #COM_SELF.ShowPopup
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #ItemNewMenuOption.Caption := #STRINGS.Text<'ITEMNEWMENUOPTION.CAPTION'>
+    #ItemAddfolderMenuOption.Caption := #STRINGS.Text<'ITEMADDFOLDERMENUOPTION.CAPTION'>
+    #ItemCopyMenuOption.Caption := #STRINGS.Text<'ITEMCOPYMENUOPTION.CAPTION'>
+    #ItemMoveMenuOption.Caption := #STRINGS.Text<'ITEMMOVEMENUOPTION.CAPTION'>
+    #ItemRenameMenuOption.Caption := #STRINGS.Text<'ITEMRENAMEMENUOPTION.CAPTION'>
+    #ItemRemoveMenuOption.Caption := #STRINGS.Text<'ITEMREMOVEMENUOPTION.CAPTION'>
+    #ItemInfoMenuOption.Caption := #STRINGS.Text<'ITEMINFOMENUOPTION.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #PopupMenu.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    
+    Else
+    
+    #PopupMenu.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

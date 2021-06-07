@@ -1,0 +1,88 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserAccountActionViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin User Account Actions View Strings"
+
+  - JPN:
+      Description:        "Admin User Account Actions View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELHEADING.CAPTION'> := "Confirm"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.DISABLED'> := "Disable Account"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.DISABLED'> := "Confirm that %%EMAIL%% is to be disabled"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.DISABLED'> := "By disabling %%EMAIL%% they will no longer be able access this portal. An email confirming the account has been disabled will be sent to the account user. The change will come into effect the next time the user is logs into the portal."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.DISABLED'> := "DISABLE"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.ENABLED'> := "Enable Account"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.ENABLED'> := "Confirm that %%EMAIL%% is to be enabled"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.ENABLED'> := "By enabling %%EMAIL%% they will be able access this portal once again. An email confirming the account has been enabled will be sent to the account user. The change will come into effect the next time the user is logs into the portal."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.ENABLED'> := "ENABLE"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.PASSWORDRESET'> := "Resend Password Reset"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.PASSWORDRESET'> := "Confirm that %%EMAIL%% is to have the password reset email resent"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.PASSWORDRESET'> := "By resending the password reset email to %%EMAIL%% they will recieve a new password reset email. This will mean any previous password reset emails will no longer be useable. The email will be sent to the account email address immediately."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.PASSWORDRESET'> := "RESEND"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.CONFIRMACCOUNT'> := "Resend Activate Account"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.CONFIRMACCOUNT'> := "Confirm that %%EMAIL%% is to have the activate account email resent"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.CONFIRMACCOUNT'> := "By resending the activate account email to %%EMAIL%% they will recieve a new activate account email. This will mean any previous activate account emails will no longer be useable. The email will be sent to the account email address immediately."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.CONFIRMACCOUNT'> := "RESEND"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SENDSECURITYRESET'> := "Resend Security Reset"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.SENDSECURITYRESET'> := "Confirm that %%EMAIL%% is to have the security reset email resent"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.SENDSECURITYRESET'> := "By resending the security reset email to %%EMAIL%% they will recieve a new security reset email. This will mean any previous security reset emails will no longer be useable. The email will be sent to the account email address immediately."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.SENDSECURITYRESET'> := "RESEND"
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.SECURITYRESET'> := "Reset Security"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION.SECURITYRESET'> := "Confirm that %%EMAIL%% is to have their password and security crendentials reset"
+    #STRINGSCOLLECTION<'CONFIRMATIONPANELTEXT.CAPTION.SECURITYRESET'> := "By resetting the password and security crenditials of %%EMAIL%% the user will not be login into the portal until they provide new details by clicking the link in the email that will now be sent to them. This will come into affect now and once done only the user can complete the process to regain access. Be sure to confirm the user is aware of this before resetting their password and secuirty crenditials."
+    #STRINGSCOLLECTION<'CONFIRMATIONACTION.CAPTION.SECURITYRESET'> := "RESET"
+    
+    
+    #STRINGSCOLLECTION<'USERACCOUNTS.ONGETUSERACCOUNTFAILED'> := "Failed to user information"
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETDISABLEDCOMPLETED'> := "Account is now disabled"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETADMINROLEFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETADMINROLEFAILED'> := "FAILED to disable account."
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETENABLEDCOMPLETED'> := "Account is now set to be enabled"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETENABLEDFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONSETENABLEDFAILED'> := "FAILED to set account to be enabled."
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDPASSWORDREQUESTCOMPLETED'> := "Account has been resent a password reset request"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDPASSWORDREQUESTFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDPASSWORDREQUESTFAILED'> := "FAILED to resend password reset request."
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTCOMPLETED'> := "Account has been resent an account confirmation"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDCONFIRMACCOUNTFAILED'> := "FAILED to resend account confirmation."
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDRESETSECURITYCOMPLETED'> := "Account is now disabled"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDRESETSECURITYFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESENDRESETSECURITYFAILED'> := "FAILED to resend a secuirty reset."
+    
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESETSECURITYCOMPLETED'> := "Account is now disabled"
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESETSECURITYFAILED.NV'> := "FAILED. Account status is invalid for this action."
+    #STRINGSCOLLECTION<'CURRENTACCOUNT.ONRESETSECURITYFAILED'> := "FAILED to reset security."
+    
+    Endroutine
+    
+    End_Com

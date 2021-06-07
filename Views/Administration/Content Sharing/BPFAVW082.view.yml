@@ -1,0 +1,411 @@
+﻿Web View:
+  Name:               BPFContentLibraryItemYoutubeEditView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Library Item YouTube Edit View"
+
+  - JPN:
+      Description:        "Content Library Item YouTube Edit View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(705) Layoutmanager(#MainLayout) Verticalscroll(True) Componenttag('BPFAPP012')
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    Define_Com Class(#BPFDataClientManager) Name(#Data) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFContentLibraryItemYouTubeEditViewStrings) Name(#Strings)
+    
+    * Reference for Data client
+    Define_Com Class(#BPFContentSharingDataClient) Name(#Sharing) Reference(*DYNAMIC)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24) Marginbottom(24) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#MainLayout) Height(461) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow3) Displayposition(3) Parent(#MainLayout) Height(120) Units(Pixels)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentWidthAndHeight) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#DetailsPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#ContentPanel) Parent(#MainLayout) Row(#LayoutRow2) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem5) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#FooterSpace) Parent(#MainLayout) Row(#LayoutRow3) Sizing(FitToWidth) Margintop(24)
+    
+    * Details Panel Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem6) Alignment(TopRight) Column(#LayoutColumn3) Manage(#SaveAction) Parent(#MainLayout) Row(#LayoutRow1) Sizing(None)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#DetailsPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DetailsPanelLayoutRow1) Displayposition(1) Parent(#DetailsPanelLayout) Units(Content) Height(222)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DetailsPanelLayoutRow2) Displayposition(2) Parent(#DetailsPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn1) Displayposition(1) Parent(#DetailsPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn2) Displayposition(2) Parent(#DetailsPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DetailsPanelLayoutColumn3) Displayposition(3) Parent(#DetailsPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem1) Manage(#DetailsHeading) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#DetailsPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    
+    * Content Panel Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem2) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn2) Flow(Down) Manage(#ContentNameEdit) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(FitToWidth) Margintop(16)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#ContentPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContentPanelLayoutRow1) Displayposition(1) Parent(#ContentPanelLayout) Units(Content) Height(139)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#ContentPanelLayoutRow2) Displayposition(2) Parent(#ContentPanelLayout) Units(Pixels) Height(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn1) Displayposition(1) Parent(#ContentPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn2) Displayposition(2) Parent(#ContentPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#ContentPanelLayoutColumn3) Displayposition(3) Parent(#ContentPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem1) Manage(#ContentHeading) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#ContentPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24)
+    
+    * Activity Panel
+    
+    
+    * Row and Columns
+    
+    * Items
+    
+    * Main Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DetailsPanelLayoutItem3) Alignment(TopLeft) Column(#DetailsPanelLayoutColumn2) Flow(Down) Manage(#ContentDescriptionEdit) Parent(#DetailsPanelLayout) Row(#DetailsPanelLayoutRow1) Sizing(ContentHeightFitToWidth)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#ContentPanelLayoutItem2) Alignment(TopLeft) Column(#ContentPanelLayoutColumn2) Flow(Down) Manage(#YouTubeVideoIDEdit) Parent(#ContentPanelLayout) Row(#ContentPanelLayoutRow1) Sizing(FitToWidth) Margintop(16)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(220) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Edit Content Item') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SaveAction) Caption('SAVE') Displayposition(6) Left(1190) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary') Top(24)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(3) Top(79) Width(1000) Wordwrap(True) Caption('Set the YouTube video ID  for this content item and then enter the name and description that will be shown when this item is used in a content share.')
+    Define_Com Class(#PRIM_MD.Label) Name(#FooterSpace) Displayposition(5) Left(410) Parent(#COM_OWNER) Tabposition(6) Top(585) Width(880)
+    
+    * Panels
+    
+    * Content
+    Define_Com Class(#PRIM_PANL) Name(#ContentPanel) Displayposition(3) Height(165) Left(410) Parent(#COM_OWNER) Tabposition(4) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#ContentPanelLayout)
+    
+    * Content Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#ContentHeading) Caption('Content') Displayposition(1) Left(24) Parent(#ContentPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24) Iconalignment(CenterRight)
+    
+    * Details
+    Define_Com Class(#PRIM_PANL) Name(#DetailsPanel) Displayposition(4) Height(248) Left(410) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(313) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#DetailsPanelLayout)
+    
+    * Detail Panel Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#DetailsHeading) Caption('Details') Displayposition(1) Left(24) Parent(#DetailsPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24) Iconalignment(CenterRight) Iconcolor(Theme500)
+    Define_Com Class(#PRIM_MD.Edit) Name(#ContentNameEdit) Caption('Name') Displayposition(2) Left(24) Parent(#DetailsPanel) Tabposition(2) Top(64) Width(830) Maxlength(512)
+    Define_Com Class(#PRIM_MD.Edit) Name(#ContentDescriptionEdit) Caption('Description') Displayposition(3) Left(24) Parent(#DetailsPanel) Tabposition(3) Top(139) Width(830) Height(83) Multiline(True) Maxlength(4096)
+    Define_Com Class(#PRIM_MD.Edit) Name(#YouTubeVideoIDEdit) Caption('Video ID') Displayposition(2) Left(24) Parent(#ContentPanel) Tabposition(2) Top(64) Width(830) Helpertext('Duration 31:11') Maxlength(11)
+    
+    * Current reference
+    Define_Com Class(#BPFContentLibraryItemClass) Name(#EditContent) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get References
+    #Sharing <= (#Data.GetDataClient( #COM_SELF ) *As #BPFContentSharingDataClient)
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * We load data, so set wait for a user navigation
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    * if we dont have the API get it as we could need it
+    If (#Sharing.YouTubeDataAPIKey.IsNull)
+    
+    #Sharing.GetKey
+    
+    Endif
+    
+    #COM_SELF.SetStrings
+    
+    * Are we creadting or editing the content
+    If (#Navigate.CurrentEvent.EventName = 'contentitemyoutubeaddview')
+    
+    * Its an add, so we just need a blank class and set to YTV
+    #EditContent <= #Sharing.CreateLibraryItem
+    #EditContent.AlphaDetail := YTV
+    
+    * Populate Data
+    #COM_SELF.PopulatePanelData
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Else
+    
+    * Its an edit so we need data and then a edit copy
+    If (#Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value> *IsNot *Null)
+    
+    * Get Current Item Reference
+    #EditContent <= #Sharing.CreateLibraryItem( #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value> )
+    
+    If (#EditContent *IsNot *Null)
+    
+    * Populate Data
+    #COM_SELF.PopulatePanelData
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endif
+    
+    Else
+    
+    * No Data exists, so ask for some
+    #Sharing.GetLibraryItemByIdentifier( #SYS_WEB.URLParameters<VALUE>.value )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Fields
+    Evtroutine Handling(#YouTubeVideoIDEdit.Changed)
+    
+    #YouTubeVideoIDEdit.ClearError
+    
+    If (#YouTubeVideoIDEdit.Value.CurChars = 11)
+    
+    #EditContent.ItemToken := #YouTubeVideoIDEdit.Value
+    #COM_SELF.GetYouTubedata
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentNameEdit.Changed)
+    
+    #ContentNameEdit.ClearError
+    #EditContent.ItemName := #ContentNameEdit
+    
+    Endroutine
+    
+    Evtroutine Handling(#ContentDescriptionEdit.Changed)
+    
+    #ContentDescriptionEdit.ClearError
+    #EditContent.ItemDescription := #ContentDescriptionEdit
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#SaveAction.Click)
+    
+    If ((#YouTubeVideoIDEdit.Value.CurChars = 11) *And (#ContentNameEdit.value.IsNull.IsFalse) *And (#ContentDescriptionEdit.Value.IsNull.IsFalse))
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    #EditContent.Save
+    
+    Else
+    
+    If (#YouTubeVideoIDEdit.value.CurChars <> 11)
+    
+    #YouTubeVideoIDEdit.ShowError( #STRINGS.Text<'YOUTUBEVIDEOIDEDIT.MISSING'> )
+    
+    Endif
+    
+    If (#ContentNameEdit.value.IsNull)
+    
+    #ContentNameEdit.ShowError( #STRINGS.Text<'CONTENTNAMEEDIT.MISSING'> )
+    
+    Endif
+    
+    If (#ContentDescriptionEdit.value.IsNull)
+    
+    #ContentDescriptionEdit.ShowError( #STRINGS.Text<'CONTENTDESCRIPTIONEDIT.MISSING'> )
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsCompleted)
+    
+    * Set Reference
+    #EditContent <= #Sharing.CreateLibraryItem( #Sharing.Content<#SYS_WEB.URLParameters<VALUE>.value> )
+    
+    * Populate Data
+    #COM_SELF.PopulatePanelData
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.OnGetLibraryItemsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.ONGETLIBRARYITEMSFAILED'> 7500 )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Sharing.ContentLibraryItemUpdated)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'SHARING.CONTENTLIBRARYITEMUPDATED'> )
+    
+    If (#Navigate.CurrentEvent.EventName = 'contentitemyoutubeaddview')
+    
+    #Navigate.To Eventname(CONTENTITEMDETAILSVIEW) Value(#EditContent.Identifier) Type(REPLACE) Signalreplaceevent(True)
+    
+    Else
+    
+    #SYS_WEB.History.GoBack
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#EditContent.OnSaveFailed) Reason(#Reason)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    If (#Reason = NR)
+    
+    If (#SYS_WEB.SessionStorage<'BPF.SHARES.INFOCONTEXT'> *Is *Null)
+    
+    #Navigate.BackToTarget( 'admincontentsharingview' 'contentlibrarylistview' False True )
+    
+    Else
+    
+    #Navigate.BackToTarget( 'editcontentshareview' 'contentitemdetailsview' False True ('value=' + #SYS_WEB.SessionStorage<'BPF.SHARES.INFOCONTEXT'>.value.LowerCase) )
+    
+    Endif
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'EDITCONTENT.ONSAVEFAILED.MISSING'> 7500 )
+    
+    Else
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'EDITCONTENT.ONSAVEFAILED'> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(SetStrings)
+    
+    If (#Navigate.CurrentEvent.EventName = 'contentitemfileaddview')
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION.ADD>
+    
+    Else
+    
+    #PANELHEADING.CAPTION := #STRINGS.Text<PANELHEADING.CAPTION.EDIT>
+    
+    Endif
+    
+    #INSTRUCTIONTEXT.CAPTION := #STRINGS.Text<INSTRUCTIONTEXT.CAPTION>
+    #CONTENTHEADING.CAPTION := #STRINGS.Text<'CONTENTHEADING.CAPTION'>
+    #YOUTUBEVIDEOIDEDIT.CAPTION := #STRINGS.Text<'YOUTUBEVIDEOIDEDIT.CAPTION'>
+    #YOUTUBEVIDEOIDEDIT.HELPERTEXT := #STRINGS.Text<'YOUTUBEVIDEOIDEDIT.HELPERTEXT'>
+    #DETAILSHEADING.CAPTION := #STRINGS.Text<'DETAILSHEADING.CAPTION'>
+    #CONTENTNAMEEDIT.CAPTION := #STRINGS.Text<'CONTENTNAMEEDIT.CAPTION'>
+    #CONTENTDESCRIPTIONEDIT.CAPTION := #STRINGS.Text<'CONTENTDESCRIPTIONEDIT.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(PopulatePanelData) Access(*PRIVATE)
+    
+    #COM_SELF.PopulateContentData
+    #COM_SELF.PopulateDetailData
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateContentData)
+    
+    * Now the Content
+    #YouTubeVideoIDEdit.Value := #EditContent.ItemToken
+    #YouTubeVideoIDEdit.HelperText := 'Duration ' + #EditContent.ItemDuration
+    
+    Endroutine
+    
+    Mthroutine Name(PopulateDetailData)
+    
+    * Start with Details
+    #ContentNameEdit := #EditContent.ItemName
+    #ContentDescriptionEdit := #editContent.ItemDescription
+    
+    Endroutine
+    
+    Mthroutine Name(GetYouTubeData)
+    
+    Define_Com Class(#BPFYouTubeDataRequester) Name(#Request)
+    
+    #Request.RequestData Forvideoid(#EditContent.ItemToken) Withapikey(#Sharing.YouTubeDataAPIKey)
+    
+    Evtroutine Handling(#Request.OnRequestCompleted) Title(#Title) Description(#Description) Durationinseconds(#Duration) Licenced(#Licenced)
+    
+    * Set Duration, and update screen
+    #EditContent.NumericDetail := #Duration
+    #YouTubeVideoIDEdit.HelperText := #STRINGS.Text<'YOUTUBEVIDEOIDEDIT.HELPERTEXT'>.replace( '%%TIME%%' #EditContent.ItemDuration )
+    
+    * Optional Updates
+    If (#ContentNameEdit.Value.IsNull)
+    
+    #ContentNameEdit.ClearError
+    
+    #EditContent.ItemName := #Title
+    #ContentNameEdit.value := #EditContent.ItemName
+    
+    Endif
+    
+    If (#ContentDescriptionEdit.Value.IsNull)
+    
+    #ContentDescriptionEdit.ClearError
+    
+    #EditContent.ItemDescription := #Description
+    #ContentDescriptionEdit.value := #EditContent.ItemDescription
+    
+    Endif
+    
+    If (#Licenced.IsFalse)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'VIDEOREQUEST.LICENSED'> 7500 )
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.OnRequestFailed) Reason(#Reason)
+    
+    Case Of_Field(#Reason)
+    
+    When Value_Is(= FAILED)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'VIDEOREQUEST.FAILED'> 7500 )
+    
+    When Value_Is(= INVALID)
+    
+    #BPFPortal.ShowToaster( #STRINGS.Text<'VIDEOREQUEST.INVALID'> 7500 )
+    
+    Endcase
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,267 @@
+﻿Reusable Part:
+  Name:               BPFEmailSettingsDataClient
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Data Model Client for Email Settings"
+
+  - JPN:
+      Description:        "Data Model Client for Email Settings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Global References
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(ControlSettings) Get(*REFERENCE #ControlSettings)
+    Define_Pty Name(SMTPSettings) Get(*REFERENCE #SMTPSettings)
+    Define_Pty Name(Templates) Get(*REFERENCE #Templates)
+    Define_Pty Name(Template) Get(GetTemplate)
+    
+    * Events
+    Define_Evt Name(OnLoadControlSettingsCompleted)
+    Define_Evt Name(OnLoadControlSettingsFailed)
+    
+    Define_Evt Name(OnLoadSMTPSettingsCompleted)
+    Define_Evt Name(OnLoadSMTPSettingsFailed)
+    
+    Define_Evt Name(OnSaveSMTPSettingsCompleted)
+    Define_Evt Name(OnSaveSMTPSettingsFailed)
+    
+    Define_Evt Name(OnTestSendCompleted)
+    Define_Evt Name(OnTestSendFailed)
+    
+    Define_Evt Name(OnLoadEmailTemplatesCompleted)
+    Define_Evt Name(OnLoadEmailTemplatesFailed)
+    
+    Define_Evt Name(OnLoadEmailTemplateCompleted)
+    Define_Evt Name(OnLoadEmailTemplateFailed)
+    
+    * Objects
+    Define_Com Class(#PRIM_LCOL<#BPFBooleanCodeGroupClass>) Name(#ControlSettings)
+    Define_Com Class(#PRIM_LCOL<#BPFAlphaCodeGroupClass>) Name(#SMTPSettings)
+    Define_Com Class(#PRIM_LCOL<#BPFEmailTemplateDataClass>) Name(#Templates)
+    
+    * Routines
+    
+    * Properties
+    Ptyroutine Name(GetTemplate)
+    Define_Map For(*OUTPUT) Class(#BPFEmailTemplateDataClass) Name(#Property) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Key)
+    
+    For Each(#Item) In(#Templates)
+    
+    Continue If(#Item.TemplateID.UpperCase <> #Key.UpperCase)
+    
+    #Property <= #Item
+    
+    Leave
+    
+    Endfor
+    
+    Endroutine
+    
+    * Events
+    
+    * Methods
+    
+    * Control Settings
+    Mthroutine Name(LoadControlSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.GetControlSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Controlsettings(#ControlSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadControlSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadControlSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadControlSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * SMTP Settings
+    Mthroutine Name(LoadSMTPSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.GetSMTPSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Smtpsettings(#SMTPSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadSMTPSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadSMTPSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadSMTPSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SaveSMTPSettings)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.SetSMTPSettings) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Smtpsettings(#SMTPSettings) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnSaveSMTPSettingsCompleted)
+    
+    Else
+    
+    Signal Event(OnSaveSMTPSettingsFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnSaveSMTPSettingsFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(SendTest)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#TestAddress)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.SendTestEmail) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Testaddress(#TestAddress) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnTestSendCompleted)
+    
+    Else
+    
+    Signal Event(OnTestSendFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnTestSendFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    * Email Templates
+    Mthroutine Name(LoadEmailTemplates)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.GetEmailTemplates) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Emailtemplates(#Templates) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadEmailTemplatesCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadEmailTemplatesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadEmailTemplatesFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    Mthroutine Name(LoadEmailTemplate)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ForIsoCode)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#TemplateID)
+    
+    * Define Request to Server Routine
+    Define_Com Class(#BPFEmailSettingsDataServer.GetEmailTemplate) Name(#Request)
+    
+    * Make Request
+    #Request.ExecuteAsync Forisocode(#ForIsoCode) Template(#TemplateID) Emailtemplates(#Templates) Status(#Status)
+    
+    Evtroutine Handling(#Request.Completed)
+    
+    If (#Status = OK)
+    
+    Signal Event(OnLoadEmailTemplateCompleted)
+    
+    Else
+    
+    Signal Event(OnLoadEmailTemplatesFailed)
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#Request.Failed) Handled(#Handled) Reason(#Reason)
+    
+    #Handled := True
+    Signal Event(OnLoadEmailTemplateFailed)
+    
+    Endroutine
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,272 @@
+﻿Reusable Part:
+  Name:               BPFSessionEventServerHandler
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Server Side Handler for Session Events"
+
+  - JPN:
+      Description:        "Server Side Handler for Session Events"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Properties
+    
+    * Events
+    
+    * Objects
+    Define_Com Class(#PRIM_BOLN) Name(#Enabled)
+    
+    Group_By Name(#NewEvent) Fields(#BPFSessionID #BPFSessionEventDateTime #BPFSessionEventUserInteraction #BPFSessionEventID #BPFSessionEventLabel #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4 #BPFSessionEventValue5)
+    
+    * Rotuines
+    
+    * Properties
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Get tracking control value
+    #Enabled := #COM_SELF.GetControlValue
+    
+    Endroutine
+    
+    * Methods
+    
+    Mthroutine Name(CreateNewSession)
+    
+    * User
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForUser)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#Prim_DC.UnicodeString) Name(#Result)
+    
+    If (#Enabled)
+    
+    * Generate Start Time
+    #BPFSessionStarted := #BPFSessionStarted.Now
+    
+    * Generate Tracker for Result
+    #BPFSessionID := *GUID
+    
+    * Assoicate User
+    #BPFSessionRelatedUserID := #ForUser
+    
+    * Insert into Session Table
+    Insert Fields(#BPFSessionID #BPFSessionStarted #BPFSessionRelatedUserID) To_File(BPFSessions)
+    
+    * Set Result if Okay
+    If_Status Is(*OKAY)
+    
+    #Result := #BPFSessionID
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(LogEvent)
+    
+    * Inbound Values
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    * ID
+    Define_Map For(*INPUT) Class(#BPFSessionEventID) Name(#ID)
+    
+    * User Interaction
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#UserCreated) Mandatory(False)
+    
+    * Substitution Values
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value1) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value2) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value3) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value4) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value5) Mandatory(*NULL)
+    
+    If (#Enabled)
+    
+    * Check to ensure tracker is not null
+    If (#Tracker.IsNull)
+    Return
+    Endif
+    
+    * Log Event
+    #COM_SELF.InsertSessionEevnt( #Tracker #ID #UserCreated #Value1 #Value2 #Value3 #Value4 #Value5 )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HasRelatedUser)
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    If (#Enabled)
+    
+    * Get Current Related User
+    Fetch Fields(#BPFSessionRelatedUserID) From_File(BPFSessions) With_Key(#Tracker)
+    
+    #Result := (#BPFSessionRelatedUserID.IsNull.IsFalse)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(GetCurrentUserTackingID)
+    
+    * User
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForUser)
+    
+    * Tracker
+    Define_Map For(*RESULT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    If (#Enabled)
+    
+    Fetch Fields(#BPFSessionID) From_File(BPFUserSessionsByNewestDate) With_Key(#ForUser)
+    
+    If_Status Is(*OKAY)
+    
+    #Tracker := #BPFSessionID
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(CheckRelatedUserIs)
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    * User
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#IsUser)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    If (#Enabled)
+    
+    * Get Current Related User
+    Fetch Fields(#BPFSessionRelatedUserID) From_File(BPFSessions) With_Key(#Tracker)
+    
+    #Result := (#BPFSessionRelatedUserID = #IsUser)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(UpdateRelatedUserID)
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    * User
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#ForUser)
+    
+    * Result
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    If (#Enabled)
+    
+    * Update Session for new user
+    #BPFSessionRelatedUserID := #ForUser
+    Update Fields(#BPFSessionRelatedUserID) In_File(BPFSessions) With_Key(#Tracker)
+    
+    #Result := (#IO$STS = OK)
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(ClearUnusedSession)
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker)
+    
+    If (#Enabled)
+    
+    * Remove only if no events logged
+    If (#Tracker.isNull.IsFalse)
+    
+    Delete From_File(BPFSessions) Where(#BPFSessionEnded.IsSqlNull) With_Key(#Tracker)
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    
+    * Private Methods
+    Mthroutine Name(InsertSessionEevnt) Access(*PRIVATE)
+    
+    * Inbound Values
+    
+    * Tracker
+    Define_Map For(*INPUT) Class(#Prim_DC.UnicodeString) Name(#Tracker) Mandatory(*NULL)
+    
+    * ID
+    Define_Map For(*INPUT) Class(#BPFSessionEventID) Name(#ID)
+    
+    * User Interaction
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#UserCreated) Mandatory(False)
+    
+    * User Interacted
+    
+    * Substitution Values
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value1) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value2) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value3) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value4) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Value5) Mandatory(*NULL)
+    
+    * Get Event Text
+    Fetch Fields(#BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('EVENTS' #ID.AsNativeString)
+    
+    * Map Variable Values if any value passed
+    #BPFSessionEventValue1 := #Value1
+    #BPFSessionEventValue2 := #Value2
+    #BPFSessionEventValue3 := #Value3
+    #BPFSessionEventValue4 := #Value4
+    #BPFSessionEventValue5 := #Value5
+    
+    * Insert Event for Session
+    
+    * Set up values
+    #BPFSessionID := #Tracker
+    #BPFSessionEventID := #ID
+    #BPFSessionEventDateTime := #BPFSessionEventDateTime.Now
+    #BPFSessionEventUserInteraction := #UserCreated
+    #BPFSessionEventLabel := #BPFCodeAlphaValue
+    
+    * Insert
+    Insert Fields(#NewEvent) To_File(BPFSessionEvents)
+    
+    Endroutine
+    
+    Mthroutine Name(GetControlValue) Access(*PRIVATE)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Get Control Value and return
+    Fetch Fields(#BPFCodeNumericValue) From_File(BPFSystemCodes) With_Key('EVENTS' 'ENABLED')
+    
+    * Return Result
+    #Result := (#BPFCodeNumericValue = 1)
+    
+    Endroutine
+    
+    End_Com

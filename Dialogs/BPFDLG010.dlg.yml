@@ -1,0 +1,326 @@
+﻿Web Dialog:
+  Name:               BPFShareItemSetDestinationDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Set Destination Dialog"
+
+  - JPN:
+      Description:        "Share Item Set Destination Dialog"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Width(392) Height(510) Layoutmanager(#DialogLayout) Style(#DialogStyle) Themedrawstyle('text(0,0,0,0.87)')
+    
+    * Application References
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Strings
+    Define_Com Class(#BPFShareItemSetDestinationDialogStrings) Name(#Strings)
+    
+    * Style
+    Define_Com Class(#PRIM_VS.Style) Name(#DialogStyle) Cornerbottomleft(4) Cornerbottomright(4) Cornertopleft(4) Cornertopright(4) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#CoverStyle) Backgroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(255:255:255) Opacity(75)
+    Define_Com Class(#PRIM_VS.Style) Name(#NoBorderStyle) Borderbottom(0) Borderleft(0) Borderright(0) Bordertop(0)
+    
+    
+    * Dialog Layout
+    Define_Com Class(#PRIM_TBLO) Name(#DialogLayout) Sizing(ContentHeight)
+    
+    * Rows & Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow1) Displayposition(1) Parent(#DialogLayout) Height(24) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow2) Displayposition(2) Parent(#DialogLayout) Height(40) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow3) Displayposition(3) Parent(#DialogLayout) Minheight(388) Height(72) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow4) Displayposition(4) Parent(#DialogLayout) Height(32) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow5) Displayposition(5) Parent(#DialogLayout) Height(24) Units(Pixels)
+    
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn1) Displayposition(1) Parent(#DialogLayout) Units(Pixels) Width(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn2) Displayposition(2) Parent(#DialogLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn3) Displayposition(3) Parent(#DialogLayout) Units(Pixels) Width(24)
+    
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Alignment(TopLeft) Column(#DialogLayoutColumn2) Manage(#DialogTitle) Parent(#DialogLayout) Row(#DialogLayoutRow2) Sizing(ContentWidthFitToHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Alignment(CenterRight) Column(#DialogLayoutColumn2) Manage(#DialogClose) Parent(#DialogLayout) Row(#DialogLayoutRow2) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Alignment(TopRight) Column(#DialogLayoutColumn2) Manage(#DialogConfirm) Parent(#DialogLayout) Row(#DialogLayoutRow4) Sizing(ContentWidthFitToHeight) Flow(Left) Marginright(24)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item4) Alignment(TopRight) Column(#DialogLayoutColumn2) Manage(#DialogCancel) Parent(#DialogLayout) Row(#DialogLayoutRow4) Sizing(ContentWidthFitToHeight) Flow(Left) Marginright(24)
+    
+    * Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item5) Alignment(TopLeft) Column(#DialogLayoutColumn2) Manage(#FolderList) Parent(#DialogLayout) Row(#DialogLayoutRow3) Columnspan(2)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item6) Manage(#ProgressBar) Parent(#DialogLayout) Row(#DialogLayoutRow1) Sizing(FitToWidth) Column(#DialogLayoutColumn1) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem1) Manage(#CoverPanel) Parent(#DialogLayout) Row(#DialogLayoutRow1) Column(#DialogLayoutColumn1) Alignment(TopLeft) Columnspan(3) Rowspan(5) Margintop(4)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem2) Alignment(CenterLeft) Column(#DialogLayoutColumn2) Manage(#NoChildHint) Parent(#DialogLayout) Row(#DialogLayoutRow3) Sizing(ContentHeightFitToWidth)
+    
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(504) Left(0) Parent(#COM_OWNER) Tabposition(7) Tabstop(False) Top(4) Width(390) Style(#CoverStyle) Visible(False)
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(2) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Theme100+ForegroundTheme500') Width(390) Visible(False)
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Folder') Displayposition(3) Left(24) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Heading2') Top(24) Width(97) Height(40) Icon('arrow_back') Iconmarginright(16)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogClose) Displayposition(4) Left(342) Parent(#COM_OWNER) Tabposition(4) Top(32) Width(24) Height(24) Icon('close') Iconheight(16) Paddingbottom(4) Paddingleft(4) Paddingright(4) Paddingtop(4)
+    Define_Com Class(#PRIM_MD.RaisedButton) Name(#DialogConfirm) Caption('MOVE') Displayposition(6) Left(279) Parent(#COM_OWNER) Tabposition(5) Themedrawstyle('MediumTitle') Top(452) Width(63) Height(32) Paddingleft(10) Paddingright(10)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#DialogCancel) Caption('CANCEL') Displayposition(7) Left(178) Parent(#COM_OWNER) Tabposition(6) Top(452) Width(77) Height(32) Paddingleft(10) Paddingright(10)
+    
+    Define_Com Class(#PRIM_List) Name(#FolderList) Displayposition(5) Left(24) Parent(#COM_OWNER) Rowheight(48) Tabposition(8) Top(64) Height(388) Width(366) Columnheaderheight(0) Columnlines(False) Rowlines(False) Virtualization(None) Style(#NoBorderStyle) Columnsortarrow(False) Columnstyle(#NoBorderStyle)
+    Define_Com Class(#PRIM_List.Icon) Name(#FolderListIcon) Parent(#FolderList) Displayposition(1) Columnwidth(48) Iconalignment(CenterLeft)
+    Define_Com Class(#PRIM_List.String) Name(#FolderListName) Displayposition(2) Parent(#FolderList) Columnunits(Proportion) Columnwidth(1) Cellmarginleft(4)
+    *
+    Define_Com Class(#PRIM_MD.Label) Name(#NoChildHint) Caption('Place selected items here') Displayposition(8) Left(24) Parent(#COM_OWNER) Tabposition(1) Top(222) Icon('folder') Iconalignment(AboveCaption) Captionalignment(Center) Height(72) Width(342) Iconheight(48) Themedrawstyle('Heading3+text(0,0,0,0.54)') Visible(False)
+    * References
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#CurrentFolder)
+    Define_Com Class(#BPFContentShareClass) Name(#CurrentShare) Reference(*DYNAMIC)
+    Define_Com Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#SelectedItems) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    Define_Evt Name(OnActionConfirmed)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Destination)
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #COM_SELF.SetStrings
+    #COM_SELF.SetTheme
+    
+    Endroutine
+    
+    Evtroutine Handling(#BPFPortal.SizeChanged #COM_OWNER.Prepare)
+    
+    #COM_SELF.HandleSetWidth
+    
+    Endroutine
+    
+    * Navigate
+    Evtroutine Handling(#Navigate.OnNavigationEvent)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    * List
+    Evtroutine Handling(#FolderList.ItemClick)
+    
+    #CurrentFolder := (#FolderList.CurrentItem.RelatedReference *As #BPFContentShareFolderClass).Identifier
+    #DialogConfirm.Enabled := (#CurrentFolder.Trim <> #SelectedItems.Item<1>.ParentID.trim)
+    
+    Endroutine
+    
+    Evtroutine Handling(#FolderList.ItemDoubleClick)
+    
+    * Navigate down the tree
+    #COM_SELF.SetWaitingState( ON )
+    
+    #CurrentFolder := (#FolderList.CurrentItem.RelatedReference *As #BPFContentShareFolderClass).Identifier
+    #CurrentShare.GetFolders( #CurrentFolder )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#DialogTitle.Click)
+    
+    * Navigate back up the tree
+    #COM_SELF.SetWaitingState( ON )
+    
+    #CurrentFolder := #DialogTitle.ComponentTag
+    #CurrentShare.GetFolders( #CurrentFolder )
+    
+    Endroutine
+    
+    Evtroutine Handling(#DialogCancel.Click #DialogClose.Click)
+    
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    Evtroutine Handling(#DialogConfirm.Click)
+    
+    * If an item is selected us it otherwise last set parent
+    If (#FolderList.SelectedRowCount >= 1)
+    
+    Signal Event(OnActionConfirmed) Destination((#FolderList.CurrentItem.RelatedReference *As #BPFContentShareFolderClass).Identifier)
+    
+    Else
+    
+    Signal Event(OnActionConfirmed) Destination(#CurrentFolder)
+    
+    Endif
+    
+    * Close the dialog
+    #COM_SELF.CloseDialog
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#CurrentShare.OnGetFoldersCompleted) Named(#Named) Parent(#Parent)
+    
+    * Rebuild
+    #COM_SELF.BuildFolderList( #Named #Parent )
+    #COM_SELF.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(OpenDialog)
+    Define_Map For(*INPUT) Class(#BPFContentShareClass) Name(#Share) Pass(*BY_REFERENCE)
+    Define_Map For(*INPUT) Class(#PRIM_LCOL<#BPFContentShareItemClass>) Name(#Items) Pass(*BY_REFERENCE)
+    
+    * Set Reference
+    #CurrentShare <= #Share
+    #SelectedItems <= #Items
+    
+    * Set Initial Title
+    #DialogTitle := #CurrentShare.ShareName
+    
+    * Open the dialog
+    #COM_SELF.Show
+    
+    * Get Folders
+    #COM_SELF.SetWaitingState( ON )
+    
+    * Set initial current and load
+    #CurrentFolder := #CurrentShare.ParentID
+    #CurrentShare.GetFolders( #CurrentFolder )
+    
+    Endroutine
+    
+    Mthroutine Name(CloseDialog)
+    
+    * Clear References
+    #SelectedItems <= *Null
+    
+    * Close
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    
+    Mthroutine Name(BuildFolderList)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#FolderName)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#FoldersParent)
+    
+    Define_Com Class(#PRIM_BOLN) Name(#Selected)
+    Define_Com Class(#PRIM_BOLN) Name(#LoadAttempted)
+    
+    * Set Title
+    If (#FolderName.IsNull)
+    
+    #DialogTitle := #CurrentShare.ShareName
+    
+    Else
+    
+    #DialogTitle := #FolderName
+    
+    Endif
+    
+    * Set Back link
+    #DialogTitle.ComponentTag := #FoldersParent
+    
+    * Cover empty destination
+    #NoChildHint.Caption := #STRINGS.Text<'NOCONTENTHINT.CAPTION.PLACEHERE'>
+    #NoChildHint.Visible := (#CurrentShare.Folders.IsEmpty)
+    
+    * Build List
+    Clr_List Named(#FolderList)
+    
+    For Each(#Folder) In(#CurrentShare.Folders)
+    
+    If (#LoadAttempted.IsFalse)
+    #LoadAttempted := true
+    Endif
+    
+    * Scan for move onto self
+    #Selected := False
+    
+    For Each(#SelectedEntry) In(#SelectedItems)
+    
+    If (#Folder.Identifier = #SelectedEntry.Identifier)
+    
+    #Selected := true
+    Leave
+    
+    Endif
+    
+    Endfor
+    
+    If (#Selected)
+    Continue
+    Endif
+    
+    * Okay so add to list
+    Add_Entry To_List(#FolderList)
+    
+    #FolderList.CurrentItem.RelatedReference <= #Folder
+    
+    #FolderListIcon.CurrentItem.Icon := #Folder.FolderIcon
+    #FolderListIcon.CurrentItem.ThemeDrawStyle := #Folder.FolderColour
+    
+    #FolderListName.CurrentItem.Value := #Folder.FolderName
+    
+    Endfor
+    
+    * Cover no valid destinations
+    If ((#LoadAttempted) *OrIf (#FolderList.Items.IsEmpty *And (#CurrentFolder = #SelectedItems.First.ParentID)))
+    
+    #NoChildHint.Caption := #STRINGS.Text<'NOCONTENTHINT.CAPTION.INVALID'>
+    #NoChildHint.Visible := (#FolderList.Items.IsEmpty)
+    
+    Endif
+    
+    * Set Confirm button status
+    #DialogConfirm.Enabled := (#CurrentFolder.Trim <> #SelectedItems.Item<1>.ParentID.trim)
+    
+    Endroutine
+    
+    Mthroutine Name(SetWaitingState) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #CoverPanel.Visible #ProgressBar.Visible := True
+    #CoverPanel.DisplayPosition := 1
+    
+    Else
+    
+    #CoverPanel.Visible #ProgressBar.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleSetWidth) Access(*PRIVATE)
+    
+    If (#SYS_WEB.WebPage.Width < 400)
+    
+    #COM_SELF.Width := #SYS_WEB.WebPage.Width - 32
+    
+    Else
+    
+    #COM_SELF.Width := 392
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(SetStrings)
+    
+    #DIALOGCANCEL.CAPTION := #STRINGS.Text<'DIALOGCANCEL.CAPTION'>
+    #DIALOGCONFIRM.CAPTION := #STRINGS.Text<'DIALOGCONFIRM.CAPTION'>
+    
+    Endroutine
+    
+    Mthroutine Name(SetTheme)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #COM_SELF.ThemeDrawStyle := 'text(0,0,0,0.87)'
+    #NoChildHint.ThemeDrawStyle := 'Heading3+text(0,0,0,0.54)'
+    
+    Else
+    
+    #COM_SELF.ThemeDrawStyle := 'text(255,255,255,0.87)'
+    #NoChildHint.ThemeDrawStyle := 'Heading3+text(255,255,255,0.54)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

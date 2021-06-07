@@ -1,0 +1,10 @@
+English
+
+Française
+
+Japanese
+
+
+#en-AU := #STRINGS.Text<en-AU>
+#fr := #STRINGS.Text<fr>
+#ja := #STRINGS.Text<ja>

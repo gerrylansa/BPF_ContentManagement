@@ -1,0 +1,38 @@
+﻿Reusable Part:
+  Name:               BPFNewAccountTermsPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "New Account Terms Panel Strings"
+
+  - JPN:
+      Description:        "New Account Terms Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "%%APP%% terms and conditions"
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "Please read and acknowledge your acceptance"
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "%%APP%%. So you know what we are both signed up to"
+    
+    #STRINGSCOLLECTION<'DETAILSPANELACTIONBUTTON.CAPTION'> := "Back"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Next"
+    
+    #STRINGSCOLLECTION<'MESSAGE.TERMSPAGE.FAILED'> := "Yer, there are no terms. So I guess you can do whatever you wish. Oops."
+    
+    Endroutine
+    
+    End_Com

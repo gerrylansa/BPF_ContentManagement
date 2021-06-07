@@ -1,0 +1,37 @@
+﻿Reusable Part:
+  Name:               BPFResourceStringItemClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Resource String Item Class"
+
+  - JPN:
+      Description:        "Language Resource String Item Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by for data mapping of listfields
+    Group_By Name(#Listfields) Fields(#BPFGenericNVarChar256 #BPFGenericUnicodeString01 #BPFGenericUnicodeString02)
+    
+    * Defintions
+    
+    * Properties
+    Define_Pty Name(Key) Get(*AUTO #BPFGenericNVarChar256)
+    Define_Pty Name(Default) Get(*AUTO #BPFGenericUnicodeString01)
+    Define_Pty Name(Translation) Get(*AUTO #BPFGenericUnicodeString02) Set(*AUTO #BPFGenericUnicodeString02)
+    
+    * Events
+    
+    * Routines
+    
+    * Properties
+    
+    * Events
+    
+    * Methods
+    
+    End_Com

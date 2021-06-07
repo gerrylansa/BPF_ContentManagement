@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFSecurityQuestionsEditViewString
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Security Questions Edit View Strings"
+
+  - JPN:
+      Description:        "Security Questions Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Edit Validation Questions"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Edit the current security questions used to verify end users for the language selected. Note a users question is stored with their account information so they will always see what they selected."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Questions"
+    
+    #STRINGSCOLLECTION<'QUESTIONLABEL.CAPTION'> := "Question"
+    #STRINGSCOLLECTION<'SAVEACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONGETACTIVEQUESTIONSFAILED'> := "FAILED to get settings"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONSAVEACTIVEQUESTIONSCOMPLETED'> := "Security questions updated"
+    #STRINGSCOLLECTION<'SECURITYSETTINGS.ONSAVEACTIVEQUESTIONSFAILED'> := "FAILED to update security questions"
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,28 @@
+%%USER%%'s Security Settings
+
+Change the password and security questions you use to access %%APP%%
+
+Account Password
+
+Change the password you use to access your %%APP%% account.
+
+Change your password
+
+Security Credentials
+
+Set the security question and answer %%APP%% we use to vertify your identity.
+
+Configure your security
+
+Only you can change your settings. %%APP%% is committed to your privacy and security
+
+
+#PANELTITLE.CAPTION := #STRINGS.Text<PANELTITLE.CAPTION>
+#PANELEXPLANATION.CAPTION := #STRINGS.Text<PANELEXPLANATION.CAPTION>
+#PASSWORDCARD.HEADING := #STRINGS.Text<PASSWORDCARD.HEADING>
+#PASSWORDCARD.TEXT := #STRINGS.Text<PASSWORDCARD.TEXT>
+#PASSWORDCARD.ACTION := #STRINGS.Text<PASSWORDCARD.ACTION>
+#QUESTIONCARD.HEADING := #STRINGS.Text<QUESTIONCARD.HEADING>
+#QUESTIONCARD.TEXT := #STRINGS.Text<QUESTIONCARD.TEXT>
+#QUESTIONCARD.ACTION := #STRINGS.Text<QUESTIONCARD.ACTION>
+#FOOTERTEXT.CAPTION := #STRINGS.Text<FOOTERTEXT.CAPTION>

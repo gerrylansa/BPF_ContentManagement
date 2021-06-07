@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFSessionEventsSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Session Events Settings View Strings"
+
+  - JPN:
+      Description:        "Session Events Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Enable Tracking"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enable the tracking of events during user sessions in the portal. When enabled the users and administrators can view events to see what has been done during a visit. Administrators will be able to view additionial event information for a user."
+    
+    #STRINGSCOLLECTION<'CONTROLPANELHEADING.CAPTION'> := "Session Events"
+    
+    #STRINGSCOLLECTION<'ENABLESESSION.CAPTION'> := "Enabled"
+    
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONGETSESSIONSETTINGSFAILED'> := "FAILED to get settings"
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONSAVESESSIONSETTINGSCOMPLETED'> := "Settings saved"
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONSAVESESSIONSETTINGSFAILED'> := "FAILED to save settings"
+    
+    Endroutine
+    
+    End_Com

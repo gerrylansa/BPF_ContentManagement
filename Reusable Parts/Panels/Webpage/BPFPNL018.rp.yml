@@ -1,0 +1,187 @@
+﻿Reusable Part:
+  Name:               BPFPortalApplicationBar
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Main Application Bar"
+
+  - JPN:
+      Description:        "Portal Main Application Bar"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(64) Left(0) Tabposition(1) Top(0) Width(1920) Layoutmanager(#PanelLayout)
+    
+    * Definitions
+    
+    * Global Objects
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Panel Layout
+    Define_Com Class(#PRIM_TBLO) Name(#PanelLayout)
+    
+    Define_Com Class(#PRIM_TBLO.Column) Name(#PanelLayoutColumn1) Displayposition(1) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#PanelLayoutRow1) Displayposition(1) Parent(#PanelLayout)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#PanelLayoutItem1) Alignment(TopCenter) Column(#PanelLayoutColumn1) Manage(#Appbar) Parent(#PanelLayout) Row(#PanelLayoutRow1)
+    
+    * Appbar Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#AppBarLayout)
+    
+    * Columns & Rows
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AppBarLayoutRow1) Displayposition(1) Parent(#AppBarLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AppBarLayoutColumn1) Displayposition(1) Parent(#AppBarLayout) Units(Pixels) Width(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AppBarLayoutColumn2) Displayposition(2) Parent(#AppBarLayout) Units(Pixels) Width(224)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AppBarLayoutColumn3) Displayposition(3) Parent(#AppBarLayout)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppBarLayoutItem1) Parent(#AppBarLayout) Manage(#AppBarUserTextIcon) Alignment(CenterRight) Column(#AppBarLayoutColumn3) Row(#AppBarLayoutRow1) Sizing(ContentWidthAndHeight) Marginright(16) Flow(Right)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AppBarLayoutItem2) Parent(#AppBarLayout) Manage(#AppBarPortalName) Row(#AppBarLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#AppBarLayoutColumn2) Alignment(CenterLeft) Marginright(8)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#ClearBackgroudStyle) Backgroundbrush(#Brush1) Fontweight(Weight500)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(Transparent) Opacity(0)
+    
+    Define_Com Class(#PRIM_VS.Style) Name(#FontWeight500Style) Fontweight(Weight500)
+    
+    * AppBar
+    Define_Pty Name(AppBar) Get(*REFERENCE #Appbar)
+    Define_Com Class(#PRIM_MD.AppBar) Name(#Appbar) Displayposition(1) Icon('menu') Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('ForegroundSecondary+Heading3+BottomDivider') Height(64) Width(1920) Layoutmanager(#AppBarLayout) Style(#ClearBackgroudStyle)
+    
+    * AppBar Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#AppBarUserTextIcon) Displayposition(1) Left(1718) Parent(#Appbar) Tabposition(1) Themedrawstyle('ForegroundSecondary') Top(17) Icon('account_circle') Height(28) Width(186) Captionmarginright(16) Caption('user@lansa.com') Iconalignment(AfterCaption) Paddingleft(12) Paddingright(12) Paddingbottom(2) Paddingtop(2) Style(#FontWeight500Style) Ellipses(False)
+    Define_Com Class(#PRIM_MD.Label) Name(#AppBarPortalName) Caption('myPortal') Displayposition(2) Left(56) Parent(#Appbar) Tabposition(2) Themedrawstyle('ForegroundMediumPrimary+Heading3') Top(11) Height(40) Width(216) Icon('cloud') Iconheight(40) Captionmarginleft(16) Style(#FontWeight500Style)
+    
+    * External Control references
+    Define_Com Class(#BPFPortalNavigationDrawer) Name(#PortalNavDrawer) Reference(*DYNAMIC)
+    Define_Com Class(#BPFPortalViews) Name(#PortalViews) Reference(*DYNAMIC)
+    
+    * Reference for events
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    
+    * Events
+    Define_Evt Name(UserIconClicked)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Grab needed references from the webpage
+    #PortalNavDrawer <= #BPFPortal.NavDrawer
+    #PortalViews <= #BPFPortal.ViewsPanel
+    
+    #AppBarPortalName.Icon := #BPFPortal.AppIcon
+    #AppBarPortalName.Caption := #BPFPortal.AppName
+    
+    * Grab references for events
+    #CurrentUser <= #Session.CurrentUser
+    
+    * Set initial layout
+    #Com_self.HandleDeviceChanged
+    
+    * Add Link Style
+    #AppBarPortalName.Styles.Add( #NavigationLinkStyle )
+    #AppBarUserTextIcon.Styles.add( #NavigationLinkStyle )
+    
+    * Populate the panel
+    #COM_SELF.Populate
+    
+    Endroutine
+    
+    Evtroutine Handling(#AppBarPortalName.Click)
+    
+    #Navigate.BackToTarget( ROOT )
+    
+    Endroutine
+    
+    Evtroutine Handling(#AppBarUserTextIcon.Click)
+    
+    Signal Event(UserIconClicked)
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #Com_self.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Session
+    
+    Evtroutine Handling(#CurrentUser.OnSetAccountDetailsCompleted)
+    
+    #AppBarUserTextIcon.Caption := #Session.CurrentUser.EmailAdress
+    
+    Endroutine
+    
+    * Logging Out
+    Evtroutine Handling(#Session.LogoutRequested)
+    
+    #AppBarUserTextIcon.Caption := *null
+    
+    Endroutine
+    
+    * Methods
+    
+    * Setup Data
+    Mthroutine Name(Populate)
+    
+    * set the user email for the icon
+    If (#SYS_WEB.Device = Desktop)
+    
+    #AppBarUserTextIcon.Caption := #Session.CurrentUser.EmailAdress
+    
+    Endif
+    
+    Endroutine
+    
+    * Handle Responsive Layout Changes
+    Mthroutine Name(HandleDeviceChanged)
+    
+    Case Of_Field(#SYS_WEB.Device)
+    
+    When Value_Is(= Mobile)
+    
+    #COM_SELF.SetForMobile
+    
+    When Value_Is(= Tablet)
+    
+    #COM_SELF.SetForDesktop
+    
+    When Value_Is(= Desktop)
+    
+    #COM_SELF.SetForDesktop
+    
+    Endcase
+    
+    Endroutine
+    
+    * Mobile Layout
+    Mthroutine Name(SetForMobile)
+    
+    * Set App Bar Display
+    #AppBarUserTextIcon.Caption := *null
+    
+    Endroutine
+    
+    * Desktop Layout
+    Mthroutine Name(SetForDesktop)
+    
+    * Set App Bar Display
+    If (#Session.CurrentUser *IsNot *NULL)
+    #AppBarUserTextIcon.Caption := #Session.CurrentUser.EmailAdress
+    Endif
+    
+    Endroutine
+    
+    End_Com

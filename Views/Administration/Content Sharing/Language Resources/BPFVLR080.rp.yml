@@ -1,0 +1,51 @@
+﻿Reusable Part:
+  Name:               BPFContentLibraryItemFileEditViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Item File Edit View Strings"
+
+  - JPN:
+      Description:        "Content Item File Edit View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.ADD'> := "Add Content Item"
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION.EDIT'> := "Edit Content Item"
+    
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Upload the file for this content item and then enter the name and description that will be shown when this item is used in a content share."
+    
+    #STRINGSCOLLECTION<'CONTENTHEADING.CAPTION'> := "Content"
+    #STRINGSCOLLECTION<'CONTENTTOKENFILENAME.CAPTION'> := "Select a file to upload"
+    #STRINGSCOLLECTION<'UPLOADCONTENTACTION.CAPTION'> := "Upload file"
+    
+    #STRINGSCOLLECTION<'DETAILSHEADING.CAPTION'> := "Details"
+    #STRINGSCOLLECTION<'CONTENTNAMEEDIT.CAPTION'> := "Name"
+    #STRINGSCOLLECTION<'CONTENTDESCRIPTIONEDIT.CAPTION'> := "Description"
+    #STRINGSCOLLECTION<'CONTENTDESCRIPTIONEDIT.CAPTION.DEFAULT'> := "%%NAME%% is a %%DESC%% content item"
+    
+    #STRINGSCOLLECTION<'CONTENTNAMEEDIT.MISSING'> := "Please enter a name"
+    #STRINGSCOLLECTION<'CONTENTDESCRIPTIONEDIT.MISSING'> := "Please enter a description"
+    
+    #STRINGSCOLLECTION<'SHARING.ONGETLIBRARYITEMSFAILED'> := "Error unable to load item"
+    #STRINGSCOLLECTION<'SHARING.CONTENTLIBRARYITEMUPDATED'> := "Content item saved"
+    
+    #STRINGSCOLLECTION<'EDITCONTENT.ONSAVEFAILED'> := "Error saving item"
+    #STRINGSCOLLECTION<'EDITCONTENT.ONSAVEFAILED.MISSING'> := "Error item no longer exists"
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,41 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserAccountMenuStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin User Accounts Menu Strings"
+
+  - JPN:
+      Description:        "Admin User Accounts Menu Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MENUHEADING.CAPTION'> := "User Accounts"
+    
+    #STRINGSCOLLECTION<'DETAILSMENUITEM.CAPTION'> := "Details"
+    #STRINGSCOLLECTION<'ACTIONSMENUITEM.CAPTION'> := "Account Actions"
+    #STRINGSCOLLECTION<'SESSIONEVENTSMENUITEM.CAPTION'> := "Session Events"
+    #STRINGSCOLLECTION<'CONTENTSHAREMENUITEM.CAPTION'> := "Content Share"
+    #STRINGSCOLLECTION<'ADMINRIGHTSMENUITEM.CAPTION'> := "Administration Rights"
+    #STRINGSCOLLECTION<'RESETMENUITEM.CAPTION'> := "Reset Security"
+    
+    #STRINGSCOLLECTION<'ABOUTLINK.CAPTION'> := "About"
+    #STRINGSCOLLECTION<'TERMSLINK.CAPTION'> := "Terms"
+    
+    Endroutine
+    
+    End_Com

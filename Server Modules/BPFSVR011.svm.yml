@@ -1,0 +1,1596 @@
+﻿ServerModule:
+  Name:               BPFContentSharingDataServer
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Sharing Data Server"
+
+  - JPN:
+      Description:        "Content Sharing Data Server"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_SRVM) Sessionidentifier('Portalize') Sessionkeymethod(SecureCookie)
+    
+    * Add a reference for Utilities
+    Define_Com Class(#BPFSessionEventServerHandler) Name(#SessionTracker) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSecurityUtilities) Name(#Secure) Scope(*APPLICATION)
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Note : The LANSA Web administrator need to be set to recieve HTTP variables and the field below must be define in HTTP Variables as
+    * IP : Any
+    * Port : Set same value as port value in maintain systems
+    * Name : HTTP_TRANSACTION_ID
+    * Default : NOTOKEN
+    * Func Parms : Field - WTRANSID Type - A Length - 10 Dec. 0
+    Define Field(#WTRANSID) Type(*CHAR) Length(10)
+    
+    Define Field(#WRQSTID) Type(*CHAR) Length(256)
+    Define Field(#WRQSTTS) Type(*CHAR) Length(256)
+    Define Field(#WRQSCKE) Type(*CHAR) Length(896)
+    Group_By Name(#ValidRequestGroup) Fields(#WRQSTID #WRQSTTS #WRQSCKE)
+    
+    * Working Fields
+    Define Field(#RequestedContent) Reffld(#BPFContentItemID)
+    Define Field(#RequestedShare) Reffld(#BPFContentShareID)
+    Define Field(#RequestedShareItem) Reffld(#BPFContentShareItemID)
+    Define Field(#RequestedParent) Reffld(#BPFContentShareItemParentID)
+    Define Field(#ChildShareItemID) Reffld(#BPFContentShareItemID)
+    
+    Define Field(#UserSearchValue) Type(*CHAR) Length(256)
+    Define Field(#MoreResults) Type(*BOOLEAN)
+    
+    Define Field(#NewShareItem) Reffld(#BPFContentShareItemID)
+    
+    * Items to Copy
+    Define Field(#CopyShareID) Reffld(#BPFContentShareID)
+    Define Field(#CopyShareItemID) Reffld(#BPFContentShareItemID)
+    Define Field(#CopyShareItemNewID) Reffld(#BPFContentShareItemID)
+    Define Field(#CopyShareItemName) Reffld(#BPFContentShareItemName)
+    Define Field(#CopyShareItemIsFolder) Reffld(#BPFContentShareItemIsFolder)
+    Define Field(#CopyShareItemParentID) Reffld(#BPFContentShareItemParentID)
+    Define Field(#CopyShareItemContentID) Reffld(#BPFContentShareItemContentID)
+    
+    * Copy Items Processed
+    Define Field(#ProcessedItemOldID) Reffld(#BPFContentShareItemID)
+    Define Field(#ProcessedItemNewID) Reffld(#BPFContentShareItemID)
+    
+    * Counts
+    Define Field(#SharesCount) Reffld(#LISTCOUNT)
+    Define Field(#ContentCount) Reffld(#LISTCOUNT)
+    Define Field(#ContentCountFull) Reffld(#LISTCOUNT)
+    
+    
+    * Define & Set Up Persistant Values
+    
+    * Session Fields
+    Define Field(#sUserAccountIdentifier) Reffld(#BPFUserAccountInternalKey)
+    Define Field(#TrackingID) Reffld(#BPFSessionID)
+    Define Field(#sSecuiryAdminCheckPassed) Type(*BOOLEAN)
+    Define Field(#sSessionAuthenicated) Type(*BOOLEAN)
+    Define Field(#sIsoCode) Type(*CHAR) Length(5)
+    
+    Persist Fields(#sUserAccountIdentifier #TrackingID #sSecuiryAdminCheckPassed #sSessionAuthenicated #sIsoCode)
+    
+    * Group By
+    Group_By Name(#ParentItemsGroup) Fields(#BPFContentShareItemID #BPFContentShareItemName #BPFContentItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated #BPFContentShareItemModifiedBy #BPFContentShareItemModified)
+    
+    Group_By Name(#ExtraDetailGroup) Fields(#BPFContentItemDesc #BPFContentItemCreated #BPFContentItemModified #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4)
+    
+    Group_By Name(#ShareItemGroup) Fields(#BPFContentShareID #BPFContentShareItemID #BPFContentShareItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated)
+    
+    Group_By Name(#ContentUpdateGroup) Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemObject)
+    
+    Group_By Name(#ContentDatesGroup) Fields(#BPFContentItemID #BPFContentItemCreatedBy #BPFSessionEventValue1 #BPFContentItemCreated #BPFContentItemModifiedBy #BPFSessionEventValue2 #BPFContentItemModified)
+    
+    Group_By Name(#ContentItemsGroup) Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemCreatedBy #BPFSessionEventValue1 #BPFContentItemCreated #BPFContentItemModifiedBy #BPFSessionEventValue2 #BPFContentItemModified)
+    
+    * Data Lists
+    
+    * Content
+    Def_List Name(#ContentItems) Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail) Counter(#ContentCount) Type(*WORKING) Entrys(*MAX)
+    
+    Def_List Name(#ContentItemsFull) Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemCreatedBy #BPFSessionEventValue1 #BPFContentItemCreated #BPFContentItemModifiedBy #BPFSessionEventValue2 #BPFContentItemModified) Counter(#ContentCountFull) Type(*WORKING) Entrys(*MAX)
+    
+    
+    * Shares
+    Def_List Name(#ContentShares) Fields(#BPFContentShareID #BPFContentShareName) Counter(#SharesCount) Type(*WORKING) Entrys(*MAX)
+    
+    Def_List Name(#ParentItems) Fields(#BPFContentShareItemID #BPFContentShareItemName #BPFContentItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated #BPFContentShareItemModifiedBy #BPFContentShareItemModified) Type(*WORKING) Entrys(*MAX)
+    Def_List Name(#CopiedItems) Fields(#BPFContentShareItemID #BPFContentShareItemName #BPFContentItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated) Type(*WORKING) Entrys(*MAX)
+    
+    
+    Def_List Name(#ProcessedCopies) Fields(#ProcessedItemOldID #ProcessedItemNewID) Type(*WORKING) Entrys(*MAX)
+    
+    
+    Def_List Name(#ParentFolders) Fields(#BPFContentShareItemID #BPFContentShareItemName) Type(*WORKING) Entrys(*MAX)
+    
+    
+    * Routines
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Override logging if required
+    #Utils.OverrideDisabled := (#Utils.GetNumericValue( 'LOGGING_SERVERMODULES' #COM_SELF.ComponentClassName ) = 1)
+    
+    * Set Session ID for Security
+    #Secure.SessionID := #COM_SELF.SessionIdentifier
+    
+    Endroutine
+    
+    * API Keys
+    Srvroutine Name(GetKey) Session(*REQUIRED)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    Field_Map For(*OUTPUT) Field(#BPFGenericNVarChar256) Parameter_Name(Key)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetKey' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetKey) : Google YouTube Data API requested') )
+    
+    * Get API Key
+    #BPFGenericNVarChar256 := #Utils.GetAlphaValue( 'APIKEYS' 'YOUTUBEDATA' )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetKey) : Returning API Key ' + #BPFGenericNVarChar256) )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Content Items
+    Srvroutine Name(GetContentItems) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#UserSearchValue) Parameter_Name(SearchValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ContentItems) Parameter_Name(Content)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContentItems' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentItems) : Content item request with search value ' + #UserSearchValue) )
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetContentItemsSearchQuery( #UserSearchValue )
+    
+    Select_Sql Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail) Using(#BPFGenericNVarChar2048)
+    
+    Add_Entry To_List(#ContentItems)
+    
+    Endselect
+    
+    #MoreResults := (#ContentCount = 250)
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetContentItemByID) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedContent) Parameter_Name(ForID)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ContentItemsFull) Parameter_Name(Content)
+    Group_Map For(*OUTPUT) Group(#ContentItemsGroup) Parameter_Name(ContentGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContentItemByID' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Check if allowed
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentItemByID) : Content item requested with ID ' + #RequestedContent) )
+    
+    If (#COM_SELF.IsUserAnAdmin)
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetContentItemsQuery( #RequestedContent )
+    
+    Select_Sql Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemCreatedBy #BPFSessionEventValue1 #BPFContentItemCreated #BPFContentItemModifiedBy #BPFSessionEventValue2 #BPFContentItemModified) Using(#BPFGenericNVarChar2048)
+    
+    Add_Entry To_List(#ContentItemsFull)
+    
+    Endselect
+    
+    If (#ContentCountFull = 0)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentItemByID) : No item found matching ID ' + #RequestedContent + ' so returning with NR error') )
+    
+    #BPFStatus := NR
+    Return
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentItemByID) : User is not an administrator so returning with NA error') )
+    
+    #BPFStatus := NA
+    Return
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentItemByID) : Content item found so returning OK') )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(SaveContentItem) Session(*REQUIRED)
+    
+    * Inbound
+    Group_Map For(*INPUT) Group(#ContentUpdateGroup) Parameter_Name(Data)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Group_Map For(*OUTPUT) Group(#ContentDatesGroup) Parameter_Name(ReturnData)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'SaveContentItem' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Requesting to save content with ID ' + #BPFContentItemID) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : user is not an administrator so returning in error') )
+    Return
+    
+    Endif
+    
+    * If a new item, set ID and created info. Otherwise set modified info.
+    If (#BPFContentItemID.IsNull)
+    
+    * This means it new and only needs created data
+    
+    #BPFContentItemID := *GUID
+    
+    #BPFContentItemCreatedBy := #sUserAccountIdentifier
+    #BPFContentItemCreated := #BPFContentItemCreated.Now
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Content item is new, so generating ID of ' + #BPFContentItemID) )
+    
+    Else
+    
+    * This means it exists and only needs modified data
+    
+    #BPFContentItemModifiedBy := #sUserAccountIdentifier
+    #BPFContentItemModified := #BPFContentItemModified.Now
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : ' + #BPFContentItemID + ' is existing content so updating details') )
+    
+    Endif
+    
+    * Check if we are updating or inserting
+    Check_For In_File(BPFContentItemLibrary) With_Key(#BPFContentItemID)
+    If_Status Is(*NOTEQUALKEY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : ' + #BPFContentItemID + ' is new but checking its not existing item that has been deleted') )
+    
+    * We think its an insert, but we did not get created data set.
+    If (#BPFContentItemCreatedBy.IsNull)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : ' + #BPFContentItemID + ' had no creation information set, so its a removed item returning with error NR') )
+    
+    * No then its a record that has been deleted, as it wasn't
+    * found in the datbase but didnt get created data set
+    #BPFStatus := NR
+    Return
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Attempting insert for ' + #BPFContentItemID) )
+    
+    * Its just an insert
+    Insert Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemObject #BPFContentItemCreatedBy #BPFContentItemCreated #BPFContentItemModifiedBy #BPFContentItemModified) To_File(BPFContentItemLibrary)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Insert FAILED for ' + #BPFContentItemID) )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Attempting update for ' + #BPFContentItemID + ' object passed status ' + #BPFContentItemObject.FileName.IsNull) )
+    
+    * We are updating, but we need to check if we are changing the object
+    If (#BPFContentItemObject.FileName.IsNull)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Attempting update for ' + #BPFContentItemID + ' WITHOUT content object') )
+    
+    * No object update
+    Update Fields(#BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemModifiedBy #BPFContentItemModified) In_File(BPFContentItemLibrary) With_Key(#BPFContentItemID)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Update without content object FAILED for ' + #BPFContentItemID) )
+    Return
+    
+    Endif
+    
+    Else
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Attempting update for ' + #BPFContentItemID + ' WITH content object') )
+    
+    * Object update
+    Update Fields(#BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemObject #BPFContentItemModifiedBy #BPFContentItemModified) In_File(BPFContentItemLibrary) With_Key(#BPFContentItemID)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Update with content object FAILED for ' + #BPFContentItemID) )
+    Return
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Save completed for ' + #BPFContentItemID + ' so reading saved data') )
+    
+    * Get Return data
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetContentItemsQuery( #BPFContentItemID )
+    
+    Select_Sql Fields(#BPFContentItemID #BPFContentItemName #BPFContentItemDesc #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentItemCreatedBy #BPFSessionEventValue1 #BPFContentItemCreated #BPFContentItemModifiedBy #BPFSessionEventValue2 #BPFContentItemModified) Using(#BPFGenericNVarChar2048)
+    
+    Endselect
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(SaveContentItem) : Save completed for ' + #BPFContentItemID + ' so returning saved data') )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(DeleteContentItem) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedContent) Parameter_Name(ForID)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DeleteContentItem' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteContentItem) : Attempting delete for ' + #BPFContentItemID) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteContentItem) : user is not an administrator so returning in error') )
+    Return
+    
+    Endif
+    
+    * Okay Check for and if found remove all associated usage
+    Check_For In_File(BPFContentShareItemsByContentID) With_Key(#RequestedContent)
+    If_Status Is(*EQUALKEY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteContentItem) : Attempting delete of content item ' + #BPFContentItemID + ' from all shares') )
+    Delete From_File(BPFContentShareItemsByContentID) With_Key(#RequestedContent)
+    
+    Endif
+    
+    * Now the time has come, say bye bye and take a quite moment to reflect
+    Delete From_File(BPFContentItemLibrary) With_Key(#RequestedContent)
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteContentItem) : Delete of content item ' + #BPFContentItemID + ' failed') )
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    
+    * ContentShares Defintions
+    Srvroutine Name(NewShare) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFContentShareName) Parameter_Name(NewName)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFContentShareID) Parameter_Name(NewShare)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'NewShare' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Generate new ID
+    #BPFContentShareID := *GUID
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(NewShare) : Attempting to create share with ID ' + #BPFContentShareID) )
+    
+    Insert Fields(#BPFContentShareID #BPFContentShareName) To_File(BPFContentShares)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(NewShare) : FAILED to create share with ID ' + #BPFContentShareID) )
+    
+    #BPFContentShareID := *Null
+    Return
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(NewShare) : Share was created with ID ' + #BPFContentShareID) )
+    
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetContentShares) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#UserSearchValue) Parameter_Name(SearchValue)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ContentShares) Parameter_Name(Rooms)
+    Field_Map For(*OUTPUT) Field(#MoreResults) Parameter_Name(MoreResults)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContentShares' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShares) : Reading content shares with search value ' + #UserSearchValue) )
+    
+    If (#UserSearchValue.IsNull)
+    
+    * No value to search with so, lets just run from top to bottom via user email address
+    
+    Select Fields(#ContentShares) From_File(BPFContentSharesByName)
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#ContentShares)
+    
+    Endselect
+    
+    Else
+    
+    * We do have a value so scan the fields
+    Select Fields(#ContentShares) From_File(BPFContentSharesByName) Where(#BPFContentShareName.LowerCase.Contains( #UserSearchValue.LowerCase ))
+    
+    If (#LISTCOUNT = 250)
+    
+    #MoreResults := True
+    Leave
+    
+    Endif
+    
+    Add_Entry To_List(#ContentShares)
+    
+    Endselect
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShares) : Reading content shares completed') )
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(RenameShare) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShare) Parameter_Name(Share)
+    Field_Map For(*INPUT) Field(#BPFContentShareName) Parameter_Name(NewName)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RenameShare' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameShare) : Attempting to rename share ' + #RequestedShare + ' to ' + #BPFContentShareName) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameShare) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    Update Fields(#BPFContentShareName) In_File(BPFContentShares) With_Key(#RequestedShare)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameShare) : Share ' + #RequestedShare + ' updated successfully to ' + #BPFContentShareName) )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(DeleteShare) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShare) Parameter_Name(Share)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'DeleteShare' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : Attempting to delete share ' + #RequestedShare) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Check if we have to remove any definition records
+    Check_For In_File(BPFContentShareDefinitions) With_Key(#RequestedShare)
+    
+    * If any records found, remove
+    If_Status Is(*EQUALKEY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : removing definition records for share') )
+    
+    * First remove definition child records
+    Delete From_File(BPFContentShareDefinitions) With_Key(#RequestedShare)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : FAILED to remove definition records for share') )
+    Return
+    
+    Endif
+    
+    Endif
+    
+    * Now header
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : removing share') )
+    Delete From_File(BPFContentShares) With_Key(#RequestedShare)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : FAILED to remove share') )
+    Return
+    
+    Endif
+    
+    * Remove share assignment to users
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : removing shares association to any users') )
+    
+    #BPFUserPreferenceContentShare := *SQLNULL
+    Update Fields(#BPFUserPreferenceContentShare) In_File(BPFPortalUserPreferencesByContentShare) With_Key(#RequestedShare)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(DeleteShare) : Removal of share completed') )
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    Srvroutine Name(GetContentShareByID) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShare) Parameter_Name(Room)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ContentShares) Parameter_Name(Rooms)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetContentShareByID' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShareByID) : Looking for share with ID of ' + #RequestedShare) )
+    
+    * Check if user is an administrator, as they can view anything
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShareByID) : User is not an administrator so checking they have been assigned share') )
+    
+    Fetch Fields(#BPFUserPreferenceContentShare) From_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    If (#RequestedShare <> #BPFUserPreferenceContentShare.AsValue)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShareByID) : User is not an administrator and has NOT been assigned share so return error NS') )
+    
+    #BPFStatus := NS
+    Return
+    
+    Endif
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShareByID) : Reading details of share ' + #RequestedShare) )
+    
+    * Look for user in active accounts
+    Fetch Fields(#ContentShares) From_File(BPFContentShares) With_Key(#RequestedShare.UpperCase)
+    
+    If_Status Is_Not(*NORECORD)
+    
+    * Set Data to Return
+    Add_Entry To_List(#ContentShares)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetContentShareByID) : Reading details of share ' + #RequestedShare + ' successful') )
+    
+    * Set Return status
+    #BPFStatus := OK
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetItemsForParent) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedParent) Parameter_Name(Parent)
+    * Field_Map For(*INPUT) Field(#BPFGenericBoolean) Parameter_Name(UseShareID)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    List_Map For(*OUTPUT) List(#ParentItems) Parameter_Name(Items)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetItemsForParent' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemsForParent) : Getting items for parent ' + #RequestedParent) )
+    
+    * Check if allowed
+    #BPFstatus := #COM_SELF.ItemAllowedForUser( #RequestedParent ).AsNativeString
+    
+    If (#BPFStatus = OK)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemsForParent) : user is authorised to get items for parent ' + #RequestedParent) )
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetItemsByParentQuery( #RequestedParent )
+    
+    Select_Sql Fields(#BPFContentShareItemID #BPFContentShareItemName #BPFContentItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated #BPFContentShareItemModifiedBy #BPFContentShareItemModified) Using(#BPFGenericNVarChar2048)
+    
+    Add_Entry To_List(#ParentItems)
+    
+    Endselect
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemsForParent) :  get items for parent ' + #RequestedParent + ' ended with status of ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(GetFoldersForParent) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedParent) Parameter_Name(Parent)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFContentShareItemName) Parameter_Name(ParentsName)
+    Field_Map For(*OUTPUT) Field(#BPFContentShareItemParentID) Parameter_Name(ParentsParent)
+    
+    List_Map For(*OUTPUT) List(#ParentFolders) Parameter_Name(Folders)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetFoldersForParent' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetFoldersForParent) : Getting folders for parent ' + #RequestedParent) )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#COM_SELF.IsUserAnAdmin)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetFoldersForParent) : User is an administrator so getting folders') )
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetFoldersForParent( #RequestedParent )
+    
+    Select_Sql Fields(#BPFContentShareItemID #BPFContentShareItemName) Using(#BPFGenericNVarChar2048)
+    
+    Add_Entry To_List(#ParentFolders)
+    
+    Endselect
+    
+    * Check for name is from the share
+    Fetch Fields(#BPFContentShareName) From_File(BPFContentShares) With_Key(#RequestedParent)
+    
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetFoldersForParent) : parent is share so setting share values') )
+    
+    * Good, so set values to pass back
+    #BPFContentShareItemName := #BPFContentShareName
+    #BPFContentShareItemParentID := #RequestedParent
+    
+    Else
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetFoldersForParent) : parent is NOT the share so setting share values from item requested') )
+    
+    * Fallback to share definition
+    Fetch Fields(#BPFContentShareItemName #BPFContentShareItemParentID) From_File(BPFContentShareItemsByItemID) With_Key(#RequestedParent)
+    
+    Endif
+    
+    #BPFStatus := OK
+    
+    Else
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetFoldersForParent) : User is not an administrator so returing with error') )
+    
+    Endif
+    
+    Endroutine
+    
+    Srvroutine Name(GetItemDetails) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShareItem) Parameter_Name(Item)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Data
+    Group_Map For(*OUTPUT) Group(#ParentItemsGroup) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetItemDetails' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemDetails) : Attempting to get details for item ' + #RequestedShareItem) )
+    
+    * Assume Failure
+    #BPFStatus := #COM_SELF.ItemAllowedForUser( #RequestedShareItem ).AsNativeString
+    
+    * If user is allowed
+    If (#BPFStatus = OK)
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetItemsDetailsQuery( #RequestedShareItem )
+    
+    Select_Sql Fields(#BPFContentShareItemID #BPFContentShareItemName #BPFContentItemName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentItemTokenFileName #BPFContentItemAlphaDetail #BPFContentItemNumericDetail #BPFContentShareItemContentID #BPFContentShareItemCreatedBy #BPFContentShareItemCreated #BPFContentShareItemModifiedBy #BPFContentShareItemModified) Using(#BPFGenericNVarChar2048)
+    
+    Endselect
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemDetails) : Attempting to get details for item ' + #RequestedShareItem + ' ended with status of ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(GetExtraItemDetails) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShareItem) Parameter_Name(Item)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Data
+    Group_Map For(*OUTPUT) Group(#ExtraDetailGroup) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetExtraItemDetails' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetExtraItemDetails) : Attempting to get details for item ' + #RequestedShareItem) )
+    
+    * Check is Allowed
+    #BPFStatus := #COM_SELF.ItemAllowedForUser( #RequestedShareItem ).AsNativeString
+    
+    * If user is allowed
+    If (#BPFStatus = OK)
+    
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetExtraItemsDetailsQuery( #RequestedShareItem )
+    
+    Select_Sql Fields(#BPFContentItemDesc #BPFContentItemCreated #BPFContentItemModified #BPFSessionEventValue1 #BPFSessionEventValue2 #BPFSessionEventValue3 #BPFSessionEventValue4) Using(#BPFGenericNVarChar2048)
+    
+    Endselect
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetExtraItemDetails) : Attempting to get details for item ' + #RequestedShareItem + ' ended with status of ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(GetItemObject) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedContent) Parameter_Name(Item)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Outbound
+    Field_Map For(*OUTPUT) Field(#BPFContentItemObject) Parameter_Name(Object)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'GetItemObject' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    * Only do if user is allowed to view this item
+    Fetch Fields(#BPFContentItemObject) From_File(BPFContentItemLibrary) With_Key(#RequestedContent)
+    
+    #BPFStatus := #IO$STS
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemObject) : Attempting to get object for item ' + #RequestedShareItem + ' ended with status of ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(RenameItem) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#RequestedShareItem) Parameter_Name(Item)
+    Field_Map For(*INPUT) Field(#BPFContentShareItemName) Parameter_Name(Name)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Data
+    Field_Map For(*OUTPUT) Field(#BPFContentShareItemModified) Parameter_Name(Modified)
+    Field_Map For(*OUTPUT) Field(#BPFContentShareItemModifiedBy) Parameter_Name(ModifiedBy)
+    Field_Map For(*OUTPUT) Field(#BPFSessionEventValue3) Parameter_Name(ModifiedName)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RenameItem' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameItem) : Attempting to rename item ' + #RequestedShareItem + ' to ' + #BPFContentShareItemName) )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameItem) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Set Modified Item By Date and Time
+    #BPFContentShareItemModifiedBy := #sUserAccountIdentifier
+    #BPFContentShareItemModified := #BPFContentShareItemModified.Now
+    
+    Update Fields(#BPFContentShareItemName #BPFContentShareItemModifiedBy #BPFContentShareItemModified) In_File(BPFContentShareItemsByItemID) With_Key(#RequestedShareItem)
+    
+    * Get Changed user Name
+    Fetch Fields(#BPFUserFirstName #BPFUserLastName) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    #BPFSessionEventValue3 := #BPFUserFirstName + ' ' + #BPFUserLastName
+    
+    #BPFStatus := OK
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RenameItem) : Item renamed completed') )
+    
+    Endroutine
+    
+    Srvroutine Name(AddFolderItem) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFContentShareID) Parameter_Name(Share)
+    Field_Map For(*INPUT) Field(#BPFContentShareItemParentID) Parameter_Name(Parent)
+    Field_Map For(*INPUT) Field(#BPFContentShareItemName) Parameter_Name(Name)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Data
+    List_Map For(*OUTPUT) List(#ParentItems) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'AddFolderItem' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddFolderItem) : Attempting to add folder ' + #BPFContentShareItemName + '  to share ' + #BPFContentShareID + ' and parent ' + #BPFContentShareItemParentID) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddFolderItem) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Set Values
+    #BPFContentShareItemID := *GUID
+    #BPFContentShareItemIsFolder := True
+    
+    * Set Created Item By Date and Time
+    #BPFContentShareItemCreatedBy := #sUserAccountIdentifier
+    #BPFContentShareItemCreated := #BPFContentShareItemCreated.Now
+    
+    Insert Fields(#ShareItemGroup) To_File(BPFContentShareItemsByItemID)
+    
+    * Set Data for Return
+    #BPFContentItemAlphaDetail := '0'
+    Add_Entry To_List(#ParentItems)
+    
+    #BPFStatus := #IO$STS
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddFolderItem) : Adding folder ended with status ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(AddShareItem) Session(*REQUIRED)
+    
+    * Inbound
+    Field_Map For(*INPUT) Field(#BPFContentShareID) Parameter_Name(Share)
+    Field_Map For(*INPUT) Field(#BPFContentShareItemParentID) Parameter_Name(Parent)
+    List_Map For(*INPUT) List(#ContentItems) Parameter_Name(Items)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Data
+    List_Map For(*OUTPUT) List(#ParentItems) Parameter_Name(Data)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'AddShareItem' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddShareItem) : Attempting to add content items to share ' + #BPFContentShareID + ' in parent ' + #BPFContentShareItemParentID) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddShareItem) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Process each selection, all will be added one share ID and parent
+    Selectlist Named(#ContentItems)
+    
+    * Set Initial Values
+    #BPFContentShareItemID := *GUID
+    
+    #LISTENTRY := #COM_SELF.CountOfNameInParent( #BPFContentShareID #BPFContentShareItemParentID #BPFContentItemName )
+    
+    Case Of_Field(#LISTENTRY)
+    
+    When Value_Is(> 1)
+    
+    #BPFContentShareItemName := #BPFContentItemName + ' - New (' + (#LISTENTRY - 1).AsString + ')'
+    
+    When Value_Is(= 1)
+    
+    #BPFContentShareItemName := #BPFContentItemName + ' - New'
+    
+    When Value_Is(< 1)
+    
+    #BPFContentShareItemName := #BPFContentItemName
+    
+    Endcase
+    
+    #BPFContentShareItemIsFolder := False
+    #BPFContentShareItemContentID := #BPFContentItemID
+    
+    * Set Created Item By Date and Time
+    #BPFContentShareItemCreatedBy := #sUserAccountIdentifier
+    #BPFContentShareItemCreated := #BPFContentShareItemCreated.Now
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddShareItem) : Inserting share item with ID ' + #BPFContentShareItemID + ' and name ' + #BPFContentShareItemName) )
+    
+    Insert Fields(#ShareItemGroup) To_File(BPFContentShareItemsByItemID)
+    
+    * All went well, the update values for return else end in shame
+    If_Status Is(*OKAY)
+    
+    Add_Entry To_List(#ParentItems)
+    
+    Else
+    
+    Return
+    
+    Endif
+    
+    Endselect
+    
+    #BPFStatus := #IO$STS
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddShareItem) : Adding of content item to share completed with status ' + #BPFStatus) )
+    
+    Endroutine
+    
+    Srvroutine Name(RemoveItems) Session(*REQUIRED)
+    
+    * Items
+    List_Map For(*INPUT) List(#ParentItems) Parameter_Name(Items)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'RemoveItems' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : Attempting to remove items from share') )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Loop Through the items
+    Selectlist Named(#ParentItems)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : Attempting to remove item ' + #BPFContentShareItemID) )
+    
+    * If a folder we need to remove all children first
+    If (#BPFContentShareItemIsFolder)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : Item ' + #BPFContentShareItemID + ' is a folder so attempting to remove all child items') )
+    
+    * Set Query
+    #BPFGenericNVarChar2048 := #COM_SELF.SetDeleteAllParentChildrenQuery( #BPFContentShareItemID )
+    
+    Select_Sql Fields(#STD_NUM) Using(#BPFGenericNVarChar2048)
+    Endselect
+    
+    Endif
+    
+    * Remove Selected Item
+    Delete From_File(BPFContentShareItemsByItemID) With_Key(#BPFContentShareItemID)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : FAILED to remove item ' + #BPFContentShareItemID) )
+    Return
+    
+    Endif
+    
+    Endselect
+    
+    * Done
+    #BPFStatus := OK
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(RemoveItems) : Attempt to remove items completed') )
+    
+    Endroutine
+    
+    Srvroutine Name(MoveItems) Session(*REQUIRED)
+    
+    * Items
+    Field_Map For(*INPUT) Field(#RequestedParent) Parameter_Name(ToParent)
+    List_Map For(*INPUT) List(#ParentItems) Parameter_Name(Items)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'MoveItems' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(MoveItems) : Attempting to move items to new parent ' + #RequestedParent) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(MoveItems) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Loop Through the items
+    Selectlist Named(#ParentItems)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(MoveItems) : Moving item ' + #BPFContentShareItemID + ' to new parent ' + #RequestedParent) )
+    
+    * Set New Parent
+    #BPFContentShareItemParentID := #RequestedParent
+    
+    * Set Modified Item By Date and Time
+    #BPFContentShareItemModifiedBy := #sUserAccountIdentifier
+    #BPFContentShareItemModified := #BPFContentShareItemModified.Now
+    
+    * Update Selected Item
+    Update Fields(#BPFContentShareItemParentID #BPFContentShareItemModifiedBy #BPFContentShareItemModified) In_File(BPFContentShareItemsByItemID) With_Key(#BPFContentShareItemID)
+    
+    If_Status Is_Not(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(MoveItems) : FAILED to moving item ' + #BPFContentShareItemID + ' to new parent ' + #BPFContentShareItemParentID) )
+    Return
+    
+    Endif
+    
+    Endselect
+    
+    * Done
+    #BPFStatus := OK
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(MoveItems) : Attempt to move items completed') )
+    
+    Endroutine
+    
+    Srvroutine Name(CopyItems) Session(*REQUIRED)
+    
+    * Items
+    Field_Map For(*INPUT) Field(#RequestedShare) Parameter_Name(inShare)
+    List_Map For(*INPUT) List(#ParentItems) Parameter_Name(Items)
+    
+    * Inbound Request Check Values
+    Group_Map For(*INPUT) Group(#ValidRequestGroup)
+    
+    * Return Status
+    List_Map For(*OUTPUT) List(#CopiedItems) Parameter_Name(NewItems)
+    Field_Map For(*OUTPUT) Field(#BPFstatus) Parameter_Name(Status)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#NewName)
+    
+    * Check for duplicated request
+    #Secure.CheckIsValidRequest( 'CopyItems' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
+    
+    * Assume Failure
+    #BPFStatus := ER
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Attempting to copy items in share ' + #RequestedShare) )
+    
+    If (#COM_SELF.IsUserAnAdmin.IsFalse)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : User is not an administrator so returing with error') )
+    Return
+    
+    Endif
+    
+    * Loop Through the items
+    Selectlist Named(#ParentItems)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Attempting copy of item ' + #BPFContentShareItemID + ' / ' + #BPFContentShareItemName) )
+    
+    * Copy Selected Item
+    #NewShareItem := *GUID
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Setting new item ID to ' + #NewShareItem) )
+    
+    * Set New Name
+    #LISTENTRY := #COM_SELF.CountOfNameInParent( #RequestedShare #BPFContentShareItemParentID #BPFContentShareItemName )
+    
+    Case Of_Field(#LISTENTRY)
+    
+    When Value_Is(> 1)
+    
+    #NewName := #BPFContentShareItemName + ' - Copy (' + (#LISTENTRY - 1).AsString + ')'
+    
+    When Value_Is(= 1)
+    
+    #NewName := #BPFContentShareItemName + ' - Copy'
+    
+    When Value_Is(< 1)
+    
+    #NewName := #BPFContentShareItemName
+    
+    Endcase
+    
+    * Create the parent level first
+    #COM_SELF.CopyItem( #RequestedShare #NewShareItem #NewName #BPFContentShareItemIsFolder #BPFContentShareItemParentID #BPFContentShareItemContentID #sUserAccountIdentifier #BPFGenericDateTime.Now )
+    
+    * If a folder we need to remove all children first
+    If (#BPFContentShareItemIsFolder)
+    
+    * Reset
+    Clr_List Named(#ProcessedCopies)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Item ' + #BPFContentShareItemID + ' is a folder so copying children') )
+    
+    * Map the current entry as the initial processed entry, keeping the old ID and adding the new ID
+    #ProcessedItemOldID := #BPFContentShareItemID
+    #ProcessedItemNewID := #NewShareItem
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Seeding old and new to processed ' + #ProcessedItemOldID + ' / ' + #ProcessedItemNewID) )
+    
+    Add_Entry To_List(#ProcessedCopies)
+    
+    * Set Query
+    #BPFGenericNVarChar2048 := #COM_SELF.SetGetAllParentChildrenQuery( #BPFContentShareItemID )
+    
+    Select_Sql Fields(#CopyShareID #CopyShareItemID #CopyShareItemName #CopyShareItemIsFolder #CopyShareItemParentID #CopyShareItemContentID) Using(#BPFGenericNVarChar2048)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Attempting to process child item ' + #CopyShareItemID) )
+    
+    * Child needs a new ID, but we need the old ID to match the parent
+    #CopyShareItemNewID := *GUID
+    
+    * Now we need to update the parent for the new item, look current parent item
+    Loc_Entry In_List(#ProcessedCopies) Where(#CopyShareItemParentID = #ProcessedItemOldID) Ret_Number(#ListEntry)
+    If_Status Is(*OKAY)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Found old parent ID ' + #CopyShareItemParentID + ' updating to ' + #ProcessedItemNewID) )
+    #CopyShareItemParentID := #ProcessedItemNewID
+    
+    Else
+    
+    * Bomb out, something went wrong
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : copy error when processing children of ' + #CopyShareItemID) )
+    Return
+    
+    Endif
+    
+    * Okay, insert with the processed new ID
+    #COM_SELF.CopyItem( #RequestedShare #CopyShareItemNewID #CopyShareItemName #CopyShareItemIsFolder #CopyShareItemParentID #CopyShareItemContentID #sUserAccountIdentifier #BPFGenericDateTime.Now )
+    
+    * We now record it as processed if a folder
+    If (#CopyShareItemIsFolder)
+    
+    #ProcessedItemOldID := #CopyShareItemID
+    #ProcessedItemNewID := #CopyShareItemNewID
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Adding old and new to processed ' + #ProcessedItemOldID + ' / ' + #ProcessedItemNewID) )
+    
+    Add_Entry To_List(#ProcessedCopies)
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Child item processed ' + #CopyShareItemID) )
+    
+    Endselect
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : All children processed for item ' + #BPFContentShareItemID) )
+    
+    Endif
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : Attempting copy of item ' + #BPFContentShareItemID + ' done') )
+    
+    * Possible folder processing completed so update new ID and name for returning items
+    #BPFContentShareItemID := #NewShareItem
+    #BPFContentShareItemName := #NewName
+    
+    Add_Entry To_List(#CopiedItems)
+    
+    #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(CopyItems) : New Item ID is ' + #BPFContentShareItemID) )
+    
+    Endselect
+    
+    * Done
+    #BPFStatus := OK
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(CopyItem)
+    Define_Map For(*INPUT) Class(#BPFContentShareID) Name(#ShareID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemID) Name(#ItemID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemName) Name(#Name)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemIsFolder) Name(#IsFolder)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemParentID) Name(#ParentID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemContentID) Name(#ContentID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemCreatedBy) Name(#CreatedBy)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemCreated) Name(#Created)
+    
+    * Clean Data
+    #Name := #Name.ReplaceAll( "'" "''" )
+    
+    * Set Query
+    #BPFGenericNVarChar2048 := #COM_SELF.SetInsertCopiedItemQuery( #ShareID #ItemID #Name #IsFolder #ParentID #ContentID #CreatedBy #Created )
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(CopyItem) : Insert Copy query set to ' + #BPFGenericNVarChar2048) )
+    
+    Select_Sql Fields(#STD_NUM) Using(#BPFGenericNVarChar2048)
+    Endselect
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(CopyItem) : Insert Copy : Insert Success = ' + (#STD_NUM = 1).AsString) )
+    
+    Endroutine
+    
+    Mthroutine Name(IsUserAnAdmin)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Check if user is an administrator, as they can view anything
+    Fetch Fields(#BPFUserHasAdminRights) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(IsUserAnAdmin) : Current user has admin rights status of ' + #BPFUserHasAdminRights.AsString) )
+    
+    #Result := #BPFUserHasAdminRights
+    
+    Endroutine
+    
+    Mthroutine Name(ItemAllowedForUser)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#ItemToCheck)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    * Assume a general failure
+    #Result := ER
+    
+    * Check if the user is an adnministrator
+    If (#COM_SELF.IsUserAnAdmin)
+    
+    * Log Result
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(ItemAllowedForUser) : User ' + #sUserAccountIdentifier + ' is an administrator so can view item') )
+    
+    * They are, so they can do anything
+    #Result := OK
+    Return
+    
+    Else
+    
+    * Normal user, so does the item belong to their share
+    
+    * Lets punt, the ID is actually the share ID
+    * So get their assigned share
+    Fetch Fields(#BPFUserPreferenceContentShare) From_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
+    
+    * Check for a match
+    If (#ItemToCheck = #BPFUserPreferenceContentShare.AsValue)
+    
+    * Log Result
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(ItemAllowedForUser) : User ' + #sUserAccountIdentifier + ' is NOT an administrator but has been assigned the share') )
+    
+    * Matched, then we are all good
+    #Result := OK
+    Return
+    
+    Endif
+    
+    * Okay so its likely an item inside the share, so get share ID, first
+    Fetch Fields(#BPFContentShareID) From_File(BPFContentShareItemsByItemID) With_Key(#ItemToCheck)
+    If_Status Is_Not(*OKAY)
+    
+    * Log result
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(ItemAllowedForUser) : Item ' + #ItemToCheck + ' does not exist so returning NI error') )
+    
+    * We didnt find the item, so they cannot be authorised so return No Item (NI)
+    #Result := NI
+    Return
+    
+    Endif
+    
+    * Okay so we have the share for the item, but is the share assigned to them
+    
+    * Check for a match
+    If (#BPFContentShareID = #BPFUserPreferenceContentShare.AsValue)
+    
+    * Log Result
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(ItemAllowedForUser) : User ' + #sUserAccountIdentifier + ' is NOT an administrator but has been assigned the share') )
+    
+    * Matched, then we are all good
+    #Result := OK
+    
+    Else
+    
+    * Log Result
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(ItemAllowedForUser) : User ' + #sUserAccountIdentifier + ' doesnt have this share so returning NS error') )
+    
+    * No match, so return with Not Shared (NS)
+    #Result := NS
+    
+    Endif
+    
+    Endif
+    
+    Endroutine
+    
+    * Query Methods
+    Mthroutine Name(SetGetContentItemsSearchQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("SELECT TOP (250) BPFContentItemID,BPFContentItemName,BPFContentItemTokenFileName,BPFContentItemAlphaDetail,BPFContentItemNumericDetail FROM [BPFDTA].[BPFContentItemLibrary] WHERE lower(BPFContentItemName) like lower(&1%&2%&1) OR lower(BPFContentItemTokenFileName) like lower(&1%&2%&1) OR lower(BPFContentItemDesc) like lower(&1%&2%&1) ORDER BY BPFContentItemName").Substitute( *QUOTE #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetContentItemsSearchQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetGetContentItemsQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("SELECT c.BPFContentItemID,c.BPFContentItemName,c.BPFContentItemDesc,c.BPFContentItemTokenFileName,c.BPFContentItemAlphaDetail,c.BPFContentItemNumericDetail,c.BPFContentItemCreatedBy,(ac1.BPFUserFirstName + ' ' + ac1.BPFUserLastName) as ItemCreatedFullName,c.BPFContentItemCreated,c.BPFContentItemModifiedBy,(ac2.BPFUserFirstName  + ' ' + ac2.BPFUserLastName) as ItemModifiedFullName,c.BPFContentItemModified FROM [BPFDTA].[BPFContentItemLibrary] c LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac1 ON c.BPFContentItemCreatedBy = ac1.BPFUserAccountInternalKey LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac2 ON c.BPFContentItemModifiedBy = ac2.BPFUserAccountInternalKey WHERE c.BPFContentItemID = &1&2&1").Substitute( *QUOTE #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetContentItemQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetItemsByParentQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Field)
+    
+    #Field := ('i.BPFContentShareItemParentID=&1&2&1').Substitute( *Quote #Key )
+    
+    #Result := ("SELECT i.BPFContentShareItemID,i.BPFContentShareItemName,c.BPFContentItemName,i.BPFContentShareItemIsFolder,i.BPFContentShareItemParentID,c.BPFContentItemTokenFileName,(CASE when i.BPFContentShareItemIsFolder=1 THEN CAST((select count(*) FROM [BPFDTA].[BPFContentShareDefinitions] c1 WHERE c1.BPFContentShareItemParentID = i.BPFContentShareItemID AND c1.BPFContentShareItemIsFolder = 1) as nvarchar) ELSE c.BPFContentItemAlphaDetail END) as BPFContentItemAlphaDetail,(CASE when i.BPFContentShareItemIsFolder=1 THEN (select count(*) FROM [BPFDTA].[BPFContentShareDefinitions] c2 WHERE c2.BPFContentShareItemParentID = i.BPFContentShareItemID AND c2.BPFContentShareItemIsFolder = 0) ELSE c.BPFContentItemNumericDetail END) as BPFContentItemNumericDetail,i.BPFContentShareItemContentID,i.BPFContentShareItemCreatedBy,i.BPFContentShareItemCreated,i.BPFContentShareItemModifiedBy,i.BPFContentShareItemModified FROM [BPFDTA].[BPFContentShareDefinitions] i LEFT JOIN [BPFDTA].[BPFContentItemLibrary] c ON i.BPFContentShareItemContentID = c.BPFContentItemID WHERE &1 ORDER BY i.BPFContentShareItemIsFolder DESC, lower(i.BPFContentShareItemName)").Substitute( #Field )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetItemsByParentQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetGetFoldersForParent)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Field)
+    
+    #Field := ('BPFContentShareItemParentID=&1&2&1').Substitute( *Quote #Key )
+    
+    #Result := ("SELECT BPFContentShareItemID,BPFContentShareItemName FROM [BPFDTA].[BPFContentShareDefinitions] WHERE &1 AND BPFContentShareItemIsFolder = 1 ORDER BY lower(BPFContentShareItemName)").Substitute( #Field )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetFoldersForParent) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetGetItemsDetailsQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("SELECT i.[BPFContentShareItemID],i.[BPFContentShareItemName],c.[BPFContentItemName],i.[BPFContentShareItemIsFolder],i.BPFContentShareItemParentID,c.BPFContentItemTokenFileName,c.[BPFContentItemAlphaDetail],c.[BPFContentItemNumericDetail],i.[BPFContentShareItemContentID],i.[BPFContentShareItemCreatedBy],i.[BPFContentShareItemCreated],i.[BPFContentShareItemModifiedBy],i.[BPFContentShareItemModified] FROM [BPFDTA].[BPFContentShareDefinitions] i LEFT JOIN [BPFDTA].[BPFContentItemLibrary] c ON i.BPFContentShareItemContentID = c.BPFContentItemID WHERE i.BPFContentShareItemID = &1&2&1").Substitute( *QUOTE #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetItemsDetailsQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetGetExtraItemsDetailsQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("SELECT c.[BPFContentItemDesc],c.BPFContentItemCreated,c.BPFContentItemModified,(ac1.BPFUserFirstName + ' ' + ac1.BPFUserLastName) as ItemCreatedFullName,(ac3.BPFUserFirstName + ' ' + ac3.BPFUserLastName) as ContentCreatedFullName,(ac2.BPFUserFirstName  + ' ' + ac2.BPFUserLastName) as ItemModifiedFullName,(ac4.BPFUserFirstName  + ' ' + ac4.BPFUserLastName) as ContentModifiedFullName FROM [BPFDTA].[BPFContentShareDefinitions] i LEFT JOIN [BPFDTA].[BPFContentItemLibrary] c ON i.BPFContentShareItemContentID = c.BPFContentItemID LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac1 ON i.BPFContentShareItemCreatedBy = ac1.BPFUserAccountInternalKey LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac2 ON i.BPFContentShareItemModifiedBy = ac2.BPFUserAccountInternalKey LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac3 ON c.BPFContentItemCreatedBy = ac3.BPFUserAccountInternalKey LEFT JOIN [BPFDTA].[BPFPortalUserAccounts] ac4 ON c.BPFContentItemModifiedBy = ac4.BPFUserAccountInternalKey WHERE i.BPFContentShareItemID = &1&2&1").Substitute( *QUOTE #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetExtraItemsDetailsQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetGetAllParentChildrenQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("WITH CTE (BPFContentShareID,BPFContentShareItemID,BPFContentShareItemName,BPFContentShareItemIsFolder,BPFContentShareItemParentID,BPFContentShareItemContentID) AS (SELECT BPFContentShareID,BPFContentShareItemID,BPFContentShareItemName,BPFContentShareItemIsFolder,BPFContentShareItemParentID,BPFContentShareItemContentID FROM [BPFDTA].[BPFContentShareDefinitions] WHERE BPFContentShareItemParentID = &1&2&1 UNION ALL SELECT c.BPFContentShareID,c.BPFContentShareItemID,c.BPFContentShareItemName,c.BPFContentShareItemIsFolder,c.BPFContentShareItemParentID,c.BPFContentShareItemContentID FROM [BPFDTA].[BPFContentShareDefinitions] c INNER JOIN CTE o ON o.BPFContentShareItemID = c.BPFContentShareItemParentID) SELECT * FROM CTE").Substitute( *Quote #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetGetAllParentChildrenQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetDeleteAllParentChildrenQuery)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Key)
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("WITH CTE (BPFContentShareItemID) AS (SELECT BPFContentShareItemID FROM [BPFDTA].[BPFContentShareDefinitions] WHERE BPFContentShareItemParentID = &1&2&1 UNION ALL SELECT c.BPFContentShareItemID FROM [BPFDTA].[BPFContentShareDefinitions] c INNER JOIN CTE o ON o.BPFContentShareItemID = c.BPFContentShareItemParentID) DELETE FROM [BPFDTA].[BPFContentShareDefinitions] WHERE BPFContentShareItemID = ANY(SELECT BPFContentShareItemID FROM CTE) SELECT @@ROWCOUNT").Substitute( *Quote #Key )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetDeleteAllParentChildrenQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(SetInsertCopiedItemQuery)
+    Define_Map For(*INPUT) Class(#BPFContentShareID) Name(#ShareID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemID) Name(#ItemID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemName) Name(#Name)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemIsFolder) Name(#IsFolder)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemParentID) Name(#ParentID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemContentID) Name(#ContentID)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemCreatedBy) Name(#CreatedBy)
+    Define_Map For(*INPUT) Class(#BPFContentShareItemCreated) Name(#Created)
+    
+    Define_Map For(*RESULT) Class(#PRIM_DC.UnicodeString) Name(#Result)
+    
+    #Result := ("INSERT INTO [BPFDTA].[BPFContentShareDefinitions] ([BPFContentShareID],[BPFContentShareItemID],[BPFContentShareItemName],[BPFContentShareItemIsFolder],[BPFContentShareItemParentID],[BPFContentShareItemContentID],[BPFContentShareItemCreatedBy],[BPFContentShareItemCreated],[BPFContentShareItemModifiedBy],[BPFContentShareItemModified],[@@UPID]) VALUES(&1&2&1,&1&3&1,&1&4&1,&5,&1&6&1,&1&7&1,&1&8&1,&1&9&1,&1&1,NULL,1);SELECT @@ROWCOUNT;COMMIT;").Substitute( *Quote #ShareID #ItemID #Name #IsFolder.AsNumber.AsString #ParentID.trim #ContentID #CreatedBy #Created.AsDisplayString( SQL ) )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(SetInsertCopiedItemQuery) : Query = ' + #Result) )
+    
+    Endroutine
+    
+    Mthroutine Name(CountOfNameInParent)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Share)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Parent)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Name)
+    
+    Define_Map For(*RESULT) Class(#PRIM_NMBR) Name(#Result)
+    
+    Define_Com Class(#PRIM_DC.UnicodeString) Name(#Field)
+    
+    If (#Parent.trim.IsNull)
+    
+    #Field := ('BPFContentShareID=&1&2&1 and BPFContentShareItemParentID = &1&1').Substitute( *Quote #Share )
+    
+    
+    Else
+    
+    #Field := ('BPFContentShareItemParentID=&1&2&1').Substitute( *Quote #parent )
+    
+    Endif
+    
+    * Clean name
+    #Name := #Name.ReplaceAll( "'" "''" )
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(CountOfNameInParent) : Query = ' + ("SELECT count(*) FROM [BPFDTA].[BPFContentShareDefinitions]  Where &2 AND lower(BPFContentShareItemName) like lower(&1&3%&1)").Substitute( *Quote #Field #Name )) )
+    
+    Select_Sql Fields(#STD_NUM) Using(("SELECT count(*) FROM [BPFDTA].[BPFContentShareDefinitions]  Where &2 AND lower(BPFContentShareItemName) like lower(&1&3%&1)").Substitute( *Quote #Field #Name ))
+    Endselect
+    
+    #Utils.Log( ('Content Sharing Data Server : Mthroutine Name(CountOfNameInParent) : Result = ' + #STD_NUM.AsString) )
+    
+    #Result := #STD_NUM
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,51 @@
+﻿Reusable Part:
+  Name:               BPFAdminUserAccountsListViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Admin User Accounts List View Strings"
+
+  - JPN:
+      Description:        "Admin User Accounts List View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELTITLE.CAPTION'> := "Manage User Accounts"
+    #STRINGSCOLLECTION<'PANELEXPLANATION.CAPTION'> := "To manage a user account first find and then select the user account"
+    
+    #STRINGSCOLLECTION<'SEARCH.PLACEHOLDER'> := "Search for user by name or email..."
+    
+    #STRINGSCOLLECTION<'ALLTABITEM.CAPTION'> := "All"
+    #STRINGSCOLLECTION<'ACTIVETABITEM.CAPTION'> := "Active"
+    #STRINGSCOLLECTION<'DISABLEDTABITEM.CAPTION'> := "Disabled"
+    #STRINGSCOLLECTION<'RESETTABITEM.CAPTION'> := "Reset"
+    #STRINGSCOLLECTION<'NEWTABITEM.CAPTION'> := "New"
+    #STRINGSCOLLECTION<'PENDINGTABITEM.CAPTION'> := "Pending"
+    #STRINGSCOLLECTION<'REMOVEDTABITEM.CAPTION'> := "Removed"
+    
+    #STRINGSCOLLECTION<'MESSAGE.ERROR.OWNACCOUNT'> := "You cannot manage your own account"
+    
+    #STRINGSCOLLECTION<'ACCOUNTLISTACTIONLABEL.CAPTION.MORE'> := "Load More"
+    #STRINGSCOLLECTION<'ACCOUNTLISTACTIONLABEL.CAPTION.LOAD'> := "Loading accounts..."
+    #STRINGSCOLLECTION<'ACCOUNTLISTACTIONLABEL.CAPTION.FULL'> := "Refine search to view more accounts"
+    #STRINGSCOLLECTION<'ACCOUNTLISTACTIONLABEL.CAPTION.EMPTY'> := "No accounts found"
+    
+    #STRINGSCOLLECTION<'FOOTERTEXT.CAPTION'> := "The settings here can affect the security of user accounts, consider your changes carefully"
+    
+    Endroutine
+    
+    End_Com

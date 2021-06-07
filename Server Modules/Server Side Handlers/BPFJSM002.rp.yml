@@ -1,0 +1,206 @@
+﻿Reusable Part:
+  Name:               BPFPDFGenerationJSMHandler
+  Enabled For RDMLX:  Yes
+  Target Platform:    Windows/IBM i/Linux
+
+  Multilingual Details:
+  - ENG:
+      Description:        "PDF Document Generation Handler - JSM"
+
+  - JPN:
+      Description:        "PDF Document Generation Handler - JSM"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * References
+    Define_Com Class(#BPFServerSideUtilities) Name(#Utils) Scope(*APPLICATION)
+    
+    * Content Variable Values
+    Define Field(#WLNEPS1) Type(*DEC) Length(7) Decimals(0)
+    Define Field(#WLNEPS2) Type(*DEC) Length(7) Decimals(0)
+    Define Field(#WLNEVL1) Type(*NVARCHAR) Length(512)
+    Define Field(#WLNEVL2) Type(*NVARCHAR) Length(512)
+    Define Field(#WLNEVL3) Type(*NVARCHAR) Length(512)
+    
+    * Creation & Initisation
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Set JSM Server
+    #bpfjsmserver := #Utils.GetAlphaValue( JSMSETTINGS JSMSERVER ).AsNativeString
+    
+    #bpfjsmtrace := #Utils.GetAlphaValue( JSMSETTINGS SERVICE_TRACE ).AsNativeString
+    
+    
+    * Set SMTP Server Settings
+    
+    Endroutine
+    
+    Mthroutine Name(Open) Help('Open JSM Server connection and load PDFDocumentService')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Document) Help('PDF file to be generated.')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Content) Help('XML content file')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Font) Help('Required font file')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#IsoCode) Mandatory('en') Help('Required language for style override')
+    
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#TraceName) Mandatory(*NULL) Help('Name for the resulting trace folder from the client program if required.')
+    
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    * Start local JSM server
+    Use Builtin(jsmx_open) With_Args(#bpfjsmserver) To_Get(#bpfjsmstatus #bpfjsmmessage #bpfjsmhandle)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM Open failed for value "' + #bpfjsmserver + '"') )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM Open successful for value "' + #bpfjsmserver + '"') )
+    
+    Endif
+    
+    * Set Trace Name to service if not provided
+    If (#TraceName.IsNull)
+    
+    #TraceName := 'PDFDocumentService'
+    
+    Endif
+    
+    * Load the PDFDocumentService
+    #bpfjsmcmd := 'service_load service(PDFDocumentService) trace(' + #bpfjsmtrace + ') trace_name(' + #TraceName + ')'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd.AsNativeString) To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM PDFDocumentService load failed') )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM PDFDocumentService load successful') )
+    
+    Endif
+    
+    * Set the font resource
+    #WLNEVL1 := #Font
+    
+    * Create the document
+    #bpfjsmcmd := 'create document("' + #Document + '") content("' + #Content + '") SERVICE_EXCHANGE(*FIELD)'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd.AsNativeString) To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM create document failed ' + #bpfjsmstatus + ' / ' + #bpfjsmmessage + ' content path was ' + #Content) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM PDFDocumentService load successful') )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(Add) Help('Reads the XML content file and adds the content to the current document or template. LANSA fields passed with the command can be merged into any XML attribute using the {field} notation.')
+    Define_Map For(*INPUT) Class(#bpfjsmstring) Name(#Content) Help('Name of XML content section.')
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Element1YPosition) Mandatory(0)
+    Define_Map For(*INPUT) Class(#PRIM_NMBR) Name(#Element2YPosition) Mandatory(0)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Element1Value) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Element2Value) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Element3Value) Mandatory(*NULL)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#Offset) Mandatory('*MARGIN')
+    
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    * Map Inbound values to content variables
+    
+    * Y Positions
+    #WLNEPS1 := #Element1YPosition
+    #WLNEPS2 := #Element2YPosition
+    
+    * Output Values
+    #WLNEVL1 := #Element1Value
+    #WLNEVL2 := #Element2Value
+    #WLNEVL3 := #Element3Value
+    
+    * Assume Failure, after all it is my code
+    #Result := False
+    
+    
+    * Add XML to current document or template
+    #bpfjsmcmd := 'add Content(' + #Content + ') Offset(' + #Offset + ') SERVICE_EXCHANGE(*FIELD)'
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle #bpfjsmcmd.AsNativeString) To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM add of content ' + #Content + ' failed ' + #bpfjsmstatus + ' / ' + #bpfjsmmessage) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM add of content ' + #Content + ' successful') )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(Close) Help('Closes the current PDF document')
+    Define_Map For(*RESULT) Class(#prim_boln) Name(#Result) Help('Boolean indicating if routine completed successfully')
+    
+    #Result := False
+    
+    * close the current archive file
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle 'close') To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM close of document failed ' + #bpfjsmstatus + ' / ' + #bpfjsmmessage) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM close of document successful') )
+    
+    Endif
+    
+    Use Builtin(jsmx_command) With_Args(#bpfjsmhandle 'service_unload') To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM unload of PDFDocumentService failed ' + #bpfjsmstatus + ' / ' + #bpfjsmmessage) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM unload of PDFDocumentService successful') )
+    
+    Endif
+    
+    * Close the thread
+    Use Builtin(jsmx_close) With_Args(#bpfjsmhandle) To_Get(#bpfjsmstatus #bpfjsmmessage)
+    #Result := (#bpfjsmstatus = "OK")
+    
+    If (#Result.IsFalse)
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM close failed ' + #bpfjsmstatus + ' / ' + #bpfjsmmessage) )
+    Return
+    
+    Else
+    
+    #Utils.log( (#COM_SELF.Name + 'JSM close successful') )
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

@@ -1,0 +1,43 @@
+﻿Reusable Part:
+  Name:               BPFShareItemInfoPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Share Item Info Panel Strings"
+
+  - JPN:
+      Description:        "Share Item Info Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'CONTENTDETAILSLABEL.CAPTION'> := "Library details"
+    #STRINGSCOLLECTION<'ITEMCONTENTTYPELABEL.CAPTION'> := "Type"
+    #STRINGSCOLLECTION<'ITEMCREATEDINFOLABEL.CAPTION'> := "Created"
+    #STRINGSCOLLECTION<'ITEMMODIFIEDINFOLABEL.CAPTION'> := "Modified"
+    #STRINGSCOLLECTION<'ITEMCONTENTNAMELABEL.CAPTION.FILE'> := "Name"
+    #STRINGSCOLLECTION<'ITEMTOKENNAMELABEL.CAPTION.FILE'> := "Content"
+    #STRINGSCOLLECTION<'ITEMCONTENTNAMELABEL.CAPTION.FOLDER'> := "Folders"
+    #STRINGSCOLLECTION<'ITEMTOKENNAMELABEL.CAPTION.FOLDER'> := "Files"
+    #STRINGSCOLLECTION<'DELETESHAREACTION.CAPTION'> := "Remove"
+    
+    #STRINGSCOLLECTION<'CURRENTITEM.ONGETLOADEXTRADETAILSFAILED.ERROR'> := "Error loading item details"
+    #STRINGSCOLLECTION<'CURRENTITEM.ONGETLOADEXTRADETAILSFAILED.NOTSHARED'> := "Content is no longer shared"
+    
+    
+    Endroutine
+    
+    End_Com

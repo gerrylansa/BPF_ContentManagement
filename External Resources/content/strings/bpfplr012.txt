@@ -1,0 +1,13 @@
+Checking... well be done in moment
+
+Just checking with our systems now
+
+It pay to be careful, so we are just checking our systems to ensure all is well before we before we process this account request. We know you busy, so we are checking as fast as we can.
+
+We know you busy, wont be long now
+
+
+#MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+#SECONDARINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARINSTRUCTION.CAPTION>
+#PANELTEXT.CAPTION := #STRINGS.Text<PANELTEXT.CAPTION>
+#DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>

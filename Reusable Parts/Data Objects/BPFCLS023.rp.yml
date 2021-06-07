@@ -1,0 +1,54 @@
+﻿Reusable Part:
+  Name:               BPFContentShareFolderClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Content Share Folder Class"
+
+  - JPN:
+      Description:        "Content Share Folder Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by for data mapping of listfields
+    Group_By Name(#Listfields) Fields(#BPFContentShareItemID #BPFContentShareItemName)
+    
+    * Defintions
+    
+    * Properties
+    Define_Pty Name(Identifier) Get(*AUTO #BPFContentShareItemID)
+    Define_Pty Name(FolderName) Get(*AUTO #BPFContentShareItemName)
+    Define_Pty Name(FolderIcon) Get(GetItemTypeIcon)
+    Define_Pty Name(FolderColour) Get(GetItemTypeColour)
+    
+    * Routines
+    
+    * Properties
+    
+    Ptyroutine Name(GetItemTypeIcon)
+    Define_Map For(*OUTPUT) Class(#PRIM_DC.UnicodeString) Name(#Property)
+    
+    #Property := 'folder'
+    
+    Endroutine
+    
+    Ptyroutine Name(GetItemTypeColour)
+    Define_Map For(*OUTPUT) Class(#PRIM_DC.UnicodeString) Name(#Property)
+    
+    If (#SYS_WEB.WebPage.ThemeBackground = Light)
+    
+    #Property := 'text(0,0,0,0.54)'
+    
+    Else
+    
+    #Property := 'text(255,255,255,0.54)'
+    
+    Endif
+    
+    Endroutine
+    
+    End_Com

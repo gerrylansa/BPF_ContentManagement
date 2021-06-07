@@ -1,0 +1,37 @@
+﻿Field:
+  Name:               Status
+  Type:               Alpha
+  Length:             256
+  Decimals:           0
+  Default Value:      "*BLANKS"
+  Enabled For RDMLX:  No
+  System Field:       No
+
+  Input Attributes:
+  - FE
+  - LC
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Generic Status Field"
+      Label:              "Generic Status"
+      Heading1:           "Generic"
+      Heading2:           "Status"
+      Heading3:           "Field"
+
+  - JPN:
+      Description:        "Generic Status Field"
+      Label:              "Generic Status"
+      Heading1:           "Generic"
+      Heading2:           "Status"
+      Heading3:           "Field"
+
+  Source: |
+    *
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    Begin_Com Role(*Visual #PRIM_EVEF) Name(#VisualEdit) Defaultvisual(True) Usepicklist(False) Componentversion(1) Height(21) Width(951)
+    
+    End_Com
+    
+    End_Com

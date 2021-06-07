@@ -1,0 +1,71 @@
+﻿Reusable Part:
+  Name:               BPFLanguageResourceStringCard
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Card to display language resource string"
+
+  - JPN:
+      Description:        "Card to display language resource string"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_PANL) Displayposition(1) Height(98) Left(0) Tabposition(1) Top(0) Width(840) Layoutmanager(#Layout) Themedrawstyle('Card') Style(#RoundedCornerStyle)
+    
+    * Style for card
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8)
+    
+    * Properties
+    Define_Pty Name(RelatedReferenceString) Get(*REFERENCE #ItemString)
+    
+    * Layout Manager
+    Define_Com Class(#PRIM_TBLO) Name(#Layout) Sizing(ContentHeight)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#Layout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#Layout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#Layout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#Layout) Height(48) Units(Content) Minheight(48)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow2) Displayposition(2) Parent(#Layout) Height(48) Units(Content) Minheight(48)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem1) Manage(#Translation) Parent(#Layout) Row(#LayoutRow2) Sizing(ContentHeightFitToWidth) Column(#LayoutColumn2) Alignment(TopLeft) Marginleft(12) Marginright(12)
+    
+    * Header Labels
+    
+    * Default Label
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem2) Manage(#Default) Parent(#Layout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Column(#LayoutColumn2) Alignment(TopLeft) Marginleft(12) Marginright(12)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#LayoutItem3) Manage(#Divider) Parent(#Layout) Row(#LayoutRow1) Sizing(None) Column(#LayoutColumn2) Alignment(BottomCenter)
+    
+    Define_Com Class(#PRIM_LABL) Name(#Default) Displayposition(1) Left(36) Parent(#COM_OWNER) Tabposition(2) Top(0) Height(48) Width(766) Tabstop(False) Selectable(True) Margintop(24) Marginbottom(24) Verticalalignment(Center)
+    
+    * Divider
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(2) Height(2) Left(0) Parent(#COM_OWNER) Tabposition(1) Tabstop(False) Themedrawstyle('TopDivider') Top(46) Width(838)
+    
+    * Translation Label
+    Define_Com Class(#PRIM_LABL) Name(#Translation) Displayposition(3) Left(36) Parent(#COM_OWNER) Tabposition(3) Top(48) Height(48) Width(766) Tabstop(False) Selectable(True) Margintop(24) Marginbottom(24) Verticalalignment(Center)
+    
+    * Current Reference
+    Define_Com Class(#BPFResourceStringItemClass) Name(#ItemString) Reference(*DYNAMIC)
+    
+    
+    * Properties
+    
+    * Events
+    
+    * Methods
+    
+    * Constructor
+    Mthroutine Name(SetRelatedReference)
+    Define_Map For(*INPUT) Class(#BPFResourceStringItemClass) Name(#RelatedReferenceString) Pass(*BY_REFERENCE)
+    
+    * Get Reference Stored and then set display
+    #ItemString <= #RelatedReferenceString
+    
+    #Default := #ItemString.Default
+    
+    #Translation := #ItemString.Translation
+    
+    Endroutine
+    
+    End_Com

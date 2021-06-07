@@ -1,0 +1,16 @@
+We have your password reset request
+
+You will recieve your email soon
+
+We have your request and are sending you an email that will help you reset your password. Just follow the steps in the email and you will be back up and running in no time. If you have any issues please let us know at accounts@myPortal.com.au
+
+Do not panic, %%APP%% has sent help and it is on its way
+
+Done
+
+
+#MAININSTRUCTION.CAPTION := #STRINGS.Text<MAININSTRUCTION.CAPTION>
+#SECONDARINSTRUCTION.CAPTION := #STRINGS.Text<SECONDARINSTRUCTION.CAPTION>
+#PANELTEXT.CAPTION := #STRINGS.Text<PANELTEXT.CAPTION>
+#DIALOGLOGO.CAPTION := #STRINGS.Text<DIALOGLOGO.CAPTION>
+#DETAILSPANELNEXTBUTTON.CAPTION := #STRINGS.Text<DETAILSPANELNEXTBUTTON.CAPTION>

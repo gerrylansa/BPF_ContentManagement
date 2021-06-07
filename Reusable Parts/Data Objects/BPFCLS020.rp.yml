@@ -1,0 +1,36 @@
+﻿Reusable Part:
+  Name:               BPFLanguageLocaleSettingItemClass
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Language Locale Setting Item Class"
+
+  - JPN:
+      Description:        "Language Locale Setting Item Class"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT *LISTFIELDS #ListFields)
+    
+    * Group by for data mapping of listfields
+    Group_By Name(#Listfields) Fields(#BPFGenericNVarChar256 #BPFGenericUnicodeString01 #std_num #BPFGenericBoolean)
+    
+    * Defintions
+    
+    * Properties
+    Define_Pty Name(Property) Get(*AUTO #BPFGenericNVarChar256)
+    Define_Pty Name(Value) Get(*AUTO #BPFGenericUnicodeString01) Set(*AUTO #BPFGenericUnicodeString01)
+    
+    * Events
+    
+    * Routines
+    
+    * Properties
+    
+    * Events
+    
+    * Methods
+    
+    End_Com

@@ -1,0 +1,45 @@
+﻿Reusable Part:
+  Name:               BPFUserSecuritySetPasswordViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "User Set Password View Strings"
+
+  - JPN:
+      Description:        "User Set Password View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Change Account Password"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enter and then confirm your new account password for %%APP%%. Be sure to keep it in a safe place and please do not tell anyone what it is."
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRYPANELHEADING.CAPTION'> := "Account Password"
+    #STRINGSCOLLECTION<'PASSWORDENTRY.CAPTION'> := "Enter your password"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORD.CAPTION'> := "Confirm your password"
+    #STRINGSCOLLECTION<'NEWPASSWORDENTRYACTION.CAPTION'> := "CHANGE"
+    
+    #STRINGSCOLLECTION<'SESSION.ONRESETUSERPASSWORDCOMPLETED'> := "Account password updated"
+    #STRINGSCOLLECTION<'SESSION.ONRESETUSERPASSWORDFAILED'> := "FAILED to update account password."
+    
+    #STRINGSCOLLECTION<'PASSWORDENTRY.BLANK'> := "Please enter your password"
+    #STRINGSCOLLECTION<'PASSWORDENTRY.WEAK'> := "This password is to weak"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORD.BLANK'> := "Please confirm your password"
+    #STRINGSCOLLECTION<'CONFIRMPASSWORD.NOMATCH'> := "The passwords do not match"
+    
+    Endroutine
+    
+    End_Com

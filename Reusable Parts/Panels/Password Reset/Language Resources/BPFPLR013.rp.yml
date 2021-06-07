@@ -1,0 +1,44 @@
+﻿Reusable Part:
+  Name:               BPFPasswordResetFailedPanelStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Password Reset Failed Panel Strings"
+
+  - JPN:
+      Description:        "Password Reset Failed Panel Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'MAININSTRUCTION.CAPTION'> := "Sorry... something is a miss here"
+    
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION'> := "The details for the request are not valid"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION'> := "The link you have used to try and reset your account is not a valid one. If you clicked the link in your reset password email and got this error, then let us know at accounts@myportal.com.au. Otherwise, I think you might be up to no good here. In which case, please stop."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION'> := "All done"
+    #STRINGSCOLLECTION<'DETAILSPANELNEXTBUTTON.CAPTION'> := "Done"
+    
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION.SECURITY'> := "We cannot check your details"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION.SECURITY'> := "We have tried to check your security credentials, but we are encountering an issue. You request might have expired, so please try going through the forget password again. Otherwise if you still have an issue, let us now at accounts@myportal.com.au."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION.SECURITY'> := "Stay Calm. There is an issue with this request"
+    
+    #STRINGSCOLLECTION<'SECONDARYINSTRUCTION.CAPTION.PASSWORD'> := "Your new password could not be saved"
+    #STRINGSCOLLECTION<'PANELTEXT.CAPTION.PASSWORD'> := "We have tried to save your new password, but we encountered an issue. You password reset request might have expired, so please try going through the forget password again. Otherwise if you still have an issue, let us now at accounts@myportal.com.au."
+    #STRINGSCOLLECTION<'DIALOGLOGO.CAPTION.PASSWORD'> := "Stay Calm. There was an issue saving your password."
+    
+    Endroutine
+    
+    End_Com

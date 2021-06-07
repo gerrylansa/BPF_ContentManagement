@@ -1,0 +1,40 @@
+﻿Reusable Part:
+  Name:               BPFSystemWebPathsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "System Web Paths View Strings"
+
+  - JPN:
+      Description:        "System Web Paths View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Portal Web Paths"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "View or edit the current web paths used by portal in emails notifications sent to the end users such as the welcome and password reset. The value entered should match the current URL used to access the portal."
+    
+    #STRINGSCOLLECTION<'SETTINGSHEADING.CAPTION'> := "Web Paths"
+    
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.URL'> := "Portal URL"
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.HOST'> := "Portal Host"
+    #STRINGSCOLLECTION<'LISTLABEL.CAPTION.PATH'> := "Portal Path"
+    
+    #STRINGSCOLLECTION<'PORTALSETTINGS.ONGETWEBPATHSFAILED'> := "Settings saved"
+    
+    Endroutine
+    
+    End_Com

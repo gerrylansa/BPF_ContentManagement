@@ -1,0 +1,167 @@
+﻿Reusable Part:
+  Name:               BPFActionMessages
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Inter Window Messages"
+
+  - JPN:
+      Description:        "Portal Inter Window Messages"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #PRIM_OBJT)
+    
+    * Definitions
+    
+    * Properties
+    Define_Pty Name(KeepChannelAlive) Get(*AUTO #KeepChannelAlive) Set(*AUTO #KeepChannelAlive)
+    Define_Com Class(#PRIM_BOLN) Name(#KeepChannelAlive)
+    
+    * Events
+    
+    Define_Evt Name(OnActionRecieved)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ActionValue)
+    
+    * Gloabal Variable
+    Define_Com Class(#PRIM_BOLN) Name(#BlockMessageAction)
+    Define_Com Class(#PRIM_ALPH) Name(#CurrentEventID)
+    Define_Com Class(#PRIM_ALPH) Name(#ActionValue)
+    Define_Com Class(#PRIM_ALPH) Name(#MessaqeString)
+    Define_Com Class(#PRIM_ALPH) Name(#ActionEventID)
+    
+    
+    Define_Com Class(#PRIM_TIMR) Name(#SignalDelay) Interval(1) Startup(Manual)
+    
+    * Events
+    
+    * Okay lets get the party started. Below we are starting up the message channel between the various
+    * windows/tabs for a browser instance. The message channel is a localStorage key that we write to in
+    * order to pass values between the windows/tabs. When the value changes, the StorageChanged fires and
+    * we can then signal that a message has been reecieved.
+    
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    * Block the StorageChange from being actioned
+    #BlockMessageAction := True
+    
+    * Check if Storage is accessible. This will also ensure that the initial write done by VL to see if
+    * Storage is accessible is done and out of the way to ensure consistant performance.
+    If ((#SYS_WEB.SessionStorage.Available) *And (#SYS_WEB.LocalStorage.Available))
+    
+    * Do we have a message channel?
+    If (#SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'> *Is *Null)
+    
+    * Not there so add
+    #SYS_WEB.LocalStorage.Add Key('BPF.MESSAGE.CHANNEL') Value(*blank)
+    
+    Else
+    
+    * Is there so update
+    #SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'>.Value := *blank
+    
+    Endif
+    
+    Endif
+    
+    * Remove the message action block for StorageChanged event.
+    #BlockMessageAction := False
+    
+    Endroutine
+    
+    * Proabably wont fire, but it is here for completeness
+    Evtroutine Handling(#COM_OWNER.DestroyInstance)
+    
+    If (#KeepChannelAlive.IsFalse)
+    #SYS_WEB.LocalStorage.Remove Key('BPF.MESSAGE.CHANNEL')
+    Endif
+    
+    Endroutine
+    
+    * Okay turns out session storage is a hard event to manage. So we do not know what causes the change,
+    * it could be the key we are using for the message channel is not the one that gets changed. So how do
+    * we know that we need to action the event? I am not sure but currently I believe I need a action ID. If
+    * the action ID is different then we signal, otherwise the message channel has not changed.
+    Evtroutine Handling(#SYS_WEB.StorageChanged) Storagetype(#ChangedStorageType)
+    
+    * Do Not Processes if blocked
+    If (#BlockMessageAction)
+    
+    Return
+    
+    Endif
+    
+    * Messages are only sent via localStorage
+    If (#ChangedStorageType = SESSIONSTORAGE)
+    
+    Return
+    
+    Endif
+    
+    * Okay we can try to process now, so get message string
+    If (#SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'> *IsNot *Null)
+    
+    #MessaqeString := #SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'>.value
+    
+    #SignalDelay.Stop
+    #SignalDelay.Start
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#SignalDelay.Tick)
+    
+    * Stop the timer
+    #SignalDelay.stop
+    
+    * Check Message Details
+    If (#MessaqeString.IsNull.IsFalse)
+    
+    If ((#MessaqeString.Contains( 'ID: "' )) *And (#MessaqeString.Contains( 'MSG: "' )))
+    
+    * Get Message Value
+    #ActionEventID := #MessaqeString.Substring( 7 ((#MessaqeString.PositionOf( '",' ) - 1) - 6) )
+    #ActionValue := #MessaqeString.Substring( (#MessaqeString.LastPositionOf( ': "' ) + 3) ).Remove( '"}' )
+    
+    * Check if this event is new
+    If (#CurrentEventID <> #ActionEventID)
+    
+    #CurrentEventID := #ActionEventID
+    Signal Event(OnActionRecieved) Actionvalue(#ActionValue)
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    
+    Endroutine
+    
+    Mthroutine Name(SendAction)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#MessageValue) Mandatory(*NULL)
+    
+    If (#MessageValue.IsNull.IsFalse)
+    
+    * Block the StorageChange from being actioned
+    #BlockMessageAction := True
+    
+    If (#SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'> *IsNot *Null)
+    
+    * Put the value into the message channel
+    #CurrentEventID := #BPFGenericDateTime.Now.AsSeconds.AsString
+    #SYS_WEB.LocalStorage<'BPF.MESSAGE.CHANNEL'>.Value := '{ID: "' + #CurrentEventID + '", MSG: "' + #MessageValue + '"}'
+    
+    Endif
+    
+    Endif
+    
+    * Remove the message action block for StorageChanged event.
+    #BlockMessageAction := False
+    
+    Endroutine
+    
+    End_Com

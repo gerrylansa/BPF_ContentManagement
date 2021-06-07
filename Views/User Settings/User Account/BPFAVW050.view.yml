@@ -1,0 +1,308 @@
+﻿Web View:
+  Name:               BPFUserAccountEditView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal User Account Edit View"
+
+  - JPN:
+      Description:        "Portal User Account Edit View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Width(1700) Height(800) Layoutmanager(#MainLayout) Verticalscroll(True)
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Scope(*APPLICATION)
+    
+    * Language Support
+    Define_Com Class(#BPFUserAccountEditStrings) Name(#Strings)
+    
+    * Styles
+    Define_Com Class(#PRIM_VS.Style) Name(#RoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1)
+    Define_Com Class(#PRIM_VS.Style) Name(#NavigationLinkStyle) Cursor(Hand)
+    
+    * Main View Layout
+    Define_Com Class(#PRIM_TBLO) Name(#MainLayout) Margintop(24)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn1) Displayposition(1) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn2) Displayposition(2) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn3) Displayposition(3) Parent(#MainLayout) Width(96) Minwidth(280) Maxwidth(880)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn4) Displayposition(4) Parent(#MainLayout) Maxwidth(60)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#LayoutColumn5) Displayposition(5) Parent(#MainLayout) Minwidth(8)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#LayoutRow1) Displayposition(1) Parent(#MainLayout) Height(76) Units(Content)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainLayoutRow1) Displayposition(2) Parent(#MainLayout) Height(419) Units(Content)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem1) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#PanelHeading) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem2) Alignment(TopLeft) Column(#LayoutColumn2) Manage(#InstructionText) Parent(#MainLayout) Row(#LayoutRow1) Sizing(ContentHeightFitToWidth) Flow(Down) Margintop(24) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem3) Alignment(TopLeft) Column(#LayoutColumn3) Manage(#AccountDetailsEntryPanel) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(24)
+    
+    * Enabled Panel Layout
+    Define_Com Class(#PRIM_TBLO.Item) Name(#MainLayoutItem4) Alignment(TopLeft) Column(#LayoutColumn3) Flow(Down) Manage(#BottomMargin) Parent(#MainLayout) Row(#MainLayoutRow1) Sizing(FitToWidth)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#AccountEntryPanelLayout) Sizing(ContentHeight)
+    
+    * Rows and Columns
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountEntryPanelLayoutRow1) Displayposition(1) Parent(#AccountEntryPanelLayout) Units(Content) Height(313)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#AccountEntryPanelLayoutRow2) Displayposition(2) Parent(#AccountEntryPanelLayout) Units(Pixels) Height(56)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountEntryPanelLayoutColumn1) Displayposition(1) Parent(#AccountEntryPanelLayout) Minwidth(24)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountPanelLayoutColumn2) Displayposition(2) Parent(#AccountEntryPanelLayout) Width(98)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#AccountPanelLayoutColumn3) Displayposition(3) Parent(#AccountEntryPanelLayout) Minwidth(24)
+    
+    * Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem1) Manage(#AccountDetailsPanelHeading) Parent(#AccountEntryPanelLayout) Row(#AccountEntryPanelLayoutRow1) Sizing(ContentHeightFitToWidth) Column(#AccountPanelLayoutColumn2) Alignment(TopLeft) Flow(Down) Margintop(24) Marginbottom(16)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem3) Column(#AccountEntryPanelLayoutColumn1) Manage(#Divider) Parent(#AccountEntryPanelLayout) Sizing(FitToWidth) Row(#AccountEntryPanelLayoutRow2) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem4) Alignment(CenterRight) Column(#AccountPanelLayoutColumn2) Manage(#SaveAction) Parent(#AccountEntryPanelLayout) Row(#AccountEntryPanelLayoutRow2) Sizing(None)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem5) Alignment(TopLeft) Column(#AccountPanelLayoutColumn2) Manage(#FirstNameEdit) Parent(#AccountEntryPanelLayout) Row(#AccountEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem2) Alignment(TopLeft) Column(#AccountPanelLayoutColumn2) Manage(#UserEmailEdit) Parent(#AccountEntryPanelLayout) Row(#AccountEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#AccountPanelLayoutItem11) Alignment(TopLeft) Column(#AccountPanelLayoutColumn2) Manage(#LastNameEdit) Parent(#AccountEntryPanelLayout) Row(#AccountEntryPanelLayoutRow1) Sizing(FitToWidth) Flow(Down) Margintop(8)
+    
+    * Main Controls
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelHeading) Displayposition(1) Left(350) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading1') Top(24) Width(1000) Icon('arrow_back') Captionmarginleft(24) Height(31) Wordwrap(True) Caption('Edit Account') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#InstructionText) Captionalignment(TopLeft) Displayposition(2) Height(21) Left(350) Parent(#COM_OWNER) Tabposition(2) Top(79) Width(1000) Wordwrap(True) Caption('Enter the information about you that we will use to communicate with you. You are the only one who is able to change this information.')
+    
+    * Password Entry Panel & Controls
+    Define_Com Class(#PRIM_PANL) Name(#AccountDetailsEntryPanel) Displayposition(3) Height(371) Left(410) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(124) Width(880) Themedrawstyle('Card') Style(#RoundedCornerStyle) Layoutmanager(#AccountEntryPanelLayout)
+    Define_Com Class(#PRIM_MD.Label) Name(#AccountDetailsPanelHeading) Caption('Your Account') Displayposition(1) Left(24) Parent(#AccountDetailsEntryPanel) Tabposition(1) Themedrawstyle('Heading3') Top(24) Width(830) Wordwrap(True) Height(24)
+    Define_Com Class(#PRIM_MD.Edit) Name(#FirstNameEdit) Caption('First name') Displayposition(3) Left(24) Parent(#AccountDetailsEntryPanel) Tabposition(3) Top(155) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#UserEmailEdit) Caption('Email') Displayposition(2) Left(24) Parent(#AccountDetailsEntryPanel) Tabposition(2) Top(72) Width(830)
+    Define_Com Class(#PRIM_MD.Edit) Name(#LastNameEdit) Caption('Last name') Displayposition(4) Left(24) Parent(#AccountDetailsEntryPanel) Tabposition(5) Top(238) Width(830)
+    
+    Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(6) Height(8) Left(0) Parent(#AccountDetailsEntryPanel) Tabposition(4) Tabstop(False) Themedrawstyle('TopDivider') Top(313) Width(878)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#SaveAction) Caption('SAVE') Displayposition(5) Left(754) Parent(#AccountDetailsEntryPanel) Tabposition(6) Themedrawstyle('ForegroundMediumPrimary') Top(323) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.Label) Name(#BottomMargin) Displayposition(4) Left(410) Parent(#COM_OWNER) Tabposition(4) Top(495) Height(24) Width(880)
+    
+    *
+    Define_Com Class(#PRIM_BOLN) Name(#AccountInUse)
+    Define_Com Class(#PRIM_TIMR) Name(#AccountCheckDelay) Interval(250) Startup(Manual)
+    
+    * References
+    Define_Com Class(#BPFUserAccountClass) Name(#CurrentUser) Reference(*DYNAMIC)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    * Get Reference to logging data client
+    #CurrentUser <= #Session.CurrentUser
+    
+    * Set Strings
+    #COM_SELF.SetStrings
+    
+    #COM_SELF.Populate
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#PanelHeading.Click)
+    
+    #SYS_WEB.History.GoBack
+    
+    Endroutine
+    
+    * Data
+    Evtroutine Handling(#Session.OnCheckAccountCompleted) Accountexists(#Exists)
+    
+    #COM_SELF.HandleAccountExists( #Exists )
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.OnCheckAccountFailed)
+    
+    #BPFPortal.ShowToaster( (#STRINGS.Text<'MESSAGE.ONCHECKACCOUNTFAILED'>) )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetAccountDetailsCompleted)
+    
+    #SYS_WEB.History.GoBack
+    #BPFPortal.ShowToaster( #STRINGS.Text<'MESSAGE.ONSETACCOUNTDETAILSCOMPLETED'> )
+    
+    Endroutine
+    
+    Evtroutine Handling(#CurrentUser.OnSetAccountDetailsFailed)
+    
+    #BPFPortal.ViewsPanel.SetWaitingState( OFF )
+    #BPFPortal.ShowToaster( #STRINGS.Text<'MESSAGE.ONSETACCOUNTDETAILSFAILED'> 7500 )
+    
+    Endroutine
+    
+    * Actions
+    Evtroutine Handling(#SaveAction.Click)
+    
+    If (#COM_SELF.CheckDataIsValid)
+    
+    * Save user account data, pass in values
+    #BPFPortal.ViewsPanel.SetWaitingState( ON )
+    
+    #CurrentUser.SetAccountDetails( #UserEmailEdit #FirstNameEdit #LastNameEdit )
+    
+    Endif
+    
+    Endroutine
+    
+    * Field Events
+    Evtroutine Handling(#UserEmailEdit.Changed)
+    
+    * Check email, update when not in use.
+    If (#UserEmailEdit.value.IsValidEmail)
+    
+    #AccountCheckDelay.Stop
+    #AccountCheckDelay.Start
+    
+    Else
+    
+    #UserEmailEdit.HelperColor := ''
+    #UserEmailEdit.HelperText := #UserEmailEdit.ComponentTag
+    
+    Endif
+    
+    Endroutine
+    
+    Evtroutine Handling(#AccountCheckDelay.Tick)
+    
+    #AccountCheckDelay.Stop
+    #COM_SELF.HandleCheckEmail
+    
+    Endroutine
+    
+    * Methods
+    
+    * Set String
+    Mthroutine Name(SetStrings) Access(*PRIVATE)
+    
+    #PANELHEADING.CAPTION := #Strings.Text<PANELHEADING.CAPTION>
+    #INSTRUCTIONTEXT.CAPTION := #Strings.Text<INSTRUCTIONTEXT.CAPTION>
+    
+    #ACCOUNTDETAILSPANELHEADING.CAPTION := #Strings.Text<ACCOUNTDETAILSPANELHEADING.CAPTION>
+    #USEREMAILEDIT.CAPTION := #Strings.Text<USEREMAILEDIT.CAPTION>
+    #FIRSTNAMEEDIT.CAPTION := #Strings.Text<FIRSTNAMEEDIT.CAPTION>
+    #LASTNAMEEDIT.CAPTION := #Strings.Text<LASTNAMEEDIT.CAPTION>
+    
+    #SAVEACTION.CAPTION := #Strings.Text<SAVEACTION.CAPTION>
+    
+    Endroutine
+    
+    * Populate
+    Mthroutine Name(Populate)
+    
+    * Populate Fields
+    #UserEmailEdit := #CurrentUser.EmailAdress
+    #FirstNameEdit := #CurrentUser.FirstName
+    #LastNameEdit := #CurrentUser.LastName
+    
+    Endroutine
+    
+    * Check if new address is in use
+    Mthroutine Name(HandleCheckEmail)
+    
+    If (#CurrentUser.EmailAdress <> #UserEmailEdit)
+    
+    #Session.CheckForAccount( #UserEmailEdit )
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleAccountExists)
+    Define_Map For(*INPUT) Class(#PRIM_BOLN) Name(#Exists)
+    
+    #AccountInUse := #Exists
+    
+    If (#AccountInUse)
+    
+    #UserEmailEdit.ShowError( #STRINGS.Text<'USEREMAILEDIT.INUSE.ERROR'> )
+    
+    Else
+    
+    #UserEmailEdit.ClearError
+    #UserEmailEdit.HelperColor := 'ThemeSuccessMedium'
+    #UserEmailEdit.HelperText := #STRINGS.Text<'USEREMAILEDIT.INUSE.OKAY'>
+    
+    Endif
+    
+    Endroutine
+    
+    * Check if data is valid
+    Mthroutine Name(CheckDataIsValid)
+    Define_Map For(*RESULT) Class(#PRIM_BOLN) Name(#Result)
+    
+    * Assume Success
+    #Result := True
+    #Com_self.ClearAllErrors
+    
+    * Check for First name
+    If (#FirstNameEdit.value.IsNull)
+    
+    #FirstNameEdit.ShowError( #STRINGS.Text<'FIRSTNAMEEDIT.ERROR'> )
+    
+    Endif
+    
+    * Check for Last Name
+    If (#LastNameEdit.value.IsNull)
+    
+    #LastNameEdit.ShowError( #STRINGS.Text<'LASTNAMEEDIT.ERROR'> )
+    
+    Endif
+    
+    * Check email for blank in use
+    If (#UserEmailEdit.value.IsNull)
+    
+    #UserEmailEdit.ShowError( #STRINGS.Text<'USEREMAILEDIT.ENTRY.ERROR'> )
+    
+    Else
+    
+    If (#UserEmailEdit.value.IsValidEmail.IsFalse)
+    
+    #UserEmailEdit.ShowError( #STRINGS.Text<'USEREMAILEDIT.VALID.ERROR'> )
+    
+    Else
+    
+    If (#AccountInUse)
+    
+    #UserEmailEdit.ShowError( #STRINGS.Text<'USEREMAILEDIT.INUSE.ERROR'> )
+    
+    Endif
+    
+    Endif
+    
+    Endif
+    
+    * Check if we have any errors
+    For Each(#control) In(#AccountDetailsEntryPanel.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.Edit)
+    
+    If (#control.HasError)
+    
+    #Result := False
+    Return
+    
+    Endif
+    
+    Endfor
+    
+    Endroutine
+    
+    Mthroutine Name(ClearAllErrors) Access(*PRIVATE)
+    
+    * Check if we have any errors
+    For Each(#Control) In(#AccountDetailsEntryPanel.ComponentControls) Operation(*INSTANCE_OF #PRIM_MD.Edit)
+    
+    If (#Control.HasError)
+    
+    #Control.ClearError
+    
+    Endif
+    
+    Endfor
+    
+    Endroutine
+    
+    End_Com

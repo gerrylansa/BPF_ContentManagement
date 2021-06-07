@@ -1,0 +1,44 @@
+﻿Reusable Part:
+  Name:               BPFAnalyticsSettingsViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Analytics Settings View Strings"
+
+  - JPN:
+      Description:        "Analytics Settings View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'PANELHEADING.CAPTION'> := "Configure Analytics"
+    #STRINGSCOLLECTION<'INSTRUCTIONTEXT.CAPTION'> := "Enable the tracking of end user behaviour and usage trends of the portal via Google Analytics. Once enabled enter the tracking code for property you created in Google Analytics for this portal instance. Ensure you do not reuse a tracking code to avoid issues with the data that has already been collected."
+    
+    #STRINGSCOLLECTION<'CONTROLPANELHEADING.CAPTION'> := "Analytics Settings"
+    
+    #STRINGSCOLLECTION<'ENABLEANALYTICS.CAPTION'> := "Enabled"
+    #STRINGSCOLLECTION<'ANALYTICSTRACKINGCODEEDIT.CAPTION'> := "Tracking Code"
+    #STRINGSCOLLECTION<'ANALYTICSTRACKINGCODEEDIT.HELPERTEXT'> := "e.g. UA-123456789-1"
+    
+    #STRINGSCOLLECTION<'PANELACTION.CAPTION'> := "SAVE"
+    
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONGETANALYTICSSETTINGSFAILED'> := "FAILED to get settings"
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONSAVEANALYTICSSETTINGSCOMPLETED'> := "Settings saved"
+    #STRINGSCOLLECTION<'TRACKINGSETTINGS.ONSAVEANALYTICSSETTINGSFAILED'> := "FAILED to save settings"
+    
+    Endroutine
+    
+    End_Com
