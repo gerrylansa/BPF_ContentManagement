@@ -148,7 +148,7 @@
     Fetch Fields(#BPFUserPreferenceEmailLanguage) From_File(BPFPortalUserPreferences) With_Key(#UserIdenitifer)
     
     * Return Result
-    #Result := (#IO$STS = OK)
+    #Result := (#IO£STS = OK)
     
     * Okay now we have the user we need to check the system role is not production
     * to ensure that email can be sent or overriden as required

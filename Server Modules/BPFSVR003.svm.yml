@@ -159,13 +159,13 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #BPFStatus := OK
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     Endif
     

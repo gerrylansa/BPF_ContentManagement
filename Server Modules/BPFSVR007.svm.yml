@@ -97,7 +97,7 @@
     Endif
     
     Fetch Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     Endroutine
     
@@ -116,7 +116,7 @@
     #Secure.CheckIsValidRequest( 'GetAnalyticsSettings' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
     
     Fetch Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) From_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     Endroutine
     
@@ -136,7 +136,7 @@
     #Secure.CheckIsValidRequest( 'SaveAnalytics' #WRQSCKE #WRQSTID #WRQSTTS #sSessionAuthenicated )
     
     Update Fields(#BPFCodeNumericValue #BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key('GA' 'TRACKING')
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     Endroutine
     

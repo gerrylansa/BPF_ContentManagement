@@ -892,7 +892,7 @@
     * Only do if user is allowed to view this item
     Fetch Fields(#BPFContentItemObject) From_File(BPFContentItemLibrary) With_Key(#RequestedContent)
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(GetItemObject) : Attempting to get object for item ' + #RequestedShareItem + ' ended with status of ' + #BPFStatus) )
     
@@ -990,7 +990,7 @@
     #BPFContentItemAlphaDetail := '0'
     Add_Entry To_List(#ParentItems)
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddFolderItem) : Adding folder ended with status ' + #BPFStatus) )
     
     Endroutine
@@ -1074,7 +1074,7 @@
     
     Endselect
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.Log( ('Content Sharing Data Server : Srvroutine Name(AddShareItem) : Adding of content item to share completed with status ' + #BPFStatus) )
     
     Endroutine

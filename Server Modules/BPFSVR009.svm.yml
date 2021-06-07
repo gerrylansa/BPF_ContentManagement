@@ -507,14 +507,14 @@
     Endselect
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     #BPFStatus := OK
     #Utils.log( ('Admin User Account Data Server : get of last session events success') )
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : get of last session events failed') )
     
     Endif
@@ -593,19 +593,19 @@
     
     Endselect
     
-    Leave If(#IO$STS = ER)
+    Leave If(#IO£STS = ER)
     
     Endselect
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     #BPFStatus := OK
     #Utils.log( ('Admin User Account Data Server : get of session events success') )
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : get of session events failed') )
     
     Endif
@@ -670,7 +670,7 @@
     Update Fields(#BPFUserHasAdminRights) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     #BPFStatus := OK
     #Utils.log( ('Admin User Account Data Server : user ' + #RequestedIdentifier + ' had admin rights set to ' + #BPFUserHasAdminRights.asstring).AsNativeString )
@@ -688,7 +688,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to set admin rights') )
     
     Endif
@@ -745,7 +745,7 @@
     Update Fields(#BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.DISABLED False #BPFUserEmail.AsNativeString )
@@ -769,7 +769,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to set user ' + #RequestedIdentifier.AsNativeString + ' to disabled') )
     
     Endif
@@ -826,7 +826,7 @@
     Update Fields(#BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.ENABLE False #BPFUserEmail.AsNativeString )
@@ -850,7 +850,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to set user ' + #RequestedIdentifier.AsNativeString + ' to be enabled') )
     
     Endif
@@ -905,7 +905,7 @@
     Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.RESET False #BPFUserEmail.AsNativeString )
@@ -925,7 +925,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
     
     Endif
@@ -981,7 +981,7 @@
     Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.CONFIRM False #BPFUserEmail.AsNativeString )
@@ -1001,7 +1001,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
     
     Endif
@@ -1056,7 +1056,7 @@
     Update Fields(#BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.SECURITY False #BPFUserEmail.AsNativeString )
@@ -1076,7 +1076,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to update user ' + #RequestedIdentifier.AsNativeString + ' event token') )
     
     Endif
@@ -1139,7 +1139,7 @@
     Update Fields(#BPFUserPassword #BPFUserInvalidAttempts #BPFUserSecurityQuestion #BPFUserSecurityValue #BPFUserPrimaryValue #BPFUserSecondaryValue #BPFUserAccountEnabled #BPFUserEventToken) In_File(BPFPortalUserAccounts) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.SECURITY.SENT False #BPFUserEmail.AsNativeString )
@@ -1163,7 +1163,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('Admin User Account Data Server : failed to reset secuirty for user ' + #RequestedIdentifier.AsNativeString) )
     
     Endif
@@ -1217,7 +1217,7 @@
     Update Fields(#BPFUserPreferenceContentShare) In_File(BPFPortalUserPreferences) With_Key(#RequestedIdentifier)
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Log Event
     #SessionTracker.LogEvent( #TrackingID ADMIN.ACCOUNTACTION.CONTENT.SET False #BPFUserEmail.AsNativeString )

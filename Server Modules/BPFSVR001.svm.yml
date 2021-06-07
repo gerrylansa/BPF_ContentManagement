@@ -374,7 +374,7 @@
     #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : Clean user is ' + #CheckUser.AsNativeString) )
     
     Fetch Fields(#BPFUserAccountInternalKey #BPFUserAccountEnabled #BPFUserLastAuthorised) From_File(BPFPortalUserAccountByEmail) With_Key(#CheckUser)
-    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : search result was ' + #BPFUserAccountInternalKey.AsNativeString + '/' + #BPFUserAccountEnabled.asstring + ' status is  ' + #IO$STS) )
+    #Utils.Log( ('Data Server : Srvroutine Name(setAnalytics) : search result was ' + #BPFUserAccountInternalKey.AsNativeString + '/' + #BPFUserAccountEnabled.asstring + ' status is  ' + #IO£STS) )
     
     If_Status Is(*OKAY)
     
@@ -452,7 +452,7 @@
     * Inbound Request Check Values
     Group_Map For(*INPUT) Group(#ValidRequestGroup)
     
-    Field_Map For(*OUTPUT) Field(#io$sts)
+    Field_Map For(*OUTPUT) Field(#IO£STS)
     
     * Force validation of request for logout
     #Secure.CheckIsValidRequest( 'Logout' #WRQSCKE #WRQSTID #WRQSTTS true )
@@ -463,7 +463,7 @@
     #Com_owner.EndSession
     #Secure.ClearValidSessionRequests( #WRQSCKE )
     
-    #io$sts := OK
+    #IO£STS := OK
     
     Endroutine
     
@@ -751,7 +751,7 @@
     Group_Map For(*INPUT) Group(#ValidRequestGroup)
     
     * Outbound
-    Field_Map For(*OUTPUT) Field(#IO$STS) Parameter_Name(Status)
+    Field_Map For(*OUTPUT) Field(#IO£STS) Parameter_Name(Status)
     
     * Check for duplicated request
     #Secure.CheckIsValidRequest( 'CheckForAccount' #WRQSCKE #WRQSTID #WRQSTTS True )
@@ -1084,7 +1084,7 @@
     
     * Set their language preference
     Update Fields(#BPFUserPreferenceEmailLanguage) In_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey) Io_Error(*NEXT) Val_Error(*NEXT)
-    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Update preference ended with status ' + #io$sts) )
+    #Utils.Log( ('Data Server : Srvroutine Name(CreateStoredNewUser) : Update preference ended with status ' + #IO£STS) )
     
     #SessionTracker.UpdateRelatedUserID( #TrackingID #BPFUserAccountInternalKey )
     

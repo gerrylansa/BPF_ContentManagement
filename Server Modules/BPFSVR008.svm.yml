@@ -160,15 +160,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting web paths : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -228,15 +228,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting web paths : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting web paths : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -297,15 +297,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting API keys : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting API keys : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting API keys : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -369,15 +369,15 @@
     Sort_List Named(#CodesGroup) By_Fields(#BPFCodeSequence)
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting folder names : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting folder names : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting folder names : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -443,15 +443,15 @@
     Sort_List Named(#CodesGroup) By_Fields(#BPFCodeSequence)
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting resources : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -487,15 +487,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting resources : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting resources : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -690,15 +690,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('System Settings Data Server : Getting event labels : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('System Settings Data Server : Getting event labels: failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('System Settings Data Server : Getting event labels: failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     

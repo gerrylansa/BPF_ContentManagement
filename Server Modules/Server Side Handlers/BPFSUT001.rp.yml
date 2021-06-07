@@ -208,12 +208,12 @@
     Define_Map For(*INPUT) Class(#BPFCodeAlphaValue) Name(#Value)
     
     * Result
-    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    Define_Map For(*RESULT) Class(#IO£STS) Name(#Result)
     
     #BPFCodeAlphaValue := #Value
     
     Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
-    #Result := #IO$STS
+    #Result := #IO£STS
     
     Endroutine
     
@@ -228,7 +228,7 @@
     Define_Map For(*INPUT) Class(#PRIM_DC.UnicodeString) Name(#Value)
     
     * Result
-    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    Define_Map For(*RESULT) Class(#IO£STS) Name(#Result)
     
     * JSON Document
     Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
@@ -273,9 +273,9 @@
     #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Updated string is ' + #BPFCodeAlphaValue) )
     
     Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
-    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Update status was ' + #IO$STS) )
+    #COM_SELF.Log( ('Utils : SetAlpaValueForLanguage : Update status was ' + #IO£STS) )
     
-    #Result := #IO$STS
+    #Result := #IO£STS
     
     Else
     
@@ -300,7 +300,7 @@
     Define_Map For(*INPUT) Class(#BPFCodeSequence) Name(#Sequence) Mandatory(1)
     
     * Result
-    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    Define_Map For(*RESULT) Class(#IO£STS) Name(#Result)
     
     * JSON Document
     Define_Com Class(#PRIM_JSON.Document) Name(#JSONDocument)
@@ -342,9 +342,9 @@
     #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Updated string is ' + #BPFCodeAlphaValue) )
     
     Update Fields(#BPFCodeAlphaValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
-    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Update status was ' + #IO$STS) )
+    #COM_SELF.Log( ('Utils : RemoveAlpaValueForLanguage : Update status was ' + #IO£STS) )
     
-    #Result := #IO$STS
+    #Result := #IO£STS
     
     Else
     
@@ -369,12 +369,12 @@
     Define_Map For(*INPUT) Class(#BPFCodeNumericValue) Name(#Value)
     
     * Result
-    Define_Map For(*RESULT) Class(#IO$STS) Name(#Result)
+    Define_Map For(*RESULT) Class(#IO£STS) Name(#Result)
     
     #BPFCodeNumericValue := #Value
     
     Update Fields(#BPFCodeNumericValue) In_File(BPFSystemCodes) With_Key(#Group #Code #Sequence)
-    #Result := #IO$STS
+    #Result := #IO£STS
     
     Endroutine
     
@@ -404,7 +404,7 @@
     * Ensure Logging is output
     * If (#LoggingEnabled *Or #OverrideDisabled)
     *
-    * Use Builtin(TRANSFORM_LIST) With_Args(#logBody #Filename "OU") To_Get(#IO$STS)
+    * Use Builtin(TRANSFORM_LIST) With_Args(#logBody #Filename "OU") To_Get(#IO£STS)
     *
     * Endif
     

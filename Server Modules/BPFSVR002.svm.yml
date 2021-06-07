@@ -211,14 +211,14 @@
     Endselect
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     #BPFStatus := OK
     #Utils.log( ('User Account Data Server : get of last session events success') )
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('User Account Data Server : get of last session events failed') )
     
     Endif
@@ -294,19 +294,19 @@
     
     Endselect
     
-    Leave If(#IO$STS = ER)
+    Leave If(#IO£STS = ER)
     
     Endselect
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     #BPFStatus := OK
     #Utils.log( ('User Account Data Server : get of session events success') )
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #Utils.log( ('User Account Data Server : get of session events failed') )
     
     Endif
@@ -409,7 +409,7 @@
     #SessionTracker.LogEvent( #TrackingID TRACKING.DELETE.RANGE False #EndDateTimeRange.Date.AsDisplayString( DDsMMsCCYY ) )
     
     * Set Status
-    If (#IO$STS <> ER)
+    If (#IO£STS <> ER)
     
     * Set Success
     #BPFStatus := OK
@@ -417,7 +417,7 @@
     
     Else
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     #SessionTracker.LogEvent( #TrackingID TRACKING.DELETE.FAILED True )
     
     Endif
@@ -443,7 +443,7 @@
     * Update Preferences
     Update Fields(#BPFUserPreferenceEmailLanguage) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     * Update session events
     If (#BPFStatus = OK)
@@ -479,7 +479,7 @@
     * Update Preferences
     Update Fields(#BPFUserPreferenceBackground) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     * Update session events
     If (#BPFStatus = OK)
@@ -515,7 +515,7 @@
     * Update Preferences
     Update Fields(#BPFUserPreferenceTheme) In_File(BPFPortalUserPreferences) With_Key(#sUserAccountIdentifier)
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     * Update session events
     If (#BPFStatus = OK)
@@ -552,7 +552,7 @@
     * Fetch Profile
     Fetch Fields(#BPFUserEmail #BPFUserFirstName #BPFUserLastName) From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
     
-    If (#IO$STS = OK)
+    If (#IO£STS = OK)
     
     * Got data so add and send
     #BPFStatus := OK
@@ -589,7 +589,7 @@
     * Fetch Profile
     Fetch Fields(#Profile) From_File(BPFPortalUserProfile) With_Key(#sUserAccountIdentifier)
     
-    If (#IO$STS = OK)
+    If (#IO£STS = OK)
     
     * set the language specific description
     #BPFCodeDescription := #Strings.Text<#BPFProfileCountry.AsNativeString>
@@ -623,7 +623,7 @@
     * Update Profile
     Update Fields(#Profile) In_File(BPFPortalUserProfile) With_Key(#sUserAccountIdentifier)
     
-    If (#IO$STS = OK)
+    If (#IO£STS = OK)
     
     * Got data so add and send
     #BPFStatus := OK
@@ -754,7 +754,7 @@
     * Delete Account
     Delete From_File(BPFPortalUserAccounts) With_Key(#sUserAccountIdentifier)
     
-    If (#IO$STS = OK)
+    If (#IO£STS = OK)
     
     * We need to forget and move on
     #COM_SELF.EndSession

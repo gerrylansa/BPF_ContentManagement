@@ -186,7 +186,7 @@
     #BPFSessionRelatedUserID := #ForUser
     Update Fields(#BPFSessionRelatedUserID) In_File(BPFSessions) With_Key(#Tracker)
     
-    #Result := (#IO$STS = OK)
+    #Result := (#IO£STS = OK)
     
     Endif
     

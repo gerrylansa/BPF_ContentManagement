@@ -184,21 +184,21 @@
     * Prepare the system for import of settings
     * Essentially, just delete all the settings
     Delete From_File(BPFSystemCodes) Where(#BPFCodeGroup <> *BLANK)
-    #COM_SELF.log( ('System codes removed with status of ' + #IO$STS) )
+    #COM_SELF.log( ('System codes removed with status of ' + #IO£STS) )
     
-    If (#IO$STS = ER)
+    If (#IO£STS = ER)
     Return
     Endif
     
     * Now remove all deleted users
     Delete From_File(BPFPortalDeletedAccounts) Where(#BPFUserAccountInternalKey <> *BLANK)
-    #COM_SELF.log( ('Deleted users all cleared with status of ' + #IO$STS) )
+    #COM_SELF.log( ('Deleted users all cleared with status of ' + #IO£STS) )
     
     * Now all the admin users ONLY
     Delete From_File(BPFPortalUserAccounts) Where((#BPFUserAccountInternalKey <> *BLANK) *And (#BPFUserHasAdminRights = True))
-    #COM_SELF.log( ('Admin users removed with status of ' + #IO$STS) )
+    #COM_SELF.log( ('Admin users removed with status of ' + #IO£STS) )
     
-    If (#IO$STS = ER)
+    If (#IO£STS = ER)
     Return
     Endif
     
@@ -234,17 +234,17 @@
     
     * Insert into the file
     Insert Fields(#Settings) To_File(BPFSystemCodes)
-    #COM_SELF.log( ('System setting ' + #BPFCodeGroup + ' / ' + #BPFCodeName + ' added with status of ' + #IO$STS) )
+    #COM_SELF.log( ('System setting ' + #BPFCodeGroup + ' / ' + #BPFCodeName + ' added with status of ' + #IO£STS) )
     
     * Leave if error encountered
-    Leave If(#IO$STS <> OK)
+    Leave If(#IO£STS <> OK)
     
     Endfor
     
     #COM_SELF.log( 'Finished settings import' )
     
     * Return true is status is okay
-    #Result := (#IO$STS = OK)
+    #Result := (#IO£STS = OK)
     
     Endroutine
     
@@ -276,10 +276,10 @@
     
     * Insert into the file
     Insert Fields(#AdminUsers) To_File(BPFPortalUserAccounts)
-    #COM_SELF.log( ('Import of user account completed with status of ' + #IO$STS) )
+    #COM_SELF.log( ('Import of user account completed with status of ' + #IO£STS) )
     
     * Leave if error encountered
-    If (#IO$STS <> OK)
+    If (#IO£STS <> OK)
     #COM_SELF.log( ('Import of admnin user account failed') )
     Return
     Endif
@@ -305,9 +305,9 @@
     Endif
     
     Update Fields(#AdminPrefs) In_File(BPFPortalUserPreferences) With_Key(#BPFUserAccountInternalKey)
-    #COM_SELF.log( ('Import of admnin user preferences completed with status of ' + #IO$STS) )
+    #COM_SELF.log( ('Import of admnin user preferences completed with status of ' + #IO£STS) )
     
-    If (#IO$STS <> OK)
+    If (#IO£STS <> OK)
     #COM_SELF.log( ('Import of admnin user preference failed') )
     Return
     Endif
@@ -365,9 +365,9 @@
     Endif
     
     Update Fields(#AdminProfile) In_File(BPFPortalUserProfile) With_Key(#BPFUserAccountInternalKey)
-    #COM_SELF.log( ('Import of admnin user profile completed with status of ' + #IO$STS) )
+    #COM_SELF.log( ('Import of admnin user profile completed with status of ' + #IO£STS) )
     
-    If (#IO$STS <> OK)
+    If (#IO£STS <> OK)
     #COM_SELF.log( ('Import of admnin user profile failed') )
     Return
     Endif
@@ -378,7 +378,7 @@
     #COM_SELF.log( ('Finished admin users import') )
     
     * Return true is status is okay
-    #Result := (#IO$STS = OK)
+    #Result := (#IO£STS = OK)
     
     Endroutine
     
@@ -925,7 +925,7 @@
     #COM_SELF.log( ('Language value set as - ' + #DevLanguage.AsNativeString) )
     
     * %DBII% will be similar to Internal
-    Use Builtin(GET_SESSION_VALUE) With_Args('DBII') To_Get(#DBII #IO$STS)
+    Use Builtin(GET_SESSION_VALUE) With_Args('DBII') To_Get(#DBII #IO£STS)
     #COM_SELF.log( ('DBII value set as - ' + #DBII) )
     
     * Modify XML as required

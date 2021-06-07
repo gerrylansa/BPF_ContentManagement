@@ -149,10 +149,10 @@
     
     * We are so get the victim and delete
     Fetch Fields(#BPFUserTransactionID) From_File(BPFPortalUserTransIDbyOldestDate) With_Key(#BPFUserAccountInternalKey)
-    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Fetch IO result : ' + #IO$STS) )
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Fetch IO result : ' + #IO£STS) )
     
     Delete From_File(BPFPortalUserTransactionIDLog) With_Key(#BPFUserAccountInternalKey #BPFUserTransactionID)
-    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Delete IO result : ' + #IO$STS) )
+    #Utils.Log( ('BPFPortalUserAccount File Level Trigger : Delete IO result : ' + #IO£STS) )
     
     Endif
     

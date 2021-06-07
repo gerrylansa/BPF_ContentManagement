@@ -321,12 +321,12 @@
     
     Endselect
     
-    Leave If(#IO$STS = ER)
+    Leave If(#IO£STS = ER)
     
     Endselect
     
     * Set Result
-    #Result := (#IO$STS <> ER)
+    #Result := (#IO£STS <> ER)
     
     Endroutine
     

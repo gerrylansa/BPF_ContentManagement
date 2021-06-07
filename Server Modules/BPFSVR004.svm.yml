@@ -95,15 +95,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Email Settings Data Server : Getting control settings : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Email Settings Data Server : Getting control settings : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Email Settings Data Server : Getting control settings : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -137,15 +137,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Email Settings Data Server : Getting SMTP settings : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Email Settings Data Server : Getting SMTP settings : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Email Settings Data Server : Getting SMTP settings : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -247,15 +247,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Email Settings Data Server : Getting list of email templates : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -295,15 +295,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Email Settings Data Server : Getting list of email templates : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Email Settings Data Server : Getting list of email templates : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -352,15 +352,15 @@
     Endselect
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Email Settings Data Server : Getting email template properties : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Email Settings Data Server : Getting email template properties : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Email Settings Data Server : Getting email template properties : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -400,7 +400,7 @@
     
     * Update value and check result
     If (#Utils.SetAlpaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue ) <> OK)
-    #Utils.log( ('Email Settings Data Server : Save of template properties : failed with error ' + #IO$STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
+    #Utils.log( ('Email Settings Data Server : Save of template properties : failed with error ' + #IO£STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
     Return
     Endif
     

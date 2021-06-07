@@ -521,13 +521,13 @@
     
     Else
     
-    #IO$STS := OK
+    #IO£STS := OK
     
     Endif
     
     Endif
     
-    #BPFStatus := #IO$STS
+    #BPFStatus := #IO£STS
     
     Endroutine
     
@@ -592,15 +592,15 @@
     Sort_List Named(#CodesGroup) By_Fields(#BPFCodeNumericValue)
     
     * Final read status
-    If ((#IO$STS = EF) *Or (#IO$STS = OK))
+    If ((#IO£STS = EF) *Or (#IO£STS = OK))
     
     #Utils.log( ('Security Data Server : Getting control settings : successful') )
     #BPFStatus := OK
     
     Else
     
-    #Utils.log( ('Security Data Server : Getting control settings : failed with error ' + #IO$STS) )
-    #BPFStatus := #IO$STS
+    #Utils.log( ('Security Data Server : Getting control settings : failed with error ' + #IO£STS) )
+    #BPFStatus := #IO£STS
     
     Endif
     
@@ -640,7 +640,7 @@
     Selectlist Named(#CodesGroup)
     
     If (#Utils.SetAlpaValueForLanguage( #BPFGenericNVarChar256 #BPFCodeGroup #BPFCodeName #BPFCodeSequence #BPFCodeAlphaValue ) <> OK)
-    #Utils.log( ('Security Data Server : Save of security questions : failed with error ' + #IO$STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
+    #Utils.log( ('Security Data Server : Save of security questions : failed with error ' + #IO£STS + ' at ' + #BPFCodeGroup + '/' + #BPFCodeName + '/' + #BPFCodeSequence.asstring) )
     Return
     Endif
     

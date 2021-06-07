@@ -140,7 +140,7 @@
     * Check if in use
     #BPFUserPreferenceEmailLanguage := #BPFCodeName
     Check_For In_File(BPFPortalUserPreferencesByEmailLang) With_Key(#BPFUserPreferenceEmailLanguage)
-    #BPFGenericBoolean := (#IO$STS = EQ)
+    #BPFGenericBoolean := (#IO£STS = EQ)
     
     Add_Entry To_List(#LanguageCodes)
     
@@ -1192,8 +1192,8 @@
     #Result := False
     
     * Check that source path exists
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Source folder ' + (#PATH + *PATHDELIM + #FROM) + ' does not exist') )
     Return
@@ -1201,8 +1201,8 @@
     Endif
     
     * Check that target path exists
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = OK)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = OK)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Target folder ' + (#PATH + *PATHDELIM + #To) + ' does exist') )
     Return
@@ -1210,8 +1210,8 @@
     Endif
     
     * Now we have a source and not a target, so lets get copying
-    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_DIR' (#PATH + *PATHDELIM + #FROM).AsNativeString (#PATH + *PATHDELIM + #TO).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Unable to ' + (#PATH + *PATHDELIM + #FROM) + ' to ' + (#PATH + *PATHDELIM + #To)) )
     Return
@@ -1232,8 +1232,8 @@
     #Result := False
     
     * Check that path exists
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FOR).AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_DIR' (#PATH + *PATHDELIM + #FOR).AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Source folder ' + (#PATH + *PATHDELIM + #FOR) + ' does not exist') )
     Return
@@ -1241,8 +1241,8 @@
     Endif
     
     * Now we have a source and not a target, so lets get copying
-    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_DIR_TREE' (#PATH + *PATHDELIM + #FOR).AsNativeString 'FORCE') To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_DIR_TREE' (#PATH + *PATHDELIM + #FOR).AsNativeString 'FORCE') To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Unable to remove ' + (#PATH + *PATHDELIM + #FOR)) )
     Return
@@ -1271,8 +1271,8 @@
     #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Locale foler path set to ' + #LocalePath) )
     
     * Next lets check we have a source
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Source file ' + (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json') + ' does not exist') )
     Return
@@ -1281,8 +1281,8 @@
     
     
     * and now no target
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #to + '.json').AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = OK)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #to + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = OK)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLocaleFile : Target file ' + (#LocalePath + *PATHDELIM + 'locale-' + #to + '.json') + ' does exist') )
     #Result := True
@@ -1292,8 +1292,8 @@
     Endif
     
     * Now we can copy file
-    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString (#LocalePath + *PATHDELIM + 'locale-' + #To + '.json').AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('COPY_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #From + '.json').AsNativeString (#LocalePath + *PATHDELIM + 'locale-' + #To + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : CopyLanguageDirectory : Unable to copy locale file') )
     Return
@@ -1321,8 +1321,8 @@
     #Utils.Log( ('LanguageSupportDataServer : DeleteLocaleFile : Locale foler path set to ' + #LocalePath) )
     
     * Next lets check we have a file
-    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString) To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('CHECK_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString) To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : DeleteLocaleFile : Source file ' + (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json') + ' does not exist') )
     Return
@@ -1330,8 +1330,8 @@
     Endif
     
     * Now we can copy file
-    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString 'FORCE') To_Get(#IO$STS)
-    If (#IO$STS = ER)
+    Use Builtin(OV_FILE_SERVICE) With_Args('REMOVE_FILE' (#LocalePath + *PATHDELIM + 'locale-' + #For + '.json').AsNativeString 'FORCE') To_Get(#IO£STS)
+    If (#IO£STS = ER)
     
     #Utils.Log( ('LanguageSupportDataServer : DeleteLanguageDirectory : Unable to remove locale file') )
     Return
