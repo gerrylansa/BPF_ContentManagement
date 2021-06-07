@@ -1,0 +1,277 @@
+﻿Web Dialog:
+  Name:               BPFLoginDialog
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Login Dialog"
+
+<<<<<<< HEAD
+=======
+  - JPN:
+      Description:        "Portal Login Dialog"
+
+>>>>>>> ContentManagementVersion
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_DLG) Height(500) Width(450) Themedrawstyle('Card') Layoutmanager(#DialogLayout) Verticalscroll(True)
+    
+    * Definitions
+    
+    * Reference Application Objects
+    Define_Com Class(#BPFSessionManager) Name(#Session) Reference(*DYNAMIC)
+    Define_Com Class(#BPFNavigationManager) Name(#Navigate) Reference(*DYNAMIC)
+    
+    * Language Support
+    Define_Com Class(#BPFLoginDialogStrings) Name(#Strings)
+    
+    * Dialog Layout Manager
+    Define_Com Class(#PRIM_VS.Style) Name(#Style1) Backgroundbrush(#Brush1)
+    Define_Com Class(#PRIM_VS.SolidBrush) Name(#Brush1) Color(255:255:255) Opacity(75)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#DialogLayout)
+    
+    * Dialog Layout Columns & Rows
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn1) Displayposition(1) Parent(#DialogLayout) Units(Pixels) Width(48)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn2) Displayposition(2) Parent(#DialogLayout)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#DialogLayoutColumn3) Displayposition(3) Parent(#DialogLayout) Units(Pixels) Width(48)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow1) Displayposition(1) Parent(#DialogLayout) Units(Pixels) Height(48)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow2) Displayposition(2) Parent(#DialogLayout) Units(Pixels) Height(64)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow3) Displayposition(3) Parent(#DialogLayout) Height(64) Units(Pixels)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow4) Displayposition(4) Parent(#DialogLayout) Minheight(275)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#DialogLayoutRow6) Displayposition(5) Parent(#DialogLayout) Units(Pixels) Height(48)
+    
+    * Dialog Layout Items
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem1) Column(#DialogLayoutColumn2) Manage(#DialogLogoText) Parent(#DialogLayout) Row(#DialogLayoutRow2) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem2) Column(#DialogLayoutColumn2) Manage(#DialogTitle) Parent(#DialogLayout) Row(#DialogLayoutRow3) Sizing(ContentWidthAndHeight)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem3) Manage(#ProgressBar) Parent(#DialogLayout) Row(#DialogLayoutRow1) Sizing(FitToWidth) Column(#DialogLayoutColumn1) Alignment(TopLeft) Columnspan(3)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem6) Column(#DialogLayoutColumn1) Manage(#CoverPanel) Parent(#DialogLayout) Row(#DialogLayoutRow1) Rowspan(6) Columnspan(3) Margintop(4) Marginbottom(1)
+    
+    
+    * Dialog Controls
+    Define_Com Class(#PRIM_TBLO.Item) Name(#DialogLayoutItem4) Manage(#ViewPanels) Parent(#DialogLayout) Row(#DialogLayoutRow4) Column(#DialogLayoutColumn2) Alignment(TopLeft)
+    
+<<<<<<< HEAD
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogLogoText) Caption('myPortal') Displayposition(2) Left(169) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3+ForegroundMediumPrimary') Top(60) Width(112) Height(40) Iconheight(40) Icon('cloud') Captionmarginleft(16)
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Sign in') Displayposition(3) Left(202) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Heading2') Top(135) Width(46) Height(19)
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(5) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Theme100+ForegroundTheme500') Width(450) Visible(False)
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(495) Left(0) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(4) Width(450) Style(#Style1) Visible(False)
+    Define_Com Class(#PRIM_MD.ViewContainer) Name(#ViewPanels) Parent(#COM_OWNER) Displayposition(4) Tabposition(4) Top(176) Left(48) Height(276) Width(354)
+=======
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogLogoText) Caption('myPortal') Displayposition(2) Left(163) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Heading3+ForegroundMediumPrimary') Top(60) Width(123) Height(40) Iconheight(40) Icon('cloud') Captionmarginleft(16)
+    Define_Com Class(#PRIM_MD.Label) Name(#DialogTitle) Caption('Sign in') Displayposition(3) Left(194) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Heading2') Top(131) Width(61) Height(27)
+    Define_Com Class(#PRIM_MD.ProgressBar) Name(#ProgressBar) Displayposition(5) Mode(Indeterminate) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('Theme100+ForegroundTheme500') Width(448) Visible(False)
+    Define_Com Class(#PRIM_PANL) Name(#CoverPanel) Displayposition(1) Height(494) Left(0) Parent(#COM_OWNER) Tabposition(5) Tabstop(False) Top(4) Width(448) Style(#Style1) Visible(False)
+    Define_Com Class(#PRIM_MD.ViewContainer) Name(#ViewPanels) Parent(#COM_OWNER) Displayposition(4) Tabposition(4) Top(176) Left(48) Height(275) Width(352)
+>>>>>>> ContentManagementVersion
+    
+    Define_Com Class(#PRIM_BOLN) Name(#RequestCompleted)
+    
+    * Store Current Display Reference
+    Define_Com Class(#PRIM_VIEW) Name(#CurrentPanel) Reference(*DYNAMIC)
+    
+    * Events
+    Define_Evt Name(OnUserEmailSet)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#To)
+    
+    * Routines
+    
+    * Events
+    
+    * Self
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #Session <= #BPFPortal.Session
+    #Navigate <= #BPFPortal.Navigate
+    
+    * Should always be default theme
+    #SYS_WEB.WebPage.ThemeBackground := Light
+    #SYS_WEB.WebPage.Theme <= #SYS_THEME<MaterialDesignBlue>
+    
+    * Set Name & Icon
+    #DialogLogoText.Icon := #BPFPortal.AppIcon
+    #DialogLogoText.Caption := #BPFPortal.AppName
+    
+    Endroutine
+    
+    Evtroutine Handling(#COM_OWNER.Prepare)
+    
+    * Set Initial Display
+    #COM_SELF.ChangetoPanel( #Navigate.CurrentEvent.RelatedView )
+    #COM_SELF.HandleDeviceChanged
+    
+    #COM_SELF.HandleUserEmailState
+    
+    Endroutine
+    
+    * Webpage
+    Evtroutine Handling(#SYS_WEB.DeviceChanged)
+    
+    #COM_SELF.HandleDeviceChanged
+    
+    Endroutine
+    
+    * Session
+    Evtroutine Handling(#Session.LoginCompleted)
+    
+    #COM_SELF.HandleClose
+    
+    Endroutine
+    
+    Evtroutine Handling(#Session.LoginFailed)
+    
+    #COM_SELF.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    * Navigation
+    Evtroutine Handling(#Navigate.LoginDialogRequested)
+    
+    #COM_SELF.HandleUserEmailState
+    
+    Endroutine
+    
+    Evtroutine Handling(#Navigate.OnNavigationEvent) Name(#EventName) Group(#GroupName)
+    
+    If (#EventName = ENTERACCOUNTPASSWORD)
+    
+    If (#com_self.IsOpen.IsFalse)
+    
+    * We weren't open so reset
+    #Navigate.To Eventname(*null) Type(REPLACE) Signalreplaceevent(True)
+    Return
+    
+    Endif
+    
+    Endif
+    
+    If (#GroupName <> LOGIN)
+    
+    * #RequestCompleted := True
+    #COM_SELF.HandleClose
+    Return
+    
+    Endif
+    
+    #COM_SELF.ChangetoPanel( #Navigate.CurrentEvent.RelatedView )
+    
+    Endroutine
+    
+    * Methods
+    Mthroutine Name(HandleUserEmailState)
+    
+    * Set Title
+    #DialogTitle := #Strings.Text<'DIALOGTITLE.CAPTION.ACCOUNT'>
+    
+    * Cause Navigation
+    #COM_SELF.ChangetoPanel( #Navigate.CurrentEvent.RelatedView )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleUserPasswordState)
+    
+    * Set Title
+    #DialogTitle := #Strings.Text<'DIALOGTITLE.CAPTION.PASSWORD'>
+    
+    Endroutine
+    
+    * Handle Panel Swapping
+    Mthroutine Name(ChangetoPanel) Access(*PRIVATE)
+    Define_Map For(*INPUT) Class(#PRIM_View) Name(#ToPanel) Pass(*BY_REFERENCE)
+    
+    #ToPanel.Parent <= #ViewPanels
+    
+    * Ensure we have a current panel set
+    If (#CurrentPanel *IsNot *Null)
+    
+    If (#CurrentPanel *IsNotEqualTo #ToPanel)
+    
+    * Swap to new panel
+    If (#ViewPanels.IsAnimating.IsFalse)
+    
+    If ((#CurrentPanel *IsNot *null) *And (#ToPanel *IsNot *NULL))
+    
+    * Currently commented out due to issue with transition animations
+    * #ViewPanels.Transition( #CurrentPanel #ToPanel MoveToLeftFromRight )
+    
+    Endif
+    #ToPanel.Show
+    
+    Endif
+    
+    Endif
+    
+    Else
+    
+    #ToPanel.Show
+    
+    Endif
+    
+    * Save ToPanel as Current Reference
+    #CurrentPanel <= #ToPanel
+    
+    Endroutine
+    
+    * Session Handlers
+    Mthroutine Name(HandleLoginFailed)
+    
+    #COM_SELF.SetWaitingState( OFF )
+    
+    Endroutine
+    
+    Mthroutine Name(HandleShow)
+    
+    #COM_SELF.Show
+    
+    Endroutine
+    
+    Mthroutine Name(HandleClose)
+    
+    #COM_SELF.SetWaitingState( OFF )
+    #COM_SELF.DestroyDialogObjects
+    
+    #COM_SELF.Close
+    
+    Endroutine
+    
+    Mthroutine Name(SetWaitingState)
+    Define_Map For(*INPUT) Class(#PRIM_ALPH) Name(#ToState)
+    
+    If (#ToState = ON)
+    
+    #CoverPanel.Visible #ProgressBar.Visible := True
+    #CoverPanel.DisplayPosition := 1
+    
+    Else
+    
+    #CoverPanel.Visible #ProgressBar.Visible := False
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(HandleDeviceChanged)
+    
+    If (#SYS_WEB.Device = Mobile)
+    
+    #COM_SELF.Placement := FullScreen
+    
+    Else
+    
+    #COM_SELF.Placement := Center
+    
+    Endif
+    
+    Endroutine
+    
+    Mthroutine Name(DestroyDialogObjects) Access(*PRIVATE)
+    
+    *
+    #Navigate.CurrentEvent.CleanupRelatedView
+    
+    * Kill Application Objects
+    #Session <= *null
+    #Navigate <= *null
+    
+    Endroutine
+    
+    End_Com
