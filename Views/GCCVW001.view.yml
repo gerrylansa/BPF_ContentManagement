@@ -7,7 +7,7 @@
       Description:        "Contacts List View"
 
   Source: |
-    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(893) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout) Componenttag('GCAPP001')
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Height(904) Width(1700) Verticalscroll(True) Layoutmanager(#MainDesktopLayout) Componenttag('GCAPP001')
     
     * Reference Application Objects
     Define_Com Class(#BPFSessionManager) Name(#Session) Scope(*APPLICATION)
@@ -18,8 +18,8 @@
     Define_Com Class(#GCContactsListViewStrings) Name(#Strings)
     
     * Reference for Data client
-    * Define_Com Class(#GCContactDataClient) Name(#Contacts) Reference(*DYNAMIC)
-    Define_Com Class(#GCContactDataClient) Name(#Contacts) Scope(*APPLICATION)
+    Define_Com Class(#GCContactDataClient) Name(#Contacts) Reference(*DYNAMIC)
+    * Define_Com Class(#GCContactDataClient) Name(#Contacts) Scope(*APPLICATION)
     
     * Panel Styles
     Define_Com Class(#PRIM_VS.Style) Name(#ListRoundedCornerStyle) Cornerbottomleft(8) Cornerbottomright(8) Cornertopleft(8) Cornertopright(8) Borderleft(1) Bordertop(1) Borderright(1) Borderbottom(1) Cursor(Hand)
@@ -36,7 +36,7 @@
     Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn1) Displayposition(1) Parent(#MainDesktopLayout) Minwidth(8)
     Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn2) Displayposition(2) Parent(#MainDesktopLayout) Width(98) Minwidth(280) Maxwidth(840)
     Define_Com Class(#PRIM_TBLO.Column) Name(#MainDesktopLayoutColumn5) Displayposition(3) Parent(#MainDesktopLayout) Minwidth(8)
-    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(265) Units(Content) Minheight(220)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow1) Displayposition(1) Parent(#MainDesktopLayout) Height(276) Units(Content) Minheight(220)
     Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow2) Displayposition(2) Parent(#MainDesktopLayout) Height(484) Units(Content)
     Define_Com Class(#PRIM_TBLO.Row) Name(#MainDesktopLayoutRow4) Displayposition(3) Parent(#MainDesktopLayout) Units(Pixels) Height(120)
     
@@ -78,14 +78,14 @@
     * Panel Controls
     Define_Com Class(#PRIM_MD.Icon) Name(#PanelNavigationIcon) Displayposition(1) Icon('arrow_back') Left(430) Parent(#COM_OWNER) Tabposition(5) Top(24) Style(#NavigationLinkStyle)
     Define_Com Class(#PRIM_MD.Icon) Name(#Avatar) Displayposition(2) Height(100) Icon('supervisor_account') Left(800) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('MediumTitle+Rounded') Top(24) Width(100) Iconheight(80) Iconpadding(10)
-    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Caption('Manage Contacts') Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(40) Wordwrap(True)
-    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundTheme+Heading3') Top(197) Height(20) Width(792) Wordwrap(True) Captionalignment(Center) Caption('To manage a contact first find and then select the user account')
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelTitle) Caption('Manage Contacts') Displayposition(3) Left(454) Parent(#COM_OWNER) Tabposition(3) Themedrawstyle('Title') Top(141) Width(792) Captionalignment(Center) Height(47) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.Label) Name(#PanelExplanation) Displayposition(4) Left(454) Parent(#COM_OWNER) Tabposition(4) Themedrawstyle('ForegroundTheme+Heading3') Top(204) Height(24) Width(792) Wordwrap(True) Captionalignment(Center) Caption('To manage a contact first find and then select the user account')
     
     * Search Field
-    Define_Com Class(#PRIM_MD.Edit) Name(#Search) Appearance(EditBox) Captionposition(None) Displayposition(5) Height(48) Helperposition(None) Icon('search') Left(432) Parent(#COM_OWNER) Placeholder('Search for contact by name or email...') Tabposition(1) Top(241) Width(836) Style(#RoundedCornerStyle) Themedrawstyle('Text(48,48,48,1)')
+    Define_Com Class(#PRIM_MD.Edit) Name(#Search) Appearance(EditBox) Captionposition(None) Displayposition(5) Height(48) Helperposition(None) Icon('search') Left(432) Parent(#COM_OWNER) Placeholder('Search for contact by name or email...') Tabposition(1) Top(252) Width(836) Style(#RoundedCornerStyle) Themedrawstyle('Text(48,48,48,1)')
     
     * Cards
-    Define_Com Class(#PRIM_PANL) Name(#ContactPanel) Displayposition(6) Height(460) Left(430) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(313) Width(840) Themedrawstyle('Card') Style(#ListRoundedCornerStyle) Layoutmanager(#ContactPanelLayout)
+    Define_Com Class(#PRIM_PANL) Name(#ContactPanel) Displayposition(6) Height(460) Left(430) Parent(#COM_OWNER) Tabposition(6) Tabstop(False) Top(324) Width(840) Themedrawstyle('Card') Style(#ListRoundedCornerStyle) Layoutmanager(#ContactPanelLayout)
     
     * Filter Tabs
     Define_Com Class(#PRIM_MD.Tab) Name(#ListFilterTabs) Displayposition(1) Height(50) Parent(#ContactPanel) Tabposition(1) Width(790) Style(#NavigationLinkStyle) Left(24) Top(14)
@@ -97,9 +97,9 @@
     * Contact List
     Define_Com Class(#PRIM_MD.List) Name(#ContactList) Displayposition(3) Layoutmanager(#ContactListLayout) Left(0) Parent(#ContactPanel) Rowheight(72) Tabposition(3) Top(86) Height(292) Width(838)
     Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListIcon) Displayposition(1) Icon('account_circle') Left(24) Parent(#ContactList) Tabposition(1) Themedrawstyle('ForegroundMediumPrimary') Top(18) Width(36) Iconheight(36) Iconalignment(AboveCaption) Captionalignment(Center)
-    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListPrimaryText) Caption('Gregory Sippel') Displayposition(4) Height(20) Left(80) Parent(#ContactList) Tabposition(3) Themedrawstyle('Heading3') Top(17) Width(734) Wordwrap(True)
-    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListSecondaryText) Displayposition(5) Height(19) Left(80) Parent(#ContactList) Tabposition(4) Themedrawstyle('ForegroundTheme') Top(37) Width(734) Caption('greg.sippel@lansa.com.au')
-    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListStatusText) Caption('Active') Displayposition(2) Dragstyle(None) Left(773) Parent(#ContactList) Tabposition(5) Top(17) Height(19) Width(41) Iconalignment(AfterCaption)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListPrimaryText) Caption('Gregory Sippel') Displayposition(4) Height(24) Left(80) Parent(#ContactList) Tabposition(3) Themedrawstyle('Heading3') Top(14) Width(734) Wordwrap(True)
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListSecondaryText) Displayposition(5) Height(21) Left(80) Parent(#ContactList) Tabposition(4) Themedrawstyle('ForegroundTheme') Top(38) Width(734) Caption('greg.sippel@lansa.com.au')
+    Define_Com Class(#PRIM_MD.ListLabel) Name(#ContactListStatusText) Caption('Active') Displayposition(2) Dragstyle(None) Left(771) Parent(#ContactList) Tabposition(5) Top(16) Height(21) Width(43) Iconalignment(AfterCaption)
     Define_Com Class(#PRIM_PANL) Name(#Divider) Displayposition(2) Height(1) Left(0) Parent(#ContactPanel) Tabposition(2) Tabstop(False) Themedrawstyle('TopDivider') Top(61) Width(838)
     
     * List Action Label
