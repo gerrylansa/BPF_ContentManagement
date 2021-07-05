@@ -1,0 +1,48 @@
+﻿Web View:
+  Name:               ZZZChartsView
+  Enabled For RDMLX:  Yes
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Portal Charts View"
+
+  Source: |
+    Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Tabposition(1) Layoutmanager(#Layout1)
+    
+    * Language Support
+    * Define_Com Class(#BPFSpareViewStrings) Name(#Strings)
+    Define_Com Class(#ZZZChartViewStrings) Name(#Strings)
+    
+    Define_Com Class(#PRIM_TBLO) Name(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Row) Name(#Layout1Row1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Column) Name(#Layout1Column1) Displayposition(1) Parent(#Layout1)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item1) Column(#Layout1Column1) Manage(#Text) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthAndHeight) Flow(Down) Alignment(TopCenter) Margintop(80)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item2) Manage(#Text2) Parent(#Layout1) Row(#Layout1Row1) Sizing(ContentWidthAndHeight) Column(#Layout1Column1) Flow(Down) Alignment(TopCenter)
+    Define_Com Class(#PRIM_TBLO.Item) Name(#Layout1Item3) Manage(#PieChart) Parent(#Layout1) Row(#Layout1Row1) Sizing(None) Column(#Layout1Column1) Flow(Down) Alignment(TopCenter)
+    
+    Define_Com Class(#PRIM_MD.Label) Name(#Text) Caption('Charts View') Displayposition(1) Height(47) Left(54) Parent(#COM_OWNER) Tabposition(1) Themedrawstyle('Title') Top(80) Width(192)
+    Define_Com Class(#PRIM_MD.Label) Name(#Text2) Caption('Secondary Text') Displayposition(2) Left(100) Parent(#COM_OWNER) Tabposition(2) Themedrawstyle('ForegroundSecondary') Top(127) Height(21)
+    Define_Com Class(#PRIM_CHRT.PieChart) Name(#PieChart) Displayposition(3) Height(237) Left(62) Parent(#COM_OWNER) Tabposition(3) Tabstop(False) Top(148) Width(176)
+    Define_Com Class(#PRIM_CHRT.PieChartCaption) Name(#PieChartCaption) Parent(#PieChart)
+    Define_Com Class(#PRIM_CHRT.PieChartValue) Name(#PieChartValue) Displayposition(1) Parent(#PieChart) Themedrawstyle('Theme500+Border(255,255,255,1)')
+    
+    
+    Evtroutine Handling(#COM_OWNER.Initialize)
+    
+    #Text.Caption := #Strings.Text<TEXT.CAPTION>
+    #Text2.Caption := #Strings.Text<TEXT2.CAPTION>
+    
+    
+    #PieChartCaption.Caption := 'Pukka'
+    #PieChartValue.Value := 20
+    Add_Entry To_List(#PieChart)
+    #PieChartCaption.Caption := 'Ginsters'
+    #PieChartValue.Value := 45
+    Add_Entry To_List(#PieChart)
+    #PieChartCaption.Caption := 'Other'
+    #PieChartValue.Value := 35
+    Add_Entry To_List(#PieChart)
+    
+    Endroutine
+    
+    End_Com

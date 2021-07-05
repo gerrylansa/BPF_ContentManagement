@@ -7,9 +7,6 @@
   - ENG:
       Description:        "Portal Application Menu Strings"
 
-  - JPN:
-      Description:        "Portal Application Menu Strings"
-
   Source: |
     Function Options(*DIRECT)
     Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
@@ -17,7 +14,7 @@
     * Events
     Evtroutine Handling(#COM_OWNER.CreateInstance)
     
-    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName true )
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName True )
     
     Endroutine
     
@@ -31,6 +28,9 @@
     #STRINGSCOLLECTION<'ADMINMENUITEM.CAPTION'> := "Administration"
     #STRINGSCOLLECTION<'ABOUTLINK.CAPTION'> := "About"
     #STRINGSCOLLECTION<'TERMSLINK.CAPTION'> := "Terms"
+    
+    *
+    #STRINGSCOLLECTION<'CHARTMENUITEM.CAPTION'> := "Charts"
     
     Endroutine
     

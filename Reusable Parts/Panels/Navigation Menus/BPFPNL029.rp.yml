@@ -7,9 +7,6 @@
   - ENG:
       Description:        "Portal Application Menu"
 
-  - JPN:
-      Description:        "Portal Application Menu"
-
   Source: |
     Function Options(*DIRECT)
     Begin_Com Role(*EXTENDS #PRIM_VIEW) Displayposition(1) Height(1080) Tabposition(1) Layoutmanager(#PanelLayout) Width(280)
@@ -71,15 +68,17 @@
     * Menu and Items
     Define_Com Class(#PRIM_MD.Menu) Name(#AppDrawerMenu) Displayposition(1) Height(893) Parent(#Appdrawer) Tabposition(1) Width(279) Top(187) Style(#FontWeight500Style) Layoutmanager(#AppDrawerMenuLayout)
     Define_Com Class(#PRIM_MD.MenuItem) Name(#HomeMenuItem) Caption('Home') Displayposition(1) Height(50) Icon('home') Left(0) Parent(#AppDrawerMenu) Tabposition(1) Top(0) Width(279) Themedrawstyle('TopDivider') Componenttag('home') Style(#NavigationLinkStyle)
-    Define_Com Class(#PRIM_MD.MenuItem) Name(#SharedMenuItem) Caption('Shared Files') Displayposition(4) Height(50) Icon('folder_shared') Left(0) Parent(#AppDrawerMenu) Tabposition(3) Top(100) Width(279) Componenttag('sharedfiles') Style(#NavigationLinkStyle) Visible(False)
-    Define_Com Class(#PRIM_MD.MenuItem) Name(#SettingsMenuItem) Caption('Settings') Displayposition(6) Height(50) Icon('settings') Left(0) Parent(#AppDrawerMenu) Tabposition(8) Top(150) Width(279) Themedrawstyle('TopDivider') Componenttag('settings') Style(#NavigationLinkStyle)
-    Define_Com Class(#PRIM_MD.MenuItem) Name(#AdminMenuItem) Caption('Administration') Displayposition(8) Height(50) Icon('build') Left(0) Parent(#AppDrawerMenu) Tabposition(6) Top(200) Width(279) Themedrawstyle('TopDivider') Componenttag('administration') Visible(False) Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#SharedMenuItem) Caption('Shared Files') Displayposition(5) Height(50) Icon('folder_shared') Left(0) Parent(#AppDrawerMenu) Tabposition(3) Top(150) Width(279) Componenttag('sharedfiles') Style(#NavigationLinkStyle) Visible(False)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#SettingsMenuItem) Caption('Settings') Displayposition(7) Height(50) Icon('settings') Left(0) Parent(#AppDrawerMenu) Tabposition(9) Top(200) Width(279) Themedrawstyle('TopDivider') Componenttag('settings') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#AdminMenuItem) Caption('Administration') Displayposition(9) Height(50) Icon('build') Left(0) Parent(#AppDrawerMenu) Tabposition(7) Top(250) Width(279) Themedrawstyle('TopDivider') Componenttag('administration') Visible(False) Style(#NavigationLinkStyle)
     
     * Footer Controls
-    Define_Com Class(#PRIM_MD.FlatButton) Name(#AboutLink) Caption('About') Displayposition(2) Left(81) Parent(#AppDrawerMenu) Tabposition(7) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(48) Captionmargintop(0) Style(#NavigationLinkStyle) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8) Captionalignment(CenterRight)
-    Define_Com Class(#PRIM_MD.FlatButton) Name(#TermsLink) Caption('Terms') Displayposition(7) Left(147) Parent(#AppDrawerMenu) Tabposition(2) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(50) Captionmargintop(0) Style(#NavigationLinkStyle) Captionalignment(CenterLeft) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8)
-    Define_Com Class(#PRIM_MD.Label) Name(#LinkSpacer) Displayposition(5) Left(133) Parent(#AppDrawerMenu) Tabposition(5) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(8) Captionmarginleft(0) Captionmarginright(0) Width(10) Captionmargintop(8) Captionalignment(Center) Caption('-')
-    Define_Com Class(#PRIM_MD.MenuItem) Name(#SpareMenuItem) Caption('Spare View') Displayposition(3) Height(50) Icon('view_quilt') Left(0) Parent(#AppDrawerMenu) Tabposition(4) Top(50) Width(279) Componenttag('spare') Style(#NavigationLinkStyle)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#AboutLink) Caption('About') Displayposition(2) Left(81) Parent(#AppDrawerMenu) Tabposition(8) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(48) Captionmargintop(0) Style(#NavigationLinkStyle) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8) Captionalignment(CenterRight)
+    Define_Com Class(#PRIM_MD.FlatButton) Name(#TermsLink) Caption('Terms') Displayposition(8) Left(147) Parent(#AppDrawerMenu) Tabposition(2) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(0) Captionmarginleft(0) Captionmarginright(0) Width(50) Captionmargintop(0) Style(#NavigationLinkStyle) Captionalignment(CenterLeft) Paddingbottom(8) Paddingleft(8) Paddingright(8) Paddingtop(8)
+    Define_Com Class(#PRIM_MD.Label) Name(#LinkSpacer) Displayposition(6) Left(133) Parent(#AppDrawerMenu) Tabposition(6) Top(862) Height(31) Themedrawstyle('Subheading') Captionmarginbottom(8) Captionmarginleft(0) Captionmarginright(0) Width(10) Captionmargintop(8) Captionalignment(Center) Caption('-')
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#SpareMenuItem) Caption('Spare View') Displayposition(4) Height(50) Icon('view_quilt') Left(0) Parent(#AppDrawerMenu) Tabposition(5) Top(100) Width(279) Componenttag('spare') Style(#NavigationLinkStyle)
+    *
+    Define_Com Class(#PRIM_MD.MenuItem) Name(#ChartMenuItem) Caption('Charts') Displayposition(3) Height(50) Icon('pie_chart') Left(0) Parent(#AppDrawerMenu) Tabposition(4) Top(50) Width(279) Componenttag('charts') Style(#NavigationLinkStyle)
     
     * Menu Items
     Define_Pty Name(MenuItems) Get(*REFERENCE #NavigationButtons)
@@ -212,8 +211,8 @@
     #COM_SELF.CollectAppDrawerMenuItems
     
     * Set Strings
-    #ABOUTLINK.CAPTION := #STRINGS.Text<ABOUTLINK.CAPTION>
-    #TERMSLINK.CAPTION := #STRINGS.Text<TERMSLINK.CAPTION>
+    #AboutLink.Caption := #Strings.Text<ABOUTLINK.CAPTION>
+    #TermsLink.Caption := #Strings.Text<TERMSLINK.CAPTION>
     
     * Set User details
     #AppDrawerUserWelcome.Caption := #Session.CurrentUser.FullName
@@ -304,7 +303,7 @@
     * Set App Drawer
     #Appdrawer.DrawerStyle := SlideInLeft
     #com_self.Width := 300
-    #AppdrawerSlideHeading.Visible := True
+    #AppDrawerSlideHeading.Visible := True
     
     Endroutine
     

@@ -1,0 +1,29 @@
+﻿Reusable Part:
+  Name:               ZZZChartViewStrings
+  Enabled For RDMLX:  Yes
+  Target Platform:    Browser
+
+  Multilingual Details:
+  - ENG:
+      Description:        "Spare View Strings"
+
+  Source: |
+    Function Options(*DIRECT)
+    Begin_Com Role(*EXTENDS #BPFBaseLanguageResource)
+    
+    * Events
+    Evtroutine Handling(#COM_OWNER.CreateInstance)
+    
+    #COM_SELF.SetStrings( #COM_SELF.ComponentClassName )
+    
+    Endroutine
+    
+    * Set Default Strings
+    Mthroutine Name(BuildDefaults) Options(*REDEFINE) Access(*PRIVATE)
+    
+    #STRINGSCOLLECTION<'TEXT.CAPTION'> := "This is the Chart View (Language Resource)"
+    #STRINGSCOLLECTION<'TEXT2.CAPTION'> := "This is the Chart View secondary text (Resource)"
+    
+    Endroutine
+    
+    End_Com
