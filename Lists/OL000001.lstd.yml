@@ -1,0 +1,28 @@
+﻿List:
+  Name:               Uncompiled
+  Stored As:          User
+
+  Searches:
+  - Search:
+      In Name:            No
+      In Description:     No
+
+      Objects:
+      - Dialog
+      - File
+      - Form
+      - Funciton
+      - Process
+      - Reusable Part
+      - Server Module
+      - Theme
+      - View
+      - Web Page
+      - Widget
+
+      Filters:
+        Status:
+        - Never Compiled
+        - Compile Required
+        - Last Build and Compile Failed
+        - Build and Compile Required
